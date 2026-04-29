@@ -921,6 +921,36 @@ def contact(request: Request):
     return render(request, "contact.html", "Contact")
 
 
+@app.get("/terms", response_class=HTMLResponse)
+def terms(request: Request):
+    return render(request, "terms.html", "Terms of Use")
+
+
+@app.get("/privacy", response_class=HTMLResponse)
+def privacy(request: Request):
+    return render(request, "privacy.html", "Privacy Policy")
+
+
+@app.get("/affiliate-disclosure", response_class=HTMLResponse)
+def affiliate_disclosure(request: Request):
+    return render(request, "affiliate_disclosure.html", "Affiliate Disclosure")
+
+
+@app.get("/responsible-drinking", response_class=HTMLResponse)
+def responsible_drinking(request: Request):
+    return render(request, "responsible_drinking.html", "Responsible Drinking")
+
+
+@app.get("/copyright", response_class=HTMLResponse)
+def copyright_page(request: Request):
+    return render(request, "copyright.html", "Copyright")
+
+
+@app.get("/cookies", response_class=HTMLResponse)
+def cookies(request: Request):
+    return render(request, "cookies.html", "Cookie Policy")
+
+
 @app.get("/api/health")
 def health():
     return {

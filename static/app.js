@@ -41,7 +41,7 @@ function renderSuppliers(suppliers) {
   return suppliers
     .map((supplier) => {
       const link = supplier.url
-        ? `<p><a href="${escapeHtml(supplier.url)}" target="_blank" rel="noopener">Supplier link</a></p>`
+        ? `<p><a href="${escapeHtml(supplier.url)}" target="_blank" rel="noopener">Supplier link</a></p><p class="small-note">Some supplier links may be affiliate links.</p>`
         : "";
       return `
         <article class="supplier-card">

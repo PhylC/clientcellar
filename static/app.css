@@ -98,7 +98,8 @@ main {
 .planner-layout,
 .pricing-grid,
 .faq-list,
-.contact-layout {
+.contact-layout,
+.legal-page {
   width: min(1120px, calc(100% - 2rem));
   margin: 0 auto;
 }
@@ -179,7 +180,8 @@ main {
 .planner-form,
 .results-panel,
 .side-note,
-.faq-list article {
+.faq-list article,
+.legal-page article {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
@@ -235,6 +237,7 @@ main {
 .price-card h2,
 .side-note h2,
 .faq-list h2,
+.legal-page h2,
 .results-panel h2 {
   margin: 0;
   font-size: 1.45rem;
@@ -248,7 +251,8 @@ main {
 .card,
 .price-card,
 .side-note,
-.faq-list article {
+.faq-list article,
+.legal-page article {
   padding: 1.2rem;
 }
 
@@ -260,6 +264,7 @@ main {
 .price-card li,
 .side-note p,
 .faq-list p,
+.legal-page p,
 .result-meta,
 .small-note {
   color: var(--muted);
@@ -426,6 +431,37 @@ textarea {
   display: grid;
   gap: 1rem;
   padding-bottom: 3rem;
+}
+
+.legal-intro {
+  padding-bottom: 0.5rem;
+}
+
+.legal-page {
+  display: grid;
+  gap: 1rem;
+  padding-bottom: 3rem;
+}
+
+.legal-page article {
+  box-shadow: none;
+}
+
+.legal-page h2 {
+  font-size: 1.2rem;
+}
+
+.legal-page p {
+  margin-bottom: 0;
+}
+
+.notice {
+  border-left: 4px solid var(--gold);
+  border-radius: 8px;
+  background: #fffaf3;
+  padding: 0.9rem 1rem;
+  color: var(--ink) !important;
+  font-weight: 700;
 }
 
 .form-status {
