@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Event planner</p>
+  <h1>Shape a corporate wine tasting event</h1>
+  <p>Choose the business context, budget and format, then generate a supplier-ready enquiry.</p>
+</section>
+
+<section class="planner-layout">
+  <form id="event-form" class="planner-form" data-plan-form="event">
+    <label>Event type
+      <select name="event_type" required>
+        <option value="team_social">Team social</option>
+        <option value="client_entertainment">Client entertainment</option>
+        <option value="christmas_party">Christmas party</option>
+        <option value="sales_kickoff">Sales kick-off</option>
+        <option value="away_day">Away day</option>
+        <option value="virtual_event">Virtual event</option>
+        <option value="not_sure">Not sure</option>
+      </select>
+    </label>
+    <div class="form-row">
+      <label>Attendee count
+        <input name="attendee_count" type="number" min="1" value="30" required>
+      </label>
+      <label>Budget per person (£)
+        <input name="budget_per_person" type="number" min="1" step="0.01" value="55" required>
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Format
+        <select name="format">
+          <option value="virtual">Virtual</option>
+          <option value="in_person">In person</option>
+          <option value="hybrid">Hybrid</option>
+          <option value="not_sure">Not sure</option>
+        </select>
+      </label>
+      <label>Tone
+        <select name="tone">
+          <option value="fun">Fun</option>
+          <option value="premium">Premium</option>
+          <option value="educational">Educational</option>
+          <option value="client_safe">Client safe</option>
+          <option value="informal">Informal</option>
+        </select>
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Location
+        <input name="location" placeholder="e.g. London, Manchester, remote">
+      </label>
+      <label>Date
+        <input name="date" placeholder="e.g. 5 December">
+      </label>
+    </div>
+    <label>Wine knowledge level
+      <select name="wine_knowledge_level">
+        <option value="beginner">Beginner</option>
+        <option value="mixed">Mixed</option>
+        <option value="enthusiast">Enthusiast</option>
+      </select>
+    </label>
+    <div class="checks">
+      <label><input type="checkbox" name="food_pairing_needed"> Food pairing needed</label>
+    </div>
+    <label>Known preferences
+      <textarea name="known_preferences" placeholder="e.g. beginner-friendly, include non-alcoholic choices"></textarea>
+    </label>
+    <button class="button primary full" type="submit">Create event plan</button>
+  </form>
+  <div id="event-results" class="results-panel" aria-live="polite">
+    <div class="empty-state">Your plan will appear here.</div>
+  </div>
+</section>
+{% endblock %}

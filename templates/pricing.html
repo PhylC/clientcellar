@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Pricing</p>
+  <h1>Start free, upgrade when the brief gets serious</h1>
+  <p>The MVP planner is free while premium PDF and comparison packs are being built.</p>
+</section>
+
+<section class="card-grid two pricing-grid">
+  <article class="price-card">
+    <p class="eyebrow">Available now</p>
+    <h2>Free Planner</h2>
+    <p class="price">£0</p>
+    <ul>
+      <li>Gift strategy</li>
+      <li>Budget estimate</li>
+      <li>Basic supplier shortlist</li>
+      <li>Enquiry email</li>
+    </ul>
+    <a class="button primary full" href="/gift-planner">Use the planner</a>
+  </article>
+  <article class="price-card muted">
+    <p class="eyebrow">Coming soon</p>
+    <h2>Premium Pack</h2>
+    <p class="price">£19.99-£29.99</p>
+    <ul>
+      <li>Full PDF plan</li>
+      <li>Recipient CSV</li>
+      <li>Message variants</li>
+      <li>Supplier comparison</li>
+    </ul>
+    <p class="small-note">Stripe-ready placeholder. Payments are not implemented yet.</p>
+  </article>
+</section>
+{% endblock %}

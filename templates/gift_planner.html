@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Gift planner</p>
+  <h1>Build a corporate wine gift plan</h1>
+  <p>Answer the brief once and get a budget view, sensible gift routes, supplier shortlist and enquiry email.</p>
+</section>
+
+<section class="planner-layout">
+  <form id="gift-form" class="planner-form" data-plan-form="gift">
+    <label>Recipient type
+      <select name="recipient_type" required>
+        <option value="clients">Clients</option>
+        <option value="employees">Employees</option>
+        <option value="suppliers">Suppliers</option>
+        <option value="prospects">Prospects</option>
+        <option value="partners">Partners</option>
+        <option value="mixed">Mixed</option>
+      </select>
+    </label>
+    <div class="form-row">
+      <label>Recipient count
+        <input name="recipient_count" type="number" min="1" value="25" required>
+      </label>
+      <label>Budget per recipient (£)
+        <input name="budget_per_recipient" type="number" min="1" step="0.01" value="45" required>
+      </label>
+    </div>
+    <label>Occasion
+      <input name="occasion" value="Christmas thank-you" required>
+    </label>
+    <div class="form-row">
+      <label>Gift style
+        <select name="gift_style">
+          <option value="not_sure">Not sure</option>
+          <option value="wine">Wine</option>
+          <option value="wine_hamper">Wine hamper</option>
+          <option value="sparkling">Sparkling</option>
+          <option value="mixed_case">Mixed case</option>
+        </select>
+      </label>
+      <label>Tone
+        <select name="tone">
+          <option value="safe">Safe</option>
+          <option value="premium">Premium</option>
+          <option value="impressive">Impressive</option>
+          <option value="warm">Warm</option>
+          <option value="low_risk">Low risk</option>
+        </select>
+      </label>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" name="uk_only" checked> UK-only delivery</label>
+      <label><input type="checkbox" name="international_needed"> International delivery needed</label>
+      <label><input type="checkbox" name="personal_message_needed" checked> Personal message needed</label>
+      <label><input type="checkbox" name="branding_needed"> Branding needed</label>
+    </div>
+    <label>Delivery deadline
+      <input name="delivery_deadline" placeholder="e.g. 12 December">
+    </label>
+    <label>Known preferences
+      <textarea name="known_preferences" placeholder="e.g. some prefer red, some do not drink alcohol"></textarea>
+    </label>
+    <label>Avoid
+      <textarea name="avoid" placeholder="e.g. spirits, high-alcohol styles, novelty packaging"></textarea>
+    </label>
+    <button class="button primary full" type="submit">Create gift plan</button>
+  </form>
+  <div id="gift-results" class="results-panel" aria-live="polite">
+    <div class="empty-state">Your plan will appear here.</div>
+  </div>
+</section>
+{% endblock %}

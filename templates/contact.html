@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Contact</p>
+  <h1>Talk to ClientCellar</h1>
+  <p>Send a note about supplier partnerships, corporate gifting workflows or the next build pass.</p>
+</section>
+
+<section class="contact-layout">
+  <form id="contact-form" class="planner-form">
+    <label>Name
+      <input name="name" required>
+    </label>
+    <label>Email
+      <input name="email" type="email" required>
+    </label>
+    <label>Company
+      <input name="company">
+    </label>
+    <label>Message
+      <textarea name="message" required></textarea>
+    </label>
+    <button class="button primary full" type="submit">Send message</button>
+    <p id="contact-status" class="form-status" role="status"></p>
+  </form>
+  <aside class="side-note">
+    <h2>Current MVP behaviour</h2>
+    <p>This form logs submissions locally. It does not send real email yet.</p>
+  </aside>
+</section>
+{% endblock %}

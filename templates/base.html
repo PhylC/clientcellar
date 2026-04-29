@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} | {{ product }}</title>
+  <meta name="description" content="Corporate wine gifts and tasting events made simple.">
+  <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">
+      <span class="brand-mark">CC</span>
+      <span>
+        <strong>ClientCellar</strong>
+        <small>Corporate wine planning</small>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="/gift-planner">Gifts</a>
+      <a href="/event-planner">Events</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div>
+      <strong>ClientCellar</strong>
+      <p>Drink responsibly. ClientCellar provides planning guidance only and does not verify live stock, pricing, delivery, suitability or supplier availability.</p>
+    </div>
+    <nav aria-label="Footer navigation">
+      <a href="/faq">FAQ</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/contact">Contact</a>
+      <a href="/faq#terms">Terms placeholder</a>
+      <a href="/faq#privacy">Privacy placeholder</a>
+      <a href="/faq#affiliate">Affiliate disclosure placeholder</a>
+    </nav>
+  </footer>
+  <script src="{{ url_for('static', path='/app.js') }}" defer></script>
+</body>
+</html>
