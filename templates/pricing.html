@@ -3,7 +3,7 @@
 <section class="page-intro">
   <p class="eyebrow">Pricing</p>
   <h1>Start free, upgrade when the brief gets serious</h1>
-  <p>The MVP planner is free while premium PDF and comparison packs are being built.</p>
+  <p>Create a quick plan for free, then turn it into a supplier-ready corporate gifting pack when you need a polished internal document.</p>
 </section>
 
 <section class="card-grid two pricing-grid">
@@ -11,25 +11,43 @@
     <p class="eyebrow">Available now</p>
     <h2>Free Planner</h2>
     <p class="price">£0</p>
-    <ul>
-      <li>Gift strategy</li>
+    <ul class="feature-list">
+      <li>Gift/event strategy</li>
       <li>Budget estimate</li>
       <li>Basic supplier shortlist</li>
-      <li>Enquiry email</li>
+      <li>Enquiry email draft</li>
+      <li>CSV template</li>
     </ul>
-    <a class="button primary full" href="/gift-planner">Use the planner</a>
+    <a class="button primary full" href="/gift-planner">Use the free planner</a>
   </article>
-  <article class="price-card muted">
-    <p class="eyebrow">Coming soon</p>
-    <h2>Premium Pack</h2>
-    <p class="price">£19.99-£29.99</p>
-    <ul>
-      <li>Full PDF plan</li>
-      <li>Recipient CSV</li>
-      <li>Message variants</li>
+
+  <article class="price-card premium-price-card">
+    <p class="eyebrow">Premium Pack</p>
+    <h2>Supplier-ready pack</h2>
+    <p class="price">£29.99 one-off</p>
+    <ul class="feature-list">
+      <li>Executive summary</li>
       <li>Supplier comparison</li>
+      <li>Message variants</li>
+      <li>Internal approval note</li>
+      <li>Risk checklist</li>
+      <li>Print-ready version</li>
+      <li>Priority roadmap placeholder: PDF export and email delivery</li>
     </ul>
-    <p class="small-note">Stripe-ready placeholder. Payments are not implemented yet.</p>
+    {% if payments_enabled %}
+    <button class="button primary full" type="button" data-pack-checkout data-pack-type="gift">Buy premium pack</button>
+    {% else %}
+    <a class="button primary full" href="/contact?interest=premium-pack">Register interest</a>
+    {% endif %}
+    <p class="small-note">Payments may be disabled during MVP testing.</p>
   </article>
+</section>
+
+<section class="trust-strip pricing-trust">
+  <span>Review before purchase:</span>
+  <a href="/terms">Terms</a>
+  <a href="/privacy">Privacy</a>
+  <a href="/affiliate-disclosure">Affiliate Disclosure</a>
+  <a href="/responsible-drinking">Responsible Drinking</a>
 </section>
 {% endblock %}

@@ -3,29 +3,43 @@
 <section class="page-intro">
   <p class="eyebrow">Contact</p>
   <h1>Talk to ClientCellar</h1>
-  <p>Send a note about supplier partnerships, corporate gifting workflows or the next build pass.</p>
+  <p>Ask about corporate wine gifts, tasting events, premium planning packs or supplier partnerships.</p>
 </section>
 
 <section class="contact-layout">
-  <form id="contact-form" class="planner-form">
+  <form id="contact-form" class="planner-form lead-form" data-source-page="/contact">
     <label>Name
       <input name="name" required>
     </label>
-    <label>Email
+    <label>Work email
       <input name="email" type="email" required>
     </label>
     <label>Company
       <input name="company">
     </label>
-    <label>Message
-      <textarea name="message" required></textarea>
+    <label>Interested in
+      <select name="interested_in" required>
+        <option value="gifts">Corporate wine gifts</option>
+        <option value="events">Corporate wine tasting events</option>
+        <option value="premium_pack">Premium planning pack</option>
+        <option value="supplier_intro">Supplier partnership</option>
+        <option value="other">Other</option>
+      </select>
     </label>
-    <button class="button primary full" type="submit">Send message</button>
+    <label>Message
+      <textarea name="message" maxlength="3000" required></textarea>
+    </label>
+    <label class="consent-line">
+      <input type="checkbox" name="consent_to_contact" required>
+      <span>I agree that ClientCellar can contact me about this enquiry. I understand this is planning guidance and supplier availability must be confirmed directly.</span>
+    </label>
+    <button class="button primary full" type="submit">Send enquiry</button>
     <p id="contact-status" class="form-status" role="status"></p>
   </form>
   <aside class="side-note">
-    <h2>Current MVP behaviour</h2>
-    <p>This form logs submissions locally. It does not send real email yet.</p>
+    <h2>Are you a wine merchant, hamper supplier or tasting provider?</h2>
+    <p>We’re building a supplier directory for corporate wine gifting and events. If you’d like to be considered, get in touch.</p>
+    <p><a class="button secondary" href="/suppliers/join">Apply as a supplier</a></p>
   </aside>
 </section>
 {% endblock %}

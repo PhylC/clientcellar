@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero premium-hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Premium Pack</p>
+    <h1>Supplier-ready corporate wine plans</h1>
+    <p class="lead">Upgrade a quick recommendation into a polished pack you can share internally or send to suppliers.</p>
+    <div class="hero-actions">
+      {% if payments_enabled %}
+      <button class="button primary" type="button" data-pack-checkout data-pack-type="gift">Buy premium pack</button>
+      {% else %}
+      <a class="button primary" href="/contact?interest=premium-pack">Register interest</a>
+      {% endif %}
+      <a class="button secondary" href="/gift-planner">Start with a free plan</a>
+    </div>
+  </div>
+  <div class="price-card premium-price">
+    <p class="eyebrow">One-off planning pack</p>
+    <h2>Premium Pack</h2>
+    <p class="price">£29.99</p>
+    <p>Turn your quick plan into a supplier-ready corporate gifting pack.</p>
+    <p class="small-note">{% if payments_enabled %}Secure checkout is enabled for this MVP.{% else %}Payments are currently disabled while we test the MVP. Register interest instead.{% endif %}</p>
+  </div>
+</section>
+
+<section class="premium-comparison">
+  <div class="section-heading">
+    <p class="eyebrow">Free vs Premium</p>
+    <h2>Choose the level of planning you need</h2>
+  </div>
+  <div class="card-grid two">
+    <article class="price-card">
+      <h3>Free Planner</h3>
+      <p class="price">£0</p>
+      <ul class="feature-list">
+        <li>Quick strategy</li>
+        <li>Budget estimate</li>
+        <li>Basic supplier shortlist</li>
+        <li>Enquiry email draft</li>
+        <li>CSV template</li>
+      </ul>
+    </article>
+    <article class="price-card premium-price-card">
+      <h3>Premium Pack</h3>
+      <p class="price">£29.99 one-off</p>
+      <ul class="feature-list">
+        <li>Executive summary</li>
+        <li>Supplier comparison</li>
+        <li>Message variants</li>
+        <li>Internal approval note</li>
+        <li>Risk checklist</li>
+        <li>Print-ready pack</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<section class="premium-sections">
+  <article class="premium-card">
+    <h2>What’s included</h2>
+    <ul class="feature-list">
+      <li>Executive summary</li>
+      <li>Budget breakdown</li>
+      <li>Supplier comparison table</li>
+      <li>Ready-to-send supplier enquiry email</li>
+      <li>Recipient CSV template</li>
+      <li>Gift message variants</li>
+      <li>Internal approval note</li>
+      <li>Risk and suitability checklist</li>
+      <li>Responsible drinking / workplace policy reminder</li>
+      <li>Print-ready format</li>
+    </ul>
+  </article>
+
+  <article class="premium-card">
+    <h2>Who it is for</h2>
+    <p>ClientCellar Premium Pack is for busy founders, operations teams, HR teams, sales leaders and account managers who need a tidy plan before contacting suppliers or asking for internal approval.</p>
+  </article>
+
+  <article class="premium-card">
+    <h2>Example use cases</h2>
+    <ul class="feature-list">
+      <li>Christmas client gifts</li>
+      <li>Staff appreciation gifts</li>
+      <li>Partner thank-you gifts</li>
+      <li>Corporate wine tasting events</li>
+      <li>Sales kickoff or team event planning</li>
+    </ul>
+  </article>
+
+  <article class="premium-card trust-links-card">
+    <h2>Trust notes</h2>
+    <p>Premium packs are planning documents. Supplier pricing, stock, delivery and availability must still be confirmed directly.</p>
+    <nav class="trust-links" aria-label="Trust links">
+      <a href="/terms">Terms</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/affiliate-disclosure">Affiliate Disclosure</a>
+      <a href="/responsible-drinking">Responsible Drinking</a>
+    </nav>
+  </article>
+</section>
+{% endblock %}

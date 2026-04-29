@@ -22,9 +22,11 @@
     <div class="form-row">
       <label>Attendee count
         <input name="attendee_count" type="number" min="1" value="30" required>
+        <small>Use the expected number of attendees, not invitees.</small>
       </label>
       <label>Budget per person (£)
         <input name="budget_per_person" type="number" min="1" step="0.01" value="55" required>
+        <small>Exclude venue and VAT unless you already have an all-in budget.</small>
       </label>
     </div>
     <div class="form-row">
@@ -49,9 +51,11 @@
     <div class="form-row">
       <label>Location
         <input name="location" placeholder="e.g. London, Manchester, remote">
+        <small>For virtual events, “remote” is fine.</small>
       </label>
       <label>Date
         <input name="date" placeholder="e.g. 5 December">
+        <small>Approximate dates are enough for the first supplier enquiry.</small>
       </label>
     </div>
     <label>Wine knowledge level
@@ -66,8 +70,9 @@
     </div>
     <label>Known preferences
       <textarea name="known_preferences" placeholder="e.g. beginner-friendly, include non-alcoholic choices"></textarea>
+      <small>Add anything that affects tone, inclusivity, food or wine style.</small>
     </label>
-    <button class="button primary full" type="submit">Create event plan</button>
+    <button class="button primary full" type="submit" data-submit-label="Create event plan" data-loading-label="Creating your plan...">Create event plan</button>
   </form>
   <div id="event-results" class="results-panel" aria-live="polite">
     <div class="empty-state">Your plan will appear here.</div>

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Guides</p>
+  <h1>Corporate wine gift and tasting guides</h1>
+  <p>Useful UK business guides for planning client wine gifts, employee gifts, wine hampers, Champagne gifts and corporate wine tasting events.</p>
+  <div class="hero-actions">
+    <a class="button primary" href="/gift-planner">Plan corporate gifts</a>
+    <a class="button secondary" href="/event-planner">Plan a wine tasting event</a>
+  </div>
+</section>
+
+<section class="guide-grid">
+  {% for slug, guide in guides.items() %}
+  <article class="guide-card">
+    <p class="eyebrow">{% if guide.cta_url == "/gift-planner" %}Gift guide{% else %}Event guide{% endif %}</p>
+    <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
+    <p>{{ guide.intro }}</p>
+    <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}

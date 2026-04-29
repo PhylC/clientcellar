@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Suppliers</p>
+  <h1>Corporate wine gift and tasting supplier directory</h1>
+  <p>Browse supplier routes and category placeholders used by ClientCellar planning. Listings are guidance only, not endorsements.</p>
+  <div class="hero-actions">
+    <a class="button primary" href="/gift-planner">Plan gifts</a>
+    <a class="button secondary" href="/suppliers/join">Work with us</a>
+  </div>
+</section>
+
+<section class="guide-grid supplier-directory">
+  {% for supplier in suppliers %}
+  <article class="guide-card supplier-directory-card">
+    <p class="eyebrow">{{ supplier.commercial_relationship_label }}</p>
+    <h2><a href="/suppliers/{{ supplier.tracking_slug }}">{{ supplier.name }}</a></h2>
+    <p><strong>{{ supplier.category.replace("_", " ") }}</strong></p>
+    <p>{{ supplier.description }}</p>
+    <p><strong>Best for:</strong> {{ supplier.best_for | join(", ") }}</p>
+    <p><strong>Planning range:</strong> £{{ supplier.typical_budget_min }}-£{{ supplier.typical_budget_max }}</p>
+    <p class="small-note">{{ supplier.disclosure_note }}</p>
+    {% if supplier.website_url or supplier.enquiry_url or supplier.affiliate_url %}
+      <a class="button secondary full" href="/out/supplier/{{ supplier.tracking_slug }}?source_page=/suppliers" target="_blank" rel="noopener">Visit supplier</a>
+    {% else %}
+      <a class="button secondary full" href="/gift-planner">Use this as a supplier type</a>
+    {% endif %}
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}

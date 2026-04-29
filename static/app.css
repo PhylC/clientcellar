@@ -40,6 +40,7 @@ a {
   position: sticky;
   top: 0;
   z-index: 10;
+  flex-wrap: wrap;
   background: rgba(251, 247, 240, 0.94);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(14px);
@@ -76,6 +77,17 @@ a {
   gap: 0.35rem 0.8rem;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.button.small {
+  min-height: 2.25rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.88rem;
+}
+
 .nav a,
 .site-footer a {
   color: var(--muted);
@@ -97,9 +109,15 @@ main {
 .page-intro,
 .planner-layout,
 .pricing-grid,
+.premium-comparison,
+.premium-sections,
 .faq-list,
 .contact-layout,
-.legal-page {
+.legal-page,
+.guide-grid,
+.guide-layout,
+.guide-toc,
+.related-bottom {
   width: min(1120px, calc(100% - 2rem));
   margin: 0 auto;
 }
@@ -143,6 +161,19 @@ main {
   margin-top: 1.3rem;
 }
 
+.credibility-list {
+  display: grid;
+  gap: 0.45rem;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.credibility-list li {
+  color: var(--muted);
+  font-weight: 700;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -177,9 +208,13 @@ main {
 .hero-panel,
 .card,
 .price-card,
+.premium-card,
+.premium-cta-card,
 .planner-form,
 .results-panel,
 .side-note,
+.guide-card,
+.guide-content,
 .faq-list article,
 .legal-page article {
   border: 1px solid var(--line);
@@ -228,6 +263,10 @@ main {
   background: #f4eadc;
 }
 
+.card-grid.five {
+  grid-template-columns: 1fr;
+}
+
 .section-heading {
   max-width: 720px;
   margin-bottom: 1.2rem;
@@ -235,7 +274,11 @@ main {
 
 .section-heading h2,
 .price-card h2,
+.premium-card h2,
+.premium-cta-card h2,
 .side-note h2,
+.guide-card h2,
+.guide-content h2,
 .faq-list h2,
 .legal-page h2,
 .results-panel h2 {
@@ -250,7 +293,11 @@ main {
 
 .card,
 .price-card,
+.premium-card,
+.premium-cta-card,
 .side-note,
+.guide-card,
+.guide-content,
 .faq-list article,
 .legal-page article {
   padding: 1.2rem;
@@ -262,7 +309,13 @@ main {
 
 .card p,
 .price-card li,
+.premium-card p,
+.premium-card li,
+.premium-cta-card p,
 .side-note p,
+.guide-card p,
+.guide-content p,
+.guide-content li,
 .faq-list p,
 .legal-page p,
 .result-meta,
@@ -330,6 +383,34 @@ main {
   font-weight: 700;
 }
 
+.planner-form small {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.consent-line {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 0.65rem;
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+}
+
+.consent-line input {
+  width: auto;
+  margin-top: 0.25rem;
+}
+
+.lead-capture-form {
+  margin-top: 1rem;
+  background: #fffaf3;
+  box-shadow: none;
+}
+
+.lead-capture-form h2 {
+  margin: 0;
+}
+
 input,
 select,
 textarea {
@@ -379,10 +460,107 @@ textarea {
   text-align: center;
 }
 
+.loading.compact {
+  min-height: 7rem;
+  margin-top: 1rem;
+}
+
 .result-block {
   border-top: 1px solid var(--line);
   margin-top: 1rem;
   padding-top: 1rem;
+}
+
+.premium-hero {
+  align-items: center;
+}
+
+.premium-price {
+  align-self: stretch;
+}
+
+.premium-sections {
+  display: grid;
+  gap: 1rem;
+  padding-bottom: 3rem;
+}
+
+.premium-comparison {
+  padding: 1rem 0 2rem;
+}
+
+.premium-card,
+.premium-cta-card {
+  background: var(--surface);
+}
+
+.premium-cta-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fffaf3;
+}
+
+.premium-price-card,
+.premium-price {
+  border-color: #d8b06a;
+  background: #fffaf3;
+}
+
+.feature-list {
+  padding-left: 1.2rem;
+}
+
+.feature-list li + li {
+  margin-top: 0.45rem;
+}
+
+.comparison-table {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.comparison-table div {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  padding: 0.85rem;
+}
+
+.comparison-table span {
+  display: block;
+  color: var(--burgundy);
+  font-weight: 900;
+}
+
+.comparison-table p {
+  margin: 0.35rem 0 0;
+}
+
+.trust-links,
+.pricing-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.trust-links a,
+.pricing-trust a {
+  color: var(--burgundy);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.trust-links a:hover,
+.pricing-trust a:hover {
+  text-decoration: underline;
+}
+
+.pricing-trust {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto 3rem;
+  border-radius: 8px;
+  text-align: left;
 }
 
 .result-block ul {
@@ -395,6 +573,19 @@ textarea {
   margin-top: 0.75rem;
   padding: 0.9rem;
   background: #fffaf3;
+}
+
+.supplier-directory-card .button {
+  margin-top: 0.6rem;
+}
+
+.supplier-detail ul {
+  margin-bottom: 0;
+  padding-left: 1.2rem;
+}
+
+.supplier-join-layout .side-note h2 + p {
+  margin-top: 0.25rem;
 }
 
 .supplier-card h3 {
@@ -430,6 +621,125 @@ textarea {
 .faq-list {
   display: grid;
   gap: 1rem;
+  padding-bottom: 3rem;
+}
+
+.guide-grid {
+  display: grid;
+  gap: 1rem;
+  padding-bottom: 3rem;
+}
+
+.guide-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 0.8rem 1rem;
+}
+
+.guide-toc a {
+  color: var(--burgundy);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.guide-card {
+  box-shadow: none;
+}
+
+.guide-card h2 a,
+.text-link,
+.related-links a,
+.guide-content a {
+  color: var(--burgundy);
+  text-decoration: none;
+}
+
+.guide-card h2 a:hover,
+.text-link:hover,
+.related-links a:hover,
+.guide-content a:hover {
+  text-decoration: underline;
+}
+
+.text-link {
+  font-weight: 800;
+}
+
+.guide-intro {
+  padding-bottom: 1rem;
+}
+
+.guide-layout {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+  padding-bottom: 3rem;
+}
+
+.guide-content {
+  box-shadow: var(--shadow);
+}
+
+.guide-content section {
+  border-bottom: 1px solid var(--line);
+  padding: 1rem 0;
+}
+
+.guide-content section:first-child {
+  padding-top: 0;
+}
+
+.guide-content section:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.guide-content ul {
+  margin-bottom: 0;
+  padding-left: 1.2rem;
+}
+
+.guide-content li + li {
+  margin-top: 0.45rem;
+}
+
+.mini-faqs {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.mini-faqs div,
+.guide-cta {
+  border-radius: 8px;
+  background: #fffaf3;
+  padding: 1rem;
+}
+
+.mini-faqs h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.mini-faqs p {
+  margin: 0;
+}
+
+.guide-sidebar {
+  display: grid;
+  gap: 1rem;
+}
+
+.related-links {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.related-bottom {
   padding-bottom: 3rem;
 }
 
@@ -470,7 +780,44 @@ textarea {
   font-weight: 800;
 }
 
+.admin-password-form {
+  max-width: 420px;
+  margin-top: 1rem;
+}
+
+.admin-table-wrap {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto 3rem;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.admin-table th,
+.admin-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.7rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-table th {
+  background: #f5eee6;
+  color: var(--burgundy);
+}
+
 .site-footer {
+  display: grid;
+  gap: 1.5rem;
   align-items: flex-start;
   border-top: 1px solid var(--line);
   background: var(--surface);
@@ -482,10 +829,36 @@ textarea {
   margin: 0.35rem 0 0;
 }
 
+.footer-links {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+}
+
+.site-footer nav {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.site-footer h2 {
+  margin: 0 0 0.25rem;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
 @media (min-width: 720px) {
   .site-header,
   .site-footer {
     padding: 1rem 2rem;
+  }
+
+  .site-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .nav {
+    justify-content: center;
   }
 
   .hero {
@@ -495,6 +868,18 @@ textarea {
   }
 
   .card-grid.three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .card-grid.five {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .premium-sections {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .guide-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 
@@ -512,6 +897,10 @@ textarea {
     grid-template-columns: minmax(320px, 0.78fr) minmax(0, 1.22fr);
   }
 
+  .guide-layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+
   .planner-form,
   .results-panel {
     padding: 1.25rem;
@@ -522,18 +911,70 @@ textarea {
   .site-header,
   .site-footer,
   .planner-form,
-  .result-actions {
+  .lead-capture-form,
+  .result-actions,
+  .premium-cta-card .button {
     display: none;
   }
 
   body {
     background: white;
+    color: black;
   }
 
   .planner-layout,
-  .results-panel {
+  .results-panel,
+  .premium-preview {
     display: block;
     width: 100%;
     box-shadow: none;
+  }
+
+  .results-panel::before {
+    content: "ClientCellar";
+    display: block;
+    margin-bottom: 1rem;
+    color: black;
+    font-size: 1.4rem;
+    font-weight: 900;
+  }
+
+  .result-block,
+  .supplier-card,
+  .premium-cta-card {
+    break-inside: avoid;
+    box-shadow: none;
+    background: white;
+  }
+}
+
+@media (min-width: 920px) {
+  .footer-links {
+    grid-template-columns: repeat(5, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 719px) {
+  .site-header {
+    align-items: flex-start;
+  }
+
+  .brand {
+    width: 100%;
+  }
+
+  .nav {
+    order: 3;
+    width: 100%;
+  }
+
+  .nav a {
+    min-height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .header-actions {
+    margin-left: auto;
   }
 }

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">{{ supplier.commercial_relationship_label }}</p>
+  <h1>{{ supplier.name }}</h1>
+  <p>{{ supplier.description }}</p>
+  <div class="hero-actions">
+    {% if real_supplier %}
+      <a class="button primary" href="/out/supplier/{{ supplier.tracking_slug }}?source_page=/suppliers/{{ supplier.tracking_slug }}" target="_blank" rel="noopener">Make enquiry</a>
+    {% else %}
+      <a class="button primary" href="/gift-planner">Use planner</a>
+      <a class="button secondary" href="/contact?interest=supplier-type">Contact us</a>
+    {% endif %}
+    <a class="button secondary" href="/suppliers">All suppliers</a>
+  </div>
+</section>
+
+<section class="legal-page supplier-detail">
+  <article>
+    <h2>Best for</h2>
+    <ul>{% for item in supplier.best_for %}<li>{{ item }}</li>{% endfor %}</ul>
+  </article>
+  <article>
+    <h2>Capabilities</h2>
+    <ul>
+      {% if supplier.bulk_orders %}<li>Bulk orders</li>{% endif %}
+      {% if supplier.corporate_gifting %}<li>Corporate gifting</li>{% endif %}
+      {% if supplier.personalisation %}<li>Personalisation</li>{% endif %}
+      {% if supplier.branding %}<li>Branding</li>{% endif %}
+      {% if supplier.event_available %}<li>Event available</li>{% endif %}
+      {% if supplier.virtual_event_available %}<li>Virtual event route</li>{% endif %}
+      {% if supplier.in_person_event_available %}<li>In-person event route</li>{% endif %}
+    </ul>
+  </article>
+  <article>
+    <h2>Budget guidance</h2>
+    <p>Typical planning range: £{{ supplier.typical_budget_min }}-£{{ supplier.typical_budget_max }}. This is not live pricing. Confirm current costs directly.</p>
+  </article>
+  <article>
+    <h2>Delivery and event notes</h2>
+    <p>Regions: {{ supplier.regions | join(", ") }}.</p>
+    <p>UK delivery: {{ "yes" if supplier.uk_delivery else "no / confirm" }}. International delivery: {{ "yes / confirm rules" if supplier.international_delivery else "no / confirm" }}.</p>
+  </article>
+  <article>
+    <h2>Disclosure</h2>
+    <p>{{ supplier.disclosure_note }}</p>
+    <p>Supplier information may change. Confirm pricing, availability, delivery and suitability directly.</p>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro guide-intro">
+  <p class="eyebrow">{% if guide.cta_url == "/gift-planner" %}Corporate gifting guide{% else %}Corporate event guide{% endif %}</p>
+  <h1>{{ guide.h1 }}</h1>
+  <p>{{ guide.intro }}</p>
+  <div class="hero-actions">
+    <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+    <a class="button secondary" href="/guides">All guides</a>
+  </div>
+</section>
+
+<section class="guide-toc">
+  <strong>In this guide</strong>
+  <a href="#who">Who it is for</a>
+  <a href="#budget">Budget guidance</a>
+  <a href="#approach">Recommended approaches</a>
+  <a href="#avoid">What to avoid</a>
+  <a href="#checklist">Checklist</a>
+  {% if guide.faqs %}<a href="#faq">FAQ</a>{% endif %}
+</section>
+
+<section class="guide-layout">
+  <article class="guide-content">
+    <section id="who">
+      <h2>Who it is for</h2>
+      <ul>
+        {% for item in guide.audience %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+    </section>
+
+    <section id="budget">
+      <h2>Budget guidance</h2>
+      <ul>
+        {% for item in guide.budget %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+      <p class="small-note">These are planning bands only. Supplier prices, delivery charges, VAT, stock and availability must be confirmed directly.</p>
+    </section>
+
+    <section class="guide-cta">
+      <h2>Build your own version</h2>
+      <p>Answer a few questions and ClientCellar will turn the brief into a supplier-ready enquiry email and next-step checklist.</p>
+      <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+    </section>
+
+    <section id="approach">
+      <h2>Recommended approaches</h2>
+      <ul>
+        {% for item in guide.approaches %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+    </section>
+
+    <section id="avoid">
+      <h2>What to avoid</h2>
+      <ul>
+        {% for item in guide.avoid %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+    </section>
+
+    <section id="checklist">
+      <h2>Practical checklist</h2>
+      <ul>
+        {% for item in guide.checklist %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+    </section>
+
+    {% if guide.faqs %}
+    <section id="faq">
+      <h2>Quick FAQ</h2>
+      <div class="mini-faqs">
+        {% for faq in guide.faqs %}
+        <div>
+          <h3>{{ faq.q }}</h3>
+          <p>{{ faq.a }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="guide-cta">
+      <h2>Turn this into a plan</h2>
+      <p>Use ClientCellar to create a practical supplier enquiry email, shortlist and checklist for your brief.</p>
+      <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+    </section>
+  </article>
+
+  <aside class="guide-sidebar">
+    <div class="side-note">
+      <h2>Planning notes</h2>
+      <p>ClientCellar provides planning guidance only. We do not sell alcohol directly or verify live stock, live pricing, delivery or supplier availability.</p>
+      <p>Drink responsibly. Alcohol is not appropriate for every recipient, event or workplace. Always consider alcohol-free alternatives.</p>
+      {% if guide.affiliate %}
+      <p>Some supplier links may be affiliate links. Recommendations should be based on fit, not commission.</p>
+      {% endif %}
+    </div>
+
+    <div class="side-note">
+      <h2>Related guides</h2>
+      <nav class="related-links" aria-label="Related guides">
+        {% for related_slug in guide.related %}
+          {% set related = guides[related_slug] %}
+          <a href="/guides/{{ related_slug }}">{{ related.title }}</a>
+        {% endfor %}
+      </nav>
+    </div>
+  </aside>
+</section>
+
+<section class="related-bottom">
+  <div class="section-heading">
+    <p class="eyebrow">Related guides</p>
+    <h2>Keep planning</h2>
+  </div>
+  <div class="card-grid three">
+    {% for related_slug in guide.related %}
+      {% set related = guides[related_slug] %}
+      <article class="card">
+        <h3><a href="/guides/{{ related_slug }}">{{ related.title }}</a></h3>
+        <p>{{ related.intro }}</p>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

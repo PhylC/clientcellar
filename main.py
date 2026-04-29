@@ -1,20 +1,27 @@
+import csv
+import io
 import json
 import os
+import re
+import sqlite3
 from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 load_dotenv()
 
 PRODUCT_NAME = "ClientCellar"
 BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
+DB_PATH = DATA_DIR / "clientcellar.db"
 OPENAI_ENABLED = bool(os.getenv("OPENAI_API_KEY"))
 CSV_TEMPLATE = (
     "recipient_name,email,company,address_line_1,address_line_2,city,postcode,"
@@ -30,6 +37,234 @@ DISCLAIMER = (
 app = FastAPI(title=PRODUCT_NAME)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
+
+
+STATIC_ROUTES = [
+    "/",
+    "/gift-planner",
+    "/event-planner",
+    "/pricing",
+    "/faq",
+    "/contact",
+    "/terms",
+    "/privacy",
+    "/affiliate-disclosure",
+    "/responsible-drinking",
+    "/copyright",
+    "/cookies",
+    "/guides",
+    "/premium-pack",
+    "/checkout/success",
+    "/checkout/cancelled",
+    "/suppliers",
+    "/suppliers/join",
+]
+
+
+def payments_enabled() -> bool:
+    return (
+        os.getenv("PAYMENTS_ENABLED", "").lower() == "true"
+        and bool(os.getenv("STRIPE_SECRET_KEY"))
+        and bool(os.getenv("STRIPE_PRICE_ID"))
+        and bool(os.getenv("APP_BASE_URL"))
+    )
+
+
+def get_db_connection() -> sqlite3.Connection:
+    DATA_DIR.mkdir(exist_ok=True)
+    connection = sqlite3.connect(DB_PATH)
+    connection.row_factory = sqlite3.Row
+    return connection
+
+
+def init_leads_db() -> None:
+    with get_db_connection() as connection:
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS leads (
+                id INTEGER PRIMARY KEY,
+                created_at TEXT NOT NULL,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                company TEXT,
+                phone TEXT,
+                interested_in TEXT NOT NULL,
+                recipient_count INTEGER,
+                budget_per_recipient REAL,
+                occasion TEXT,
+                deadline TEXT,
+                message TEXT,
+                consent_to_contact BOOLEAN NOT NULL,
+                planner_input_json TEXT,
+                planner_output_json TEXT,
+                source_page TEXT
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS supplier_clicks (
+                id INTEGER PRIMARY KEY,
+                created_at TEXT NOT NULL,
+                supplier_id TEXT NOT NULL,
+                tracking_slug TEXT NOT NULL,
+                destination_url TEXT NOT NULL,
+                source_page TEXT,
+                user_agent TEXT,
+                referrer TEXT
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS supplier_applications (
+                id INTEGER PRIMARY KEY,
+                created_at TEXT NOT NULL,
+                business_name TEXT NOT NULL,
+                contact_name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                phone TEXT,
+                website TEXT,
+                supplier_type TEXT NOT NULL,
+                regions_covered TEXT NOT NULL,
+                corporate_gifting BOOLEAN NOT NULL,
+                wine_tasting_events BOOLEAN NOT NULL,
+                virtual_events BOOLEAN NOT NULL,
+                bulk_orders BOOLEAN NOT NULL,
+                personalisation BOOLEAN NOT NULL,
+                typical_budget_min REAL,
+                typical_budget_max REAL,
+                message TEXT,
+                consent_to_contact BOOLEAN NOT NULL
+            )
+            """
+        )
+        connection.commit()
+
+
+def save_lead(lead: "LeadRequest") -> int:
+    init_leads_db()
+    with get_db_connection() as connection:
+        cursor = connection.execute(
+            """
+            INSERT INTO leads (
+                created_at, name, email, company, phone, interested_in,
+                recipient_count, budget_per_recipient, occasion, deadline,
+                message, consent_to_contact, planner_input_json,
+                planner_output_json, source_page
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                datetime.utcnow().isoformat() + "Z",
+                lead.name.strip(),
+                str(lead.email),
+                lead.company,
+                lead.phone,
+                lead.interested_in,
+                lead.recipient_count,
+                lead.budget_per_recipient,
+                lead.occasion,
+                lead.deadline,
+                lead.message,
+                lead.consent_to_contact,
+                json.dumps(lead.planner_input) if lead.planner_input else None,
+                json.dumps(lead.planner_output) if lead.planner_output else None,
+                lead.source_page,
+            ),
+        )
+        connection.commit()
+        return int(cursor.lastrowid)
+
+
+def fetch_leads(limit: int | None = None) -> list[sqlite3.Row]:
+    init_leads_db()
+    query = "SELECT * FROM leads ORDER BY created_at DESC"
+    params: tuple[int, ...] = ()
+    if limit:
+        query += " LIMIT ?"
+        params = (limit,)
+    with get_db_connection() as connection:
+        return list(connection.execute(query, params).fetchall())
+
+
+def save_supplier_click(
+    supplier: dict,
+    destination_url: str,
+    source_page: str | None,
+    user_agent: str | None,
+    referrer: str | None,
+) -> None:
+    init_leads_db()
+    with get_db_connection() as connection:
+        connection.execute(
+            """
+            INSERT INTO supplier_clicks (
+                created_at, supplier_id, tracking_slug, destination_url,
+                source_page, user_agent, referrer
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                datetime.utcnow().isoformat() + "Z",
+                supplier["supplier_id"],
+                supplier["tracking_slug"],
+                destination_url,
+                source_page,
+                user_agent,
+                referrer,
+            ),
+        )
+        connection.commit()
+
+
+def fetch_supplier_applications(limit: int | None = None) -> list[sqlite3.Row]:
+    init_leads_db()
+    query = "SELECT * FROM supplier_applications ORDER BY created_at DESC"
+    params: tuple[int, ...] = ()
+    if limit:
+        query += " LIMIT ?"
+        params = (limit,)
+    with get_db_connection() as connection:
+        return list(connection.execute(query, params).fetchall())
+
+
+def save_supplier_application(application: "SupplierApplicationRequest") -> int:
+    init_leads_db()
+    with get_db_connection() as connection:
+        cursor = connection.execute(
+            """
+            INSERT INTO supplier_applications (
+                created_at, business_name, contact_name, email, phone, website,
+                supplier_type, regions_covered, corporate_gifting,
+                wine_tasting_events, virtual_events, bulk_orders,
+                personalisation, typical_budget_min, typical_budget_max,
+                message, consent_to_contact
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                datetime.utcnow().isoformat() + "Z",
+                application.business_name,
+                application.contact_name,
+                str(application.email),
+                application.phone,
+                application.website,
+                application.supplier_type,
+                application.regions_covered,
+                application.corporate_gifting,
+                application.wine_tasting_events,
+                application.virtual_events,
+                application.bulk_orders,
+                application.personalisation,
+                application.typical_budget_min,
+                application.typical_budget_max,
+                application.message,
+                application.consent_to_contact,
+            ),
+        )
+        connection.commit()
+        return int(cursor.lastrowid)
 
 
 SUPPLIERS = [
@@ -498,6 +733,51 @@ SUPPLIERS = [
 ]
 
 
+def slugify(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return slug or "supplier"
+
+
+def normalise_suppliers() -> None:
+    seen: set[str] = set()
+    for supplier in SUPPLIERS:
+        supplier_id = supplier.get("supplier_id") or supplier.get("id") or slugify(supplier["name"])
+        slug = supplier.get("tracking_slug") or slugify(supplier_id)
+        original_slug = slug
+        counter = 2
+        while slug in seen:
+            slug = f"{original_slug}-{counter}"
+            counter += 1
+        seen.add(slug)
+
+        relationship = supplier.get("commercial_relationship", "none")
+        label = {
+            "none": "Listed supplier",
+            "affiliate": "Affiliate link",
+            "referral": "Referral relationship",
+            "sponsored": "Sponsored placement",
+            "supplier_partner": "Supplier partner",
+        }.get(relationship, "Listed supplier")
+        disclosure = supplier.get("disclosure_note") or (
+            "Listed for planning guidance. No endorsement is implied. Confirm pricing, availability, delivery and suitability directly."
+        )
+
+        supplier.update(
+            {
+                "supplier_id": supplier_id,
+                "description": supplier.get("description") or supplier.get("notes", ""),
+                "tracking_slug": slug,
+                "commercial_relationship": relationship,
+                "commercial_relationship_label": label,
+                "disclosure_note": disclosure,
+                "active": supplier.get("active", True),
+            }
+        )
+
+
+normalise_suppliers()
+
+
 class GiftPlanRequest(BaseModel):
     recipient_type: Literal["clients", "employees", "suppliers", "prospects", "partners", "mixed"]
     recipient_count: int = Field(gt=0, le=10000)
@@ -524,7 +804,7 @@ class EventPlanRequest(BaseModel):
         "virtual_event",
         "not_sure",
     ]
-    attendee_count: int = Field(gt=0, le=10000)
+    attendee_count: int = Field(gt=0, le=5000)
     budget_per_person: float = Field(gt=0, le=10000)
     format: Literal["virtual", "in_person", "hybrid", "not_sure"]
     location: str | None = None
@@ -542,6 +822,76 @@ class ContactRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
 
 
+class PremiumPackPreviewRequest(BaseModel):
+    pack_type: Literal["gift", "event"]
+    planner_input: dict
+    planner_output: dict
+
+
+class CheckoutSessionRequest(BaseModel):
+    pack_type: Literal["gift", "event"]
+    email: EmailStr | None = None
+
+
+class LeadRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=160)
+    email: EmailStr
+    company: str | None = Field(default=None, max_length=180)
+    phone: str | None = Field(default=None, max_length=80)
+    interested_in: Literal["gifts", "events", "premium_pack", "supplier_intro", "other"]
+    recipient_count: int | None = Field(default=None, gt=0, le=100000)
+    budget_per_recipient: float | None = Field(default=None, gt=0, le=100000)
+    occasion: str | None = Field(default=None, max_length=240)
+    deadline: str | None = Field(default=None, max_length=160)
+    message: str | None = Field(default=None, max_length=3000)
+    consent_to_contact: bool
+    planner_input: dict | None = None
+    planner_output: dict | None = None
+    source_page: str | None = Field(default=None, max_length=300)
+
+    @field_validator("consent_to_contact")
+    @classmethod
+    def require_consent(cls, value: bool) -> bool:
+        if value is not True:
+            raise ValueError("Please confirm consent so ClientCellar can contact you about this enquiry.")
+        return value
+
+
+class SupplierApplicationRequest(BaseModel):
+    business_name: str = Field(min_length=1, max_length=180)
+    contact_name: str = Field(min_length=1, max_length=160)
+    email: EmailStr
+    phone: str | None = Field(default=None, max_length=80)
+    website: str | None = Field(default=None, max_length=300)
+    supplier_type: Literal[
+        "wine_merchant",
+        "hamper_supplier",
+        "champagne_sparkling_specialist",
+        "english_sparkling_producer",
+        "corporate_gifting_provider",
+        "wine_tasting_host",
+        "virtual_tasting_provider",
+        "other",
+    ]
+    regions_covered: str = Field(min_length=1, max_length=500)
+    corporate_gifting: bool = False
+    wine_tasting_events: bool = False
+    virtual_events: bool = False
+    bulk_orders: bool = False
+    personalisation: bool = False
+    typical_budget_min: float | None = Field(default=None, gt=0, le=100000)
+    typical_budget_max: float | None = Field(default=None, gt=0, le=100000)
+    message: str | None = Field(default=None, max_length=3000)
+    consent_to_contact: bool
+
+    @field_validator("consent_to_contact")
+    @classmethod
+    def require_consent(cls, value: bool) -> bool:
+        if value is not True:
+            raise ValueError("Please confirm consent so ClientCellar can contact you about this supplier enquiry.")
+        return value
+
+
 def money(value: float) -> str:
     return f"£{value:,.0f}"
 
@@ -552,6 +902,18 @@ def readable(value: str) -> str:
 
 def supplier_url(supplier: dict) -> str | None:
     return supplier.get("enquiry_url") or supplier.get("website_url")
+
+
+def supplier_destination_url(supplier: dict) -> str | None:
+    return supplier.get("affiliate_url") or supplier.get("enquiry_url") or supplier.get("website_url")
+
+
+def is_real_supplier(supplier: dict) -> bool:
+    return bool(supplier_destination_url(supplier))
+
+
+def supplier_by_tracking_slug(tracking_slug: str) -> dict | None:
+    return next((supplier for supplier in SUPPLIERS if supplier["tracking_slug"] == tracking_slug and supplier.get("active", True)), None)
 
 
 def budget_label(value: float, per: str = "recipient") -> str:
@@ -669,7 +1031,10 @@ def build_supplier_shortlist(items: list[dict], why_prefix: str, budget: float) 
                 "why": f"{why_prefix} {supplier['notes']}",
                 "budget_fit": f"Typical planning range {money(supplier['typical_budget_min'])}-{money(supplier['typical_budget_max'])}. Confirm current pricing directly.",
                 "url": supplier_url(supplier),
+                "tracked_url": f"/out/supplier/{supplier['tracking_slug']}" if is_real_supplier(supplier) else None,
                 "affiliate_url": supplier["affiliate_url"],
+                "relationship_label": supplier["commercial_relationship_label"],
+                "disclosure_note": supplier["disclosure_note"],
             }
         )
     return shortlist
@@ -883,32 +1248,668 @@ def make_event_plan(req: EventPlanRequest) -> dict:
     return maybe_improve_plan(plan, "event")
 
 
-def render(request: Request, template: str, title: str) -> HTMLResponse:
+def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
+    output = req.planner_output
+    planner_input = req.planner_input
+    is_gift = req.pack_type == "gift"
+    count = planner_input.get("recipient_count") if is_gift else planner_input.get("attendee_count")
+    unit_budget = planner_input.get("budget_per_recipient") if is_gift else planner_input.get("budget_per_person")
+    total_label = output.get("estimated_total_budget", "To be confirmed with suppliers.")
+    supplier_shortlist = output.get("supplier_shortlist", [])
+    supplier_comparison = []
+
+    for supplier in supplier_shortlist[:4]:
+        supplier_comparison.append(
+            {
+                "supplier": supplier.get("name", "Supplier"),
+                "fit": supplier.get("why", "Potential fit for the brief."),
+                "pros": [
+                    supplier.get("budget_fit", "Budget fit should be confirmed directly."),
+                    "Relevant to the current planning brief.",
+                    "Useful route for supplier enquiry comparison.",
+                ],
+                "watchouts": [
+                    "Confirm current pricing, availability and delivery directly.",
+                    "Check minimum order quantities, VAT and lead times.",
+                ],
+            }
+        )
+
+    if not supplier_comparison:
+        supplier_comparison.append(
+            {
+                "supplier": "Supplier shortlist to confirm",
+                "fit": "Use the free planner result to identify two or three supplier routes.",
+                "pros": ["Keeps the process structured.", "Supports internal comparison."],
+                "watchouts": ["No live supplier pricing or availability is included."],
+            }
+        )
+
+    if is_gift:
+        executive_summary = (
+            f"Premium gift pack for {count or 'the planned number of'} recipients. "
+            f"The quick plan recommends a {planner_input.get('gift_style', 'suitable')} gift route "
+            f"for {planner_input.get('occasion', 'the occasion')}, with supplier checks before ordering."
+        )
+        budget_breakdown = [
+            {"label": "Gift budget", "amount": money(float(unit_budget or 0)), "note": "Planning budget per recipient before supplier confirmation."},
+            {"label": "Estimated total", "amount": total_label, "note": "May exclude VAT, delivery, packaging, personalisation and fulfilment extras."},
+            {"label": "Premium pack", "amount": "£29.99", "note": "One-off planning pack price."},
+        ]
+        messages = output.get("message_templates") or [
+            "Thank you for your support. We hope you enjoy this gift from the team."
+        ]
+        message_variants = [
+            {"tone": "Professional", "message": messages[0]},
+            {"tone": "Warm", "message": "With thanks from all of us. We appreciate the partnership and hope you enjoy this small thank-you."},
+            {"tone": "Concise", "message": "Thank you for working with us. With best wishes from the team."},
+        ]
+        approval_note = (
+            "Approval requested for a corporate gifting plan. The plan includes budget guidance, supplier routes, "
+            "recipient CSV preparation, alcohol-free consideration and supplier confirmation before order placement."
+        )
+    else:
+        executive_summary = (
+            f"Premium event pack for {count or 'the planned number of'} attendees. "
+            f"The quick plan recommends {output.get('recommended_format', 'a suitable tasting format')} "
+            "with supplier confirmation before booking."
+        )
+        budget_breakdown = [
+            {"label": "Event budget", "amount": money(float(unit_budget or 0)), "note": "Planning budget per attendee before supplier confirmation."},
+            {"label": "Estimated total", "amount": total_label, "note": "May exclude VAT, delivery, venue, service, food and cancellation costs."},
+            {"label": "Premium pack", "amount": "£29.99", "note": "One-off planning pack price."},
+        ]
+        message_variants = [
+            {"tone": "Internal invite", "message": output.get("internal_invite_copy", "You are invited to a corporate wine tasting. Full details will follow.")},
+            {"tone": "Client-safe", "message": "Join us for a relaxed hosted wine tasting with light structure, sensible pacing and alcohol-free options available."},
+            {"tone": "Team social", "message": "Join the team for a beginner-friendly wine tasting session with plenty of space for questions and conversation."},
+        ]
+        approval_note = (
+            "Approval requested for a corporate wine tasting event. The plan includes budget guidance, supplier routes, "
+            "format notes, alcohol-free options and responsible drinking considerations."
+        )
+
+    risk_checklist = [
+        "Confirm live supplier pricing, availability, delivery and lead times directly.",
+        "Check company policy on alcohol, gifting, anti-bribery, expenses and procurement.",
+        "Offer alcohol-free alternatives where recipients or attendees may prefer them.",
+        "Confirm VAT, delivery charges, international restrictions and minimum order quantities.",
+        "Keep a record of supplier quotes and approvals before committing spend.",
+    ]
+
+    preview = {
+        "executive_summary": executive_summary,
+        "budget_breakdown": budget_breakdown,
+        "supplier_comparison": supplier_comparison,
+        "supplier_enquiry_email": output.get(
+            "supplier_enquiry_email",
+            {"subject": "Corporate wine planning enquiry", "body": "Hello,\n\nCould you confirm suitable options, pricing, availability and delivery details?\n\nKind regards"},
+        ),
+        "message_variants": message_variants,
+        "internal_approval_note": approval_note,
+        "risk_checklist": risk_checklist,
+        "recipient_csv_template": output.get("recipient_csv_template", CSV_TEMPLATE),
+        "print_note": "Use the browser print/save option for a print-ready MVP pack. Automated PDF and email delivery are coming soon.",
+        "disclaimer": DISCLAIMER,
+    }
+    return maybe_improve_plan(preview, "premium_pack")
+
+
+GUIDES = {
+    "corporate-wine-gifts-uk": {
+        "title": "Corporate Wine Gifts UK",
+        "description": "A practical UK guide to corporate wine gifts for clients, employees, suppliers and partners.",
+        "h1": "Corporate wine gifts for UK businesses",
+        "intro": "Corporate wine gifts work best when they are thoughtful, easy to fulfil and safe for the business context. This guide helps you choose sensible routes without relying on live prices or stock claims.",
+        "audience": [
+            "Client, prospect and partner gift planning.",
+            "Employee thank-you gifts and seasonal staff gifting.",
+            "Supplier or partner gifts where the tone needs to stay professional.",
+        ],
+        "budget": [
+            "Under £20: keep it simple. Consider modest bottles, small sparkling alternatives, gift cards or alcohol-free choices where wine feels too tight.",
+            "£20-£40: a practical band for a good single bottle, small hamper or broad-appeal sparkling option.",
+            "£40-£75: a strong corporate range for wine hampers, English sparkling, Champagne alternatives and classic mixed gifts.",
+            "£75+: premium gifts, fine wine merchant routes, Champagne or luxury hampers with stronger presentation.",
+        ],
+        "approaches": [
+            "For unknown tastes, choose sparkling, classic red/white pairs or a hamper rather than a quirky single bottle.",
+            "For clients, keep the choice polished and low-risk.",
+            "For employees, offer choice or an alcohol-free alternative wherever possible.",
+        ],
+        "avoid": [
+            "Do not assume every recipient drinks alcohol.",
+            "Do not promise delivery dates until the supplier confirms them.",
+            "Avoid obscure styles for clients or prospects unless you know their taste.",
+        ],
+        "checklist": [
+            "Confirm recipient count, addresses and deadline.",
+            "Check company gifting, tax and procurement rules.",
+            "Ask suppliers about current price, delivery, VAT, minimum orders and message options.",
+            "Prepare a recipient CSV before ordering.",
+        ],
+        "faqs": [
+            {"q": "What is a safe corporate wine gift?", "a": "A safe option is usually classic, recognisable and easy to enjoy: sparkling, a balanced red/white pair, or a wine and food hamper."},
+            {"q": "How much should we spend on client wine gifts?", "a": "Many businesses start around £40-£75 for a polished client gift, but the right amount depends on the relationship, policy and occasion."},
+        ],
+        "cta": "Plan corporate gifts",
+        "cta_url": "/gift-planner",
+        "related": ["christmas-wine-gifts-for-clients", "staff-wine-gifts", "corporate-wine-hampers"],
+        "affiliate": True,
+    },
+    "christmas-wine-gifts-for-clients": {
+        "title": "Christmas Wine Gifts for Clients",
+        "description": "Plan safe, polished Christmas wine gifts for clients with budget guidance, message ideas and supplier enquiry tips.",
+        "h1": "Christmas wine gifts for clients",
+        "intro": "Christmas client gifts need earlier planning because supplier cut-offs, branded packaging, recipient data and delivery windows can all become tight in November and December.",
+        "audience": [
+            "Account teams planning client thank-you gifts.",
+            "Businesses sending gifts to prospects, referrers or partners.",
+            "Teams that need a professional message and low-risk gift style.",
+        ],
+        "budget": [
+            "Under £40: choose a good single bottle, sparkling alternative or compact hamper.",
+            "£40-£75: a strong range for English sparkling, Champagne alternatives and wine hampers.",
+            "£75+: consider Champagne, premium hampers or fine wine merchant gifts for priority accounts.",
+        ],
+        "approaches": [
+            "Use safe gift styles: sparkling, classic red/white pair, wine and food hamper, or premium alcohol-free choice.",
+            "Champagne is not the only festive option; English sparkling and Crémant-style choices can feel polished without being too flashy.",
+            "Keep messages warm but professional: thank the recipient for the partnership and avoid heavy sales language.",
+        ],
+        "avoid": [
+            "Leaving delivery and address collection until the final week.",
+            "Overly novelty bottles or risky jokes on packaging.",
+            "Assuming all client contacts can accept alcohol or gifts under their company policy.",
+        ],
+        "checklist": [
+            "Collect addresses and any gift acceptance limits early.",
+            "Ask suppliers for Christmas order cut-offs and delivery exclusions.",
+            "Prepare one standard message plus optional account-specific variants.",
+            "Check alcohol-free and non-alcohol alternatives for sensitive recipients.",
+        ],
+        "faqs": [
+            {"q": "What message should we include?", "a": "Keep it short: thank them for the partnership, wish them a restful festive break, and sign off from the team."},
+            {"q": "What is a good alternative to Champagne?", "a": "English sparkling, Crémant-style sparkling wine or a premium wine hamper can be strong alternatives."},
+        ],
+        "cta": "Plan Christmas client gifts",
+        "cta_url": "/gift-planner",
+        "related": ["corporate-wine-gifts-uk", "corporate-champagne-gifts", "client-thank-you-wine-gifts"],
+        "affiliate": True,
+    },
+    "staff-wine-gifts": {
+        "title": "Staff Wine Gifts",
+        "description": "A practical guide to employee wine gifts, workplace policy, alcohol-free options and bulk ordering.",
+        "h1": "Staff wine gifts and employee thank-yous",
+        "intro": "Employee wine gifts can work well, but they need more care than client gifts because workplace policy, inclusivity and personal preference matter.",
+        "audience": [
+            "HR, operations and founders planning staff thank-you gifts.",
+            "Managers arranging year-end gifts for teams.",
+            "Businesses that need a bulk ordering checklist before speaking to suppliers.",
+        ],
+        "budget": [
+            "Under £20: consider simple bottles, mini formats, gift cards or non-wine alternatives.",
+            "£20-£40: useful for single bottles, small hampers or sparkling alternatives.",
+            "£40-£75: allows stronger hampers, mixed gifts and better presentation.",
+        ],
+        "approaches": [
+            "Offer a choice where possible: red, white, sparkling, hamper or alcohol-free.",
+            "Use broad-appeal styles rather than specialist bottles.",
+            "Keep the message appreciative and inclusive.",
+        ],
+        "avoid": [
+            "Making alcohol the only available reward.",
+            "Ignoring religious, health, pregnancy, recovery or personal preference considerations.",
+            "Sending gifts without checking HR and expenses policy.",
+        ],
+        "checklist": [
+            "Confirm headcount and budget including VAT and delivery.",
+            "Ask whether employees can choose an alcohol-free option.",
+            "Check address collection and privacy handling.",
+            "Confirm supplier data format, delivery lead time and failed-delivery process.",
+        ],
+        "faqs": [
+            {"q": "Can you send wine gifts to employees?", "a": "Often yes, but check workplace policy and offer alcohol-free alternatives so the gift stays inclusive."},
+            {"q": "Are wine gifts appropriate for every workplace?", "a": "No. Some workplaces or teams will be better served by food hampers, vouchers or choice-based gifts."},
+        ],
+        "cta": "Plan staff wine gifts",
+        "cta_url": "/gift-planner",
+        "related": ["corporate-wine-gifts-uk", "corporate-wine-hampers", "virtual-wine-tasting-for-teams"],
+        "affiliate": True,
+    },
+    "client-thank-you-wine-gifts": {
+        "title": "Client Thank-You Wine Gifts",
+        "description": "Professional thank-you wine gift ideas after a deal, project, referral or meeting.",
+        "h1": "Client thank-you wine gifts",
+        "intro": "A thank-you gift after a project, deal, referral or important meeting should feel considered, not extravagant or awkward.",
+        "audience": [
+            "Sales and account teams thanking clients after a deal.",
+            "Consultants and agencies sending project completion gifts.",
+            "Businesses thanking referrers or partners.",
+        ],
+        "budget": [
+            "£20-£40: practical single bottle or compact hamper.",
+            "£40-£75: polished wine hamper, English sparkling or classic red/white pair.",
+            "£75+: premium-but-not-flashy gift for high-value relationships.",
+        ],
+        "approaches": [
+            "Keep the tone professional and warm.",
+            "Choose safer styles such as sparkling, classic Rioja Reserva-style red, balanced white or a hamper.",
+            "Use premium presentation without making the gift feel like pressure or inducement.",
+        ],
+        "avoid": [
+            "Flashy gifts that could create procurement or anti-bribery concerns.",
+            "Very personal messages unless the relationship supports it.",
+            "Sending alcohol where the recipient's policy may prevent acceptance.",
+        ],
+        "checklist": [
+            "Check gift limits and acceptance rules.",
+            "Confirm the recipient's correct delivery address.",
+            "Ask the supplier for a discreet gift note option.",
+            "Keep a record of the gift value for internal compliance.",
+        ],
+        "faqs": [
+            {"q": "What should a client thank-you note say?", "a": "A simple line such as 'Thank you for working with us on this project. We appreciated the partnership.' is usually enough."},
+        ],
+        "cta": "Create a thank-you gift plan",
+        "cta_url": "/gift-planner",
+        "related": ["corporate-wine-gifts-uk", "christmas-wine-gifts-for-clients", "corporate-champagne-gifts"],
+        "affiliate": True,
+    },
+    "corporate-wine-hampers": {
+        "title": "Corporate Wine Hampers",
+        "description": "When to choose corporate wine hampers, budget guidance, branding notes and practical supplier questions.",
+        "h1": "Corporate wine hampers",
+        "intro": "Wine hampers can be more forgiving than a single bottle because they combine presentation, food and choice. They are especially useful when recipient tastes are unknown.",
+        "audience": [
+            "Teams sending client, partner or employee gifts.",
+            "Businesses that want a warmer gift than a single bottle.",
+            "Marketing and operations teams considering branded packaging.",
+        ],
+        "budget": [
+            "£25-£40: compact hamper or wine-plus-snack format.",
+            "£40-£75: strong corporate range for wine and food pairings.",
+            "£75+: premium hampers with stronger packaging and personalisation options.",
+        ],
+        "approaches": [
+            "Use wine and food pairing gifts for broad appeal.",
+            "Ask about branded sleeves, gift notes, delivery inserts and proofing times.",
+            "Choose hampers when presentation matters or tastes are mixed.",
+        ],
+        "avoid": [
+            "Overly large hampers that are hard to deliver or store.",
+            "Perishable food without clear delivery timing.",
+            "Branding that delays the order beyond your deadline.",
+        ],
+        "checklist": [
+            "Confirm hamper contents, substitutions and allergens.",
+            "Ask whether alcohol-free hamper options are available.",
+            "Check branding minimum order quantities and artwork deadlines.",
+            "Confirm delivery coverage and failed-delivery handling.",
+        ],
+        "faqs": [
+            {"q": "When is a hamper better than a bottle?", "a": "When tastes are unknown, presentation matters, or you want to include food and alcohol-free alternatives."},
+        ],
+        "cta": "Plan wine hampers",
+        "cta_url": "/gift-planner",
+        "related": ["corporate-wine-gifts-uk", "staff-wine-gifts", "christmas-wine-gifts-for-clients"],
+        "affiliate": True,
+    },
+    "corporate-champagne-gifts": {
+        "title": "Corporate Champagne Gifts",
+        "description": "A UK business guide to Champagne, English sparkling and Crémant-style corporate gifts.",
+        "h1": "Corporate Champagne and sparkling wine gifts",
+        "intro": "Champagne can feel celebratory and premium, but it is not always the most suitable or best-value corporate gift. Sparkling alternatives can be just as polished.",
+        "audience": [
+            "Businesses marking deals, milestones or festive moments.",
+            "Teams sending premium client gifts.",
+            "Anyone comparing Champagne with English sparkling or Crémant-style options.",
+        ],
+        "budget": [
+            "£30-£45: consider English sparkling or quality sparkling alternatives.",
+            "£45-£75: useful range for Champagne alternatives, English sparkling and gift packaging.",
+            "£75+: Champagne, premium sparkling hampers or fine wine merchant routes.",
+        ],
+        "approaches": [
+            "Champagne signals celebration and premium positioning.",
+            "English sparkling can be a strong UK-focused choice.",
+            "Crémant-style sparkling can offer a polished alternative where Champagne feels too expensive or obvious.",
+        ],
+        "avoid": [
+            "Choosing Champagne purely for status if the recipient may not drink alcohol.",
+            "Overly flashy presentation for conservative client relationships.",
+            "Assuming international delivery is simple for alcohol gifts.",
+        ],
+        "checklist": [
+            "Confirm gift acceptance limits and alcohol policy.",
+            "Ask suppliers for packaging, gift note and delivery options.",
+            "Compare Champagne, English sparkling and hamper routes.",
+            "Include alcohol-free alternatives for mixed groups.",
+        ],
+        "faqs": [
+            {"q": "What is a good alternative to Champagne?", "a": "English sparkling wine or Crémant-style sparkling wine can feel celebratory while giving you more flexibility on budget."},
+        ],
+        "cta": "Plan sparkling wine gifts",
+        "cta_url": "/gift-planner",
+        "related": ["christmas-wine-gifts-for-clients", "client-thank-you-wine-gifts", "corporate-wine-gifts-uk"],
+        "affiliate": True,
+    },
+    "virtual-wine-tasting-for-teams": {
+        "title": "Virtual Wine Tasting for Teams",
+        "description": "Plan remote and hybrid team wine tasting events with budget, delivery and invite guidance.",
+        "h1": "Virtual wine tasting for teams",
+        "intro": "Virtual wine tastings can work well for remote and hybrid teams when packs arrive on time, the host keeps it inclusive and the format is not too boozy.",
+        "audience": [
+            "Remote and hybrid teams planning socials.",
+            "People teams organising lightweight team events.",
+            "Managers who need an internal invite and supplier enquiry brief.",
+        ],
+        "budget": [
+            "Under £25 per head: informal tasting or simple pack route.",
+            "£25-£60 per head: strong range for hosted virtual tastings with delivered packs.",
+            "£60+ per head: more premium wines, food pairing or stronger facilitation.",
+        ],
+        "approaches": [
+            "A supplier usually ships packs to attendees and provides a host on video.",
+            "Send joining details early and include a clear finish time.",
+            "Offer alcohol-free packs so nobody is excluded.",
+        ],
+        "avoid": [
+            "Leaving address collection too late.",
+            "Making drinking feel compulsory.",
+            "Choosing a format that requires too much wine knowledge.",
+        ],
+        "checklist": [
+            "Confirm attendee addresses and privacy handling.",
+            "Ask suppliers about delivery lead times and missed deliveries.",
+            "Prepare an internal invite with date, time, format and alcohol-free options.",
+            "Check whether food pairing changes the delivery deadline.",
+        ],
+        "faqs": [
+            {"q": "Can virtual wine tastings work for remote teams?", "a": "Yes, if packs arrive on time, the host is engaging and alcohol-free options are available."},
+            {"q": "How much does a corporate wine tasting cost?", "a": "A practical hosted virtual tasting often sits around £25-£60 per head, but suppliers must confirm current pricing."},
+        ],
+        "cta": "Plan a virtual tasting",
+        "cta_url": "/event-planner",
+        "related": ["wine-tasting-team-building", "corporate-wine-tasting-london", "staff-wine-gifts"],
+        "affiliate": False,
+    },
+    "corporate-wine-tasting-london": {
+        "title": "Corporate Wine Tasting London",
+        "description": "Plan London corporate wine tastings for client entertainment, team socials and hosted private events.",
+        "h1": "Corporate wine tasting events in London",
+        "intro": "London corporate wine tastings can work for client entertainment, team socials and private hosted events, but venue, timing and transport details matter.",
+        "audience": [
+            "London teams planning client entertainment.",
+            "Businesses organising team socials or away-day add-ons.",
+            "Event planners comparing private rooms, merchants and hosted tastings.",
+        ],
+        "budget": [
+            "Under £60 per head: simple hosted tasting or merchant-led format.",
+            "£60-£120 per head: polished client-safe tasting, private room or food pairing.",
+            "£120+ per head: premium private event, fine wine or dinner pairing.",
+        ],
+        "approaches": [
+            "For client entertainment, keep the tone polished and not too boozy.",
+            "For team socials, choose a format with light structure and room for conversation.",
+            "Private rooms and hosted tastings can help with service, pacing and atmosphere.",
+        ],
+        "avoid": [
+            "Venues that are awkward for transport after drinking.",
+            "Late finishes that make the event feel heavy.",
+            "Formats that assume strong wine knowledge.",
+        ],
+        "checklist": [
+            "Confirm location, start time, finish time and transport options.",
+            "Ask about licensing, service, food, water and dietary requirements.",
+            "Confirm minimum spend, room hire and cancellation terms.",
+            "Include alcohol-free alternatives in the brief.",
+        ],
+        "faqs": [
+            {"q": "How much should a London corporate tasting cost?", "a": "A hosted event might be planned from around £60 per head upwards, depending on venue, wine, food and service. Confirm pricing with suppliers."},
+        ],
+        "cta": "Plan a London wine tasting",
+        "cta_url": "/event-planner",
+        "related": ["wine-tasting-team-building", "virtual-wine-tasting-for-teams", "corporate-wine-gifts-uk"],
+        "affiliate": False,
+    },
+    "wine-tasting-team-building": {
+        "title": "Wine Tasting Team Building",
+        "description": "Use wine tasting as team building without making the event too boozy or exclusive.",
+        "h1": "Wine tasting as team building",
+        "intro": "Wine tasting can be a good team-building format when it is structured, inclusive and paced carefully. The goal is conversation and shared learning, not heavy drinking.",
+        "audience": [
+            "People teams organising socials or away days.",
+            "Managers looking for a fun but professional activity.",
+            "Remote, hybrid and office-based teams comparing event formats.",
+        ],
+        "budget": [
+            "Under £25 per head: informal tasting or simple virtual format.",
+            "£25-£60 per head: hosted tasting with accessible wines.",
+            "£60-£120 per head: stronger in-person experience with food pairing or private host.",
+        ],
+        "approaches": [
+            "Fun formats can include quizzes, blind tasting or food pairing.",
+            "Educational formats work well for mixed seniority because they give the session structure.",
+            "Inclusivity matters: provide alcohol-free options and avoid pressure to drink.",
+        ],
+        "avoid": [
+            "Over-boozy formats, large pours or drinking games.",
+            "Technical sessions that alienate beginners.",
+            "Ignoring dietary, accessibility and alcohol-free needs.",
+        ],
+        "checklist": [
+            "Choose fun, educational or client-safe tone before contacting suppliers.",
+            "Confirm attendee count, budget and format.",
+            "Ask about alcohol-free alternatives and food pairing.",
+            "Share clear internal invite copy with timing and expectations.",
+        ],
+        "faqs": [
+            {"q": "Are wine tastings good team-building events?", "a": "They can be, if the format is inclusive, beginner-friendly and not centred on drinking volume."},
+            {"q": "How much does a corporate wine tasting cost?", "a": "Plan around £25-£60 per head for many hosted formats, with premium in-person events costing more."},
+        ],
+        "cta": "Plan a team tasting",
+        "cta_url": "/event-planner",
+        "related": ["virtual-wine-tasting-for-teams", "corporate-wine-tasting-london", "staff-wine-gifts"],
+        "affiliate": False,
+    },
+}
+
+
+def render(request: Request, template: str, title: str, description: str | None = None, **context) -> HTMLResponse:
+    base_url = os.getenv("APP_BASE_URL", "").rstrip("/")
+    canonical_url = f"{base_url}{request.url.path}" if base_url else None
     return templates.TemplateResponse(
         request=request,
         name=template,
-        context={"title": title, "product": PRODUCT_NAME},
+        context={
+            "title": title,
+            "description": description or "Corporate wine gifts and tasting events made simple.",
+            "product": PRODUCT_NAME,
+            "payments_enabled": payments_enabled(),
+            "canonical_url": canonical_url,
+            **context,
+        },
     )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    message = "Please check the form and try again."
+    errors = exc.errors()
+    if errors:
+        message = errors[0].get("msg", message)
+    return JSONResponse(status_code=422, content={"ok": False, "message": message, "detail": errors})
 
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
-    return render(request, "index.html", "Corporate wine gifts and tasting events made simple")
+    return render(
+        request,
+        "index.html",
+        "Corporate Wine Gifts and Tasting Events",
+        "Plan corporate wine gifts and tasting events with UK budget guidance, supplier options and ready-to-send enquiry emails.",
+    )
 
 
 @app.get("/gift-planner", response_class=HTMLResponse)
 def gift_planner(request: Request):
-    return render(request, "gift_planner.html", "Gift planner")
+    return render(request, "gift_planner.html", "Corporate Wine Gift Planner", "Create a practical UK corporate wine gift plan with budget guidance and supplier enquiry copy.")
 
 
 @app.get("/event-planner", response_class=HTMLResponse)
 def event_planner(request: Request):
-    return render(request, "event_planner.html", "Event planner")
+    return render(request, "event_planner.html", "Corporate Wine Tasting Event Planner", "Plan a corporate wine tasting event with budget guidance, event structure and supplier enquiry copy.")
 
 
 @app.get("/pricing", response_class=HTMLResponse)
 def pricing(request: Request):
-    return render(request, "pricing.html", "Pricing")
+    return render(request, "pricing.html", "Pricing", "ClientCellar free planner and £29.99 premium corporate wine planning pack.")
+
+
+@app.get("/premium-pack", response_class=HTMLResponse)
+def premium_pack(request: Request):
+    return render(
+        request,
+        "premium_pack.html",
+        "Premium Pack",
+        "Turn your quick corporate wine plan into a supplier-ready planning pack.",
+    )
+
+
+@app.get("/checkout/success", response_class=HTMLResponse)
+def checkout_success(request: Request):
+    return render(request, "checkout_success.html", "Payment received")
+
+
+@app.get("/checkout/cancelled", response_class=HTMLResponse)
+def checkout_cancelled(request: Request):
+    return render(request, "checkout_cancelled.html", "Checkout cancelled")
+
+
+@app.get("/suppliers", response_class=HTMLResponse)
+def supplier_directory(request: Request):
+    active_suppliers = [supplier for supplier in SUPPLIERS if supplier.get("active", True)]
+    return render(
+        request,
+        "suppliers.html",
+        "Corporate Wine Gift and Tasting Suppliers",
+        "Browse planning-friendly supplier routes for corporate wine gifts, hampers and tasting events.",
+        suppliers=active_suppliers,
+    )
+
+
+@app.get("/suppliers/join", response_class=HTMLResponse)
+def suppliers_join(request: Request):
+    return render(
+        request,
+        "suppliers_join.html",
+        "Work with ClientCellar",
+        "Apply to be considered for the ClientCellar supplier directory.",
+    )
+
+
+@app.get("/suppliers/{tracking_slug}", response_class=HTMLResponse)
+def supplier_detail(request: Request, tracking_slug: str):
+    supplier = supplier_by_tracking_slug(tracking_slug)
+    if not supplier:
+        raise HTTPException(status_code=404, detail="Supplier not found.")
+    return render(
+        request,
+        "supplier_detail.html",
+        supplier["name"],
+        supplier["description"],
+        supplier=supplier,
+        real_supplier=is_real_supplier(supplier),
+    )
+
+
+@app.get("/out/supplier/{tracking_slug}")
+def supplier_outbound(request: Request, tracking_slug: str, source_page: str | None = None):
+    supplier = supplier_by_tracking_slug(tracking_slug)
+    if not supplier:
+        raise HTTPException(status_code=404, detail="Supplier not found.")
+    destination = supplier_destination_url(supplier)
+    if not destination:
+        return RedirectResponse(url="/contact?interest=supplier-type", status_code=302)
+    save_supplier_click(
+        supplier=supplier,
+        destination_url=destination,
+        source_page=source_page,
+        user_agent=request.headers.get("user-agent"),
+        referrer=request.headers.get("referer"),
+    )
+    return RedirectResponse(url=destination, status_code=302)
+
+
+@app.get("/admin/leads-basic", response_class=HTMLResponse)
+def admin_leads_basic(request: Request):
+    admin_password = os.getenv("ADMIN_PASSWORD")
+    supplied_password = request.query_params.get("password", "")
+    if not admin_password:
+        return render(
+            request,
+            "admin_leads.html",
+            "Lead admin",
+            enabled=False,
+            authorised=False,
+            leads=[],
+            password="",
+        )
+    if supplied_password != admin_password:
+        return render(
+            request,
+            "admin_leads.html",
+            "Lead admin",
+            enabled=True,
+            authorised=False,
+            leads=[],
+            password="",
+        )
+    return render(
+        request,
+        "admin_leads.html",
+        "Lead admin",
+        enabled=True,
+        authorised=True,
+        leads=fetch_leads(limit=100),
+        password=supplied_password,
+    )
+
+
+@app.get("/admin/supplier-applications", response_class=HTMLResponse)
+def admin_supplier_applications(request: Request):
+    admin_password = os.getenv("ADMIN_PASSWORD")
+    supplied_password = request.query_params.get("password", "")
+    if not admin_password:
+        return render(
+            request,
+            "admin_supplier_applications.html",
+            "Supplier applications",
+            enabled=False,
+            authorised=False,
+            applications=[],
+            password="",
+        )
+    if supplied_password != admin_password:
+        return render(
+            request,
+            "admin_supplier_applications.html",
+            "Supplier applications",
+            enabled=True,
+            authorised=False,
+            applications=[],
+            password="",
+        )
+    return render(
+        request,
+        "admin_supplier_applications.html",
+        "Supplier applications",
+        enabled=True,
+        authorised=True,
+        applications=fetch_supplier_applications(limit=100),
+        password=supplied_password,
+    )
 
 
 @app.get("/faq", response_class=HTMLResponse)
@@ -919,6 +1920,43 @@ def faq(request: Request):
 @app.get("/contact", response_class=HTMLResponse)
 def contact(request: Request):
     return render(request, "contact.html", "Contact")
+
+
+@app.get("/guides", response_class=HTMLResponse)
+def guides_index(request: Request):
+    return render(
+        request,
+        "guides.html",
+        "Corporate Wine Gift and Tasting Guides",
+        "Practical UK guides for corporate wine gifts, hampers, Champagne gifts and wine tasting events.",
+        guides=GUIDES,
+    )
+
+
+@app.get("/guides/{slug}", response_class=HTMLResponse)
+def guide_detail(request: Request, slug: str):
+    guide = GUIDES.get(slug)
+    if not guide:
+        return templates.TemplateResponse(
+            request=request,
+            name="guides.html",
+            context={
+                "title": "Guides",
+                "description": "Practical ClientCellar guides.",
+                "product": PRODUCT_NAME,
+                "guides": GUIDES,
+            },
+            status_code=404,
+        )
+    return render(
+        request,
+        "guide_detail.html",
+        guide["title"],
+        guide["description"],
+        guide=guide,
+        guides=GUIDES,
+        slug=slug,
+    )
 
 
 @app.get("/terms", response_class=HTMLResponse)
@@ -951,6 +1989,29 @@ def cookies(request: Request):
     return render(request, "cookies.html", "Cookie Policy")
 
 
+@app.get("/sitemap.xml")
+def sitemap(request: Request):
+    base_url = os.getenv("APP_BASE_URL") or str(request.base_url).rstrip("/")
+    urls = STATIC_ROUTES + [f"/guides/{slug}" for slug in GUIDES] + [
+        f"/suppliers/{supplier['tracking_slug']}" for supplier in SUPPLIERS if supplier.get("active", True)
+    ]
+    body = "\n".join(
+        [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+            *[f"  <url><loc>{base_url}{path}</loc></url>" for path in urls],
+            "</urlset>",
+        ]
+    )
+    return Response(content=body, media_type="application/xml")
+
+
+@app.get("/robots.txt")
+def robots(request: Request):
+    base_url = os.getenv("APP_BASE_URL") or str(request.base_url).rstrip("/")
+    return Response(content=f"User-agent: *\nAllow: /\nSitemap: {base_url}/sitemap.xml\n", media_type="text/plain")
+
+
 @app.get("/api/health")
 def health():
     return {
@@ -966,6 +2027,72 @@ def suppliers():
     return {"suppliers": SUPPLIERS, "count": len(SUPPLIERS), "disclaimer": DISCLAIMER}
 
 
+@app.get("/api/leads/export.csv")
+def export_leads_csv(request: Request):
+    admin_password = os.getenv("ADMIN_PASSWORD")
+    supplied_password = request.query_params.get("password", "")
+    if not admin_password or supplied_password != admin_password:
+        raise HTTPException(status_code=403, detail="Lead export is not enabled or the password is incorrect.")
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    columns = [
+        "id",
+        "created_at",
+        "name",
+        "email",
+        "company",
+        "phone",
+        "interested_in",
+        "recipient_count",
+        "budget_per_recipient",
+        "occasion",
+        "deadline",
+        "message",
+        "consent_to_contact",
+        "source_page",
+    ]
+    writer.writerow(columns)
+    for lead in fetch_leads():
+        writer.writerow([lead[column] for column in columns])
+
+    headers = {"Content-Disposition": "attachment; filename=clientcellar-leads.csv"}
+    return Response(content=output.getvalue(), media_type="text/csv", headers=headers)
+
+
+@app.get("/api/admin/summary")
+def admin_summary(request: Request):
+    admin_password = os.getenv("ADMIN_PASSWORD")
+    supplied_password = request.query_params.get("password", "")
+    if not admin_password or supplied_password != admin_password:
+        raise HTTPException(status_code=403, detail="Admin summary is not enabled or the password is incorrect.")
+
+    init_leads_db()
+    with get_db_connection() as connection:
+        lead_count = connection.execute("SELECT COUNT(*) FROM leads").fetchone()[0]
+        application_count = connection.execute("SELECT COUNT(*) FROM supplier_applications").fetchone()[0]
+        click_count = connection.execute("SELECT COUNT(*) FROM supplier_clicks").fetchone()[0]
+        rows = connection.execute(
+            """
+            SELECT tracking_slug, COUNT(*) AS clicks
+            FROM supplier_clicks
+            GROUP BY tracking_slug
+            ORDER BY clicks DESC
+            LIMIT 5
+            """
+        ).fetchall()
+    top_clicked = []
+    for row in rows:
+        supplier = supplier_by_tracking_slug(row["tracking_slug"])
+        top_clicked.append({"name": supplier["name"] if supplier else row["tracking_slug"], "clicks": row["clicks"]})
+    return {
+        "lead_count": lead_count,
+        "supplier_application_count": application_count,
+        "supplier_click_count": click_count,
+        "top_clicked_suppliers": top_clicked,
+    }
+
+
 @app.post("/api/gift-plan")
 def gift_plan(req: GiftPlanRequest):
     return make_gift_plan(req)
@@ -974,6 +2101,55 @@ def gift_plan(req: GiftPlanRequest):
 @app.post("/api/event-plan")
 def event_plan(req: EventPlanRequest):
     return make_event_plan(req)
+
+
+@app.post("/api/premium-pack-preview")
+def premium_pack_preview(req: PremiumPackPreviewRequest):
+    return make_premium_pack_preview(req)
+
+
+@app.post("/api/create-checkout-session")
+def create_checkout_session(req: CheckoutSessionRequest):
+    if not payments_enabled():
+        return {
+            "enabled": False,
+            "message": "Payments are not enabled yet. Please register interest instead.",
+        }
+
+    try:
+        import stripe
+    except Exception:
+        return {
+            "enabled": False,
+            "message": "Payments are not enabled yet. Please register interest instead.",
+        }
+
+    stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+    base_url = os.getenv("APP_BASE_URL", "http://localhost:8000").rstrip("/")
+    session_data = {
+        "mode": "payment",
+        "line_items": [{"price": os.getenv("STRIPE_PRICE_ID"), "quantity": 1}],
+        "success_url": f"{base_url}/checkout/success",
+        "cancel_url": f"{base_url}/checkout/cancelled",
+        "metadata": {"pack_type": req.pack_type},
+    }
+    if req.email:
+        session_data["customer_email"] = str(req.email)
+
+    session = stripe.checkout.Session.create(**session_data)
+    return {"enabled": True, "checkout_url": session.url, "session_id": session.id}
+
+
+@app.post("/api/lead")
+def create_lead(req: LeadRequest):
+    save_lead(req)
+    return {"ok": True, "message": "Thanks — your enquiry has been saved."}
+
+
+@app.post("/api/supplier-application")
+def create_supplier_application(req: SupplierApplicationRequest):
+    save_supplier_application(req)
+    return {"ok": True, "message": "Thanks — your supplier application has been saved."}
 
 
 @app.post("/api/contact")

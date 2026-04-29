@@ -1,4 +1,8 @@
 const csvFilename = "clientcellar-recipient-template.csv";
+const plannerState = {
+  gift: null,
+  event: null,
+};
 
 function formToJson(form) {
   const data = new FormData(form);
@@ -40,20 +44,134 @@ function list(items) {
 function renderSuppliers(suppliers) {
   return suppliers
     .map((supplier) => {
-      const link = supplier.url
-        ? `<p><a href="${escapeHtml(supplier.url)}" target="_blank" rel="noopener">Supplier link</a></p><p class="small-note">Some supplier links may be affiliate links.</p>`
-        : "";
+      const link = supplier.tracked_url
+        ? `<p><a class="button secondary" href="${escapeHtml(supplier.tracked_url)}" target="_blank" rel="noopener">Visit supplier</a></p>`
+        : '<p class="small-note">Use this as a supplier type rather than a direct supplier link.</p>';
       return `
         <article class="supplier-card">
           <h3>${escapeHtml(supplier.name)}</h3>
           <p><strong>${escapeHtml(supplier.category)}</strong></p>
+          <p><strong>${escapeHtml(supplier.relationship_label || "Listed supplier")}</strong></p>
           <p>${escapeHtml(supplier.why)}</p>
           <p>${escapeHtml(supplier.budget_fit)}</p>
           ${link}
+          <p class="small-note">${escapeHtml(supplier.disclosure_note || "Some supplier links may be affiliate or tracked links.")} <a href="/affiliate-disclosure">See Affiliate Disclosure.</a></p>
         </article>
       `;
     })
     .join("");
+}
+
+function renderBudgetRows(rows) {
+  return `
+    <div class="comparison-table">
+      ${rows
+        .map(
+          (row) => `
+            <div>
+              <strong>${escapeHtml(row.label)}</strong>
+              <span>${escapeHtml(row.amount)}</span>
+              <p>${escapeHtml(row.note)}</p>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderPremiumComparison(items) {
+  return items
+    .map(
+      (item) => `
+        <article class="supplier-card">
+          <h3>${escapeHtml(item.supplier)}</h3>
+          <p>${escapeHtml(item.fit)}</p>
+          <p><strong>Pros</strong></p>
+          ${list(item.pros)}
+          <p><strong>Watchouts</strong></p>
+          ${list(item.watchouts)}
+        </article>
+      `
+    )
+    .join("");
+}
+
+function renderPremiumPreview(preview, type) {
+  const email = `${preview.supplier_enquiry_email.subject}\n\n${preview.supplier_enquiry_email.body}`;
+  return `
+    <div class="premium-preview">
+      <div class="result-block">
+        <p class="eyebrow">Premium preview</p>
+        <h2>Supplier-ready planning pack</h2>
+        <p>${escapeHtml(preview.executive_summary)}</p>
+      </div>
+      <div class="result-block">
+        <h2>Budget breakdown</h2>
+        ${renderBudgetRows(preview.budget_breakdown)}
+      </div>
+      <div class="result-block">
+        <h2>Supplier comparison</h2>
+        ${renderPremiumComparison(preview.supplier_comparison)}
+      </div>
+      <div class="result-block">
+        <h2>Message variants</h2>
+        ${preview.message_variants
+          .map((variant) => `<p><strong>${escapeHtml(variant.tone)}:</strong> ${escapeHtml(variant.message)}</p>`)
+          .join("")}
+      </div>
+      <div class="result-block">
+        <h2>Internal approval note</h2>
+        <p>${escapeHtml(preview.internal_approval_note)}</p>
+      </div>
+      <div class="result-block">
+        <h2>Risk checklist</h2>
+        ${list(preview.risk_checklist)}
+      </div>
+      <div class="result-block">
+        <h2>Supplier enquiry email</h2>
+        <div class="email-preview">${escapeHtml(email)}</div>
+      </div>
+      <div class="result-block">
+        <h2>Print note</h2>
+        <p>${escapeHtml(preview.print_note)}</p>
+        <p class="small-note">${escapeHtml(preview.disclaimer)}</p>
+      </div>
+      ${renderLeadForm("premium_pack", "premium-pack-preview", type)}
+    </div>
+  `;
+}
+
+function renderLeadForm(interestedIn, sourcePage, contextType = "") {
+  return `
+    <form class="lead-capture-form planner-form" data-lead-form data-interested-in="${interestedIn}" data-source-page="${sourcePage}" data-context-type="${contextType}">
+      <h2>Want help turning this into a supplier-ready brief?</h2>
+      <p>Leave your details and we’ll use your plan to help prepare a clearer gifting or event brief.</p>
+      <div class="form-row">
+        <label>Name
+          <input name="name" required>
+        </label>
+        <label>Work email
+          <input name="email" type="email" required>
+        </label>
+      </div>
+      <label>Company
+        <input name="company">
+      </label>
+      <label>Deadline optional
+        <input name="deadline" placeholder="e.g. 12 December">
+      </label>
+      <label>Message optional
+        <textarea name="message" maxlength="3000" placeholder="Anything useful about the brief, suppliers or timing"></textarea>
+      </label>
+      <label class="consent-line">
+        <input type="checkbox" name="consent_to_contact" required>
+        <span>I agree that ClientCellar can contact me about this enquiry. I understand this is planning guidance and supplier availability must be confirmed directly.</span>
+      </label>
+      <button class="button primary full" type="submit">Send enquiry</button>
+      <p class="form-status" role="status"></p>
+    </form>
+  `;
 }
 
 function renderPlan(plan, type) {
@@ -108,7 +226,7 @@ function renderPlan(plan, type) {
         <button class="button primary" type="button" data-copy-email>Copy supplier enquiry email</button>
         ${csvButton}
         ${inviteButton}
-        <button class="button secondary" type="button" data-print-plan>Print / save plan</button>
+        <button class="button secondary" type="button" data-print-plan>Print / save as PDF</button>
       </div>
       ${eventExtras}
       <div class="result-block">
@@ -127,6 +245,18 @@ function renderPlan(plan, type) {
         <h2>Next steps</h2>
         ${list(plan.next_steps)}
       </div>
+      <div class="premium-cta-card">
+        <p class="eyebrow">Premium Pack</p>
+        <h2>Need a supplier-ready pack?</h2>
+        <p>Generate a polished planning pack with budget notes, supplier comparison, recipient CSV, message options and a ready-to-send enquiry email.</p>
+        <div class="result-actions">
+          <button class="button primary" type="button" data-preview-premium data-pack-type="${type}">Preview premium pack</button>
+          <a class="button secondary" href="/premium-pack">View premium pack</a>
+          <a class="button secondary" href="/contact?interest=premium-pack">Register interest</a>
+        </div>
+        <div data-premium-preview></div>
+      </div>
+      ${renderLeadForm(type === "gift" ? "gifts" : "events", `${type}-planner-results`, type)}
       <div class="result-block">
         <h2>Disclaimer</h2>
         <p>${escapeHtml(plan.disclaimer)}</p>
@@ -135,10 +265,68 @@ function renderPlan(plan, type) {
   `;
 }
 
+function leadPayloadFromForm(form) {
+  const payload = formToJson(form);
+  payload.interested_in = form.dataset.interestedIn || payload.interested_in || "other";
+  payload.source_page = form.dataset.sourcePage || window.location.pathname;
+  payload.consent_to_contact = Boolean(payload.consent_to_contact);
+
+  const type = form.dataset.contextType || (payload.interested_in === "events" ? "event" : "gift");
+  const state = plannerState[type];
+  if (state && !payload.planner_input && form.closest(".results-panel")) {
+    payload.planner_input = state.input;
+    payload.planner_output = state.output;
+    if (state.input.recipient_count) payload.recipient_count = state.input.recipient_count;
+    if (state.input.attendee_count) payload.recipient_count = state.input.attendee_count;
+    if (state.input.budget_per_recipient) payload.budget_per_recipient = state.input.budget_per_recipient;
+    if (state.input.budget_per_person) payload.budget_per_recipient = state.input.budget_per_person;
+    if (state.input.occasion) payload.occasion = state.input.occasion;
+    if (state.input.delivery_deadline) payload.deadline = payload.deadline || state.input.delivery_deadline;
+    if (state.input.date) payload.deadline = payload.deadline || state.input.date;
+  }
+
+  return payload;
+}
+
+function errorMessageFromResponse(data) {
+  if (typeof data.detail === "string") return data.detail;
+  if (Array.isArray(data.detail) && data.detail.length) {
+    return data.detail.map((item) => item.msg).join(" ");
+  }
+  return data.message || "Sorry, your enquiry could not be saved.";
+}
+
+async function submitLeadForm(form) {
+  const status = form.querySelector(".form-status") || document.getElementById("contact-status");
+  status.textContent = "Sending...";
+  try {
+    const response = await fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(leadPayloadFromForm(form)),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(errorMessageFromResponse(data));
+    }
+    status.textContent = "Thanks — your enquiry has been saved. We’ll use the details you shared to understand the request.";
+    form.reset();
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
 async function submitPlan(form, type) {
   const target = document.getElementById(`${type}-results`);
   const endpoint = type === "gift" ? "/api/gift-plan" : "/api/event-plan";
-  target.innerHTML = '<div class="loading">Building your plan...</div>';
+  const submitButton = form.querySelector('button[type="submit"]');
+  const originalLabel = submitButton?.dataset.submitLabel || submitButton?.textContent || "Create plan";
+  if (!form.reportValidity()) return;
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = submitButton.dataset.loadingLabel || "Creating your plan...";
+  }
+  target.innerHTML = '<div class="loading">Creating your plan...</div>';
 
   try {
     const response = await fetch(endpoint, {
@@ -150,10 +338,71 @@ async function submitPlan(form, type) {
       throw new Error("Planner request failed");
     }
     const plan = await response.json();
+    plannerState[type] = { input: formToJson(form), output: plan };
     target.innerHTML = renderPlan(plan, type);
     target.dataset.csv = plan.recipient_csv_template || "";
   } catch (error) {
-    target.innerHTML = '<div class="empty-state">Sorry, the plan could not be generated. Check the form and try again.</div>';
+    target.innerHTML = '<div class="empty-state">Sorry, the plan could not be generated. Check the form and try again. If the issue continues, refresh the page.</div>';
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = originalLabel;
+    }
+  }
+}
+
+async function previewPremiumPack(type, button) {
+  const state = plannerState[type];
+  const panel = button.closest(".premium-cta-card");
+  const target = panel.querySelector("[data-premium-preview]");
+  if (!state) {
+    target.innerHTML = '<p class="small-note">Generate a plan first, then preview the premium pack.</p>';
+    return;
+  }
+
+  button.disabled = true;
+  target.innerHTML = '<div class="loading compact">Building premium preview...</div>';
+  try {
+    const response = await fetch("/api/premium-pack-preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pack_type: type,
+        planner_input: state.input,
+        planner_output: state.output,
+      }),
+    });
+    if (!response.ok) throw new Error("Preview failed");
+    const preview = await response.json();
+    target.innerHTML = renderPremiumPreview(preview, type);
+  } catch (error) {
+    target.innerHTML = '<p class="small-note">Sorry, the premium preview could not be generated.</p>';
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function createCheckoutSession(packType, button) {
+  const original = button.textContent;
+  button.textContent = "Checking...";
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pack_type: packType }),
+    });
+    const data = await response.json();
+    if (data.enabled && data.checkout_url) {
+      window.location.href = data.checkout_url;
+      return;
+    }
+    window.location.href = "/contact?interest=premium-pack";
+  } catch (error) {
+    window.location.href = "/contact?interest=premium-pack";
+  } finally {
+    button.textContent = original;
+    button.disabled = false;
   }
 }
 
@@ -206,6 +455,12 @@ function bindResultActions() {
     if (button.matches("[data-print-plan]")) {
       window.print();
     }
+    if (button.matches("[data-preview-premium]")) {
+      previewPremiumPack(button.dataset.packType, button);
+    }
+    if (button.matches("[data-pack-checkout]")) {
+      createCheckoutSession(button.dataset.packType || "gift", button);
+    }
   });
 }
 
@@ -213,26 +468,53 @@ function bindContactForm() {
   const form = document.getElementById("contact-form");
   if (!form) return;
 
+  const interest = new URLSearchParams(window.location.search).get("interest");
+  const select = form.querySelector('[name="interested_in"]');
+  if (interest === "premium-pack" && select) {
+    select.value = "premium_pack";
+  }
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const status = document.getElementById("contact-status");
+    submitLeadForm(form);
+  });
+}
+
+function bindSupplierApplicationForm() {
+  const form = document.getElementById("supplier-application-form");
+  if (!form) return;
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const status = document.getElementById("supplier-application-status");
     status.textContent = "Sending...";
     try {
-      const response = await fetch("/api/contact", {
+      const response = await fetch("/api/supplier-application", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formToJson(form)),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error("Contact request failed");
-      status.textContent = data.message;
+      if (!response.ok) throw new Error(errorMessageFromResponse(data));
+      status.textContent = data.message || "Thanks — your supplier application has been saved.";
       form.reset();
     } catch (error) {
-      status.textContent = "Sorry, your message could not be logged.";
+      status.textContent = error.message || "Sorry, your supplier application could not be saved.";
     }
+  });
+}
+
+function bindLeadForms() {
+  document.addEventListener("submit", (event) => {
+    const form = event.target.closest("[data-lead-form]");
+    if (!form || form.id === "contact-form") return;
+    event.preventDefault();
+    submitLeadForm(form);
   });
 }
 
 bindPlannerForms();
 bindResultActions();
 bindContactForm();
+bindSupplierApplicationForm();
+bindLeadForms();

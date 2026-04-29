@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Admin</p>
+  <h1>Lead admin</h1>
+  {% if not enabled %}
+  <p>Lead admin is not enabled.</p>
+  <p class="notice">Set <code>ADMIN_PASSWORD</code> in the environment to enable this MVP admin view.</p>
+  {% elif not authorised %}
+  <p>Enter the admin password to view recent leads.</p>
+  <form class="planner-form admin-password-form" method="get" action="/admin/leads-basic">
+    <label>Password
+      <input name="password" type="password" required>
+    </label>
+    <button class="button primary" type="submit">View leads</button>
+  </form>
+  {% else %}
+  <p>Recent lead enquiries are shown below. This is MVP protection only and should be replaced before production use at scale.</p>
+  <div class="hero-actions">
+    <a class="button primary" href="/api/leads/export.csv?password={{ password }}">Export CSV</a>
+  </div>
+  {% endif %}
+</section>
+
+{% if enabled and authorised %}
+<section class="admin-table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>created_at</th>
+        <th>name</th>
+        <th>email</th>
+        <th>company</th>
+        <th>interested_in</th>
+        <th>recipient_count</th>
+        <th>budget_per_recipient</th>
+        <th>occasion</th>
+        <th>deadline</th>
+        <th>message</th>
+        <th>source_page</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lead in leads %}
+      <tr>
+        <td>{{ lead.created_at }}</td>
+        <td>{{ lead.name }}</td>
+        <td>{{ lead.email }}</td>
+        <td>{{ lead.company or "" }}</td>
+        <td>{{ lead.interested_in }}</td>
+        <td>{{ lead.recipient_count or "" }}</td>
+        <td>{{ lead.budget_per_recipient or "" }}</td>
+        <td>{{ lead.occasion or "" }}</td>
+        <td>{{ lead.deadline or "" }}</td>
+        <td>{{ lead.message or "" }}</td>
+        <td>{{ lead.source_page or "" }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="11">No leads yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Suppliers</p>
+  <h1>Work with ClientCellar</h1>
+  <p>We’re building a practical supplier directory for corporate wine gifts, hampers and tasting events.</p>
+</section>
+
+<section class="contact-layout supplier-join-layout">
+  <div class="side-note">
+    <h2>Who we list</h2>
+    <p>Wine merchants, hamper suppliers, sparkling wine specialists, corporate gifting providers and tasting hosts that can support business customers.</p>
+    <h2>What businesses ask for</h2>
+    <p>Clear budgets, bulk ordering, reliable delivery, personalisation, alcohol-free options and supplier-ready enquiry responses.</p>
+    <h2>How listings may work</h2>
+    <p>Listings may be unpaid, affiliate, referral, sponsored or supplier partner placements. Commercial relationships should be disclosed clearly.</p>
+    <h2>Disclosure and trust</h2>
+    <p>Recommendations should be based on fit, not commission. No supplier endorsement is implied unless explicitly stated.</p>
+  </div>
+
+  <form id="supplier-application-form" class="planner-form">
+    <label>Business name
+      <input name="business_name" required>
+    </label>
+    <label>Contact name
+      <input name="contact_name" required>
+    </label>
+    <label>Email
+      <input name="email" type="email" required>
+    </label>
+    <label>Phone optional
+      <input name="phone">
+    </label>
+    <label>Website
+      <input name="website" placeholder="https://">
+    </label>
+    <label>Supplier type
+      <select name="supplier_type" required>
+        <option value="wine_merchant">Wine merchant</option>
+        <option value="hamper_supplier">Hamper supplier</option>
+        <option value="champagne_sparkling_specialist">Champagne/sparkling specialist</option>
+        <option value="english_sparkling_producer">English sparkling producer</option>
+        <option value="corporate_gifting_provider">Corporate gifting provider</option>
+        <option value="wine_tasting_host">Wine tasting host</option>
+        <option value="virtual_tasting_provider">Virtual tasting provider</option>
+        <option value="other">Other</option>
+      </select>
+    </label>
+    <label>Regions covered
+      <input name="regions_covered" placeholder="e.g. UK-wide, London, remote" required>
+    </label>
+    <div class="checks">
+      <label><input type="checkbox" name="corporate_gifting"> Corporate gifting</label>
+      <label><input type="checkbox" name="wine_tasting_events"> Wine tasting events</label>
+      <label><input type="checkbox" name="virtual_events"> Virtual events</label>
+      <label><input type="checkbox" name="bulk_orders"> Bulk orders</label>
+      <label><input type="checkbox" name="personalisation"> Personalisation/branding</label>
+    </div>
+    <div class="form-row">
+      <label>Typical budget min
+        <input name="typical_budget_min" type="number" min="1" step="0.01">
+      </label>
+      <label>Typical budget max
+        <input name="typical_budget_max" type="number" min="1" step="0.01">
+      </label>
+    </div>
+    <label>Message
+      <textarea name="message" maxlength="3000"></textarea>
+    </label>
+    <label class="consent-line">
+      <input type="checkbox" name="consent_to_contact" required>
+      <span>I agree that ClientCellar can contact me about this supplier enquiry.</span>
+    </label>
+    <button class="button primary full" type="submit">Send supplier application</button>
+    <p id="supplier-application-status" class="form-status" role="status"></p>
+  </form>
+</section>
+{% endblock %}
