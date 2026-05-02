@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import main
 from main import app
 
 
@@ -27,6 +28,44 @@ def test_health_endpoint():
     response = client.get("/api/health")
     assert response.status_code == 200
     assert response.json()["ok"] is True
+
+
+def test_checkout_success_loads_without_session_id():
+    response = client.get("/checkout/success")
+    assert response.status_code == 200
+    assert "Payment received" in response.text
+
+
+def test_checkout_success_loads_with_fake_session_id():
+    response = client.get("/checkout/success?session_id=fake")
+    assert response.status_code == 200
+    assert "Payment received" in response.text
+
+
+def test_checkout_cancelled_loads():
+    response = client.get("/checkout/cancelled")
+    assert response.status_code == 200
+    assert "Checkout cancelled" in response.text
+
+
+def test_premium_pack_page_loads():
+    response = client.get("/premium-pack")
+    assert response.status_code == 200
+    assert "Premium Pack" in response.text
+
+
+def test_missing_premium_pack_view_loads_friendly_error(tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(main, "DB_PATH", tmp_path / "clientcellar.db")
+    response = client.get("/premium-pack/view/not-a-real-token")
+    assert response.status_code == 404
+    assert "Pack not found" in response.text
+
+
+def test_pricing_page_loads():
+    response = client.get("/pricing")
+    assert response.status_code == 200
+    assert "Pricing" in response.text
 
 
 def test_gift_plan_endpoint():

@@ -2023,7 +2023,11 @@ def checkout_success(request: Request):
         "verification_error": verification_error,
         "payment_status": payment_status,
     }
-    return templates.TemplateResponse("checkout_success.html", context)
+    return templates.TemplateResponse(
+        request=request,
+        name="checkout_success.html",
+        context=context,
+    )
 
 
 @app.get("/checkout/cancelled", response_class=HTMLResponse)
@@ -2044,8 +2048,9 @@ def premium_pack_view(request: Request, pack_token: str):
 
     if not pack:
         return templates.TemplateResponse(
-            "error.html",
-            {
+            request=request,
+            name="error.html",
+            context={
                 "request": request,
                 "title": "Pack not found",
                 "message": "The premium pack you're looking for wasn't found. Please check the link and try again.",
@@ -2056,8 +2061,9 @@ def premium_pack_view(request: Request, pack_token: str):
 
     if payments_enabled() and pack.get("payment_status") != "paid":
         return templates.TemplateResponse(
-            "error.html",
-            {
+            request=request,
+            name="error.html",
+            context={
                 "request": request,
                 "title": "Payment required",
                 "message": "This premium pack requires payment. Please complete checkout first or contact us for support.",
@@ -2092,7 +2098,11 @@ def premium_pack_view(request: Request, pack_token: str):
         "payment_verified": pack.get("payment_status") == "paid",
     }
 
-    return templates.TemplateResponse("premium_pack_view.html", context)
+    return templates.TemplateResponse(
+        request=request,
+        name="premium_pack_view.html",
+        context=context,
+    )
 
 
 @app.get("/suppliers", response_class=HTMLResponse)
