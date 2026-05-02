@@ -70,6 +70,14 @@ def payments_enabled() -> bool:
     )
 
 
+def stripe_obj_get(obj, key, default=None):
+    if obj is None:
+        return default
+    if isinstance(obj, dict):
+        return obj.get(key, default)
+    return getattr(obj, key, default)
+
+
 def get_db_connection() -> sqlite3.Connection:
     DATA_DIR.mkdir(exist_ok=True)
     connection = sqlite3.connect(DB_PATH)
@@ -1989,8 +1997,8 @@ def checkout_success(request: Request):
             import stripe
             stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
             session = stripe.checkout.Session.retrieve(session_id)
-            pack_token = session.metadata.get("pack_token") if session.metadata else None
-            payment_status = session.payment_status
+            pack_token = stripe_obj_get(stripe_obj_get(session, "metadata", {}), "pack_token")
+            payment_status = stripe_obj_get(session, "payment_status")
             if payment_status == "paid":
                 payment_verified = True
                 if pack_token:
@@ -1998,10 +2006,10 @@ def checkout_success(request: Request):
                         pack_token,
                         "paid",
                         stripe_session_id=session_id,
-                        stripe_payment_intent=session.payment_intent,
-                        amount_total=session.amount_total,
-                        currency=session.currency,
-                        customer_email=session.customer_email,
+                        stripe_payment_intent=stripe_obj_get(session, "payment_intent"),
+                        amount_total=stripe_obj_get(session, "amount_total"),
+                        currency=stripe_obj_get(session, "currency"),
+                        customer_email=stripe_obj_get(session, "customer_email"),
                     )
         except Exception:
             verification_error = True
@@ -2544,34 +2552,36 @@ async def stripe_webhook(request: Request):
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error))
 
-    event_type = event.get("type")
-    data = event.get("data", {}).get("object", {})
-    pack_token = None
+    event_type = stripe_obj_get(event, "type")
+    data_obj = stripe_obj_get(stripe_obj_get(event, "data", {}), "object", {})
+    pack_token = stripe_obj_get(stripe_obj_get(data_obj, "metadata", {}), "pack_token")
+    print("Stripe webhook event:", event_type)
+    print("Stripe webhook pack_token:", pack_token)
 
     if event_type == "checkout.session.completed":
-        pack_token = (data.get("metadata") or {}).get("pack_token")
-        if pack_token and data.get("payment_status") == "paid":
+        payment_status = stripe_obj_get(data_obj, "payment_status")
+        if pack_token and payment_status == "paid":
             update_premium_pack_payment(
                 pack_token,
                 "paid",
-                stripe_session_id=data.get("id"),
-                stripe_payment_intent=data.get("payment_intent"),
-                amount_total=data.get("amount_total"),
-                currency=data.get("currency"),
-                customer_email=data.get("customer_email"),
+                stripe_session_id=stripe_obj_get(data_obj, "id"),
+                stripe_payment_intent=stripe_obj_get(data_obj, "payment_intent"),
+                amount_total=stripe_obj_get(data_obj, "amount_total"),
+                currency=stripe_obj_get(data_obj, "currency"),
+                customer_email=stripe_obj_get(data_obj, "customer_email"),
             )
+        elif not pack_token:
+            print("Stripe webhook warning: checkout.session.completed missing pack_token")
     elif event_type == "checkout.session.expired":
-        pack_token = (data.get("metadata") or {}).get("pack_token")
         if pack_token:
             update_premium_pack_payment(pack_token, "cancelled")
     elif event_type == "payment_intent.payment_failed":
-        pack_token = (data.get("metadata") or {}).get("pack_token")
         if pack_token:
             update_premium_pack_payment(
                 pack_token,
                 "failed",
-                stripe_payment_intent=data.get("id"),
-                customer_email=data.get("receipt_email") or (data.get("metadata") or {}).get("customer_email"),
+                stripe_payment_intent=stripe_obj_get(data_obj, "id"),
+                customer_email=stripe_obj_get(data_obj, "receipt_email") or stripe_obj_get(stripe_obj_get(data_obj, "metadata", {}), "customer_email"),
             )
 
     return {"received": True}
