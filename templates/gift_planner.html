@@ -1,15 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="page-intro">
+<div class="planner-page gift-planner-page">
+<section class="planner-hero">
   <p class="eyebrow">Gift planner</p>
-  <h1>Build a corporate wine gift plan</h1>
-  <p>Answer the brief once and get a budget view, sensible gift routes, supplier shortlist and enquiry email.</p>
+  <h1>Plan corporate wine gifts</h1>
+  <p>Create a practical gift plan for clients, staff or partners — with budget guidance, supplier direction and a ready-to-send enquiry email.</p>
+  <div class="planner-trust-row" aria-label="Planner trust points">
+    <span>UK business gifting</span>
+    <span>Supplier-ready output</span>
+    <span>No live stock or price guessing</span>
+  </div>
+  <div id="paid-banner" class="paid-banner planner-paid-banner" hidden>
+    <span><strong>Premium mode:</strong> generate your plan, then create a supplier-ready Premium Brief Pack.</span>
+    <a href="/gift-planner">Exit premium mode</a>
+  </div>
 </section>
 
 <section class="planner-layout">
-  <div id="paid-banner" class="paid-banner" hidden>
-    <strong>Premium mode:</strong> generate your plan, then create a supplier-ready pack.
-  </div>
+  <div class="planner-form-card">
   <form id="gift-form" class="planner-form" data-plan-form="gift">
     <label>Who are the gifts for?
       <select name="recipient_type" required>
@@ -74,8 +82,18 @@
     </label>
     <button class="button primary full" type="submit" data-submit-label="Create gift plan" data-loading-label="Creating your plan...">Create gift plan</button>
   </form>
-  <div id="gift-results" class="results-panel" aria-live="polite">
-    <div class="empty-state">Your plan will appear here.</div>
+  </div>
+  <div id="gift-results" class="results-panel planner-results-card" aria-live="polite">
+    <div class="empty-state">
+      <h2>Your gift plan will appear here</h2>
+      <p>Complete the form and we’ll create a practical gift strategy, supplier direction and enquiry email.</p>
+      <ul>
+        <li>Budget estimate</li>
+        <li>Gift strategy</li>
+        <li>Supplier enquiry email</li>
+      </ul>
+    </div>
   </div>
 </section>
+</div>
 {% endblock %}

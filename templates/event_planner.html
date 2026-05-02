@@ -1,15 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="page-intro">
+<div class="planner-page event-planner-page">
+<section class="planner-hero">
   <p class="eyebrow">Event planner</p>
   <h1>Shape a corporate wine tasting event</h1>
   <p>Choose the business context, budget and format, then generate a supplier-ready enquiry.</p>
+  <div class="planner-trust-row" aria-label="Planner trust points">
+    <span>UK business context</span>
+    <span>Supplier-ready output</span>
+    <span>No live availability guessing</span>
+  </div>
+  <div id="paid-banner" class="paid-banner planner-paid-banner" hidden>
+    <span><strong>Premium mode:</strong> generate your plan, then create a supplier-ready Premium Brief Pack.</span>
+    <a href="/event-planner">Exit premium mode</a>
+  </div>
 </section>
 
 <section class="planner-layout">
-  <div id="paid-banner" class="paid-banner" hidden>
-    <strong>Premium mode:</strong> generate your plan, then create a supplier-ready pack.
-  </div>
+  <div class="planner-form-card">
   <form id="event-form" class="planner-form" data-plan-form="event">
     <label>Event type
       <select name="event_type" required>
@@ -77,8 +85,18 @@
     </label>
     <button class="button primary full" type="submit" data-submit-label="Create event plan" data-loading-label="Creating your plan...">Create event plan</button>
   </form>
-  <div id="event-results" class="results-panel" aria-live="polite">
-    <div class="empty-state">Your plan will appear here.</div>
+  </div>
+  <div id="event-results" class="results-panel planner-results-card" aria-live="polite">
+    <div class="empty-state">
+      <h2>Your event plan will appear here</h2>
+      <p>Complete the form and we’ll create a practical event format, supplier direction and enquiry email.</p>
+      <ul>
+        <li>Budget estimate</li>
+        <li>Event structure</li>
+        <li>Supplier enquiry email</li>
+      </ul>
+    </div>
   </div>
 </section>
+</div>
 {% endblock %}

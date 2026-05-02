@@ -531,9 +531,7 @@ function isPaidMode() {
 
 function showPaidBanner() {
   const banner = document.getElementById("paid-banner");
-  if (banner && isPaidMode()) {
-    banner.hidden = false;
-  }
+  if (banner) banner.hidden = !isPaidMode();
 }
 
 function bindPlannerForms() {
