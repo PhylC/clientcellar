@@ -139,7 +139,105 @@ def init_leads_db() -> None:
             )
             """
         )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS premium_packs (
+                id INTEGER PRIMARY KEY,
+                created_at TEXT NOT NULL,
+                pack_token TEXT UNIQUE NOT NULL,
+                pack_type TEXT NOT NULL,
+                email TEXT,
+                payment_status TEXT NOT NULL,
+                stripe_session_id TEXT,
+                planner_input_json TEXT,
+                planner_output_json TEXT,
+                premium_preview_json TEXT
+            )
+            """
+        )
         connection.commit()
+
+
+def generate_pack_token() -> str:
+    """Generate a unique pack token for premium pack tracking."""
+    import secrets
+    return secrets.token_urlsafe(24)
+
+
+def save_premium_pack(
+    pack_token: str,
+    pack_type: str,
+    email: str | None,
+    payment_status: str,
+    stripe_session_id: str | None = None,
+    planner_input: dict | None = None,
+    planner_output: dict | None = None,
+    premium_preview: dict | None = None,
+) -> int:
+    """Save a premium pack to the database."""
+    init_leads_db()
+    with get_db_connection() as connection:
+        cursor = connection.execute(
+            """
+            INSERT INTO premium_packs (
+                created_at, pack_token, pack_type, email, payment_status,
+                stripe_session_id, planner_input_json, planner_output_json,
+                premium_preview_json
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                datetime.utcnow().isoformat() + "Z",
+                pack_token,
+                pack_type,
+                email,
+                payment_status,
+                stripe_session_id,
+                json.dumps(planner_input) if planner_input else None,
+                json.dumps(planner_output) if planner_output else None,
+                json.dumps(premium_preview) if premium_preview else None,
+            ),
+        )
+        connection.commit()
+        return cursor.lastrowid
+
+
+def get_premium_pack(pack_token: str) -> dict | None:
+    """Retrieve a premium pack by token."""
+    init_leads_db()
+    with get_db_connection() as connection:
+        cursor = connection.execute(
+            "SELECT * FROM premium_packs WHERE pack_token = ?",
+            (pack_token,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return None
+        
+        pack = dict(row)
+        if pack.get("planner_input_json"):
+            pack["planner_input"] = json.loads(pack["planner_input_json"])
+        if pack.get("planner_output_json"):
+            pack["planner_output"] = json.loads(pack["planner_output_json"])
+        if pack.get("premium_preview_json"):
+            pack["premium_preview"] = json.loads(pack["premium_preview_json"])
+        return pack
+
+
+def update_premium_pack_payment(pack_token: str, payment_status: str, stripe_session_id: str | None = None) -> bool:
+    """Update premium pack payment status."""
+    init_leads_db()
+    with get_db_connection() as connection:
+        connection.execute(
+            """
+            UPDATE premium_packs
+            SET payment_status = ?, stripe_session_id = ?
+            WHERE pack_token = ?
+            """,
+            (payment_status, stripe_session_id, pack_token)
+        )
+        connection.commit()
+        return True
 
 
 def save_lead(lead: "LeadRequest") -> int:
@@ -1779,12 +1877,85 @@ def premium_pack(request: Request):
 
 @app.get("/checkout/success", response_class=HTMLResponse)
 def checkout_success(request: Request):
-    return render(request, "checkout_success.html", "Payment received")
+    session_id = request.query_params.get("session_id")
+    pack_token = None
+    payment_verified = False
+    
+    if session_id and payments_enabled():
+        try:
+            import stripe
+            stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+            session = stripe.checkout.Session.retrieve(session_id)
+            
+            # Check if payment was successful
+            if session.payment_status == "paid":
+                payment_verified = True
+                pack_token = session.metadata.get("pack_token") if session.metadata else None
+                
+                # Update pack status if we have the token
+                if pack_token:
+                    update_premium_pack_payment(pack_token, "paid", session_id)
+        except Exception as e:
+            # Payment verification failed, but show friendly message
+            pass
+    
+    context = {
+        "request": request,
+        "title": "Payment received",
+        "payment_verified": payment_verified,
+        "pack_token": pack_token,
+        "payments_enabled": payments_enabled(),
+    }
+    return templates.TemplateResponse("checkout_success.html", context)
 
 
 @app.get("/checkout/cancelled", response_class=HTMLResponse)
 def checkout_cancelled(request: Request):
     return render(request, "checkout_cancelled.html", "Checkout cancelled")
+
+
+@app.get("/premium-pack/view/{pack_token}", response_class=HTMLResponse)
+def premium_pack_view(request: Request, pack_token: str):
+    """Serve a premium pack if payment is verified or payments are disabled."""
+    pack = get_premium_pack(pack_token)
+    
+    if not pack:
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "title": "Pack not found",
+                "message": "The premium pack you're looking for wasn't found. Please check the link and try again.",
+                "status_code": 404
+            },
+            status_code=404
+        )
+    
+    # Check payment status
+    if payments_enabled() and pack.get("payment_status") != "paid":
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "title": "Payment required",
+                "message": "This premium pack requires payment. Please complete the checkout process first.",
+                "status_code": 402
+            },
+            status_code=402
+        )
+    
+    # Prepare the context
+    context = {
+        "request": request,
+        "title": "Premium Planning Pack",
+        "pack": pack,
+        "pack_token": pack_token,
+        "preview": pack.get("premium_preview", {}),
+        "planner_output": pack.get("planner_output", {}),
+        "payment_verified": pack.get("payment_status") == "paid",
+    }
+    
+    return templates.TemplateResponse("premium_pack_view.html", context)
 
 
 @app.get("/suppliers", response_class=HTMLResponse)
@@ -2124,20 +2295,29 @@ def create_checkout_session(req: CheckoutSessionRequest):
             "message": "Payments are not enabled yet. Please register interest instead.",
         }
 
+    # Generate and save premium pack
+    pack_token = generate_pack_token()
+    save_premium_pack(
+        pack_token=pack_token,
+        pack_type=req.pack_type,
+        email=str(req.email) if req.email else None,
+        payment_status="pending",
+    )
+
     stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
     base_url = os.getenv("APP_BASE_URL", "http://localhost:8000").rstrip("/")
     session_data = {
         "mode": "payment",
         "line_items": [{"price": os.getenv("STRIPE_PRICE_ID"), "quantity": 1}],
-        "success_url": f"{base_url}/checkout/success",
+        "success_url": f"{base_url}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
         "cancel_url": f"{base_url}/checkout/cancelled",
-        "metadata": {"pack_type": req.pack_type},
+        "metadata": {"pack_type": req.pack_type, "pack_token": pack_token},
     }
     if req.email:
         session_data["customer_email"] = str(req.email)
 
     session = stripe.checkout.Session.create(**session_data)
-    return {"enabled": True, "checkout_url": session.url, "session_id": session.id}
+    return {"enabled": True, "checkout_url": session.url, "session_id": session.id, "pack_token": pack_token}
 
 
 @app.post("/api/lead")

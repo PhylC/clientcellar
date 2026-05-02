@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="premium-pack-header">
+  <div class="premium-pack-hero">
+    <p class="eyebrow">Premium Pack</p>
+    <h1>{% if preview.executive_summary %}{{ preview.executive_summary | truncate(80) }}{% else %}Your Corporate Planning Pack{% endif %}</h1>
+    <p class="lead">Supplier-ready planning document. Review before sharing internally or sending to suppliers.</p>
+    <div class="hero-actions">
+      <button class="button primary" onclick="window.print()">Print / Save as PDF</button>
+      <button class="button secondary" onclick="copyEmail()">Copy enquiry email</button>
+      <button class="button secondary" onclick="downloadCSV()">Download recipient CSV</button>
+    </div>
+  </div>
+</section>
+
+<article class="premium-pack-content">
+  <!-- Executive Summary -->
+  {% if preview.executive_summary %}
+  <section class="pack-section">
+    <h2>Executive Summary</h2>
+    <p>{{ preview.executive_summary }}</p>
+  </section>
+  {% endif %}
+
+  <!-- Budget Breakdown -->
+  {% if preview.budget_breakdown %}
+  <section class="pack-section">
+    <h2>Budget Breakdown</h2>
+    <table class="budget-table">
+      <tbody>
+        {% for item in preview.budget_breakdown %}
+        <tr>
+          <td class="label">{{ item.label }}</td>
+          <td class="amount">{{ item.amount }}</td>
+          <td class="note">{{ item.note }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  <!-- Supplier Comparison -->
+  {% if preview.supplier_comparison %}
+  <section class="pack-section">
+    <h2>Supplier Comparison</h2>
+    <div class="supplier-comparison-grid">
+      {% for comp in preview.supplier_comparison %}
+      <article class="supplier-comparison-card">
+        <h3>{{ comp.supplier }}</h3>
+        <p class="fit"><strong>Fit:</strong> {{ comp.fit }}</p>
+        <div class="pros-watchouts">
+          <div class="pros">
+            <strong>Pros:</strong>
+            <ul>
+              {% for pro in comp.pros %}
+              <li>{{ pro }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="watchouts">
+            <strong>Watch-outs:</strong>
+            <ul>
+              {% for watchout in comp.watchouts %}
+              <li>{{ watchout }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Supplier Enquiry Email -->
+  {% if preview.supplier_enquiry_email %}
+  <section class="pack-section">
+    <h2>Supplier Enquiry Email</h2>
+    <div class="email-template">
+      <p><strong>Subject:</strong> {{ preview.supplier_enquiry_email.subject }}</p>
+      <pre id="enquiryEmail">{{ preview.supplier_enquiry_email.body }}</pre>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Message Variants -->
+  {% if preview.message_variants %}
+  <section class="pack-section">
+    <h2>Message Variants</h2>
+    <div class="message-variants-grid">
+      {% for variant in preview.message_variants %}
+      <article class="message-card">
+        <h3>{{ variant.tone }}</h3>
+        <p>{{ variant.message }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Internal Approval Note -->
+  {% if preview.internal_approval_note %}
+  <section class="pack-section approval-section">
+    <h2>Internal Approval Note</h2>
+    <p>{{ preview.internal_approval_note }}</p>
+  </section>
+  {% endif %}
+
+  <!-- Risk Checklist -->
+  {% if preview.risk_checklist %}
+  <section class="pack-section">
+    <h2>Risk & Suitability Checklist</h2>
+    <div class="checklist">
+      {% for item in preview.risk_checklist %}
+      <label class="checkbox-item">
+        <input type="checkbox" disabled>
+        <span>{{ item }}</span>
+      </label>
+      {% endfor %}
+    </div>
+    <p class="checklist-note">Print this document and tick off items as you confirm them with suppliers.</p>
+  </section>
+  {% endif %}
+
+  <!-- Recipient CSV Template -->
+  {% if preview.recipient_csv_template %}
+  <section class="pack-section">
+    <h2>Recipient CSV Template</h2>
+    <p>Use this template to collate recipient details for supplier delivery.</p>
+    <pre class="csv-template" id="csvTemplate">{{ preview.recipient_csv_template }}</pre>
+  </section>
+  {% endif %}
+
+  <!-- Disclaimer -->
+  {% if preview.disclaimer %}
+  <section class="pack-section disclaimer-section">
+    <h2>Important Notice</h2>
+    <p>{{ preview.disclaimer }}</p>
+    <nav class="trust-links">
+      <a href="/terms">Terms</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/affiliate-disclosure">Affiliate Disclosure</a>
+      <a href="/responsible-drinking">Responsible Drinking</a>
+    </nav>
+  </section>
+  {% endif %}
+
+  <!-- Print Note -->
+  {% if preview.print_note %}
+  <section class="pack-section print-note-section">
+    <p class="print-note">💡 {{ preview.print_note }}</p>
+  </section>
+  {% endif %}
+</article>
+
+<script>
+function copyEmail() {
+  const email = document.getElementById('enquiryEmail');
+  if (email) {
+    const text = email.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Enquiry email copied to clipboard!');
+    }).catch(() => {
+      alert('Failed to copy. Please copy manually from the template above.');
+    });
+  }
+}
+
+function downloadCSV() {
+  const csv = document.getElementById('csvTemplate');
+  if (csv) {
+    const blob = new Blob([csv.textContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'recipients.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
+</script>
+
+<style>
+@media print {
+  .premium-pack-header .hero-actions,
+  .premium-pack-content > section > .hero-actions {
+    display: none;
+  }
+  
+  .premium-pack-content {
+    break-inside: avoid;
+  }
+  
+  .supplier-comparison-card,
+  .message-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+</style>
+{% endblock %}

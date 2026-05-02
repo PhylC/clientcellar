@@ -2,11 +2,31 @@
 {% block content %}
 <section class="page-intro">
   <p class="eyebrow">Checkout</p>
-  <h1>Payment received</h1>
-  <p>Your premium pack is ready. In this MVP, please return to your planner results and use the print/save option. Automated email delivery is coming soon.</p>
-  <div class="hero-actions">
-    <a class="button primary" href="/gift-planner">Return to gift planner</a>
-    <a class="button secondary" href="/event-planner">Return to event planner</a>
+  <h1>Payment received — your premium pack is ready</h1>
+  <p>Use the options below to create, print or save your supplier-ready corporate wine plan.</p>
+
+  <div class="card-grid three success-cards">
+    <article class="success-card">
+      <h2>Gift planning pack</h2>
+      <p>Create a supplier-ready gift pack using our gift planner.</p>
+      <a class="button primary full" href="/gift-planner?paid=true">Create gift pack</a>
+    </article>
+    <article class="success-card">
+      <h2>Event planning pack</h2>
+      <p>Create a polished event pack for corporate tastings and team experiences.</p>
+      <a class="button primary full" href="/event-planner?paid=true">Create event pack</a>
+    </article>
+    <article class="success-card">
+      <h2>Already generated a plan?</h2>
+      <p>Return to the premium pack page to view, print or save your plan.</p>
+      <a class="button secondary full" href="/premium-pack">Return to premium pack</a>
+    </article>
   </div>
+
+  <div class="hero-actions">
+    <a class="button secondary" href="/contact?interest=premium-pack-support">Need help? Contact support</a>
+  </div>
+
+  <p class="small-note">If you created a plan before checkout, return to that page and use “Preview premium pack” or “Print / save as PDF”. Automated email delivery is coming soon.</p>
 </section>
 {% endblock %}

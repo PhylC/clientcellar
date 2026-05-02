@@ -99,44 +99,69 @@ function renderPremiumComparison(items) {
 
 function renderPremiumPreview(preview, type) {
   const email = `${preview.supplier_enquiry_email.subject}\n\n${preview.supplier_enquiry_email.body}`;
+  const packLabel = type === "gift" ? "Gift Planning Pack" : "Event Planning Pack";
+  const csvButton =
+    type === "gift"
+      ? `<button class="button secondary" type="button" data-download-preview-csv>Download recipient CSV</button>`
+      : "";
   return `
-    <div class="premium-preview">
-      <div class="result-block">
-        <p class="eyebrow">Premium preview</p>
-        <h2>Supplier-ready planning pack</h2>
+    <div class="premium-preview premium-doc">
+      <header class="premium-doc-header">
+        <div>
+          <p class="eyebrow">ClientCellar Premium Pack</p>
+          <h2>${escapeHtml(packLabel)}</h2>
+        </div>
+        <div class="premium-doc-actions">
+          <button class="button secondary" type="button" data-print-plan>Print / save as PDF</button>
+          <button class="button secondary" type="button" data-copy-preview-email>Copy enquiry email</button>
+          ${csvButton}
+        </div>
+      </header>
+      <section class="result-block">
+        <h3>Executive summary</h3>
         <p>${escapeHtml(preview.executive_summary)}</p>
-      </div>
-      <div class="result-block">
-        <h2>Budget breakdown</h2>
+      </section>
+      <section class="result-block">
+        <h3>Budget breakdown</h3>
         ${renderBudgetRows(preview.budget_breakdown)}
-      </div>
-      <div class="result-block">
-        <h2>Supplier comparison</h2>
+      </section>
+      <section class="result-block">
+        <h3>Supplier comparison</h3>
         ${renderPremiumComparison(preview.supplier_comparison)}
-      </div>
-      <div class="result-block">
-        <h2>Message variants</h2>
+      </section>
+      <section class="result-block">
+        <h3>Recommended next steps</h3>
+        <ul>
+          <li>Confirm supplier pricing and availability.</li>
+          <li>Share the brief internally for approval.</li>
+          <li>Prepare recipient or attendee details.</li>
+          <li>Request final quotes and delivery terms.</li>
+        </ul>
+      </section>
+      <section class="result-block">
+        <h3>Supplier enquiry email</h3>
+        <pre class="email-preview" data-preview-email>${escapeHtml(email)}</pre>
+      </section>
+      <section class="result-block">
+        <h3>Message variants</h3>
         ${preview.message_variants
           .map((variant) => `<p><strong>${escapeHtml(variant.tone)}:</strong> ${escapeHtml(variant.message)}</p>`)
           .join("")}
-      </div>
-      <div class="result-block">
-        <h2>Internal approval note</h2>
+      </section>
+      ${type === "gift" ? `<section class="result-block"><h3>Recipient CSV template</h3><pre data-preview-csv>${escapeHtml(preview.recipient_csv_template)}</pre></section>` : ""}
+      <section class="result-block">
+        <h3>Internal approval note</h3>
         <p>${escapeHtml(preview.internal_approval_note)}</p>
-      </div>
-      <div class="result-block">
-        <h2>Risk checklist</h2>
+      </section>
+      <section class="result-block">
+        <h3>Risk and suitability checklist</h3>
         ${list(preview.risk_checklist)}
-      </div>
-      <div class="result-block">
-        <h2>Supplier enquiry email</h2>
-        <div class="email-preview">${escapeHtml(email)}</div>
-      </div>
-      <div class="result-block">
-        <h2>Print note</h2>
-        <p>${escapeHtml(preview.print_note)}</p>
-        <p class="small-note">${escapeHtml(preview.disclaimer)}</p>
-      </div>
+      </section>
+      <section class="result-block disclaimer-block">
+        <h3>Responsible drinking & workplace policy reminder</h3>
+        <p>${escapeHtml(preview.disclaimer)}</p>
+        <p class="small-note">Some supplier links may be affiliate or tracked links. Confirm availability, pricing and delivery directly. <a href="/affiliate-disclosure">Affiliate Disclosure</a>.</p>
+      </section>
       ${renderLeadForm("premium_pack", "premium-pack-preview", type)}
     </div>
   `;
@@ -341,6 +366,10 @@ async function submitPlan(form, type) {
     plannerState[type] = { input: formToJson(form), output: plan };
     target.innerHTML = renderPlan(plan, type);
     target.dataset.csv = plan.recipient_csv_template || "";
+    if (isPaidMode()) {
+      const premiumButton = target.querySelector("[data-preview-premium]");
+      if (premiumButton) premiumButton.textContent = "Create premium pack";
+    }
   } catch (error) {
     target.innerHTML = '<div class="empty-state">Sorry, the plan could not be generated. Check the form and try again. If the issue continues, refresh the page.</div>';
   } finally {
@@ -428,7 +457,19 @@ function downloadCsv(text) {
   URL.revokeObjectURL(url);
 }
 
+function isPaidMode() {
+  return new URLSearchParams(window.location.search).get("paid") === "true";
+}
+
+function showPaidBanner() {
+  const banner = document.getElementById("paid-banner");
+  if (banner && isPaidMode()) {
+    banner.hidden = false;
+  }
+}
+
 function bindPlannerForms() {
+  showPaidBanner();
   for (const form of document.querySelectorAll("[data-plan-form]")) {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -458,6 +499,14 @@ function bindResultActions() {
     if (button.matches("[data-preview-premium]")) {
       previewPremiumPack(button.dataset.packType, button);
     }
+    if (button.matches("[data-copy-preview-email]")) {
+      const preview = button.closest(".premium-preview");
+      if (preview) copyText(preview.querySelector("[data-preview-email]").textContent, button);
+    }
+    if (button.matches("[data-download-preview-csv]")) {
+      const preview = button.closest(".premium-preview");
+      if (preview) downloadCsv(preview.querySelector("[data-preview-csv]").textContent);
+    }
     if (button.matches("[data-pack-checkout]")) {
       createCheckoutSession(button.dataset.packType || "gift", button);
     }
@@ -470,8 +519,13 @@ function bindContactForm() {
 
   const interest = new URLSearchParams(window.location.search).get("interest");
   const select = form.querySelector('[name="interested_in"]');
-  if (interest === "premium-pack" && select) {
+  const note = document.getElementById("contact-note");
+  if ((interest === "premium-pack" || interest === "premium-pack-support") && select) {
     select.value = "premium_pack";
+  }
+  if (interest === "premium-pack-support" && note) {
+    note.textContent = "Need help with payment or premium pack access? Please include the email used at checkout.";
+    note.hidden = false;
   }
 
   form.addEventListener("submit", async (event) => {
