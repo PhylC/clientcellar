@@ -5,6 +5,25 @@
   <h1>Payment received — your premium pack is ready</h1>
   <p>Use the options below to create, print or save your supplier-ready corporate wine plan.</p>
 
+  {% if payment_verified and pack_token %}
+  <p>Your payment is confirmed and your premium pack is ready to view.</p>
+  <div class="hero-actions">
+    <a class="button primary" href="/premium-pack/view/{{ pack_token }}">Open premium pack</a>
+    <a class="button secondary" href="/pricing">View pricing</a>
+  </div>
+  {% elif payment_verified %}
+  <p>Your payment has been received. If the pack link is missing, contact us with the email used at checkout.</p>
+  <div class="hero-actions">
+    <a class="button secondary" href="/contact?interest=premium-pack-support">Contact support</a>
+  </div>
+  {% else %}
+  <p>We could not verify your payment automatically. If a payment was taken, contact us with the email used at checkout.</p>
+  <div class="hero-actions">
+    <a class="button secondary" href="/contact?interest=premium-pack-support">Contact support</a>
+    <a class="button secondary" href="/pricing">Pricing</a>
+  </div>
+  {% endif %}
+
   <div class="card-grid three success-cards">
     <article class="success-card">
       <h2>Gift planning pack</h2>
@@ -17,14 +36,10 @@
       <a class="button primary full" href="/event-planner?paid=true">Create event pack</a>
     </article>
     <article class="success-card">
-      <h2>Already generated a plan?</h2>
-      <p>Return to the premium pack page to view, print or save your plan.</p>
-      <a class="button secondary full" href="/premium-pack">Return to premium pack</a>
+      <h2>Need help with your purchase?</h2>
+      <p>Contact ClientCellar support for questions about your payment or premium pack access.</p>
+      <a class="button secondary full" href="/contact?interest=premium-pack-support">Contact support</a>
     </article>
-  </div>
-
-  <div class="hero-actions">
-    <a class="button secondary" href="/contact?interest=premium-pack-support">Need help? Contact support</a>
   </div>
 
   <p class="small-note">If you created a plan before checkout, return to that page and use “Preview premium pack” or “Print / save as PDF”. Automated email delivery is coming soon.</p>

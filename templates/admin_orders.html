@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Admin</p>
+  <h1>Premium orders</h1>
+  {% if not enabled %}
+  <p>Premium order admin is not enabled.</p>
+  <p class="notice">Set <code>ADMIN_PASSWORD</code> in the environment to enable this MVP admin view.</p>
+  {% elif not authorised %}
+  <p>Enter the admin password to view premium order history.</p>
+  <form class="planner-form admin-password-form" method="get" action="/admin/orders">
+    <label>Password
+      <input name="password" type="password" required>
+    </label>
+    <button class="button primary" type="submit">View orders</button>
+  </form>
+  {% else %}
+  <p>Recent premium pack orders are shown below. This is MVP protection only and should be replaced before production use at scale.</p>
+  {% endif %}
+</section>
+
+{% if enabled and authorised %}
+<section class="admin-table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>created_at</th>
+        <th>updated_at</th>
+        <th>pack_type</th>
+        <th>customer_email</th>
+        <th>payment_status</th>
+        <th>amount_total</th>
+        <th>currency</th>
+        <th>stripe_session_id</th>
+        <th>stripe_payment_intent</th>
+        <th>access_count</th>
+        <th>last_accessed_at</th>
+        <th>premium pack</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.created_at }}</td>
+        <td>{{ order.updated_at or '' }}</td>
+        <td>{{ order.pack_type }}</td>
+        <td>{{ order.customer_email or '' }}</td>
+        <td>{{ order.payment_status }}</td>
+        <td>{{ order.amount_total or '' }}</td>
+        <td>{{ order.currency or '' }}</td>
+        <td>{{ order.stripe_session_id or '' }}</td>
+        <td>{{ order.stripe_payment_intent or '' }}</td>
+        <td>{{ order.access_count or 0 }}</td>
+        <td>{{ order.last_accessed_at or '' }}</td>
+        <td>
+          {% if order.payment_status == 'paid' %}
+          <a href="/premium-pack/view/{{ order.pack_token }}">View</a>
+          {% else %}
+          N/A
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="12">No premium orders yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+{% endblock %}

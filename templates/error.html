@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="page-intro">
-  <p class="eyebrow">Checkout</p>
-  <h1>Checkout cancelled</h1>
-  <p>No payment was taken. Your checkout was cancelled and the order was not completed.</p>
+  <p class="eyebrow">{{ title }}</p>
+  <h1>{{ title }}</h1>
+  <p>{{ message }}</p>
   <div class="hero-actions">
-    <a class="button primary" href="/pricing">Return to pricing</a>
+    <a class="button primary" href="/pricing">Pricing</a>
     <a class="button secondary" href="/contact?interest=premium-pack-support">Contact support</a>
   </div>
 </section>

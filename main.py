@@ -144,18 +144,44 @@ def init_leads_db() -> None:
             CREATE TABLE IF NOT EXISTS premium_packs (
                 id INTEGER PRIMARY KEY,
                 created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
                 pack_token TEXT UNIQUE NOT NULL,
                 pack_type TEXT NOT NULL,
                 email TEXT,
+                customer_email TEXT,
                 payment_status TEXT NOT NULL,
                 stripe_session_id TEXT,
+                stripe_payment_intent TEXT,
+                amount_total INTEGER,
+                currency TEXT,
                 planner_input_json TEXT,
                 planner_output_json TEXT,
-                premium_preview_json TEXT
+                premium_preview_json TEXT,
+                access_count INTEGER DEFAULT 0,
+                last_accessed_at TEXT
             )
             """
         )
+        _ensure_premium_pack_columns(connection)
         connection.commit()
+
+
+def _ensure_premium_pack_columns(connection: sqlite3.Connection) -> None:
+    existing_columns = {
+        row[1] for row in connection.execute("PRAGMA table_info(premium_packs)").fetchall()
+    }
+    additional_columns = [
+        ("updated_at", "TEXT"),
+        ("customer_email", "TEXT"),
+        ("stripe_payment_intent", "TEXT"),
+        ("amount_total", "INTEGER"),
+        ("currency", "TEXT"),
+        ("access_count", "INTEGER DEFAULT 0"),
+        ("last_accessed_at", "TEXT"),
+    ]
+    for column_name, column_type in additional_columns:
+        if column_name not in existing_columns:
+            connection.execute(f"ALTER TABLE premium_packs ADD COLUMN {column_name} {column_type}")
 
 
 def generate_pack_token() -> str:
@@ -167,32 +193,42 @@ def generate_pack_token() -> str:
 def save_premium_pack(
     pack_token: str,
     pack_type: str,
-    email: str | None,
+    customer_email: str | None,
     payment_status: str,
     stripe_session_id: str | None = None,
+    stripe_payment_intent: str | None = None,
+    amount_total: int | None = None,
+    currency: str | None = None,
     planner_input: dict | None = None,
     planner_output: dict | None = None,
     premium_preview: dict | None = None,
 ) -> int:
-    """Save a premium pack to the database."""
+    """Save a premium pack order to the database."""
     init_leads_db()
     with get_db_connection() as connection:
+        now = datetime.utcnow().isoformat() + "Z"
         cursor = connection.execute(
             """
             INSERT INTO premium_packs (
-                created_at, pack_token, pack_type, email, payment_status,
-                stripe_session_id, planner_input_json, planner_output_json,
-                premium_preview_json
+                created_at, updated_at, pack_token, pack_type, email,
+                customer_email, payment_status, stripe_session_id,
+                stripe_payment_intent, amount_total, currency,
+                planner_input_json, planner_output_json, premium_preview_json
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                datetime.utcnow().isoformat() + "Z",
+                now,
+                now,
                 pack_token,
                 pack_type,
-                email,
+                customer_email,
+                customer_email,
                 payment_status,
                 stripe_session_id,
+                stripe_payment_intent,
+                amount_total,
+                currency,
                 json.dumps(planner_input) if planner_input else None,
                 json.dumps(planner_output) if planner_output else None,
                 json.dumps(premium_preview) if premium_preview else None,
@@ -203,7 +239,7 @@ def save_premium_pack(
 
 
 def get_premium_pack(pack_token: str) -> dict | None:
-    """Retrieve a premium pack by token."""
+    """Retrieve a premium pack order by token."""
     init_leads_db()
     with get_db_connection() as connection:
         cursor = connection.execute(
@@ -213,8 +249,11 @@ def get_premium_pack(pack_token: str) -> dict | None:
         row = cursor.fetchone()
         if not row:
             return None
-        
         pack = dict(row)
+        if pack.get("customer_email"):
+            pack["customer_email"] = pack["customer_email"]
+        elif pack.get("email"):
+            pack["customer_email"] = pack["email"]
         if pack.get("planner_input_json"):
             pack["planner_input"] = json.loads(pack["planner_input_json"])
         if pack.get("planner_output_json"):
@@ -224,17 +263,76 @@ def get_premium_pack(pack_token: str) -> dict | None:
         return pack
 
 
-def update_premium_pack_payment(pack_token: str, payment_status: str, stripe_session_id: str | None = None) -> bool:
-    """Update premium pack payment status."""
+def update_premium_pack_payment(
+    pack_token: str,
+    payment_status: str,
+    stripe_session_id: str | None = None,
+    stripe_payment_intent: str | None = None,
+    amount_total: int | None = None,
+    currency: str | None = None,
+    customer_email: str | None = None,
+) -> bool:
+    """Update premium pack payment details."""
     init_leads_db()
     with get_db_connection() as connection:
+        now = datetime.utcnow().isoformat() + "Z"
         connection.execute(
             """
             UPDATE premium_packs
-            SET payment_status = ?, stripe_session_id = ?
+            SET
+                payment_status = ?,
+                stripe_session_id = COALESCE(?, stripe_session_id),
+                stripe_payment_intent = COALESCE(?, stripe_payment_intent),
+                amount_total = COALESCE(?, amount_total),
+                currency = COALESCE(?, currency),
+                customer_email = COALESCE(?, customer_email),
+                updated_at = ?
             WHERE pack_token = ?
             """,
-            (payment_status, stripe_session_id, pack_token)
+            (
+                payment_status,
+                stripe_session_id,
+                stripe_payment_intent,
+                amount_total,
+                currency,
+                customer_email,
+                now,
+                pack_token,
+            ),
+        )
+        connection.commit()
+        return True
+
+
+def touch_premium_pack_access(pack_token: str) -> bool:
+    init_leads_db()
+    with get_db_connection() as connection:
+        now = datetime.utcnow().isoformat() + "Z"
+        connection.execute(
+            """
+            UPDATE premium_packs
+            SET access_count = COALESCE(access_count, 0) + 1,
+                last_accessed_at = ?,
+                updated_at = ?
+            WHERE pack_token = ?
+            """,
+            (now, now, pack_token),
+        )
+        connection.commit()
+        return True
+
+
+def update_premium_pack_preview(pack_token: str, premium_preview: dict) -> bool:
+    init_leads_db()
+    with get_db_connection() as connection:
+        now = datetime.utcnow().isoformat() + "Z"
+        connection.execute(
+            """
+            UPDATE premium_packs
+            SET premium_preview_json = ?, updated_at = ?
+            WHERE pack_token = ?
+            """,
+            (json.dumps(premium_preview), now, pack_token),
         )
         connection.commit()
         return True
@@ -929,6 +1027,9 @@ class PremiumPackPreviewRequest(BaseModel):
 class CheckoutSessionRequest(BaseModel):
     pack_type: Literal["gift", "event"]
     email: EmailStr | None = None
+    planner_input: dict | None = None
+    planner_output: dict | None = None
+    premium_preview: dict | None = None
 
 
 class LeadRequest(BaseModel):
@@ -1880,37 +1981,51 @@ def checkout_success(request: Request):
     session_id = request.query_params.get("session_id")
     pack_token = None
     payment_verified = False
-    
+    payment_status = None
+    verification_error = False
+
     if session_id and payments_enabled():
         try:
             import stripe
             stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
             session = stripe.checkout.Session.retrieve(session_id)
-            
-            # Check if payment was successful
-            if session.payment_status == "paid":
+            pack_token = session.metadata.get("pack_token") if session.metadata else None
+            payment_status = session.payment_status
+            if payment_status == "paid":
                 payment_verified = True
-                pack_token = session.metadata.get("pack_token") if session.metadata else None
-                
-                # Update pack status if we have the token
                 if pack_token:
-                    update_premium_pack_payment(pack_token, "paid", session_id)
-        except Exception as e:
-            # Payment verification failed, but show friendly message
-            pass
-    
+                    update_premium_pack_payment(
+                        pack_token,
+                        "paid",
+                        stripe_session_id=session_id,
+                        stripe_payment_intent=session.payment_intent,
+                        amount_total=session.amount_total,
+                        currency=session.currency,
+                        customer_email=session.customer_email,
+                    )
+        except Exception:
+            verification_error = True
+
     context = {
         "request": request,
         "title": "Payment received",
         "payment_verified": payment_verified,
         "pack_token": pack_token,
         "payments_enabled": payments_enabled(),
+        "verification_error": verification_error,
+        "payment_status": payment_status,
     }
     return templates.TemplateResponse("checkout_success.html", context)
 
 
 @app.get("/checkout/cancelled", response_class=HTMLResponse)
 def checkout_cancelled(request: Request):
+    token = request.query_params.get("token")
+    if token:
+        pack = get_premium_pack(token)
+        if pack and pack.get("payment_status") == "pending":
+            update_premium_pack_payment(token, "cancelled")
+
     return render(request, "checkout_cancelled.html", "Checkout cancelled")
 
 
@@ -1918,7 +2033,7 @@ def checkout_cancelled(request: Request):
 def premium_pack_view(request: Request, pack_token: str):
     """Serve a premium pack if payment is verified or payments are disabled."""
     pack = get_premium_pack(pack_token)
-    
+
     if not pack:
         return templates.TemplateResponse(
             "error.html",
@@ -1926,35 +2041,49 @@ def premium_pack_view(request: Request, pack_token: str):
                 "request": request,
                 "title": "Pack not found",
                 "message": "The premium pack you're looking for wasn't found. Please check the link and try again.",
-                "status_code": 404
+                "status_code": 404,
             },
-            status_code=404
+            status_code=404,
         )
-    
-    # Check payment status
+
     if payments_enabled() and pack.get("payment_status") != "paid":
         return templates.TemplateResponse(
             "error.html",
             {
                 "request": request,
                 "title": "Payment required",
-                "message": "This premium pack requires payment. Please complete the checkout process first.",
-                "status_code": 402
+                "message": "This premium pack requires payment. Please complete checkout first or contact us for support.",
+                "status_code": 402,
             },
-            status_code=402
+            status_code=402,
         )
-    
-    # Prepare the context
+
+    preview = pack.get("premium_preview")
+    if not preview and pack.get("planner_input") and pack.get("planner_output"):
+        try:
+            preview = make_premium_pack_preview(
+                PremiumPackPreviewRequest(
+                    pack_type=pack["pack_type"],
+                    planner_input=pack["planner_input"],
+                    planner_output=pack["planner_output"],
+                )
+            )
+            update_premium_pack_preview(pack_token, preview)
+        except Exception:
+            preview = {}
+
+    touch_premium_pack_access(pack_token)
+
     context = {
         "request": request,
         "title": "Premium Planning Pack",
         "pack": pack,
         "pack_token": pack_token,
-        "preview": pack.get("premium_preview", {}),
+        "preview": preview or {},
         "planner_output": pack.get("planner_output", {}),
         "payment_verified": pack.get("payment_status") == "paid",
     }
-    
+
     return templates.TemplateResponse("premium_pack_view.html", context)
 
 
@@ -2044,6 +2173,57 @@ def admin_leads_basic(request: Request):
         enabled=True,
         authorised=True,
         leads=fetch_leads(limit=100),
+        password=supplied_password,
+    )
+
+
+def fetch_premium_orders(limit: int = 100) -> list[dict]:
+    init_leads_db()
+    with get_db_connection() as connection:
+        rows = connection.execute(
+            "SELECT * FROM premium_packs ORDER BY created_at DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+    return [
+        {
+            **dict(row),
+            "customer_email": dict(row).get("customer_email") or dict(row).get("email"),
+        }
+        for row in rows
+    ]
+
+
+@app.get("/admin/orders", response_class=HTMLResponse)
+def admin_orders(request: Request):
+    admin_password = os.getenv("ADMIN_PASSWORD")
+    supplied_password = request.query_params.get("password", "")
+    if not admin_password:
+        return render(
+            request,
+            "admin_orders.html",
+            "Premium orders",
+            enabled=False,
+            authorised=False,
+            orders=[],
+            password="",
+        )
+    if supplied_password != admin_password:
+        return render(
+            request,
+            "admin_orders.html",
+            "Premium orders",
+            enabled=True,
+            authorised=False,
+            orders=[],
+            password="",
+        )
+    return render(
+        request,
+        "admin_orders.html",
+        "Premium orders",
+        enabled=True,
+        authorised=True,
+        orders=fetch_premium_orders(limit=200),
         password=supplied_password,
     )
 
@@ -2243,6 +2423,16 @@ def admin_summary(request: Request):
         lead_count = connection.execute("SELECT COUNT(*) FROM leads").fetchone()[0]
         application_count = connection.execute("SELECT COUNT(*) FROM supplier_applications").fetchone()[0]
         click_count = connection.execute("SELECT COUNT(*) FROM supplier_clicks").fetchone()[0]
+        premium_order_count = connection.execute("SELECT COUNT(*) FROM premium_packs").fetchone()[0]
+        paid_order_count = connection.execute(
+            "SELECT COUNT(*) FROM premium_packs WHERE payment_status = 'paid'"
+        ).fetchone()[0]
+        pending_order_count = connection.execute(
+            "SELECT COUNT(*) FROM premium_packs WHERE payment_status = 'pending'"
+        ).fetchone()[0]
+        premium_revenue_total = connection.execute(
+            "SELECT COALESCE(SUM(amount_total), 0) FROM premium_packs WHERE payment_status = 'paid'"
+        ).fetchone()[0]
         rows = connection.execute(
             """
             SELECT tracking_slug, COUNT(*) AS clicks
@@ -2260,6 +2450,10 @@ def admin_summary(request: Request):
         "lead_count": lead_count,
         "supplier_application_count": application_count,
         "supplier_click_count": click_count,
+        "premium_order_count": premium_order_count,
+        "paid_order_count": paid_order_count,
+        "pending_order_count": pending_order_count,
+        "premium_revenue_total": premium_revenue_total,
         "top_clicked_suppliers": top_clicked,
     }
 
@@ -2295,13 +2489,15 @@ def create_checkout_session(req: CheckoutSessionRequest):
             "message": "Payments are not enabled yet. Please register interest instead.",
         }
 
-    # Generate and save premium pack
     pack_token = generate_pack_token()
     save_premium_pack(
         pack_token=pack_token,
         pack_type=req.pack_type,
-        email=str(req.email) if req.email else None,
+        customer_email=str(req.email) if req.email else None,
         payment_status="pending",
+        planner_input=req.planner_input,
+        planner_output=req.planner_output,
+        premium_preview=req.premium_preview,
     )
 
     stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -2310,14 +2506,75 @@ def create_checkout_session(req: CheckoutSessionRequest):
         "mode": "payment",
         "line_items": [{"price": os.getenv("STRIPE_PRICE_ID"), "quantity": 1}],
         "success_url": f"{base_url}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
-        "cancel_url": f"{base_url}/checkout/cancelled",
-        "metadata": {"pack_type": req.pack_type, "pack_token": pack_token},
+        "cancel_url": f"{base_url}/checkout/cancelled?token={pack_token}",
+        "metadata": {
+            "pack_type": req.pack_type,
+            "pack_token": pack_token,
+            "source": "clientcellar_premium_pack",
+        },
     }
     if req.email:
         session_data["customer_email"] = str(req.email)
 
     session = stripe.checkout.Session.create(**session_data)
     return {"enabled": True, "checkout_url": session.url, "session_id": session.id, "pack_token": pack_token}
+
+
+@app.post("/stripe/webhook")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature")
+    webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+    if not webhook_secret:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Stripe webhook secret is not configured."},
+        )
+
+    if not sig_header:
+        raise HTTPException(status_code=400, detail="Missing Stripe signature header.")
+
+    try:
+        import stripe
+        stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
+        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid webhook payload.")
+    except Exception as error:
+        raise HTTPException(status_code=400, detail=str(error))
+
+    event_type = event.get("type")
+    data = event.get("data", {}).get("object", {})
+    pack_token = None
+
+    if event_type == "checkout.session.completed":
+        pack_token = (data.get("metadata") or {}).get("pack_token")
+        if pack_token and data.get("payment_status") == "paid":
+            update_premium_pack_payment(
+                pack_token,
+                "paid",
+                stripe_session_id=data.get("id"),
+                stripe_payment_intent=data.get("payment_intent"),
+                amount_total=data.get("amount_total"),
+                currency=data.get("currency"),
+                customer_email=data.get("customer_email"),
+            )
+    elif event_type == "checkout.session.expired":
+        pack_token = (data.get("metadata") or {}).get("pack_token")
+        if pack_token:
+            update_premium_pack_payment(pack_token, "cancelled")
+    elif event_type == "payment_intent.payment_failed":
+        pack_token = (data.get("metadata") or {}).get("pack_token")
+        if pack_token:
+            update_premium_pack_payment(
+                pack_token,
+                "failed",
+                stripe_payment_intent=data.get("id"),
+                customer_email=data.get("receipt_email") or (data.get("metadata") or {}).get("customer_email"),
+            )
+
+    return {"received": True}
 
 
 @app.post("/api/lead")

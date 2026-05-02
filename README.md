@@ -98,22 +98,36 @@ CSV export:
 
 This is MVP admin protection, not production-grade security. For production, replace the query-string admin password with proper authentication before handling sensitive lead data at scale.
 
-## Payment setup placeholder
+## Payment setup
 
 The Premium Pack architecture works without Stripe by default. If payments are disabled, users see a register-interest fallback.
 
-To enable Stripe Checkout later:
+To enable Stripe Checkout:
 
 ```bash
 PAYMENTS_ENABLED=true
 STRIPE_SECRET_KEY=...
 STRIPE_PRICE_ID=...
+STRIPE_WEBHOOK_SECRET=...
 APP_BASE_URL=https://your-domain.example
 ```
 
 `STRIPE_PRICE_ID` should point to the one-off £29.99 Premium Pack price in Stripe.
 
-Stripe webhook fulfilment is not yet implemented. Automated PDF and email delivery are not yet implemented. The MVP uses the on-page premium preview plus browser print/save.
+### Stripe webhook setup
+
+1. In Stripe Dashboard, go to Developers > Webhooks.
+2. Add an endpoint:
+   `https://your-domain.com/stripe/webhook`
+3. Select events:
+   - `checkout.session.completed`
+   - `checkout.session.expired`
+   - `payment_intent.payment_failed`
+4. Copy the signing secret to `STRIPE_WEBHOOK_SECRET`.
+
+The success page also performs fallback session verification when Stripe is available, but webhooks are still recommended before live launch.
+
+Automated PDF and email delivery are not yet implemented. The MVP uses the on-page premium preview plus browser print/save.
 
 ## Supplier and affiliate links
 
