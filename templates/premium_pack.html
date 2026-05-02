@@ -2,12 +2,12 @@
 {% block content %}
 <section class="hero premium-hero">
   <div class="hero-copy">
-    <p class="eyebrow">Premium Pack</p>
-    <h1>Supplier-ready corporate wine plans</h1>
-    <p class="lead">Upgrade a quick recommendation into a polished pack you can share internally or send to suppliers.</p>
+    <p class="eyebrow">ClientCellar Premium Brief Pack</p>
+    <h1>Create a supplier-ready corporate gifting brief</h1>
+    <p class="lead">Get the practical documents you need to brief suppliers, compare options and get internal approval — without starting from a blank page.</p>
     <div class="hero-actions">
       {% if payments_enabled %}
-      <button class="button primary" type="button" data-pack-checkout data-pack-type="gift">Buy premium pack</button>
+      <button class="button primary" type="button" data-pack-checkout data-pack-type="gift">Create Premium Brief Pack — £29.99</button>
       {% else %}
       <a class="button primary" href="/contact?interest=premium-pack">Register interest</a>
       {% endif %}
@@ -15,70 +15,43 @@
     </div>
   </div>
   <div class="price-card premium-price">
-    <p class="eyebrow">One-off planning pack</p>
-    <h2>Premium Pack</h2>
+    <p class="eyebrow">One-off planning document</p>
+    <h2>Premium Brief Pack</h2>
     <p class="price">£29.99</p>
-    <p>Turn your quick plan into a supplier-ready corporate gifting pack.</p>
-    <p class="small-note">{% if payments_enabled %}Secure checkout is enabled for this MVP.{% else %}Payments are currently disabled while we test the MVP. Register interest instead.{% endif %}</p>
-  </div>
-</section>
-
-<section class="premium-comparison">
-  <div class="section-heading">
-    <p class="eyebrow">Free vs Premium</p>
-    <h2>Choose the level of planning you need</h2>
-  </div>
-  <div class="card-grid two">
-    <article class="price-card">
-      <h3>Free Planner</h3>
-      <p class="price">£0</p>
-      <ul class="feature-list">
-        <li>Quick strategy</li>
-        <li>Budget estimate</li>
-        <li>Basic supplier shortlist</li>
-        <li>Enquiry email draft</li>
-        <li>CSV template</li>
-      </ul>
-    </article>
-    <article class="price-card premium-price-card">
-      <h3>Premium Pack</h3>
-      <p class="price">£29.99 one-off</p>
-      <ul class="feature-list">
-        <li>Executive summary</li>
-        <li>Supplier comparison</li>
-        <li>Message variants</li>
-        <li>Internal approval note</li>
-        <li>Risk checklist</li>
-        <li>Print-ready pack</li>
-      </ul>
-    </article>
+    <p>Turn a rough gift or event idea into a supplier-ready brief and internal approval pack.</p>
+    <p class="small-note">{% if payments_enabled %}Secure checkout is enabled.{% else %}Payments are currently disabled while we test the MVP. Register interest instead.{% endif %}</p>
   </div>
 </section>
 
 <section class="premium-sections">
   <article class="premium-card">
-    <h2>What’s included</h2>
+    <h2>What you get</h2>
     <ul class="feature-list">
-      <li>Executive summary</li>
-      <li>Budget breakdown</li>
-      <li>Supplier comparison table</li>
-      <li>Ready-to-send supplier enquiry email</li>
-      <li>Recipient CSV template</li>
-      <li>Gift message variants</li>
-      <li>Internal approval note</li>
+      <li>Supplier brief you can copy into an email</li>
+      <li>Internal approval note for manager, finance or procurement</li>
+      <li>Recipient CSV or attendee info template</li>
+      <li>Supplier questions checklist</li>
+      <li>Gift message bank or event invite copy</li>
       <li>Risk and suitability checklist</li>
-      <li>Responsible drinking / workplace policy reminder</li>
-      <li>Print-ready format</li>
+      <li>Supplier comparison matrix</li>
+      <li>Decision scorecard</li>
+      <li>Print/save-ready format</li>
     </ul>
   </article>
 
   <article class="premium-card">
-    <h2>Who it is for</h2>
-    <p>ClientCellar Premium Pack is for busy founders, operations teams, HR teams, sales leaders and account managers who need a tidy plan before contacting suppliers or asking for internal approval.</p>
+    <h2>Why it saves time</h2>
+    <ul class="feature-list">
+      <li>Reduces back-and-forth with suppliers</li>
+      <li>Gives finance/procurement a clearer budget summary</li>
+      <li>Keeps gifting appropriate and policy-aware</li>
+      <li>Creates a cleaner internal recommendation</li>
+      <li>Turns vague ideas into quote-ready supplier requirements</li>
+    </ul>
   </article>
 
   <article class="premium-card">
-    <h2>Example use cases</h2>
+    <h2>Best for</h2>
     <ul class="feature-list">
       <li>Christmas client gifts</li>
       <li>Staff appreciation gifts</li>
@@ -88,15 +61,67 @@
     </ul>
   </article>
 
-  <article class="premium-card trust-links-card">
-    <h2>Trust notes</h2>
-    <p>Premium packs are planning documents. Supplier pricing, stock, delivery and availability must still be confirmed directly.</p>
-    <nav class="trust-links" aria-label="Trust links">
-      <a href="/terms">Terms</a>
-      <a href="/privacy">Privacy</a>
-      <a href="/affiliate-disclosure">Affiliate Disclosure</a>
-      <a href="/responsible-drinking">Responsible Drinking</a>
-    </nav>
+  <article class="premium-card">
+    <h2>Example outputs</h2>
+    <p>Supplier brief, itemised budget notes, supplier comparison matrix, supplier questions, gift message variants, internal approval note, risk checklist and timeline/action plan.</p>
   </article>
+</section>
+
+<section class="premium-comparison">
+  <div class="section-heading">
+    <p class="eyebrow">Free vs Premium</p>
+    <h2>Useful quick plan or complete brief pack</h2>
+  </div>
+  <div class="card-grid two">
+    <article class="price-card">
+      <h3>Free Planner</h3>
+      <p class="price">£0</p>
+      <ul class="feature-list">
+        <li>Quick recommendation</li>
+        <li>Budget estimate</li>
+        <li>Basic supplier direction</li>
+        <li>Draft enquiry email</li>
+        <li>Basic CSV template</li>
+      </ul>
+    </article>
+    <article class="price-card premium-price-card">
+      <h3>Premium Brief Pack</h3>
+      <p class="price">£29.99 one-off</p>
+      <ul class="feature-list">
+        <li>Full supplier brief</li>
+        <li>Internal approval note</li>
+        <li>Supplier comparison matrix</li>
+        <li>Supplier questions checklist</li>
+        <li>Risk and suitability checklist</li>
+        <li>Message bank</li>
+        <li>Timeline/action plan</li>
+        <li>Decision scorecard</li>
+        <li>Print/save-ready document</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<section class="faq-list">
+  <article>
+    <h2>Does this confirm supplier prices?</h2>
+    <p>No. It gives you a supplier-ready brief and comparison structure. Pricing, stock, delivery and availability must be confirmed directly.</p>
+  </article>
+  <article>
+    <h2>Can I use it for events?</h2>
+    <p>Yes. Event packs include event host brief, run-of-show, attendee template, inclusivity notes and supplier questions.</p>
+  </article>
+  <article>
+    <h2>What happens while payments are disabled?</h2>
+    <p>You can register interest and still preview the pack from a planner result during MVP testing.</p>
+  </article>
+</section>
+
+<section class="trust-strip pricing-trust">
+  <span>Review before purchase:</span>
+  <a href="/terms">Terms</a>
+  <a href="/privacy">Privacy</a>
+  <a href="/affiliate-disclosure">Affiliate Disclosure</a>
+  <a href="/responsible-drinking">Responsible Drinking</a>
 </section>
 {% endblock %}

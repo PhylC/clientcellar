@@ -1459,106 +1459,205 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
     output = req.planner_output
     planner_input = req.planner_input
     is_gift = req.pack_type == "gift"
-    count = planner_input.get("recipient_count") if is_gift else planner_input.get("attendee_count")
-    unit_budget = planner_input.get("budget_per_recipient") if is_gift else planner_input.get("budget_per_person")
-    total_label = output.get("estimated_total_budget", "To be confirmed with suppliers.")
+    count = int(planner_input.get("recipient_count") if is_gift else planner_input.get("attendee_count") or 0)
+    unit_budget = float(planner_input.get("budget_per_recipient") if is_gift else planner_input.get("budget_per_person") or 0)
+    planned_spend = count * unit_budget
+    contingency = planned_spend * 0.1
     supplier_shortlist = output.get("supplier_shortlist", [])
-    supplier_comparison = []
+    deadline = planner_input.get("delivery_deadline") or planner_input.get("date") or "to be confirmed"
 
-    for supplier in supplier_shortlist[:4]:
-        supplier_comparison.append(
+    def gift_route() -> str:
+        style = planner_input.get("gift_style", "not_sure")
+        return {
+            "wine_hamper": "Classic wine hamper",
+            "sparkling": "English sparkling or Champagne-style gift",
+            "mixed_case": "Mixed red/white gift",
+            "wine": "Classic wine gift",
+        }.get(style, "Low-risk wine hamper, sparkling or mixed red/white gift")
+
+    def supplier_matrix() -> list[dict]:
+        rows = []
+        for supplier in supplier_shortlist[:5]:
+            rows.append(
+                {
+                    "supplier_type": supplier.get("name", "Supplier type"),
+                    "best_for": supplier.get("category", "supplier route"),
+                    "budget_fit": supplier.get("budget_fit", "Confirm current pricing directly."),
+                    "strengths": supplier.get("why", "Relevant to the current brief."),
+                    "watchouts": "Confirm live pricing, availability, delivery, VAT, minimum orders and substitutions.",
+                    "questions_to_ask": "Can you meet the count, deadline, delivery coverage and data requirements for this brief?",
+                }
+            )
+        return rows or [
             {
-                "supplier": supplier.get("name", "Supplier"),
-                "fit": supplier.get("why", "Potential fit for the brief."),
-                "pros": [
-                    supplier.get("budget_fit", "Budget fit should be confirmed directly."),
-                    "Relevant to the current planning brief.",
-                    "Useful route for supplier enquiry comparison.",
-                ],
-                "watchouts": [
-                    "Confirm current pricing, availability and delivery directly.",
-                    "Check minimum order quantities, VAT and lead times.",
-                ],
+                "supplier_type": "Supplier type to confirm",
+                "best_for": "Initial market comparison",
+                "budget_fit": "Confirm directly with suppliers.",
+                "strengths": "Keeps supplier conversations structured.",
+                "watchouts": "No live pricing or availability is included.",
+                "questions_to_ask": "Can you provide a written quote with inclusions, exclusions and lead times?",
             }
-        )
+        ]
 
-    if not supplier_comparison:
-        supplier_comparison.append(
-            {
-                "supplier": "Supplier shortlist to confirm",
-                "fit": "Use the free planner result to identify two or three supplier routes.",
-                "pros": ["Keeps the process structured.", "Supports internal comparison."],
-                "watchouts": ["No live supplier pricing or availability is included."],
-            }
-        )
-
-    if is_gift:
-        executive_summary = (
-            f"Premium gift pack for {count or 'the planned number of'} recipients. "
-            f"The quick plan recommends a {planner_input.get('gift_style', 'suitable')} gift route "
-            f"for {planner_input.get('occasion', 'the occasion')}, with supplier checks before ordering."
-        )
-        budget_breakdown = [
-            {"label": "Gift budget", "amount": money(float(unit_budget or 0)), "note": "Planning budget per recipient before supplier confirmation."},
-            {"label": "Estimated total", "amount": total_label, "note": "May exclude VAT, delivery, packaging, personalisation and fulfilment extras."},
-            {"label": "Premium pack", "amount": "£29.99", "note": "One-off planning pack price."},
-        ]
-        messages = output.get("message_templates") or [
-            "Thank you for your support. We hope you enjoy this gift from the team."
-        ]
-        message_variants = [
-            {"tone": "Professional", "message": messages[0]},
-            {"tone": "Warm", "message": "With thanks from all of us. We appreciate the partnership and hope you enjoy this small thank-you."},
-            {"tone": "Concise", "message": "Thank you for working with us. With best wishes from the team."},
-        ]
-        approval_note = (
-            "Approval requested for a corporate gifting plan. The plan includes budget guidance, supplier routes, "
-            "recipient CSV preparation, alcohol-free consideration and supplier confirmation before order placement."
-        )
-    else:
-        executive_summary = (
-            f"Premium event pack for {count or 'the planned number of'} attendees. "
-            f"The quick plan recommends {output.get('recommended_format', 'a suitable tasting format')} "
-            "with supplier confirmation before booking."
-        )
-        budget_breakdown = [
-            {"label": "Event budget", "amount": money(float(unit_budget or 0)), "note": "Planning budget per attendee before supplier confirmation."},
-            {"label": "Estimated total", "amount": total_label, "note": "May exclude VAT, delivery, venue, service, food and cancellation costs."},
-            {"label": "Premium pack", "amount": "£29.99", "note": "One-off planning pack price."},
-        ]
-        message_variants = [
-            {"tone": "Internal invite", "message": output.get("internal_invite_copy", "You are invited to a corporate wine tasting. Full details will follow.")},
-            {"tone": "Client-safe", "message": "Join us for a relaxed hosted wine tasting with light structure, sensible pacing and alcohol-free options available."},
-            {"tone": "Team social", "message": "Join the team for a beginner-friendly wine tasting session with plenty of space for questions and conversation."},
-        ]
-        approval_note = (
-            "Approval requested for a corporate wine tasting event. The plan includes budget guidance, supplier routes, "
-            "format notes, alcohol-free options and responsible drinking considerations."
-        )
-
+    supplier_questions = [
+        "Can you handle this recipient or attendee count?",
+        "What exactly is included in the quoted price?",
+        "Is VAT included or excluded?",
+        "Is delivery included, and can you support multiple addresses?",
+        "What are the order cut-off dates and final approval deadlines?",
+        "Can you include personalised messages?",
+        "Can you provide a VAT invoice and written quote?",
+        "What happens if a recipient is unavailable for delivery?",
+        "Are alcohol-free alternatives available?",
+        "How do you handle damaged, missing or delayed deliveries?",
+        "Can you provide tracking or delivery confirmation?",
+        "Are substitutions possible, and how are they approved?",
+        "What recipient or attendee data format do you need?",
+        "What cancellation, refund or amendment terms apply?",
+    ]
     risk_checklist = [
-        "Confirm live supplier pricing, availability, delivery and lead times directly.",
-        "Check company policy on alcohol, gifting, anti-bribery, expenses and procurement.",
-        "Offer alcohol-free alternatives where recipients or attendees may prefer them.",
-        "Confirm VAT, delivery charges, international restrictions and minimum order quantities.",
-        "Keep a record of supplier quotes and approvals before committing spend.",
+        "Alcohol may not be suitable for every recipient or attendee.",
+        "Check company gifting, expenses and procurement policy.",
+        "Check client gift limits and anti-bribery or corruption policy.",
+        "Offer alcohol-free alternatives where appropriate.",
+        "Confirm delivery data handling before sharing recipient addresses.",
+        "Check GDPR and data sharing requirements for recipient or attendee lists.",
+        "Confirm international delivery restrictions, customs and courier rules.",
+        "Confirm supplier pricing, stock, substitutions, delivery and availability in writing.",
+        "Keep written supplier quotes and internal approval notes.",
+        "Avoid gifts or event formats that could feel excessive for the relationship.",
+    ]
+    decision_scorecard = [
+        {"criterion": "Budget fit", "score": "To score", "notes": "Compare quotes against budget including VAT and delivery."},
+        {"criterion": "Brand fit", "score": "To score", "notes": "Check the option feels appropriate for the company and relationship."},
+        {"criterion": "Delivery capability", "score": "To score", "notes": "Confirm count, locations, deadline and exception handling."},
+        {"criterion": "Personalisation", "score": "To score", "notes": "Check messages, branding and proofing time."},
+        {"criterion": "Low-risk suitability", "score": "To score", "notes": "Check broad appeal and alcohol-free alternatives."},
+        {"criterion": "Admin effort", "score": "To score", "notes": "Assess address collection, approvals and follow-up work."},
+        {"criterion": "Overall recommendation", "score": "To decide", "notes": "Choose the best balance of fit, confidence and admin effort."},
     ]
 
-    preview = {
-        "executive_summary": executive_summary,
-        "budget_breakdown": budget_breakdown,
-        "supplier_comparison": supplier_comparison,
-        "supplier_enquiry_email": output.get(
-            "supplier_enquiry_email",
-            {"subject": "Corporate wine planning enquiry", "body": "Hello,\n\nCould you confirm suitable options, pricing, availability and delivery details?\n\nKind regards"},
-        ),
-        "message_variants": message_variants,
-        "internal_approval_note": approval_note,
-        "risk_checklist": risk_checklist,
-        "recipient_csv_template": output.get("recipient_csv_template", CSV_TEMPLATE),
-        "print_note": "Use the browser print/save option for a print-ready MVP pack. Automated PDF and email delivery are coming soon.",
-        "disclaimer": DISCLAIMER,
-    }
+    base_budget = [
+        {"label": "Planning budget", "amount": money(unit_budget), "note": "Per recipient/attendee before live supplier confirmation."},
+        {"label": "Estimated spend", "amount": money(planned_spend), "note": "Count multiplied by planning budget."},
+        {"label": "Delivery/venue allowance", "amount": "TBC", "note": "Ask suppliers to quote this separately."},
+        {"label": "Optional contingency", "amount": money(contingency), "note": "10% planning allowance for changes or extras."},
+        {"label": "Estimated total range", "amount": f"{money(planned_spend)} + extras to {money(planned_spend + contingency)} + extras", "note": "Live supplier pricing, VAT and availability must be confirmed."},
+    ]
+
+    if is_gift:
+        route = gift_route()
+        supplier_brief = {
+            "Recipient count": str(count or "To be confirmed"),
+            "Budget per recipient": money(unit_budget),
+            "Occasion": planner_input.get("occasion", "To be confirmed"),
+            "Delivery deadline": deadline,
+            "Required delivery coverage": "UK-only" if planner_input.get("uk_only") else "Confirm UK and any international requirements",
+            "Branding/personalisation needs": "Branding required" if planner_input.get("branding_needed") else "No branding required unless simple",
+            "Message requirements": "Personal gift messages needed" if planner_input.get("personal_message_needed") else "Standard message acceptable",
+            "Known preferences": planner_input.get("known_preferences") or "Not known",
+            "What to avoid": planner_input.get("avoid") or "Overly quirky bottles, unsuitable alcohol-led options and unconfirmed substitutions",
+            "Decision timeline": "Quote and options needed within 24-48 hours where possible",
+            "Required quote format": "Itemised quote showing unit price, VAT, delivery, packaging, personalisation, substitutions and lead time",
+        }
+        email_body = (
+            "Hello,\n\n"
+            f"We are preparing a corporate gifting order for {count or 'TBC'} recipients and would like a written quote and recommendation.\n\n"
+            "Requirements:\n"
+            f"- Recommended route: {route}\n"
+            f"- Occasion: {supplier_brief['Occasion']}\n"
+            f"- Budget: {money(unit_budget)} per recipient\n"
+            f"- Delivery deadline: {deadline}\n"
+            f"- Delivery coverage: {supplier_brief['Required delivery coverage']}\n"
+            f"- Messages: {supplier_brief['Message requirements']}\n"
+            f"- Branding/personalisation: {supplier_brief['Branding/personalisation needs']}\n"
+            f"- Known preferences: {supplier_brief['Known preferences']}\n"
+            f"- Avoid: {supplier_brief['What to avoid']}\n\n"
+            "Please confirm suitable options, itemised pricing, VAT, delivery, order cut-offs, recipient data format, alcohol-free alternatives, substitutions and failed-delivery handling.\n\n"
+            "Ideally we would like an itemised quote within 24-48 hours so we can compare options internally.\n\n"
+            "Kind regards"
+        )
+        preview = {
+            "pack_name": "ClientCellar Premium Brief Pack",
+            "pack_type": "gift",
+            "executive_summary": f"This Premium Brief Pack recommends a {route.lower()} route for {count or 'the planned number of'} recipients. It is designed to brief suppliers clearly, compare quotes consistently and support internal approval before any order is placed. Live pricing, stock, delivery and suitability must be confirmed directly.",
+            "decision_recommendation": {"recommended_route": route, "why": "It balances broad appeal, corporate suitability, presentation and delivery practicality.", "suits": "Client, partner or employee gifting where tastes are mixed or unknown.", "may_not_suit": "Recipients who do not drink alcohol, strict gift policies or complex international delivery."},
+            "budget_breakdown": base_budget,
+            "supplier_brief": supplier_brief,
+            "supplier_comparison": supplier_matrix(),
+            "supplier_enquiry_email": {"subject": f"Corporate gifting quote request - {count or 'TBC'} recipients", "body": email_body},
+            "supplier_questions_checklist": supplier_questions,
+            "internal_approval_note": f"Approval requested to progress a {route.lower()} corporate gifting route for {count or 'TBC'} recipients at a planning budget of {money(unit_budget)} per recipient, subject to supplier quotes, VAT, delivery, company gifting policy and alcohol suitability checks.",
+            "risk_checklist": risk_checklist,
+            "recipient_csv_template": "recipient_name,email,company,address_line_1,address_line_2,city,postcode,country,gift_message,alcohol_free_required,delivery_notes",
+            "message_variants": [
+                {"tone": "Formal client", "message": "Thank you for your continued partnership. With best wishes from the team."},
+                {"tone": "Warm client", "message": "A small thank-you for working with us this year. We appreciate the partnership and hope you enjoy it."},
+                {"tone": "Employee appreciation", "message": "Thank you for your hard work and energy. We hope you enjoy this small token of appreciation."},
+                {"tone": "Partner thank-you", "message": "Thank you for your support and collaboration. We look forward to continuing the partnership."},
+                {"tone": "Christmas neutral", "message": "With best wishes for a restful break and a successful year ahead."},
+                {"tone": "Project completion", "message": "Thank you for your work with us on this project. We appreciated the collaboration."},
+                {"tone": "Referral thank-you", "message": "Thank you for the introduction and your continued support. It is much appreciated."},
+                {"tone": "Premium understated", "message": "With thanks from all of us. Please accept this as a small note of appreciation."},
+            ],
+            "timeline_action_plan": ["Today: confirm recipient list, budget owner, gift policy and alcohol-free requirements.", "Within 24 hours: send supplier enquiry using the structured brief.", "Within 48 hours: compare quotes using the scorecard and check VAT/delivery assumptions.", "One week before deadline: approve final messages, artwork and recipient CSV.", "Delivery week: monitor exceptions, failed deliveries and replacements."],
+            "internal_update": f"Update: I’ve prepared a supplier-ready gifting brief for {count or 'TBC'} recipients. Recommended route: {route}. Planning budget: {money(unit_budget)} per recipient, with delivery/VAT to be confirmed. Next step is to request itemised supplier quotes and compare options for approval.",
+            "decision_scorecard": decision_scorecard,
+            "print_note": "Print or save this page as a PDF for internal approval. Automated PDF/email delivery is a roadmap item.",
+            "disclaimer": DISCLAIMER,
+        }
+    else:
+        event_format = output.get("recommended_format", "Hosted corporate wine tasting")
+        supplier_brief = {
+            "Attendee count": str(count or "To be confirmed"),
+            "Budget per attendee": money(unit_budget),
+            "Event type": readable(planner_input.get("event_type", "corporate tasting")),
+            "Preferred format": readable(planner_input.get("format", "not_sure")),
+            "Location": planner_input.get("location") or "To be confirmed / remote",
+            "Date": deadline,
+            "Tone": readable(planner_input.get("tone", "fun")),
+            "Wine knowledge level": readable(planner_input.get("wine_knowledge_level", "mixed")),
+            "Food pairing needed": "Yes" if planner_input.get("food_pairing_needed") else "No / optional",
+            "Known preferences": planner_input.get("known_preferences") or "Not known",
+            "Decision timeline": "Availability and quote needed within 24-48 hours where possible",
+            "Required quote format": "Itemised quote showing host fee, wine/packs, VAT, delivery, venue/food costs, cancellation terms and lead time",
+        }
+        email_body = (
+            "Hello,\n\n"
+            f"We are planning a corporate wine tasting for around {count or 'TBC'} attendees and would like a written quote and suggested format.\n\n"
+            f"- Recommended format: {event_format}\n"
+            f"- Event type: {supplier_brief['Event type']}\n"
+            f"- Location/date: {supplier_brief['Location']} / {supplier_brief['Date']}\n"
+            f"- Budget: {money(unit_budget)} per attendee\n"
+            f"- Tone: {supplier_brief['Tone']}\n"
+            f"- Wine knowledge level: {supplier_brief['Wine knowledge level']}\n"
+            f"- Food pairing: {supplier_brief['Food pairing needed']}\n\n"
+            "Please confirm recommended format, current pricing, host availability, what is included, delivery or venue requirements, alcohol-free options, booking deadline and cancellation terms.\n\n"
+            "Kind regards"
+        )
+        preview = {
+            "pack_name": "ClientCellar Premium Brief Pack",
+            "pack_type": "event",
+            "executive_summary": f"This Premium Brief Pack recommends {event_format.lower()} for {count or 'the planned number of'} attendees. It is designed to brief event hosts, compare options, keep the format inclusive and support internal approval before booking. Live host availability, venue requirements, delivery and pricing must be confirmed directly.",
+            "decision_recommendation": {"recommended_route": event_format, "why": "It gives the event enough structure for a corporate setting while keeping supplier questions clear.", "suits": "Team socials, client entertainment, away days or virtual events with mixed wine knowledge.", "may_not_suit": "Teams where alcohol is inappropriate, delivery addresses cannot be shared or venue/licensing rules are unclear."},
+            "budget_breakdown": base_budget,
+            "supplier_brief": supplier_brief,
+            "supplier_comparison": supplier_matrix(),
+            "supplier_enquiry_email": {"subject": f"Corporate wine tasting quote request - {count or 'TBC'} attendees", "body": email_body},
+            "event_run_of_show": ["Welcome and responsible drinking note - 5 minutes", "Host introduction and format overview - 5 minutes", "First wine or alcohol-free serve - 15 minutes", "Second wine with guided discussion - 15 minutes", "Optional food pairing or team activity - 20 minutes", "Final tasting, Q&A and close - 10 minutes"],
+            "internal_invite_copy": output.get("internal_invite_copy", "You are invited to a corporate wine tasting. Full details will follow."),
+            "supplier_questions_checklist": supplier_questions,
+            "risk_checklist": risk_checklist,
+            "alcohol_free_options_note": "Ask the supplier for alcohol-free tasting packs or a comparable non-alcoholic alternative so the event remains inclusive.",
+            "attendee_info_template": "attendee_name,email,company,delivery_address,dietary_requirements,alcohol_free_required,accessibility_needs,notes",
+            "timeline_action_plan": ["Today: confirm attendees, format, budget owner and alcohol-free requirements.", "Within 24 hours: send supplier/host enquiry using the structured brief.", "Within 48 hours: compare quotes using the scorecard and check inclusions/exclusions.", "One week before event: confirm attendee list, delivery addresses, joining details and dietary needs.", "Event week: monitor pack delivery, final run sheet and attendee exceptions."],
+            "internal_approval_note": f"Approval requested to progress a corporate wine tasting for {count or 'TBC'} attendees at a planning budget of {money(unit_budget)} per attendee, subject to supplier quotes, VAT, delivery, host availability, venue requirements and cancellation terms.",
+            "decision_scorecard": decision_scorecard,
+            "message_variants": [{"tone": "Internal invite", "message": output.get("internal_invite_copy", "You are invited to a corporate wine tasting. Full details will follow.")}, {"tone": "Client-safe", "message": "Join us for a relaxed hosted wine tasting with light structure, sensible pacing and alcohol-free options available."}, {"tone": "Team social", "message": "Join the team for a beginner-friendly wine tasting session with plenty of space for questions and conversation."}],
+            "internal_update": f"Update: I’ve prepared a supplier-ready event brief for {count or 'TBC'} attendees. Recommended format: {event_format}. Planning budget: {money(unit_budget)} per attendee, with delivery/venue/VAT to be confirmed. Next step is to request itemised supplier quotes and compare options for approval.",
+            "print_note": "Print or save this page as a PDF for internal approval. Automated PDF/email delivery is a roadmap item.",
+            "disclaimer": DISCLAIMER,
+        }
     return maybe_improve_plan(preview, "premium_pack")
 
 
@@ -1923,22 +2022,69 @@ GUIDES = {
 }
 
 
-def render(request: Request, template: str, title: str, description: str | None = None, **context) -> HTMLResponse:
+def render_template(request: Request, template_name: str, status_code: int = 200, **context) -> HTMLResponse:
     base_url = os.getenv("APP_BASE_URL", "").rstrip("/")
     canonical_url = f"{base_url}{request.url.path}" if base_url else None
-    return templates.TemplateResponse(
-        request=request,
-        name=template,
-        context={
-            "title": title,
-            "description": description or "Corporate wine gifts and tasting events made simple.",
+    context.setdefault("title", "ClientCellar")
+    context.setdefault("description", "Corporate wine gifts and tasting events made simple.")
+    context.setdefault("product", PRODUCT_NAME)
+    context.setdefault("payments_enabled", payments_enabled())
+    context.setdefault("canonical_url", canonical_url)
+
+    if not isinstance(template_name, str):
+        print("Invalid template_name passed to render_template:", repr(template_name))
+        template_name = "message.html"
+        context = {
+            "title": "Something went wrong",
+            "eyebrow": "Error",
+            "body": "We could not load this page correctly. Please try again or contact us.",
+            "primary_label": "Return home",
+            "primary_href": "/",
+            **context,
+        }
+
+    context = {"request": request, **context}
+    try:
+        return templates.TemplateResponse(
+            request=request,
+            name=template_name,
+            context=context,
+            status_code=status_code,
+        )
+    except Exception as exc:
+        print(f"Template rendering failed for {template_name!r}:", repr(exc))
+        if template_name == "message.html":
+            raise
+        fallback_context = {
+            "request": request,
+            "title": "Something went wrong",
+            "description": "We could not load this page correctly.",
             "product": PRODUCT_NAME,
             "payments_enabled": payments_enabled(),
             "canonical_url": canonical_url,
-            **context,
-        },
-    )
+            "eyebrow": "Error",
+            "body": "We could not load this page correctly. Please try again or contact us.",
+            "primary_label": "Return home",
+            "primary_href": "/",
+        }
+        return templates.TemplateResponse(
+            request=request,
+            name="message.html",
+            context=fallback_context,
+            status_code=500,
+        )
 
+
+def render(request: Request, template: str, title: str, description: str | None = None, **context) -> HTMLResponse:
+    return render_template(
+        request,
+        template,
+        title=title,
+        description=description or "Corporate wine gifts and tasting events made simple.",
+        product=PRODUCT_NAME,
+        payments_enabled=payments_enabled(),
+        **context,
+    )
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -1971,7 +2117,7 @@ def event_planner(request: Request):
 
 @app.get("/pricing", response_class=HTMLResponse)
 def pricing(request: Request):
-    return render(request, "pricing.html", "Pricing", "ClientCellar free planner and £29.99 premium corporate wine planning pack.")
+    return render(request, "pricing.html", "Pricing", "Compare the free ClientCellar planner with the £29.99 Premium Brief Pack.")
 
 
 @app.get("/premium-pack", response_class=HTMLResponse)
@@ -1979,8 +2125,8 @@ def premium_pack(request: Request):
     return render(
         request,
         "premium_pack.html",
-        "Premium Pack",
-        "Turn your quick corporate wine plan into a supplier-ready planning pack.",
+        "Premium Brief Pack",
+        "Turn a rough gift or event idea into a supplier-ready brief and internal approval pack.",
     )
 
 
@@ -1991,6 +2137,7 @@ def checkout_success(request: Request):
     payment_verified = False
     payment_status = None
     verification_error = False
+    customer_email = None
 
     if session_id and payments_enabled():
         try:
@@ -1999,6 +2146,7 @@ def checkout_success(request: Request):
             session = stripe.checkout.Session.retrieve(session_id)
             pack_token = stripe_obj_get(stripe_obj_get(session, "metadata", {}), "pack_token")
             payment_status = stripe_obj_get(session, "payment_status")
+            customer_email = stripe_obj_get(session, "customer_email")
             if payment_status == "paid":
                 payment_verified = True
                 if pack_token:
@@ -2009,24 +2157,24 @@ def checkout_success(request: Request):
                         stripe_payment_intent=stripe_obj_get(session, "payment_intent"),
                         amount_total=stripe_obj_get(session, "amount_total"),
                         currency=stripe_obj_get(session, "currency"),
-                        customer_email=stripe_obj_get(session, "customer_email"),
+                        customer_email=customer_email,
                     )
         except Exception:
             verification_error = True
 
-    context = {
-        "request": request,
-        "title": "Payment received",
-        "payment_verified": payment_verified,
-        "pack_token": pack_token,
-        "payments_enabled": payments_enabled(),
-        "verification_error": verification_error,
-        "payment_status": payment_status,
-    }
-    return templates.TemplateResponse(
-        request=request,
-        name="checkout_success.html",
-        context=context,
+    open_pack_url = f"/premium-pack/view/{pack_token}" if pack_token else None
+    return render_template(
+        request,
+        "checkout_success.html",
+        eyebrow="Checkout",
+        title="Payment received",
+        payment_verified=payment_verified,
+        pack_token=pack_token,
+        open_pack_url=open_pack_url,
+        payments_enabled=payments_enabled(),
+        verification_error=verification_error,
+        payment_status=payment_status,
+        customer_email=customer_email,
     )
 
 
@@ -2038,7 +2186,13 @@ def checkout_cancelled(request: Request):
         if pack and pack.get("payment_status") == "pending":
             update_premium_pack_payment(token, "cancelled")
 
-    return render(request, "checkout_cancelled.html", "Checkout cancelled")
+    return render_template(
+        request,
+        "checkout_cancelled.html",
+        eyebrow="Checkout",
+        title="Checkout cancelled",
+        description="No payment was taken. You can return to pricing or contact ClientCellar for support.",
+    )
 
 
 @app.get("/premium-pack/view/{pack_token}", response_class=HTMLResponse)
@@ -2047,29 +2201,31 @@ def premium_pack_view(request: Request, pack_token: str):
     pack = get_premium_pack(pack_token)
 
     if not pack:
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={
-                "request": request,
-                "title": "Pack not found",
-                "message": "The premium pack you're looking for wasn't found. Please check the link and try again.",
-                "status_code": 404,
-            },
+        return render_template(
+            request,
+            "message.html",
             status_code=404,
+            eyebrow="Premium Brief Pack",
+            title="Pack not found",
+            body="The Premium Brief Pack you're looking for wasn't found. Please check the link and try again.",
+            primary_label="Return to Premium Brief Pack",
+            primary_href="/premium-pack",
+            secondary_label="Contact support",
+            secondary_href="/contact?interest=premium-pack-support",
         )
 
     if payments_enabled() and pack.get("payment_status") != "paid":
-        return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={
-                "request": request,
-                "title": "Payment required",
-                "message": "This premium pack requires payment. Please complete checkout first or contact us for support.",
-                "status_code": 402,
-            },
+        return render_template(
+            request,
+            "message.html",
             status_code=402,
+            eyebrow="Premium Brief Pack",
+            title="Payment required",
+            body="This Premium Brief Pack requires payment. Please complete checkout first or contact us for support.",
+            primary_label="View pricing",
+            primary_href="/pricing",
+            secondary_label="Contact support",
+            secondary_href="/contact?interest=premium-pack-support",
         )
 
     preview = pack.get("premium_preview")
@@ -2088,20 +2244,15 @@ def premium_pack_view(request: Request, pack_token: str):
 
     touch_premium_pack_access(pack_token)
 
-    context = {
-        "request": request,
-        "title": "Premium Planning Pack",
-        "pack": pack,
-        "pack_token": pack_token,
-        "preview": preview or {},
-        "planner_output": pack.get("planner_output", {}),
-        "payment_verified": pack.get("payment_status") == "paid",
-    }
-
-    return templates.TemplateResponse(
-        request=request,
-        name="premium_pack_view.html",
-        context=context,
+    return render_template(
+        request,
+        "premium_pack_view.html",
+        title="Premium Planning Pack",
+        pack=pack,
+        pack_token=pack_token,
+        preview=preview or {},
+        planner_output=pack.get("planner_output", {}),
+        payment_verified=pack.get("payment_status") == "paid",
     )
 
 
@@ -2306,16 +2457,14 @@ def guides_index(request: Request):
 def guide_detail(request: Request, slug: str):
     guide = GUIDES.get(slug)
     if not guide:
-        return templates.TemplateResponse(
-            request=request,
-            name="guides.html",
-            context={
-                "title": "Guides",
-                "description": "Practical ClientCellar guides.",
-                "product": PRODUCT_NAME,
-                "guides": GUIDES,
-            },
+        return render_template(
+            request,
+            "guides.html",
             status_code=404,
+            title="Guides",
+            description="Practical ClientCellar guides.",
+            product=PRODUCT_NAME,
+            guides=GUIDES,
         )
     return render(
         request,

@@ -567,6 +567,34 @@ textarea {
   gap: 1rem;
 }
 
+.pack-overview {
+  display: grid;
+  gap: 0.65rem;
+  min-width: min(100%, 280px);
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+}
+
+.pack-overview div {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.75fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.pack-overview dt {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.pack-overview dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 900;
+}
+
 .premium-doc-actions {
   display: grid;
   gap: 0.75rem;
@@ -580,6 +608,32 @@ textarea {
 .premium-doc h2,
 .premium-doc h3 {
   margin: 0;
+}
+
+.premium-doc .pack-section {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+  padding: 1rem;
+}
+
+.section-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.section-title-row.compact {
+  margin-bottom: 0.45rem;
+}
+
+.button.small {
+  min-height: 2rem;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.86rem;
 }
 
 .premium-doc pre,
@@ -609,6 +663,55 @@ textarea {
 
 .comparison-table p {
   margin: 0.35rem 0 0;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.pack-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.pack-table th,
+.pack-table td {
+  border: 1px solid var(--line);
+  padding: 0.7rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.pack-table th {
+  background: #f5eee6;
+  color: var(--burgundy);
+}
+
+.message-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding: 0.65rem 0;
+}
+
+.message-row p {
+  margin: 0;
+}
+
+.premium-doc-header {
+  border-bottom: 2px solid var(--burgundy);
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+}
+
+.pack-document-footer {
+  border-top: 2px solid var(--burgundy);
+  padding-top: 1rem;
+  color: var(--muted);
 }
 
 .trust-links,

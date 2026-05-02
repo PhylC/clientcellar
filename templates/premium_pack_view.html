@@ -2,81 +2,128 @@
 {% block content %}
 <section class="premium-pack-header">
   <div class="premium-pack-hero">
-    <p class="eyebrow">Premium Pack</p>
-    <h1>{% if preview.executive_summary %}{{ preview.executive_summary | truncate(80) }}{% else %}Your Corporate Planning Pack{% endif %}</h1>
-    <p class="lead">Supplier-ready planning document. Review before sharing internally or sending to suppliers.</p>
+    <p class="eyebrow">ClientCellar Premium Brief Pack</p>
+    <h1>{% if preview.pack_type == "event" %}Supplier-ready event brief{% else %}Supplier-ready gifting brief{% endif %}</h1>
+    <p class="lead">A print/save-ready pack for supplier enquiries, quote comparison and internal approval.</p>
     <div class="hero-actions">
-      <button class="button primary" onclick="window.print()">Print / Save as PDF</button>
-      <button class="button secondary" onclick="copyEmail()">Copy enquiry email</button>
-      <button class="button secondary" onclick="downloadCSV()">Download recipient CSV</button>
+      <button class="button primary" type="button" onclick="window.print()">Print / Save as PDF</button>
+      <button class="button secondary" type="button" onclick="copyEmail(this)">Copy enquiry email</button>
+      <button class="button secondary" type="button" onclick="downloadCSV()">Download CSV</button>
     </div>
   </div>
 </section>
 
-<article class="premium-pack-content">
-  <!-- Executive Summary -->
+<article class="premium-pack-content premium-doc">
+  <header class="premium-doc-header">
+    <div>
+      <p class="eyebrow">Prepared by ClientCellar</p>
+      <h2>{{ preview.pack_name or "ClientCellar Premium Brief Pack" }}</h2>
+      <p>Use this document to brief suppliers, compare options and give finance, procurement or a manager a cleaner recommendation.</p>
+    </div>
+    <dl class="pack-overview">
+      <div>
+        <dt>Pack type</dt>
+        <dd>{{ (preview.pack_type or pack.pack_type or "brief") | replace("_", " ") | title }}</dd>
+      </div>
+      <div>
+        <dt>Payment status</dt>
+        <dd>{% if payment_verified %}Verified{% else %}MVP preview{% endif %}</dd>
+      </div>
+      <div>
+        <dt>Live pricing</dt>
+        <dd>Confirm directly</dd>
+      </div>
+    </dl>
+  </header>
+
   {% if preview.executive_summary %}
   <section class="pack-section">
-    <h2>Executive Summary</h2>
+    <h2>1. Executive Summary</h2>
     <p>{{ preview.executive_summary }}</p>
   </section>
   {% endif %}
 
-  <!-- Budget Breakdown -->
-  {% if preview.budget_breakdown %}
+  {% if preview.decision_recommendation %}
   <section class="pack-section">
-    <h2>Budget Breakdown</h2>
-    <table class="budget-table">
-      <tbody>
-        {% for item in preview.budget_breakdown %}
-        <tr>
-          <td class="label">{{ item.label }}</td>
-          <td class="amount">{{ item.amount }}</td>
-          <td class="note">{{ item.note }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </section>
-  {% endif %}
-
-  <!-- Supplier Comparison -->
-  {% if preview.supplier_comparison %}
-  <section class="pack-section">
-    <h2>Supplier Comparison</h2>
-    <div class="supplier-comparison-grid">
-      {% for comp in preview.supplier_comparison %}
-      <article class="supplier-comparison-card">
-        <h3>{{ comp.supplier }}</h3>
-        <p class="fit"><strong>Fit:</strong> {{ comp.fit }}</p>
-        <div class="pros-watchouts">
-          <div class="pros">
-            <strong>Pros:</strong>
-            <ul>
-              {% for pro in comp.pros %}
-              <li>{{ pro }}</li>
-              {% endfor %}
-            </ul>
-          </div>
-          <div class="watchouts">
-            <strong>Watch-outs:</strong>
-            <ul>
-              {% for watchout in comp.watchouts %}
-              <li>{{ watchout }}</li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-      </article>
-      {% endfor %}
+    <h2>2. Decision Recommendation</h2>
+    <div class="table-scroll">
+      <table class="budget-table pack-table">
+        <tbody>
+          {% for key, value in preview.decision_recommendation.items() %}
+          <tr><td class="label">{{ key.replace("_", " ") | title }}</td><td>{{ value }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </section>
   {% endif %}
 
-  <!-- Supplier Enquiry Email -->
+  {% if preview.budget_breakdown %}
+  <section class="pack-section">
+    <h2>3. Budget Breakdown</h2>
+    <div class="table-scroll">
+      <table class="budget-table pack-table">
+        <thead><tr><th>Item</th><th>Amount</th><th>Note</th></tr></thead>
+        <tbody>
+          {% for item in preview.budget_breakdown %}
+          <tr>
+            <td class="label">{{ item.label }}</td>
+            <td class="amount">{{ item.amount }}</td>
+            <td class="note">{{ item.note }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="small-note">This is planning guidance only. Live supplier pricing, VAT, delivery, venue costs and availability must be confirmed directly.</p>
+  </section>
+  {% endif %}
+
+  {% if preview.supplier_brief %}
+  <section class="pack-section">
+    <h2>4. Supplier Brief</h2>
+    <p>Copy these requirements into supplier enquiries so each quote is easier to compare.</p>
+    <div class="table-scroll">
+      <table class="budget-table pack-table">
+        <tbody>
+          {% for key, value in preview.supplier_brief.items() %}
+          <tr><td class="label">{{ key }}</td><td>{{ value }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if preview.supplier_comparison %}
+  <section class="pack-section">
+    <h2>5. Supplier Comparison Matrix</h2>
+    <div class="table-scroll">
+      <table class="budget-table pack-table">
+        <thead><tr><th>Supplier type</th><th>Best for</th><th>Budget fit</th><th>Strengths</th><th>Watchouts</th><th>Questions to ask</th></tr></thead>
+        <tbody>
+          {% for comp in preview.supplier_comparison %}
+          <tr>
+            <td>{{ comp.supplier_type or comp.supplier }}</td>
+            <td>{{ comp.best_for or comp.fit }}</td>
+            <td>{{ comp.budget_fit }}</td>
+            <td>{{ comp.strengths or (comp.pros | join("; ")) }}</td>
+            <td>{{ comp.watchouts }}</td>
+            <td>{{ comp.questions_to_ask }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+
   {% if preview.supplier_enquiry_email %}
   <section class="pack-section">
-    <h2>Supplier Enquiry Email</h2>
+    <div class="section-title-row">
+      <h2>6. Ready-To-Send Supplier Enquiry Email</h2>
+      <button class="button secondary small" type="button" onclick="copyEmail(this)">Copy email</button>
+    </div>
     <div class="email-template">
       <p><strong>Subject:</strong> {{ preview.supplier_enquiry_email.subject }}</p>
       <pre id="enquiryEmail">{{ preview.supplier_enquiry_email.body }}</pre>
@@ -84,33 +131,79 @@
   </section>
   {% endif %}
 
-  <!-- Message Variants -->
+  {% if preview.supplier_questions_checklist %}
+  <section class="pack-section">
+    <h2>7. Supplier Questions Checklist</h2>
+    <ul>
+      {% for item in preview.supplier_questions_checklist %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if preview.event_run_of_show %}
+  <section class="pack-section">
+    <h2>8. Event Run-Of-Show</h2>
+    <ul>
+      {% for item in preview.event_run_of_show %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if preview.internal_invite_copy %}
+  <section class="pack-section">
+    <div class="section-title-row">
+      <h2>9. Internal Invite Copy</h2>
+      <button class="button secondary small" type="button" onclick="copyFromContainer(this)">Copy invite</button>
+    </div>
+    <pre data-copy-content>{{ preview.internal_invite_copy }}</pre>
+  </section>
+  {% endif %}
+
   {% if preview.message_variants %}
   <section class="pack-section">
-    <h2>Message Variants</h2>
+    <h2>{% if preview.pack_type == "event" %}10. Message Variants{% else %}8. Gift Message Bank{% endif %}</h2>
     <div class="message-variants-grid">
       {% for variant in preview.message_variants %}
       <article class="message-card">
-        <h3>{{ variant.tone }}</h3>
-        <p>{{ variant.message }}</p>
+        <div class="section-title-row compact">
+          <h3>{{ variant.tone }}</h3>
+          <button class="button secondary small" type="button" onclick="copyFromContainer(this)">Copy</button>
+        </div>
+        <p data-copy-content>{{ variant.message }}</p>
       </article>
       {% endfor %}
     </div>
   </section>
   {% endif %}
 
-  <!-- Internal Approval Note -->
-  {% if preview.internal_approval_note %}
-  <section class="pack-section approval-section">
-    <h2>Internal Approval Note</h2>
-    <p>{{ preview.internal_approval_note }}</p>
+  {% if preview.recipient_csv_template or preview.attendee_info_template %}
+  <section class="pack-section">
+    <div class="section-title-row">
+      <h2>{% if preview.pack_type == "event" %}11. Attendee Info Template{% else %}9. Recipient CSV Template{% endif %}</h2>
+      <button class="button secondary small" type="button" onclick="downloadCSV()">Download CSV</button>
+    </div>
+    <p>Use this template to collate details for supplier delivery or event planning.</p>
+    <pre class="csv-template" id="csvTemplate">{{ preview.recipient_csv_template or preview.attendee_info_template }}</pre>
   </section>
   {% endif %}
 
-  <!-- Risk Checklist -->
+  {% if preview.internal_approval_note %}
+  <section class="pack-section approval-section">
+    <div class="section-title-row">
+      <h2>{% if preview.pack_type == "event" %}12. Internal Approval Note{% else %}10. Internal Approval Note{% endif %}</h2>
+      <button class="button secondary small" type="button" onclick="copyFromContainer(this)">Copy note</button>
+    </div>
+    <p data-copy-content>{{ preview.internal_approval_note }}</p>
+  </section>
+  {% endif %}
+
   {% if preview.risk_checklist %}
   <section class="pack-section">
-    <h2>Risk & Suitability Checklist</h2>
+    <h2>{% if preview.pack_type == "event" %}13. Risk And Inclusivity Checklist{% else %}11. Risk And Suitability Checklist{% endif %}</h2>
     <div class="checklist">
       {% for item in preview.risk_checklist %}
       <label class="checkbox-item">
@@ -119,24 +212,54 @@
       </label>
       {% endfor %}
     </div>
-    <p class="checklist-note">Print this document and tick off items as you confirm them with suppliers.</p>
+    {% if preview.alcohol_free_options_note %}
+    <p class="checklist-note">{{ preview.alcohol_free_options_note }}</p>
+    {% endif %}
   </section>
   {% endif %}
 
-  <!-- Recipient CSV Template -->
-  {% if preview.recipient_csv_template %}
+  {% if preview.timeline_action_plan %}
   <section class="pack-section">
-    <h2>Recipient CSV Template</h2>
-    <p>Use this template to collate recipient details for supplier delivery.</p>
-    <pre class="csv-template" id="csvTemplate">{{ preview.recipient_csv_template }}</pre>
+    <h2>{% if preview.pack_type == "event" %}14. Timeline / Action Plan{% else %}12. Timeline / Action Plan{% endif %}</h2>
+    <ul>
+      {% for item in preview.timeline_action_plan %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
   </section>
   {% endif %}
 
-  <!-- Disclaimer -->
+  {% if preview.internal_update %}
+  <section class="pack-section">
+    <div class="section-title-row">
+      <h2>{% if preview.pack_type == "event" %}15. Internal Slack / Teams Update{% else %}13. Internal Slack / Teams Update{% endif %}</h2>
+      <button class="button secondary small" type="button" onclick="copyFromContainer(this)">Copy update</button>
+    </div>
+    <p data-copy-content>{{ preview.internal_update }}</p>
+  </section>
+  {% endif %}
+
+  {% if preview.decision_scorecard %}
+  <section class="pack-section">
+    <h2>{% if preview.pack_type == "event" %}16. Decision Scorecard{% else %}14. Decision Scorecard{% endif %}</h2>
+    <div class="table-scroll">
+      <table class="budget-table pack-table">
+        <thead><tr><th>Criterion</th><th>Score</th><th>Notes</th></tr></thead>
+        <tbody>
+          {% for row in preview.decision_scorecard %}
+          <tr><td>{{ row.criterion }}</td><td>{{ row.score }}</td><td>{{ row.notes }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+
   {% if preview.disclaimer %}
   <section class="pack-section disclaimer-section">
     <h2>Important Notice</h2>
     <p>{{ preview.disclaimer }}</p>
+    <p class="small-note">Some supplier links may be affiliate or tracked links. Confirm availability, pricing, delivery and suitability directly.</p>
     <nav class="trust-links">
       <a href="/terms">Terms</a>
       <a href="/privacy">Privacy</a>
@@ -146,59 +269,50 @@
   </section>
   {% endif %}
 
-  <!-- Print Note -->
-  {% if preview.print_note %}
-  <section class="pack-section print-note-section">
-    <p class="print-note">💡 {{ preview.print_note }}</p>
-  </section>
-  {% endif %}
+  <footer class="pack-document-footer">
+    <p><strong>Prepared by ClientCellar.</strong> This pack is planning guidance only and does not verify live supplier pricing, stock, delivery, availability or suitability.</p>
+    {% if preview.print_note %}<p>{{ preview.print_note }}</p>{% endif %}
+  </footer>
 </article>
 
 <script>
-function copyEmail() {
-  const email = document.getElementById('enquiryEmail');
-  if (email) {
-    const text = email.textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Enquiry email copied to clipboard!');
-    }).catch(() => {
-      alert('Failed to copy. Please copy manually from the template above.');
-    });
-  }
+function copyValue(text, button) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (button) {
+      const original = button.textContent;
+      button.textContent = "Copied";
+      setTimeout(() => { button.textContent = original; }, 1600);
+    }
+  }).catch(() => {
+    alert("Copy failed. Please copy the text manually.");
+  });
+}
+
+function copyEmail(button) {
+  const email = document.getElementById("enquiryEmail");
+  if (email) copyValue(email.textContent, button);
+}
+
+function copyFromContainer(button) {
+  const section = button.closest(".pack-section, .message-card");
+  const content = section ? section.querySelector("[data-copy-content]") : null;
+  if (content) copyValue(content.textContent, button);
 }
 
 function downloadCSV() {
-  const csv = document.getElementById('csvTemplate');
+  const csv = document.getElementById("csvTemplate");
   if (csv) {
-    const blob = new Blob([csv.textContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csv.textContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'recipients.csv');
-    link.style.visibility = 'hidden';
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "clientcellar-brief-template.csv");
+    link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 }
 </script>
-
-<style>
-@media print {
-  .premium-pack-header .hero-actions,
-  .premium-pack-content > section > .hero-actions {
-    display: none;
-  }
-  
-  .premium-pack-content {
-    break-inside: avoid;
-  }
-  
-  .supplier-comparison-card,
-  .message-card {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-}
-</style>
 {% endblock %}

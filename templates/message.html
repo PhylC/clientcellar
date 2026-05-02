@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  {% if eyebrow %}<p class="eyebrow">{{ eyebrow }}</p>{% endif %}
+  <h1>{{ title }}</h1>
+  {% if body %}<p>{{ body }}</p>{% endif %}
+  {% if primary_label or secondary_label %}
+  <div class="hero-actions">
+    {% if primary_label and primary_href %}
+    <a class="button primary" href="{{ primary_href }}">{{ primary_label }}</a>
+    {% endif %}
+    {% if secondary_label and secondary_href %}
+    <a class="button secondary" href="{{ secondary_href }}">{{ secondary_label }}</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

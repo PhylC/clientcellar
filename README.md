@@ -2,7 +2,7 @@
 
 ClientCellar is a standalone FastAPI MVP for UK corporate wine gifting and corporate wine tasting planning.
 
-It helps business users plan client gifts, staff gifts, partner thank-yous and tasting events with budget guidance, supplier routes, enquiry emails, CSV templates, premium pack previews and lead capture.
+It helps business users plan client gifts, staff gifts, partner thank-yous and tasting events with budget guidance, supplier routes, enquiry emails, CSV templates, Premium Brief Pack previews and lead capture.
 
 ClientCellar does not sell alcohol directly, scrape retailer websites, check live stock or invent supplier availability. Supplier data is manually curated in `main.py`.
 
@@ -98,9 +98,31 @@ CSV export:
 
 This is MVP admin protection, not production-grade security. For production, replace the query-string admin password with proper authentication before handling sensitive lead data at scale.
 
-## Payment setup
+## Premium Brief Pack and payment setup
 
-The Premium Pack architecture works without Stripe by default. If payments are disabled, users see a register-interest fallback.
+The ClientCellar Premium Brief Pack turns a rough gift or event idea into a supplier-ready brief and internal approval pack. It is designed to save time preparing supplier enquiries, give finance/procurement a clearer budget summary, reduce supplier back-and-forth and keep gifting/event planning policy-aware.
+
+Free Planner:
+
+- Quick recommendation
+- Budget estimate
+- Basic supplier direction
+- Draft enquiry email
+- Basic CSV template
+
+Premium Brief Pack:
+
+- Full supplier or event host brief
+- Internal approval note
+- Supplier comparison matrix
+- Supplier questions checklist
+- Risk and suitability checklist
+- Message bank or event invite copy
+- Timeline/action plan
+- Decision scorecard
+- Print/save-ready document
+
+The Premium Brief Pack architecture works without Stripe by default. If payments are disabled, users see a register-interest fallback.
 
 To enable Stripe Checkout:
 
@@ -112,7 +134,7 @@ STRIPE_WEBHOOK_SECRET=...
 APP_BASE_URL=https://your-domain.example
 ```
 
-`STRIPE_PRICE_ID` should point to the one-off £29.99 Premium Pack price in Stripe.
+`STRIPE_PRICE_ID` should point to the one-off £29.99 Premium Brief Pack price in Stripe.
 
 ### Stripe webhook setup
 
@@ -127,7 +149,7 @@ APP_BASE_URL=https://your-domain.example
 
 The success page also performs fallback session verification when Stripe is available, but webhooks are still recommended before live launch.
 
-Automated PDF and email delivery are not yet implemented. The MVP uses the on-page premium preview plus browser print/save.
+Current fulfilment limitations: Stripe webhook fulfilment is still MVP-level, automated PDF generation is not yet implemented, automated email delivery is not yet implemented, supplier quote comparison upload is not yet implemented, and saved account history is not yet implemented. The MVP uses the on-page Premium Brief Pack plus browser print/save.
 
 ## Supplier and affiliate links
 
@@ -176,7 +198,7 @@ The legal and trust pages are practical MVP templates, not lawyer-approved docum
 1. Open `/`.
 2. Open `/gift-planner`, submit the default form and copy the enquiry email.
 3. Open `/event-planner`, submit the default form and copy the enquiry email.
-4. Preview the Premium Pack from a planner result.
+4. Preview the Premium Brief Pack from a planner result.
 5. Submit a lead form with consent checked.
 6. Open `/premium-pack`, `/pricing`, `/guides`, `/terms`, `/privacy`.
 7. Check `/api/health`.
@@ -184,6 +206,7 @@ The legal and trust pages are practical MVP templates, not lawyer-approved docum
 9. Confirm `/admin/leads-basic` is disabled when `ADMIN_PASSWORD` is missing.
 10. Open `/suppliers` and one supplier detail page.
 11. Submit a test supplier application from `/suppliers/join`.
+12. Check checkout fallback pages: `/checkout/success`, `/checkout/success?session_id=fake` and `/checkout/cancelled`.
 
 ## Tests
 
@@ -208,7 +231,7 @@ pytest
 - No live pricing, stock, availability, delivery slot or licensing checks.
 - Contact and lead enquiries are stored locally in `data/clientcellar.db`.
 - Stripe Checkout is isolated and disabled unless configured.
-- No Stripe webhook fulfilment, automated PDF export or automated email delivery yet.
+- Stripe webhook fulfilment is MVP-level; automated PDF export and automated email delivery are not yet implemented.
 - Supplier matching is rule-based and intentionally conservative.
 - Supplier application and click tracking are MVP-only local database features.
 - International alcohol shipping rules must be confirmed directly with suppliers.
@@ -217,8 +240,10 @@ pytest
 
 1. Real supplier affiliate links.
 2. Stripe payment completion.
-3. PDF/email delivery.
+3. PDF generation and email delivery.
 4. Proper admin authentication.
 5. Supplier onboarding form.
 6. Analytics and SEO tracking.
 7. Domain and Google Search Console.
+8. Supplier quote comparison upload.
+9. Saved account history.

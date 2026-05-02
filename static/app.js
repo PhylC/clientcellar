@@ -81,35 +81,74 @@ function renderBudgetRows(rows) {
 }
 
 function renderPremiumComparison(items) {
-  return items
+  const rows = items
     .map(
       (item) => `
-        <article class="supplier-card">
-          <h3>${escapeHtml(item.supplier)}</h3>
-          <p>${escapeHtml(item.fit)}</p>
-          <p><strong>Pros</strong></p>
-          ${list(item.pros)}
-          <p><strong>Watchouts</strong></p>
-          ${list(item.watchouts)}
-        </article>
+        <tr>
+          <td>${escapeHtml(item.supplier_type || item.supplier || "Supplier type")}</td>
+          <td>${escapeHtml(item.best_for || item.fit || "")}</td>
+          <td>${escapeHtml(item.budget_fit || "")}</td>
+          <td>${escapeHtml(item.strengths || (item.pros || []).join("; "))}</td>
+          <td>${escapeHtml(item.watchouts || "")}</td>
+          <td>${escapeHtml(item.questions_to_ask || "")}</td>
+        </tr>
       `
     )
     .join("");
+  return `
+    <div class="table-scroll">
+      <table class="pack-table">
+        <thead><tr><th>Supplier type</th><th>Best for</th><th>Budget fit</th><th>Strengths</th><th>Watchouts</th><th>Questions to ask</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderKeyValueTable(data) {
+  return `
+    <div class="table-scroll">
+      <table class="pack-table">
+        <tbody>
+          ${Object.entries(data || {})
+            .map(([key, value]) => `<tr><th>${escapeHtml(key)}</th><td>${escapeHtml(value)}</td></tr>`)
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderScorecard(rows) {
+  return `
+    <div class="table-scroll">
+      <table class="pack-table">
+        <thead><tr><th>Criteria</th><th>Score</th><th>Notes</th></tr></thead>
+        <tbody>
+          ${rows
+            .map((row) => `<tr><td>${escapeHtml(row.criterion)}</td><td>${escapeHtml(row.score)}</td><td>${escapeHtml(row.notes)}</td></tr>`)
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 function renderPremiumPreview(preview, type) {
   const email = `${preview.supplier_enquiry_email.subject}\n\n${preview.supplier_enquiry_email.body}`;
-  const packLabel = type === "gift" ? "Gift Planning Pack" : "Event Planning Pack";
+  const packLabel = type === "gift" ? "Gift Premium Brief Pack" : "Event Premium Brief Pack";
   const csvButton =
     type === "gift"
       ? `<button class="button secondary" type="button" data-download-preview-csv>Download recipient CSV</button>`
       : "";
+  const infoTemplate = preview.recipient_csv_template || preview.attendee_info_template || "";
   return `
     <div class="premium-preview premium-doc">
       <header class="premium-doc-header">
         <div>
-          <p class="eyebrow">ClientCellar Premium Pack</p>
+          <p class="eyebrow">ClientCellar Premium Brief Pack</p>
           <h2>${escapeHtml(packLabel)}</h2>
+          <p>Supplier-ready brief and internal approval pack.</p>
         </div>
         <div class="premium-doc-actions">
           <button class="button secondary" type="button" data-print-plan>Print / save as PDF</button>
@@ -118,47 +157,76 @@ function renderPremiumPreview(preview, type) {
         </div>
       </header>
       <section class="result-block">
-        <h3>Executive summary</h3>
+        <h3>1. Executive summary</h3>
         <p>${escapeHtml(preview.executive_summary)}</p>
       </section>
       <section class="result-block">
-        <h3>Budget breakdown</h3>
+        <h3>2. Decision recommendation</h3>
+        ${renderKeyValueTable(preview.decision_recommendation)}
+      </section>
+      <section class="result-block">
+        <h3>3. Budget breakdown</h3>
         ${renderBudgetRows(preview.budget_breakdown)}
       </section>
       <section class="result-block">
-        <h3>Supplier comparison</h3>
+        <h3>4. Supplier brief</h3>
+        ${renderKeyValueTable(preview.supplier_brief)}
+      </section>
+      <section class="result-block">
+        <h3>5. Supplier comparison matrix</h3>
         ${renderPremiumComparison(preview.supplier_comparison)}
       </section>
       <section class="result-block">
-        <h3>Recommended next steps</h3>
-        <ul>
-          <li>Confirm supplier pricing and availability.</li>
-          <li>Share the brief internally for approval.</li>
-          <li>Prepare recipient or attendee details.</li>
-          <li>Request final quotes and delivery terms.</li>
-        </ul>
-      </section>
-      <section class="result-block">
-        <h3>Supplier enquiry email</h3>
+        <h3>6. Ready-to-send supplier enquiry email</h3>
+        <button class="button secondary small" type="button" data-copy-target="[data-preview-email]">Copy email</button>
         <pre class="email-preview" data-preview-email>${escapeHtml(email)}</pre>
       </section>
       <section class="result-block">
-        <h3>Message variants</h3>
+        <h3>7. Supplier questions checklist</h3>
+        ${list(preview.supplier_questions_checklist)}
+      </section>
+      ${type === "event" && preview.event_run_of_show ? `<section class="result-block"><h3>8. Event run-of-show</h3>${list(preview.event_run_of_show)}</section>` : ""}
+      ${type === "event" && preview.internal_invite_copy ? `<section class="result-block"><h3>9. Internal invite copy</h3><button class="button secondary small" type="button" data-copy-target="[data-internal-invite-copy]">Copy invite</button><pre class="email-preview" data-internal-invite-copy>${escapeHtml(preview.internal_invite_copy)}</pre></section>` : ""}
+      <section class="result-block">
+        <h3>${type === "gift" ? "8" : "10"}. ${type === "gift" ? "Gift message bank" : "Message variants"}</h3>
         ${preview.message_variants
-          .map((variant) => `<p><strong>${escapeHtml(variant.tone)}:</strong> ${escapeHtml(variant.message)}</p>`)
+          .map((variant, index) => `<div class="message-row"><p><strong>${escapeHtml(variant.tone)}:</strong> ${escapeHtml(variant.message)}</p><button class="button secondary small" type="button" data-copy-literal="${escapeHtml(variant.message)}">Copy</button></div>`)
           .join("")}
       </section>
-      ${type === "gift" ? `<section class="result-block"><h3>Recipient CSV template</h3><pre data-preview-csv>${escapeHtml(preview.recipient_csv_template)}</pre></section>` : ""}
       <section class="result-block">
-        <h3>Internal approval note</h3>
-        <p>${escapeHtml(preview.internal_approval_note)}</p>
+        <h3>${type === "gift" ? "9" : "11"}. ${type === "gift" ? "Recipient CSV template" : "Attendee info template"}</h3>
+        <button class="button secondary small" type="button" data-download-preview-csv>Download CSV</button>
+        <pre data-preview-csv>${escapeHtml(infoTemplate)}</pre>
       </section>
       <section class="result-block">
-        <h3>Risk and suitability checklist</h3>
+        <h3>${type === "gift" ? "10" : "12"}. Internal approval note</h3>
+        <button class="button secondary small" type="button" data-copy-target="[data-approval-note]">Copy approval note</button>
+        <p data-approval-note>${escapeHtml(preview.internal_approval_note)}</p>
+      </section>
+      <section class="result-block">
+        <h3>${type === "gift" ? "11" : "13"}. Risk and suitability checklist</h3>
         ${list(preview.risk_checklist)}
+        ${preview.alcohol_free_options_note ? `<p class="small-note">${escapeHtml(preview.alcohol_free_options_note)}</p>` : ""}
+      </section>
+      <section class="result-block">
+        <h3>${type === "gift" ? "12" : "14"}. Timeline / action plan</h3>
+        ${list(preview.timeline_action_plan)}
+      </section>
+      <section class="result-block">
+        <h3>${type === "gift" ? "13" : "15"}. Internal Slack / Teams update</h3>
+        <button class="button secondary small" type="button" data-copy-target="[data-internal-update]">Copy update</button>
+        <p data-internal-update>${escapeHtml(preview.internal_update)}</p>
+      </section>
+      <section class="result-block">
+        <h3>${type === "gift" ? "14" : "16"}. Decision scorecard</h3>
+        ${renderScorecard(preview.decision_scorecard)}
+      </section>
+      <section class="result-block">
+        <h3>Prepared by ClientCellar</h3>
+        <p>This document is a planning aid for supplier conversations and internal approval. It does not verify supplier pricing, stock, availability, delivery or suitability.</p>
       </section>
       <section class="result-block disclaimer-block">
-        <h3>Responsible drinking & workplace policy reminder</h3>
+        <h3>Disclaimer</h3>
         <p>${escapeHtml(preview.disclaimer)}</p>
         <p class="small-note">Some supplier links may be affiliate or tracked links. Confirm availability, pricing and delivery directly. <a href="/affiliate-disclosure">Affiliate Disclosure</a>.</p>
       </section>
@@ -271,12 +339,12 @@ function renderPlan(plan, type) {
         ${list(plan.next_steps)}
       </div>
       <div class="premium-cta-card">
-        <p class="eyebrow">Premium Pack</p>
-        <h2>Need a supplier-ready pack?</h2>
-        <p>Generate a polished planning pack with budget notes, supplier comparison, recipient CSV, message options and a ready-to-send enquiry email.</p>
+        <p class="eyebrow">Premium Brief Pack</p>
+        <h2>Need to brief suppliers or get sign-off?</h2>
+        <p>Upgrade this quick recommendation into a supplier-ready brief pack with internal approval notes, supplier questions, recipient CSV, message bank and risk checklist.</p>
         <div class="result-actions">
-          <button class="button primary" type="button" data-preview-premium data-pack-type="${type}">Preview premium pack</button>
-          <a class="button secondary" href="/premium-pack">View premium pack</a>
+          <button class="button primary" type="button" data-preview-premium data-pack-type="${type}">Create Premium Brief Pack</button>
+          <a class="button secondary" href="/premium-pack">View Premium Brief Pack</a>
           <a class="button secondary" href="/contact?interest=premium-pack">Register interest</a>
         </div>
         <div data-premium-preview></div>
@@ -368,7 +436,7 @@ async function submitPlan(form, type) {
     target.dataset.csv = plan.recipient_csv_template || "";
     if (isPaidMode()) {
       const premiumButton = target.querySelector("[data-preview-premium]");
-      if (premiumButton) premiumButton.textContent = "Create premium pack";
+      if (premiumButton) premiumButton.textContent = "Generate Premium Brief Pack";
     }
   } catch (error) {
     target.innerHTML = '<div class="empty-state">Sorry, the plan could not be generated. Check the form and try again. If the issue continues, refresh the page.</div>';
@@ -385,7 +453,7 @@ async function previewPremiumPack(type, button) {
   const panel = button.closest(".premium-cta-card");
   const target = panel.querySelector("[data-premium-preview]");
   if (!state) {
-    target.innerHTML = '<p class="small-note">Generate a plan first, then preview the premium pack.</p>';
+    target.innerHTML = '<p class="small-note">Generate a plan first, then create the Premium Brief Pack.</p>';
     return;
   }
 
@@ -503,6 +571,14 @@ function bindResultActions() {
       const preview = button.closest(".premium-preview");
       if (preview) copyText(preview.querySelector("[data-preview-email]").textContent, button);
     }
+    if (button.matches("[data-copy-target]")) {
+      const root = button.closest(".premium-preview") || document;
+      const target = root.querySelector(button.dataset.copyTarget);
+      if (target) copyText(target.textContent, button);
+    }
+    if (button.matches("[data-copy-literal]")) {
+      copyText(button.dataset.copyLiteral, button);
+    }
     if (button.matches("[data-download-preview-csv]")) {
       const preview = button.closest(".premium-preview");
       if (preview) downloadCsv(preview.querySelector("[data-preview-csv]").textContent);
@@ -524,7 +600,7 @@ function bindContactForm() {
     select.value = "premium_pack";
   }
   if (interest === "premium-pack-support" && note) {
-    note.textContent = "Need help with payment or premium pack access? Please include the email used at checkout.";
+    note.textContent = "Need help with payment or Premium Brief Pack access? Please include the email used at checkout.";
     note.hidden = false;
   }
 

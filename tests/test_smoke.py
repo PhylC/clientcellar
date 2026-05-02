@@ -51,7 +51,7 @@ def test_checkout_cancelled_loads():
 def test_premium_pack_page_loads():
     response = client.get("/premium-pack")
     assert response.status_code == 200
-    assert "Premium Pack" in response.text
+    assert "Premium Brief Pack" in response.text
 
 
 def test_missing_premium_pack_view_loads_friendly_error(tmp_path, monkeypatch):

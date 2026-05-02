@@ -2,13 +2,13 @@
 {% block content %}
 <section class="page-intro">
   <p class="eyebrow">Checkout</p>
-  <h1>Payment received — your premium pack is ready</h1>
-  <p>Use the options below to create, print or save your supplier-ready corporate wine plan.</p>
+  <h1>Payment received — create your Premium Brief Pack</h1>
+  <p>Generate your gift or event plan, then create the full supplier-ready pack from the result.</p>
 
   {% if payment_verified and pack_token %}
-  <p>Your payment is confirmed and your premium pack is ready to view.</p>
+  <p>Your payment is confirmed and your Premium Brief Pack is ready to view.</p>
   <div class="hero-actions">
-    <a class="button primary" href="/premium-pack/view/{{ pack_token }}">Open premium pack</a>
+    <a class="button primary" href="{{ open_pack_url or ('/premium-pack/view/' ~ pack_token) }}">Open Premium Brief Pack</a>
     <a class="button secondary" href="/pricing">View pricing</a>
   </div>
   {% elif payment_verified %}
@@ -26,22 +26,22 @@
 
   <div class="card-grid three success-cards">
     <article class="success-card">
-      <h2>Gift planning pack</h2>
-      <p>Create a supplier-ready gift pack using our gift planner.</p>
-      <a class="button primary full" href="/gift-planner?paid=true">Create gift pack</a>
+      <h2>Gift Premium Brief Pack</h2>
+      <p>Create a supplier-ready gift brief with approval notes, supplier questions and message bank.</p>
+      <a class="button primary full" href="/gift-planner?paid=true">Create gift brief pack</a>
     </article>
     <article class="success-card">
-      <h2>Event planning pack</h2>
-      <p>Create a polished event pack for corporate tastings and team experiences.</p>
-      <a class="button primary full" href="/event-planner?paid=true">Create event pack</a>
+      <h2>Event Premium Brief Pack</h2>
+      <p>Create a polished event brief with run-of-show, host questions and inclusivity notes.</p>
+      <a class="button primary full" href="/event-planner?paid=true">Create event brief pack</a>
     </article>
     <article class="success-card">
       <h2>Need help with your purchase?</h2>
-      <p>Contact ClientCellar support for questions about your payment or premium pack access.</p>
+      <p>Contact ClientCellar support for questions about your payment or Premium Brief Pack access.</p>
       <a class="button secondary full" href="/contact?interest=premium-pack-support">Contact support</a>
     </article>
   </div>
 
-  <p class="small-note">If you created a plan before checkout, return to that page and use “Preview premium pack” or “Print / save as PDF”. Automated email delivery is coming soon.</p>
+  <p class="small-note">If you created a plan before checkout, return to that page and use “Create Premium Brief Pack” or “Print / save as PDF”. Automated email delivery is coming soon.</p>
 </section>
 {% endblock %}
