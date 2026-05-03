@@ -33,27 +33,21 @@ function clearLegacyPremiumTestState() {
 }
 
 function accountBadgeClass() {
-  if (accountState.loading) return "account-badge account-badge-checking";
   return accountState.isPremium ? "account-badge account-badge-premium" : "account-badge account-badge-free";
 }
 
 function accountBadgeLabel() {
-  if (accountState.loading) return "Checking...";
   return accountState.isPremium ? "Premium" : "Free";
 }
 
 function accountDisplayLabel() {
-  if (accountState.loading) return "Checking account...";
   if (!accountState.loggedIn) return "Not signed in";
   return accountState.email || "Signed in";
 }
 
 function accountActionLinks() {
   if (accountState.loading) {
-    return [
-      { label: "Sign in", href: "/login" },
-      { label: "Upgrade", href: "/pricing" },
-    ];
+    return [];
   }
   if (!accountState.loggedIn) {
     return [
@@ -74,24 +68,30 @@ function accountActionLinks() {
 }
 
 function renderAccountStatus() {
+  if (accountState.loading) {
+    for (const target of document.querySelectorAll("[data-desktop-account-status], [data-mobile-account-panel]")) {
+      target.hidden = true;
+      target.innerHTML = "";
+    }
+    return;
+  }
+
   const badge = `<span class="${accountBadgeClass()}">${accountBadgeLabel()}</span>`;
   const links = accountActionLinks()
     .map((link) => `<a class="account-link" href="${link.href}">${link.label}</a>`)
     .join("");
-  for (const target of document.querySelectorAll("[data-account-badge]")) {
-    target.className = `${accountBadgeClass()} mobile-account-badge`;
-    target.textContent = accountBadgeLabel();
-  }
   for (const target of document.querySelectorAll("[data-desktop-account-status]")) {
+    target.hidden = false;
     target.innerHTML = `
-      <span class="account-text">${escapeHtml(accountDisplayLabel())}</span>
-      ${badge}
+      ${accountState.isPremium ? badge : ""}
       ${links}
     `;
   }
   for (const target of document.querySelectorAll("[data-mobile-account-panel]")) {
+    target.hidden = false;
     target.innerHTML = `
       <span class="account-label">${escapeHtml(accountDisplayLabel())}</span>
+      ${badge}
       <div class="account-links">
         ${accountActionLinks().map((link) => `<a href="${link.href}">${link.label}</a>`).join("")}
       </div>
@@ -628,12 +628,19 @@ function downloadCsv(text) {
 }
 
 function bindPlannerForms() {
+  showPaidBanner();
   for (const form of document.querySelectorAll("[data-plan-form]")) {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       submitPlan(form, form.dataset.planForm);
     });
   }
+}
+
+function showPaidBanner() {
+  const banner = document.getElementById("paid-banner");
+  if (!banner) return;
+  banner.hidden = new URLSearchParams(window.location.search).get("paid") !== "true";
 }
 
 function bindResultActions() {

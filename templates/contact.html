@@ -2,8 +2,8 @@
 {% block content %}
 <section class="page-intro">
   <p class="eyebrow">Contact</p>
-  <h1>Talk to ClientCellar</h1>
-  <p>Ask about corporate wine gifts, tasting events, premium planning packs or supplier partnerships.</p>
+  <h1>Contact ClientCellar</h1>
+  <p>For premium pack support, supplier enquiries or feedback on corporate gifting plans.</p>
 </section>
 
 <section class="contact-layout">
@@ -21,14 +21,14 @@
       <select name="interested_in" required>
         <option value="gifts">Corporate wine gifts</option>
         <option value="events">Corporate wine tasting events</option>
-        <option value="premium_pack">Premium Brief Pack</option>
+        <option value="premium_pack">Premium Brief Pack support</option>
         <option value="supplier_intro">Supplier partnership</option>
         <option value="other">Other</option>
       </select>
     </label>
     <p id="contact-note" class="small-note" hidden></p>
     <label>Message
-      <textarea name="message" maxlength="3000" required></textarea>
+      <textarea name="message" maxlength="3000" required placeholder="Include recipient count, budget, deadline or supplier context if relevant."></textarea>
     </label>
     <label class="consent-line">
       <input type="checkbox" name="consent_to_contact" required>
@@ -38,8 +38,13 @@
     <p id="contact-status" class="form-status" role="status"></p>
   </form>
   <aside class="side-note">
-    <h2>Are you a wine merchant, hamper supplier or tasting provider?</h2>
-    <p>We’re building a supplier directory for corporate wine gifting and events. If you’d like to be considered, get in touch.</p>
+    <h2>Before you contact us</h2>
+    <ul class="feature-list">
+      <li>We do not sell wine directly.</li>
+      <li>We cannot confirm supplier stock, prices or delivery slots.</li>
+      <li>Include recipient count, budget and deadline if relevant.</li>
+      <li>For supplier listings, tell us regions covered and corporate ordering capabilities.</li>
+    </ul>
     <p><a class="button secondary" href="/suppliers/join">Apply as a supplier</a></p>
   </aside>
 </section>

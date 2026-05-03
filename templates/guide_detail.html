@@ -12,6 +12,7 @@
 
 <section class="guide-toc">
   <strong>In this guide</strong>
+  <a href="#summary">Quick answer</a>
   <a href="#who">Who it is for</a>
   <a href="#budget">Budget guidance</a>
   <a href="#approach">Recommended approaches</a>
@@ -22,6 +23,12 @@
 
 <section class="guide-layout">
   <article class="guide-content">
+    <section id="summary" class="summary-card">
+      <h2>Quick answer</h2>
+      <p>{{ guide.description }}</p>
+      <p class="small-note">Use this as planning guidance only. Confirm stock, pricing, delivery, suitability and event availability directly with suppliers.</p>
+    </section>
+
     <section id="who">
       <h2>Who it is for</h2>
       <ul>
@@ -38,9 +45,16 @@
     </section>
 
     <section class="guide-cta">
-      <h2>Build your own version</h2>
+      <h2>Turn this guide into a practical plan</h2>
       <p>Answer a few questions and ClientCellar will turn the brief into a supplier-ready enquiry email and next-step checklist.</p>
-      <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+      <div class="hero-actions compact-actions">
+        <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+        {% if guide.cta_url == "/gift-planner" %}
+        <a class="button secondary" href="/event-planner">Plan event</a>
+        {% else %}
+        <a class="button secondary" href="/gift-planner">Plan gifts</a>
+        {% endif %}
+      </div>
     </section>
 
     <section id="approach">
@@ -81,7 +95,14 @@
     <section class="guide-cta">
       <h2>Turn this into a plan</h2>
       <p>Use ClientCellar to create a practical supplier enquiry email, shortlist and checklist for your brief.</p>
-      <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+      <div class="hero-actions compact-actions">
+        <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+        {% if guide.cta_url == "/gift-planner" %}
+        <a class="button secondary" href="/premium-pack">View Premium Brief Pack</a>
+        {% else %}
+        <a class="button secondary" href="/gift-planner">Plan gifts</a>
+        {% endif %}
+      </div>
     </section>
   </article>
 

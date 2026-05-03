@@ -2,27 +2,27 @@
 {% block content %}
 <section class="page-intro">
   <p class="eyebrow">Pricing</p>
-  <h1>Start free, upgrade to a supplier-ready brief</h1>
-  <p>Use the free planner for a quick recommendation, then upgrade when you need a structured pack for suppliers, finance or procurement.</p>
+  <h1>Simple pricing for corporate gifting plans</h1>
+  <p>Start with the free planner for quick direction, then create a Premium Brief Pack when you need supplier-ready documents and internal approval notes.</p>
 </section>
 
 <section class="card-grid two pricing-grid">
   <article class="price-card">
-    <p class="eyebrow">Available now</p>
-    <h2>Free Planner</h2>
+    <p class="eyebrow">Free Planner</p>
+    <h2>Quick gift and event planning</h2>
     <p class="price">£0</p>
     <ul class="feature-list">
-      <li>Quick recommendation</li>
+      <li>Quick gift/event recommendation</li>
       <li>Budget estimate</li>
       <li>Basic supplier direction</li>
       <li>Draft enquiry email</li>
       <li>Basic CSV template</li>
     </ul>
-    <a class="button primary full" href="/gift-planner">Use the free planner</a>
+    <a class="button primary full" href="/gift-planner">Start free planner</a>
   </article>
 
   <article class="price-card premium-price-card">
-    <p class="eyebrow">ClientCellar Premium Brief Pack</p>
+    <p class="eyebrow">Premium Brief Pack</p>
     <h2>Supplier-ready approval pack</h2>
     <p class="price">£29.99 one-off</p>
     <ul class="feature-list">
@@ -30,9 +30,8 @@
       <li>Internal approval note</li>
       <li>Supplier comparison matrix</li>
       <li>Supplier questions checklist</li>
-      <li>Risk and suitability checklist</li>
       <li>Message bank</li>
-      <li>Timeline/action plan</li>
+      <li>Risk and suitability checklist</li>
       <li>Decision scorecard</li>
       <li>Print/save-ready document</li>
     </ul>
@@ -41,15 +40,15 @@
     {% else %}
     <a class="button primary full" href="/contact?interest=premium-pack">Register interest</a>
     {% endif %}
-    <p class="small-note">Payments may be disabled during MVP testing.</p>
+    <p class="small-note">{% if payments_enabled %}Secure Stripe checkout is enabled.{% else %}Payments are currently disabled during MVP testing. Register interest instead.{% endif %}</p>
   </article>
 </section>
 
 <section class="trust-strip pricing-trust">
-  <span>Review before purchase:</span>
+  ClientCellar does not sell alcohol directly. Supplier pricing, stock and delivery must be confirmed directly.
   <a href="/terms">Terms</a>
   <a href="/privacy">Privacy</a>
-  <a href="/affiliate-disclosure">Affiliate Disclosure</a>
-  <a href="/responsible-drinking">Responsible Drinking</a>
+  <a href="/affiliate-disclosure">Affiliate disclosure</a>
+  <a href="/responsible-drinking">Responsible drinking</a>
 </section>
 {% endblock %}

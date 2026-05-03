@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="page-intro">
-  <p class="eyebrow">{{ supplier.commercial_relationship_label }}</p>
+  <p class="eyebrow">{% if real_supplier %}{{ supplier.commercial_relationship_label }}{% else %}Supplier type{% endif %}</p>
   <h1>{{ supplier.name }}</h1>
   <p>{{ supplier.description }}</p>
   <div class="hero-actions">
@@ -41,10 +41,10 @@
     <p>Regions: {{ supplier.regions | join(", ") }}.</p>
     <p>UK delivery: {{ "yes" if supplier.uk_delivery else "no / confirm" }}. International delivery: {{ "yes / confirm rules" if supplier.international_delivery else "no / confirm" }}.</p>
   </article>
-  <article>
-    <h2>Disclosure</h2>
-    <p>{{ supplier.disclosure_note }}</p>
-    <p>Supplier information may change. Confirm pricing, availability, delivery and suitability directly.</p>
-  </article>
+	  <article>
+	    <h2>Disclosure</h2>
+	    <p>{{ supplier.disclosure_note }}</p>
+	    <p>Supplier information may change. Confirm pricing, availability, delivery and suitability directly.</p>
+	  </article>
 </section>
 {% endblock %}

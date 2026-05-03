@@ -1,10 +1,54 @@
 # ClientCellar
 
-ClientCellar is a standalone FastAPI MVP for UK corporate wine gifting and corporate wine tasting planning.
+ClientCellar is a standalone FastAPI MVP for UK corporate wine gifting and corporate wine tasting event planning.
 
-It helps business users plan client gifts, staff gifts, partner thank-yous and tasting events with budget guidance, supplier routes, enquiry emails, CSV templates, Premium Brief Pack previews and lead capture.
+It helps business users plan client gifts, staff gifts, partner thank-yous and tasting events with budget guidance, supplier routes, enquiry emails, CSV templates, Premium Brief Pack checkout and lead capture.
 
-ClientCellar does not sell alcohol directly, scrape retailer websites, check live stock or invent supplier availability. Supplier data is manually curated in `main.py`.
+ClientCellar does not sell alcohol directly, scrape retailer websites, check live stock, confirm supplier pricing or invent supplier availability. Supplier data is manually curated in `main.py` and must stay conservative.
+
+## Current positioning
+
+ClientCellar should feel like a polished B2B planning tool, not a generic AI demo. The public experience is built around:
+
+- UK corporate gifting and tasting event planning
+- Supplier-ready enquiry emails and briefs
+- Budget and recipient-count planning
+- Practical checklists for delivery, policy and suitability
+- Responsible gifting and alcohol-free alternative reminders
+- Clear disclosure that suppliers confirm live pricing, stock and availability
+
+## Key public routes
+
+- `/` homepage
+- `/gift-planner`
+- `/event-planner`
+- `/premium-pack`
+- `/premium-pack/view/{pack_token}`
+- `/pricing`
+- `/suppliers`
+- `/suppliers/{tracking_slug}`
+- `/suppliers/join`
+- `/guides`
+- `/guides/{slug}`
+- `/faq`
+- `/contact`
+- `/terms`
+- `/privacy`
+- `/affiliate-disclosure`
+- `/responsible-drinking`
+- `/cookies`
+- `/copyright`
+- `/api/health`
+- `/sitemap.xml`
+- `/robots.txt`
+
+Admin routes are not linked publicly:
+
+- `/admin/leads-basic`
+- `/admin/orders`
+- `/admin/supplier-applications`
+- `/api/leads/export.csv?password=your_password`
+- `/api/admin/summary?password=your_password`
 
 ## Local setup
 
@@ -16,40 +60,6 @@ uvicorn main:app --reload
 ```
 
 Open `http://127.0.0.1:8000`.
-
-## Key routes
-
-- `/` homepage
-- `/gift-planner`
-- `/event-planner`
-- `/premium-pack`
-- `/pricing`
-- `/guides`
-- `/contact`
-- `/api/health`
-- `/sitemap.xml`
-- `/robots.txt`
-
-Admin routes are not linked publicly:
-
-- `/admin/leads-basic`
-- `/api/leads/export.csv?password=your_password`
-
-## Render deployment
-
-Build command:
-
-```bash
-pip install -r requirements.txt
-```
-
-Start command:
-
-```bash
-uvicorn main:app --host 0.0.0.0 --port $PORT
-```
-
-`runtime.txt` pins Python to `python-3.11.9`, which is compatible with the app.
 
 ## Environment variables
 
@@ -74,37 +84,13 @@ Sitemap and production URLs:
 APP_BASE_URL=https://your-domain.example
 ```
 
-## Lead admin setup
+## Monetisation model
 
-Lead enquiries are stored in SQLite at `data/clientcellar.db`. The `data/` directory is gitignored and should not be committed.
-
-To enable the basic MVP lead admin view:
-
-```bash
-ADMIN_PASSWORD=your_password
-```
-
-Admin URL:
-
-```text
-/admin/leads-basic
-```
-
-CSV export:
-
-```text
-/api/leads/export.csv?password=your_password
-```
-
-This is MVP admin protection, not production-grade security. For production, replace the query-string admin password with proper authentication before handling sensitive lead data at scale.
-
-## Premium Brief Pack and payment setup
-
-The ClientCellar Premium Brief Pack turns a rough gift or event idea into a supplier-ready brief and internal approval pack. It is designed to save time preparing supplier enquiries, give finance/procurement a clearer budget summary, reduce supplier back-and-forth and keep gifting/event planning policy-aware.
+The current monetisation model is a one-off Premium Brief Pack at £29.99.
 
 Free Planner:
 
-- Quick recommendation
+- Quick gift/event recommendation
 - Budget estimate
 - Basic supplier direction
 - Draft enquiry email
@@ -116,13 +102,15 @@ Premium Brief Pack:
 - Internal approval note
 - Supplier comparison matrix
 - Supplier questions checklist
-- Risk and suitability checklist
 - Message bank or event invite copy
+- Risk and suitability checklist
 - Timeline/action plan
 - Decision scorecard
 - Print/save-ready document
 
-The Premium Brief Pack architecture works without Stripe by default. If payments are disabled, users see a register-interest fallback.
+The app must continue to work with `PAYMENTS_ENABLED=false`. In that mode, Premium CTAs fall back to registering interest.
+
+## Stripe setup
 
 To enable Stripe Checkout:
 
@@ -136,77 +124,80 @@ APP_BASE_URL=https://your-domain.example
 
 `STRIPE_PRICE_ID` should point to the one-off £29.99 Premium Brief Pack price in Stripe.
 
-### Stripe webhook setup
+Stripe webhook endpoint:
 
-1. In Stripe Dashboard, go to Developers > Webhooks.
-2. Add an endpoint:
-   `https://your-domain.com/stripe/webhook`
-3. Select events:
-   - `checkout.session.completed`
-   - `checkout.session.expired`
-   - `payment_intent.payment_failed`
-4. Copy the signing secret to `STRIPE_WEBHOOK_SECRET`.
+```text
+/stripe/webhook
+```
+
+Recommended events:
+
+- `checkout.session.completed`
+- `checkout.session.expired`
+- `payment_intent.payment_failed`
 
 The success page also performs fallback session verification when Stripe is available, but webhooks are still recommended before live launch.
 
-Current fulfilment limitations: Stripe webhook fulfilment is still MVP-level, automated PDF generation is not yet implemented, automated email delivery is not yet implemented, supplier quote comparison upload is not yet implemented, and saved account history is not yet implemented. The MVP uses the on-page Premium Brief Pack plus browser print/save.
+Current fulfilment limitations: Stripe webhook fulfilment is MVP-level, automated PDF generation is not yet implemented, automated email delivery is not yet implemented, supplier quote comparison upload is not yet implemented, and saved account history is not yet implemented. The MVP uses the on-page Premium Brief Pack plus browser print/save.
 
-## Supplier and affiliate links
+## Lead and supplier data
 
-The starter supplier database lives in `SUPPLIERS` inside `main.py`.
+Lead enquiries, premium pack records, supplier clicks and supplier applications are stored in SQLite at `data/clientcellar.db`. The `data/` directory is gitignored and should not be committed.
 
-Supplier records are normalised at app startup with fields such as `supplier_id`, `tracking_slug`, `description`, `website_url`, `affiliate_url`, `enquiry_url`, `commercial_relationship`, `disclosure_note` and `active`.
+To enable MVP admin views:
 
-Commercial relationships default to `none`. Unknown affiliate links are currently `None`. Replace these later only with confirmed supplier or affiliate URLs, and keep the affiliate disclosure clear.
-
-Tracked supplier links use:
-
-```text
-/out/supplier/{tracking_slug}
+```bash
+ADMIN_PASSWORD=your_password
 ```
 
-The redirect stores a minimal click event in `supplier_clicks` with supplier id, tracking slug, destination URL, source page, referrer and user agent. It redirects to `affiliate_url` first, then `enquiry_url`, then `website_url`.
+This is MVP admin protection, not production-grade security. For production, replace query-string admin passwords with proper authentication before handling sensitive lead data at scale.
 
-Do not add fake affiliate links, fake claims, fake availability, fake pricing or implied endorsements. Generic supplier categories are planning guidance, not supplier endorsements.
+Supplier records live in `SUPPLIERS` inside `main.py`. Generic supplier categories must be labelled as supplier types, not verified suppliers. Do not add fake affiliate links, fake claims, fake availability, fake pricing or implied endorsements.
 
-Supplier applications are submitted through:
+## Design and content notes
 
-```text
-/suppliers/join
-```
+The public UI should remain:
 
-Admin view:
+- Premium, practical and businesslike
+- Warm cream background with deep burgundy accents
+- Compact and readable on mobile
+- Clear about free vs premium outputs
+- Honest about supplier confirmation and planning limitations
+- Free of fake testimonials, invented partnerships or exaggerated claims
 
-```text
-/admin/supplier-applications?password=your_password
-```
+Reusable CSS patterns live in `static/app.css`, including page shells, sections, cards, button variants, notices, trust rows, split layouts, CTA panels and footer patterns.
 
-Admin summary:
+## Manual design QA checklist
 
-```text
-/api/admin/summary?password=your_password
-```
+Check desktop around 1200px, tablet around 900px and mobile around 390px:
 
-Before using real affiliate links or sponsored placements, review platform rules and disclosure obligations.
+1. Homepage value proposition is clear above the fold.
+2. Header is compact; mobile menu and account badge do not overlap.
+3. Footer is compact and all legal links remain visible.
+4. `/gift-planner` default form submits and results remain readable.
+5. `/event-planner` default form submits and results remain readable.
+6. `/premium-pack` shows the payment CTA when enabled and register-interest fallback when disabled.
+7. `/pricing` clearly distinguishes Free Planner and Premium Brief Pack.
+8. `/suppliers` labels generic categories as supplier types.
+9. `/suppliers/join` supplier application form submits.
+10. `/guides` and `/guides/{slug}` include planner CTAs and compliance notes.
+11. `/faq` covers direct sales, live stock/pricing, payments, premium packs and responsible gifting.
+12. `/contact` lead form submits with consent.
+13. No horizontal scrolling, cramped cards, huge dead space or awkward button wrapping.
+14. Stripe checkout and `/stripe/webhook` code paths are not changed during design-only work.
+15. Admin routes still load when configured with `ADMIN_PASSWORD`.
 
-## Legal caveat
+## Compliance reminders
 
-The legal and trust pages are practical MVP templates, not lawyer-approved documents. They should be reviewed by a qualified professional before commercial launch.
-
-## Manual smoke test checklist
-
-1. Open `/`.
-2. Open `/gift-planner`, submit the default form and copy the enquiry email.
-3. Open `/event-planner`, submit the default form and copy the enquiry email.
-4. Preview the Premium Brief Pack from a planner result.
-5. Submit a lead form with consent checked.
-6. Open `/premium-pack`, `/pricing`, `/guides`, `/terms`, `/privacy`.
-7. Check `/api/health`.
-8. Check `/sitemap.xml` and `/robots.txt`.
-9. Confirm `/admin/leads-basic` is disabled when `ADMIN_PASSWORD` is missing.
-10. Open `/suppliers` and one supplier detail page.
-11. Submit a test supplier application from `/suppliers/join`.
-12. Check checkout fallback pages: `/checkout/success`, `/checkout/success?session_id=fake` and `/checkout/cancelled`.
+- No live price, stock, availability, delivery slot or licensing claims.
+- No direct alcohol sales claims.
+- No copy suggesting alcohol improves social, sexual, professional or business success.
+- Do not target under-18s.
+- Do not encourage excessive drinking.
+- Alcohol may not be suitable for every recipient, employee, client, workplace or event.
+- Always encourage alcohol-free alternatives where appropriate.
+- Remind users to check gifting, anti-bribery, HR, expenses and procurement policies.
+- Keep affiliate/tracked link disclosure visible and plain.
 
 ## Tests
 
@@ -214,6 +205,12 @@ Basic smoke tests live in `tests/test_smoke.py`.
 
 ```bash
 pytest
+```
+
+In this workspace, use:
+
+```bash
+.venv/bin/python -m pytest -q
 ```
 
 ## Troubleshooting
@@ -227,23 +224,11 @@ pytest
 
 ## Current limitations
 
-- Planning guidance only, not legal, tax, procurement or HR advice.
+- Planning guidance only, not legal, tax, procurement, licensing or HR advice.
 - No live pricing, stock, availability, delivery slot or licensing checks.
-- Contact and lead enquiries are stored locally in `data/clientcellar.db`.
+- Contact and lead enquiries are stored locally in SQLite.
 - Stripe Checkout is isolated and disabled unless configured.
-- Stripe webhook fulfilment is MVP-level; automated PDF export and automated email delivery are not yet implemented.
+- Stripe webhook fulfilment is MVP-level.
 - Supplier matching is rule-based and intentionally conservative.
 - Supplier application and click tracking are MVP-only local database features.
 - International alcohol shipping rules must be confirmed directly with suppliers.
-
-## Roadmap
-
-1. Real supplier affiliate links.
-2. Stripe payment completion.
-3. PDF generation and email delivery.
-4. Proper admin authentication.
-5. Supplier onboarding form.
-6. Analytics and SEO tracking.
-7. Domain and Google Search Console.
-8. Supplier quote comparison upload.
-9. Saved account history.
