@@ -68,6 +68,12 @@ def test_pricing_page_loads():
     assert "Pricing" in response.text
 
 
+def test_account_placeholders_load():
+    for path in ["/login", "/account", "/logout"]:
+        response = client.get(path)
+        assert response.status_code == 200
+
+
 def test_gift_plan_endpoint():
     response = client.post(
         "/api/gift-plan",
@@ -103,3 +109,27 @@ def test_event_plan_endpoint():
     )
     assert response.status_code == 200
     assert "event_structure" in response.json()
+
+
+def test_premium_status_defaults_to_free():
+    response = client.get("/api/premium-status")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["loggedIn"] is False
+    assert data["authenticated"] is False
+    assert data["plan"] == "free"
+    assert data["isPremium"] is False
+    assert data["premium"] is False
+
+
+def test_premium_preview_requires_backend_confirmed_access():
+    response = client.post(
+        "/api/premium-pack-preview",
+        json={
+            "pack_type": "gift",
+            "planner_input": {},
+            "planner_output": {},
+        },
+    )
+    assert response.status_code == 403
+    assert "Premium features require an account" in response.text

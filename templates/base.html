@@ -14,14 +14,21 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="/">
-      <span class="brand-mark">CC</span>
-      <span>
-        <strong>ClientCellar</strong>
-        <small>Corporate wine planning</small>
-      </span>
-    </a>
-    <nav class="nav" aria-label="Main navigation">
+    <div class="header-top-row">
+      <a class="brand" href="/">
+        <span class="brand-mark">CC</span>
+        <span class="brand-copy">
+          <strong>ClientCellar</strong>
+          <small>Corporate wine planning</small>
+        </span>
+      </a>
+      <span class="account-badge account-badge-checking mobile-account-badge" data-account-badge>Checking...</span>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+        <span class="menu-toggle-lines" aria-hidden="true"></span>
+        <span class="sr-only">Menu</span>
+      </button>
+    </div>
+    <nav id="main-nav" class="nav" aria-label="Main navigation">
       <a href="/gift-planner">Gifts</a>
       <a href="/event-planner">Events</a>
       <a href="/guides">Guides</a>
@@ -29,10 +36,20 @@
       <a href="/pricing">Pricing</a>
       <a href="/faq">FAQ</a>
       <a href="/contact">Contact</a>
+      <div class="mobile-account-panel" data-mobile-account-panel>
+        <span class="account-label">Checking account...</span>
+        <div class="account-links">
+          <a href="/login">Sign in</a>
+          <a href="/pricing">Upgrade</a>
+        </div>
+      </div>
     </nav>
     <div class="header-actions">
-      <a class="button secondary small" href="/event-planner">Plan event</a>
       <a class="button primary small" href="/gift-planner">Plan gifts</a>
+      <a class="button secondary small" href="/event-planner">Plan event</a>
+    </div>
+    <div class="account-status desktop-account-status" data-desktop-account-status>
+      <span class="account-badge account-badge-checking">Checking...</span>
     </div>
   </header>
 

@@ -3,6 +3,127 @@ const plannerState = {
   gift: null,
   event: null,
 };
+const accountState = {
+  loading: true,
+  loggedIn: false,
+  email: null,
+  plan: "free",
+  isPremium: false,
+};
+const PREMIUM_TEST_KEYS = [
+  "clientcellar_premium",
+  "premium",
+  "premiumMode",
+  "isPremium",
+  "upgraded",
+  "pro",
+  "clientcellar_plan",
+];
+const premiumAccountMessage = "Premium features require an account so we can keep your access linked to you.";
+
+function clearLegacyPremiumTestState() {
+  for (const key of PREMIUM_TEST_KEYS) {
+    try {
+      window.localStorage?.removeItem(key);
+      window.sessionStorage?.removeItem(key);
+    } catch (error) {
+      // Storage can be unavailable in some private or restricted browser modes.
+    }
+  }
+}
+
+function accountBadgeClass() {
+  if (accountState.loading) return "account-badge account-badge-checking";
+  return accountState.isPremium ? "account-badge account-badge-premium" : "account-badge account-badge-free";
+}
+
+function accountBadgeLabel() {
+  if (accountState.loading) return "Checking...";
+  return accountState.isPremium ? "Premium" : "Free";
+}
+
+function accountDisplayLabel() {
+  if (accountState.loading) return "Checking account...";
+  if (!accountState.loggedIn) return "Not signed in";
+  return accountState.email || "Signed in";
+}
+
+function accountActionLinks() {
+  if (accountState.loading) {
+    return [
+      { label: "Sign in", href: "/login" },
+      { label: "Upgrade", href: "/pricing" },
+    ];
+  }
+  if (!accountState.loggedIn) {
+    return [
+      { label: "Sign in", href: "/login" },
+      { label: "Upgrade", href: "/pricing" },
+    ];
+  }
+  if (accountState.isPremium) {
+    return [
+      { label: "Account", href: "/account" },
+      { label: "Logout", href: "/logout" },
+    ];
+  }
+  return [
+    { label: "Upgrade", href: "/pricing" },
+    { label: "Logout", href: "/logout" },
+  ];
+}
+
+function renderAccountStatus() {
+  const badge = `<span class="${accountBadgeClass()}">${accountBadgeLabel()}</span>`;
+  const links = accountActionLinks()
+    .map((link) => `<a class="account-link" href="${link.href}">${link.label}</a>`)
+    .join("");
+  for (const target of document.querySelectorAll("[data-account-badge]")) {
+    target.className = `${accountBadgeClass()} mobile-account-badge`;
+    target.textContent = accountBadgeLabel();
+  }
+  for (const target of document.querySelectorAll("[data-desktop-account-status]")) {
+    target.innerHTML = `
+      <span class="account-text">${escapeHtml(accountDisplayLabel())}</span>
+      ${badge}
+      ${links}
+    `;
+  }
+  for (const target of document.querySelectorAll("[data-mobile-account-panel]")) {
+    target.innerHTML = `
+      <span class="account-label">${escapeHtml(accountDisplayLabel())}</span>
+      <div class="account-links">
+        ${accountActionLinks().map((link) => `<a href="${link.href}">${link.label}</a>`).join("")}
+      </div>
+    `;
+  }
+}
+
+async function checkAccountStatus() {
+  renderAccountStatus();
+  try {
+    const response = await fetch("/api/premium-status", {
+      headers: { "Accept": "application/json" },
+    });
+    const data = response.ok ? await response.json() : {};
+    accountState.loading = false;
+    accountState.loggedIn = Boolean(data.loggedIn || data.authenticated);
+    accountState.email = data.email || null;
+    accountState.plan = typeof data.plan === "string" ? data.plan : "free";
+    accountState.isPremium = Boolean(
+      accountState.loggedIn
+      && accountState.plan === "premium"
+      && (data.isPremium || data.premium || data.subscription_active)
+    );
+  } catch (error) {
+    accountState.loading = false;
+    accountState.loggedIn = false;
+    accountState.email = null;
+    accountState.plan = "free";
+    accountState.isPremium = false;
+  }
+  renderAccountStatus();
+}
 
 function formToJson(form) {
   const data = new FormData(form);
@@ -343,7 +464,7 @@ function renderPlan(plan, type) {
         <h2>Need to brief suppliers or get sign-off?</h2>
         <p>Upgrade this quick recommendation into a supplier-ready brief pack with internal approval notes, supplier questions, recipient CSV, message bank and risk checklist.</p>
         <div class="result-actions">
-          <button class="button primary" type="button" data-preview-premium data-pack-type="${type}">Create Premium Brief Pack</button>
+          <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Create Premium Brief Pack</button>
           <a class="button secondary" href="/premium-pack">View Premium Brief Pack</a>
           <a class="button secondary" href="/contact?interest=premium-pack">Register interest</a>
         </div>
@@ -434,10 +555,6 @@ async function submitPlan(form, type) {
     plannerState[type] = { input: formToJson(form), output: plan };
     target.innerHTML = renderPlan(plan, type);
     target.dataset.csv = plan.recipient_csv_template || "";
-    if (isPaidMode()) {
-      const premiumButton = target.querySelector("[data-preview-premium]");
-      if (premiumButton) premiumButton.textContent = "Generate Premium Brief Pack";
-    }
   } catch (error) {
     target.innerHTML = '<div class="empty-state">Sorry, the plan could not be generated. Check the form and try again. If the issue continues, refresh the page.</div>';
   } finally {
@@ -448,54 +565,39 @@ async function submitPlan(form, type) {
   }
 }
 
-async function previewPremiumPack(type, button) {
-  const state = plannerState[type];
-  const panel = button.closest(".premium-cta-card");
-  const target = panel.querySelector("[data-premium-preview]");
-  if (!state) {
-    target.innerHTML = '<p class="small-note">Generate a plan first, then create the Premium Brief Pack.</p>';
-    return;
-  }
-
-  button.disabled = true;
-  target.innerHTML = '<div class="loading compact">Building premium preview...</div>';
-  try {
-    const response = await fetch("/api/premium-pack-preview", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        pack_type: type,
-        planner_input: state.input,
-        planner_output: state.output,
-      }),
-    });
-    if (!response.ok) throw new Error("Preview failed");
-    const preview = await response.json();
-    target.innerHTML = renderPremiumPreview(preview, type);
-  } catch (error) {
-    target.innerHTML = '<p class="small-note">Sorry, the premium preview could not be generated.</p>';
-  } finally {
-    button.disabled = false;
-  }
-}
-
 async function createCheckoutSession(packType, button) {
   const original = button.textContent;
   button.textContent = "Checking...";
   button.disabled = true;
+  const state = plannerState[packType];
+  const messageTarget = button.closest(".premium-cta-card")?.querySelector("[data-premium-preview]");
+  if (accountState.loading) {
+    if (messageTarget) messageTarget.innerHTML = '<p class="small-note">Checking account access...</p>';
+    await checkAccountStatus();
+  }
   try {
     const response = await fetch("/api/create-checkout-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pack_type: packType }),
+      body: JSON.stringify({
+        pack_type: packType,
+        planner_input: state?.input || null,
+        planner_output: state?.output || null,
+      }),
     });
     const data = await response.json();
     if (data.enabled && data.checkout_url) {
       window.location.href = data.checkout_url;
       return;
     }
+    if (messageTarget) {
+      messageTarget.innerHTML = `<p class="small-note">${premiumAccountMessage}</p>`;
+    }
     window.location.href = "/contact?interest=premium-pack";
   } catch (error) {
+    if (messageTarget) {
+      messageTarget.innerHTML = `<p class="small-note">${premiumAccountMessage}</p>`;
+    }
     window.location.href = "/contact?interest=premium-pack";
   } finally {
     button.textContent = original;
@@ -525,17 +627,7 @@ function downloadCsv(text) {
   URL.revokeObjectURL(url);
 }
 
-function isPaidMode() {
-  return new URLSearchParams(window.location.search).get("paid") === "true";
-}
-
-function showPaidBanner() {
-  const banner = document.getElementById("paid-banner");
-  if (banner) banner.hidden = !isPaidMode();
-}
-
 function bindPlannerForms() {
-  showPaidBanner();
   for (const form of document.querySelectorAll("[data-plan-form]")) {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -563,7 +655,9 @@ function bindResultActions() {
       window.print();
     }
     if (button.matches("[data-preview-premium]")) {
-      previewPremiumPack(button.dataset.packType, button);
+      const panel = button.closest(".premium-cta-card");
+      const target = panel?.querySelector("[data-premium-preview]");
+      if (target) target.innerHTML = `<p class="small-note">${premiumAccountMessage}</p>`;
     }
     if (button.matches("[data-copy-preview-email]")) {
       const preview = button.closest(".premium-preview");
@@ -584,6 +678,17 @@ function bindResultActions() {
     if (button.matches("[data-pack-checkout]")) {
       createCheckoutSession(button.dataset.packType || "gift", button);
     }
+  });
+}
+
+function bindMobileMenu() {
+  const header = document.querySelector(".site-header");
+  const toggle = document.querySelector(".menu-toggle");
+  if (!header || !toggle) return;
+
+  toggle.addEventListener("click", () => {
+    const isOpen = header.classList.toggle("menu-open");
+    toggle.setAttribute("aria-expanded", String(isOpen));
   });
 }
 
@@ -641,6 +746,9 @@ function bindLeadForms() {
   });
 }
 
+clearLegacyPremiumTestState();
+checkAccountStatus();
+bindMobileMenu();
 bindPlannerForms();
 bindResultActions();
 bindContactForm();

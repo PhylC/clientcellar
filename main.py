@@ -2120,6 +2120,51 @@ def pricing(request: Request):
     return render(request, "pricing.html", "Pricing", "Compare the free ClientCellar planner with the £29.99 Premium Brief Pack.")
 
 
+@app.get("/login", response_class=HTMLResponse)
+def login_placeholder(request: Request):
+    return render_template(
+        request,
+        "message.html",
+        eyebrow="Account",
+        title="Sign in is not available yet",
+        body="Premium features require an account so we can keep your access linked to you. Account sign-in is not live yet, so every visitor is treated as Free.",
+        primary_label="View pricing",
+        primary_href="/pricing",
+        secondary_label="Contact support",
+        secondary_href="/contact?interest=premium-pack-support",
+    )
+
+
+@app.get("/account", response_class=HTMLResponse)
+def account_placeholder(request: Request):
+    return render_template(
+        request,
+        "message.html",
+        eyebrow="Account",
+        title="Account access is not available yet",
+        body="There is no active account session, so ClientCellar is treating this browser as Free.",
+        primary_label="View pricing",
+        primary_href="/pricing",
+        secondary_label="Contact support",
+        secondary_href="/contact?interest=premium-pack-support",
+    )
+
+
+@app.get("/logout", response_class=HTMLResponse)
+def logout_placeholder(request: Request):
+    return render_template(
+        request,
+        "message.html",
+        eyebrow="Account",
+        title="You are signed out",
+        body="There is no active account session. ClientCellar is treating this browser as Free.",
+        primary_label="Return home",
+        primary_href="/",
+        secondary_label="View pricing",
+        secondary_href="/pricing",
+    )
+
+
 @app.get("/premium-pack", response_class=HTMLResponse)
 def premium_pack(request: Request):
     return render(
@@ -2635,9 +2680,26 @@ def event_plan(req: EventPlanRequest):
     return make_event_plan(req)
 
 
+@app.get("/api/premium-status")
+def premium_status():
+    """Placeholder auth hook: without a real account session, every visitor is free."""
+    return {
+        "loggedIn": False,
+        "authenticated": False,
+        "email": None,
+        "plan": "free",
+        "isPremium": False,
+        "premium": False,
+        "subscription_active": False,
+    }
+
+
 @app.post("/api/premium-pack-preview")
 def premium_pack_preview(req: PremiumPackPreviewRequest):
-    return make_premium_pack_preview(req)
+    raise HTTPException(
+        status_code=403,
+        detail="Premium features require an account so we can keep your access linked to you.",
+    )
 
 
 @app.post("/api/create-checkout-session")
