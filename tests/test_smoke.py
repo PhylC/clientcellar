@@ -48,6 +48,15 @@ def test_checkout_cancelled_loads():
     assert "Checkout cancelled" in response.text
 
 
+def test_billing_pages_load():
+    success = client.get("/billing/success")
+    cancel = client.get("/billing/cancel")
+    assert success.status_code == 200
+    assert "Payment received" in success.text
+    assert cancel.status_code == 200
+    assert "Payment cancelled" in cancel.text
+
+
 def test_premium_pack_page_loads():
     response = client.get("/premium-pack")
     assert response.status_code == 200
@@ -66,6 +75,25 @@ def test_pricing_page_loads():
     response = client.get("/pricing")
     assert response.status_code == 200
     assert "Pricing" in response.text
+
+
+def test_commercial_content_routes_load():
+    for path in [
+        "/suppliers",
+        "/about",
+        "/contact",
+        "/terms",
+        "/privacy",
+        "/affiliate-disclosure",
+        "/corporate-wine-gifts",
+        "/corporate-wine-tasting-events",
+        "/client-wine-gifts",
+        "/staff-wine-gifts",
+        "/corporate-christmas-wine-gifts",
+    ]:
+        response = client.get(path)
+        assert response.status_code == 200
+        assert "404" not in response.text
 
 
 def test_account_routes_load():
@@ -91,7 +119,10 @@ def test_gift_plan_endpoint():
         },
     )
     assert response.status_code == 200
-    assert "supplier_shortlist" in response.json()
+    data = response.json()
+    assert "supplier_shortlist" in data
+    assert "supplier_category" in data
+    assert "internal_approval_summary" in data
 
 
 def test_event_plan_endpoint():
@@ -108,7 +139,10 @@ def test_event_plan_endpoint():
         },
     )
     assert response.status_code == 200
-    assert "event_structure" in response.json()
+    data = response.json()
+    assert "event_structure" in data
+    assert "supplier_category" in data
+    assert "internal_approval_summary" in data
 
 
 def test_premium_status_defaults_to_free():
@@ -120,6 +154,13 @@ def test_premium_status_defaults_to_free():
     assert data["plan"] == "free"
     assert data["isPremium"] is False
     assert data["premium"] is False
+
+
+def test_checkout_requires_signed_in_user_when_payments_enabled(monkeypatch):
+    monkeypatch.setattr(main, "payments_enabled", lambda: True)
+    response = client.post("/api/create-checkout-session", json={"pack_type": "gift"})
+    assert response.status_code == 401
+    assert "Please sign in before upgrading" in response.text
 
 
 def test_auth_config_defaults_to_unconfigured(monkeypatch):

@@ -11,6 +11,9 @@ const accountState = {
   loggedIn: false,
   email: null,
   plan: "free",
+  subscriptionStatus: null,
+  stripeCustomerId: null,
+  stripeSubscriptionId: null,
   isPremium: false,
 };
 const authState = {
@@ -55,7 +58,7 @@ function accountDisplayLabel() {
   return accountState.email || "Signed in";
 }
 
-function accountActionLinks() {
+function mobileAccountActionLinks() {
   if (accountState.loading) {
     return [];
   }
@@ -73,6 +76,7 @@ function accountActionLinks() {
   }
   return [
     { label: "Upgrade", href: "/pricing" },
+    { label: "Account", href: "/account" },
     { label: "Logout", href: "/logout", action: "sign-out" },
   ];
 }
@@ -80,6 +84,49 @@ function accountActionLinks() {
 function accountLinkHtml(link, className = "account-link") {
   const action = link.action ? ` data-auth-action="${escapeHtml(link.action)}"` : "";
   return `<a class="${className}" href="${link.href}"${action}>${escapeHtml(link.label)}</a>`;
+}
+
+function accountInitials() {
+  const value = accountState.email || "Account";
+  const name = value.split("@")[0].replace(/[._-]+/g, " ").trim();
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (!parts.length) return "A";
+  return parts.slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+}
+
+function desktopAccountHtml(badge) {
+  if (!accountState.loggedIn) {
+    return `
+      ${badge}
+      <a class="account-link account-signin-link" href="/sign-in">Sign in</a>
+    `;
+  }
+  const upgrade = accountState.isPremium
+    ? ""
+    : '<a class="account-dropdown-action primary" href="/pricing">Upgrade</a>';
+  return `
+    ${badge}
+    <details class="account-dropdown">
+      <summary aria-label="Open account menu">
+        <span class="account-avatar" aria-hidden="true">${escapeHtml(accountInitials())}</span>
+        <span>Account</span>
+        <span class="account-caret" aria-hidden="true">▾</span>
+      </summary>
+      <div class="account-dropdown-panel">
+        <p class="account-dropdown-kicker">Signed in as</p>
+        <p class="account-dropdown-email">${escapeHtml(accountState.email || "Signed in")}</p>
+        <div class="account-dropdown-plan">
+          <span>Current plan</span>
+          ${badge}
+        </div>
+        <div class="account-dropdown-actions">
+          ${upgrade}
+          <a class="account-dropdown-action" href="/account">Account</a>
+          <a class="account-dropdown-action" href="/logout" data-auth-action="sign-out">Logout</a>
+        </div>
+      </div>
+    </details>
+  `;
 }
 
 function renderAccountStatus() {
@@ -92,16 +139,9 @@ function renderAccountStatus() {
   }
 
   const badge = `<span class="${accountBadgeClass()}">${accountBadgeLabel()}</span>`;
-  const links = accountActionLinks()
-    .map((link) => accountLinkHtml(link))
-    .join("");
   for (const target of document.querySelectorAll("[data-desktop-account-status]")) {
     target.hidden = false;
-    target.innerHTML = `
-      ${badge}
-      ${accountState.loggedIn ? `<span class="account-text">${escapeHtml(accountDisplayLabel())}</span>` : ""}
-      ${links}
-    `;
+    target.innerHTML = desktopAccountHtml(badge);
   }
   for (const target of document.querySelectorAll("[data-mobile-account-panel]")) {
     target.hidden = false;
@@ -111,7 +151,7 @@ function renderAccountStatus() {
         ${badge}
       </div>
       <div class="account-links">
-        ${accountActionLinks().map((link) => accountLinkHtml(link)).join("")}
+        ${mobileAccountActionLinks().map((link) => accountLinkHtml(link)).join("")}
       </div>
     `;
   }
@@ -236,6 +276,9 @@ async function signOut() {
   accountState.accessToken = null;
   accountState.email = null;
   accountState.plan = "free";
+  accountState.subscriptionStatus = null;
+  accountState.stripeCustomerId = null;
+  accountState.stripeSubscriptionId = null;
   accountState.isPremium = false;
   renderAccountStatus();
 }
@@ -251,9 +294,13 @@ async function checkAccountStatus() {
     accountState.accessToken = null;
     accountState.email = null;
     accountState.plan = "free";
+    accountState.subscriptionStatus = null;
+    accountState.stripeCustomerId = null;
+    accountState.stripeSubscriptionId = null;
     accountState.isPremium = false;
     renderAccountStatus();
     renderAccountPage();
+    renderBillingSuccess();
     return;
   }
   try {
@@ -270,9 +317,12 @@ async function checkAccountStatus() {
     accountState.accessToken = accountState.loggedIn ? session.access_token : null;
     accountState.email = data.email || null;
     accountState.plan = typeof data.plan === "string" ? data.plan : "free";
+    accountState.subscriptionStatus = data.subscription_status || null;
+    accountState.stripeCustomerId = data.stripe_customer_id || null;
+    accountState.stripeSubscriptionId = data.stripe_subscription_id || null;
     accountState.isPremium = Boolean(
       accountState.loggedIn
-      && (accountState.plan === "premium" || data.subscription_active)
+      && (accountState.plan === "premium" || ["active", "trialing", "paid_one_off"].includes(accountState.subscriptionStatus) || data.subscription_active)
       && (data.isPremium || data.premium || data.subscription_active)
     );
     if (!accountState.loggedIn) clearAuthSession();
@@ -284,11 +334,15 @@ async function checkAccountStatus() {
     accountState.accessToken = null;
     accountState.email = null;
     accountState.plan = "free";
+    accountState.subscriptionStatus = null;
+    accountState.stripeCustomerId = null;
+    accountState.stripeSubscriptionId = null;
     accountState.isPremium = false;
   }
   renderAccountStatus();
   renderSignedInAuthCard();
   renderAccountPage();
+  renderBillingSuccess();
 }
 
 function formToJson(form) {
@@ -560,10 +614,6 @@ function renderPlan(plan, type) {
     type === "event"
       ? `
         <div class="result-block">
-          <h2>Recommended format</h2>
-          <p>${escapeHtml(plan.recommended_format)}</p>
-        </div>
-        <div class="result-block">
           <h2>Event structure</h2>
           ${list(plan.event_structure)}
         </div>
@@ -573,10 +623,6 @@ function renderPlan(plan, type) {
         </div>
       `
       : `
-        <div class="result-block">
-          <h2>Recommended strategy</h2>
-          <p>${escapeHtml(plan.recommended_strategy)}</p>
-        </div>
         <div class="result-block">
           <h2>Recommended gift types</h2>
           ${list(plan.recommended_gift_types)}
@@ -601,12 +647,24 @@ function renderPlan(plan, type) {
       <p class="eyebrow">Generated plan</p>
       <h2>${escapeHtml(plan.headline)}</h2>
       <p class="result-meta">${escapeHtml(plan.summary)}</p>
-      <p><strong>Estimated budget:</strong> ${escapeHtml(plan.estimated_total_budget)}</p>
       <div class="result-actions">
         <button class="button primary" type="button" data-copy-email>Copy supplier enquiry email</button>
         ${csvButton}
         ${inviteButton}
         <button class="button secondary" type="button" data-print-plan>Print / save as PDF</button>
+      </div>
+      <div class="result-block">
+        <h2>1. Recommended direction</h2>
+        <p>${escapeHtml(plan.recommended_direction || plan.recommended_strategy || plan.recommended_format)}</p>
+      </div>
+      <div class="result-block">
+        <h2>2. Budget guidance</h2>
+        <p><strong>Estimated budget:</strong> ${escapeHtml(plan.estimated_total_budget)}</p>
+        ${list(plan.budget_guidance || [])}
+      </div>
+      <div class="result-block">
+        <h2>3. Supplier category to approach</h2>
+        <p>${escapeHtml(plan.supplier_category || "Corporate wine supplier")}</p>
       </div>
       ${eventExtras}
       <div class="result-block">
@@ -618,11 +676,15 @@ function renderPlan(plan, type) {
         ${list(plan.what_to_avoid)}
       </div>
       <div class="result-block">
-        <h2>Supplier enquiry email</h2>
+        <h2>4. Supplier-ready enquiry email</h2>
         <div class="email-preview" data-email>${escapeHtml(email)}</div>
       </div>
       <div class="result-block">
-        <h2>Next steps</h2>
+        <h2>5. Internal approval summary</h2>
+        <p>${escapeHtml(plan.internal_approval_summary || "Use supplier quotes, budget assumptions and policy checks before seeking approval.")}</p>
+      </div>
+      <div class="result-block">
+        <h2>6. Next-step checklist</h2>
         ${list(plan.next_steps)}
       </div>
       <div class="premium-cta-card">
@@ -749,12 +811,14 @@ async function createCheckoutSession(packType, button) {
   try {
     const response = await fetch("/api/create-checkout-session", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accountState.accessToken}`,
+      },
       body: JSON.stringify({
         pack_type: packType,
         email: accountState.email,
         auth_user_id: accountState.userId,
-        supabase_access_token: accountState.accessToken,
         planner_input: state?.input || null,
         planner_output: state?.output || null,
       }),
@@ -867,9 +931,58 @@ function renderAccountPage(message = "") {
       <h2>${escapeHtml(accountState.email || "Signed in")}</h2>
       <div class="account-summary-row"><strong>Email</strong><span>${escapeHtml(accountState.email || "Signed in")}</span></div>
       <div class="account-summary-row"><strong>Current plan</strong><span>${escapeHtml(planText)}</span></div>
+      <div class="account-summary-row"><strong>Payment status</strong><span>${escapeHtml(accountState.subscriptionStatus || "No active premium payment")}</span></div>
       <div class="button-row">
         ${upgrade}
         <a class="button secondary" href="/logout" data-auth-action="sign-out">Sign out</a>
+      </div>
+    </div>
+  `;
+}
+
+function renderBillingSuccess() {
+  const target = document.querySelector("[data-billing-success]");
+  if (!target) return;
+  if (accountState.loading) {
+    target.innerHTML = `
+      <div class="empty-state">
+        <h2>Payment received. Checking your premium access…</h2>
+        <p>We are re-checking your Supabase profile for premium status.</p>
+      </div>
+    `;
+    return;
+  }
+  if (!accountState.loggedIn) {
+    target.innerHTML = `
+      <div class="empty-state">
+        <h2>Sign in to check premium access</h2>
+        <p>Payment received. Sign in with the account used at checkout so ClientCellar can check your premium status.</p>
+        <p><a class="button primary" href="/sign-in?message=upgrade&next=/billing/success">Sign in</a></p>
+      </div>
+    `;
+    return;
+  }
+  if (accountState.isPremium) {
+    target.innerHTML = `
+      <div class="account-summary">
+        <span class="account-badge account-badge-premium">Premium</span>
+        <h2>Premium is active on your account.</h2>
+        <p>${escapeHtml(accountState.email || "Signed in")}</p>
+        <div class="button-row">
+          <a class="button primary" href="/gift-planner">Plan corporate gifts</a>
+          <a class="button secondary" href="/event-planner">Plan a wine tasting event</a>
+        </div>
+      </div>
+    `;
+    return;
+  }
+  target.innerHTML = `
+    <div class="empty-state">
+      <h2>Payment received. We’re confirming premium access.</h2>
+      <p>Refresh in a moment or contact support if this does not update.</p>
+      <div class="button-row">
+        <button class="button primary" type="button" onclick="window.location.reload()">Refresh</button>
+        <a class="button secondary" href="/contact?interest=premium-pack-support">Contact support</a>
       </div>
     </div>
   `;
@@ -969,6 +1082,7 @@ function renderSignedInAuthCard() {
       <h2>Your ClientCellar account</h2>
       <p>${escapeHtml(accountState.email || "Signed in")}</p>
       <div class="account-summary-row"><strong>Current plan</strong><span>${escapeHtml(accountState.isPremium ? "Premium active" : "Free")}</span></div>
+      <div class="account-summary-row"><strong>Payment status</strong><span>${escapeHtml(accountState.subscriptionStatus || "No active premium payment")}</span></div>
       <div class="button-row">
         ${upgrade}
         <a class="button secondary" href="/account">Account</a>
@@ -995,6 +1109,12 @@ function bindAccountPage() {
 
 function bindResultActions() {
   document.addEventListener("click", (event) => {
+    if (!event.target.closest(".account-dropdown")) {
+      for (const dropdown of document.querySelectorAll(".account-dropdown[open]")) {
+        dropdown.removeAttribute("open");
+      }
+    }
+
     const authAction = event.target.closest("[data-auth-action]");
     if (authAction?.dataset.authAction === "sign-out") {
       event.preventDefault();

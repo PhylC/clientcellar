@@ -2,53 +2,55 @@
 {% block content %}
 <section class="page-intro">
   <p class="eyebrow">Suppliers</p>
-  <h1>Supplier directory for corporate wine gifts and tasting events</h1>
-  <p>Explore supplier types and routes for client gifts, staff gifts, hampers and corporate tasting events. Listings are planning guidance only, not endorsements.</p>
+  <h1>Corporate wine gift and tasting event suppliers</h1>
+  <p>Shortlist UK wine gift, hamper and tasting suppliers by use case, budget and event type.</p>
   <div class="hero-actions">
     <a class="button primary" href="/gift-planner">Plan corporate gifts</a>
-    <a class="button secondary" href="/suppliers/join">Work with ClientCellar</a>
+    <a class="button secondary" href="/event-planner">Plan a wine tasting event</a>
   </div>
 </section>
 
-<section class="supplier-filter-bar" aria-label="Supplier categories">
-  <span>Browse by route:</span>
-  <span class="supplier-filter-chip">Wine merchants</span>
-  <span class="supplier-filter-chip">Hampers</span>
-  <span class="supplier-filter-chip">Sparkling/Champagne</span>
-  <span class="supplier-filter-chip">Tasting events</span>
-  <span class="supplier-filter-chip">Virtual tastings</span>
-</section>
-
-<section class="guide-grid supplier-directory">
-  {% for supplier in suppliers %}
-  {% set supplier_type_label = "Listed supplier" if supplier.website_url or supplier.enquiry_url or supplier.affiliate_url else "Supplier type" %}
-  <article class="guide-card supplier-directory-card">
-    <p class="eyebrow">{{ supplier_type_label }}</p>
-    <h2><a href="/suppliers/{{ supplier.tracking_slug }}">{{ supplier.name }}</a></h2>
-    <p><strong>{{ supplier.category.replace("_", " ") | title }}</strong></p>
-    <p>{{ supplier.description }}</p>
-    <p><strong>Best for:</strong> {{ supplier.best_for | join(", ") }}</p>
-    <p><strong>Planning range:</strong> £{{ supplier.typical_budget_min }}-£{{ supplier.typical_budget_max }}. Confirm current pricing directly.</p>
-    <p><strong>Capabilities:</strong>
-      {% set caps = [] %}
-      {% if supplier.bulk_orders %}{% set _ = caps.append("bulk orders") %}{% endif %}
-      {% if supplier.personalisation %}{% set _ = caps.append("personalisation") %}{% endif %}
-      {% if supplier.branding %}{% set _ = caps.append("branding") %}{% endif %}
-      {% if supplier.event_available %}{% set _ = caps.append("tasting events") %}{% endif %}
-      {% if supplier.virtual_event_available %}{% set _ = caps.append("virtual tastings") %}{% endif %}
-      {{ caps | join(", ") if caps else "Confirm directly" }}
-    </p>
-    <p class="small-note"><strong>Disclosure:</strong> {{ supplier.disclosure_note }}</p>
-    {% if supplier.website_url or supplier.enquiry_url or supplier.affiliate_url %}
-      <a class="button secondary full" href="/out/supplier/{{ supplier.tracking_slug }}?source_page=/suppliers" target="_blank" rel="noopener">Visit supplier</a>
-    {% else %}
-      <a class="button secondary full" href="/gift-planner">Use this as a supplier type</a>
-    {% endif %}
-  </article>
-  {% endfor %}
-</section>
-
 <section class="trust-strip">
-  Supplier information may change. Confirm suitability, pricing, stock, delivery and event availability directly with suppliers.
+  Supplier links are being added as partner approvals are confirmed. Some links may be affiliate or partner links. Listings are planning guidance only, not endorsements.
+</section>
+
+{% for section in supplier_sections %}
+<section class="section supplier-directory-section">
+  <div class="section-header">
+    <p class="eyebrow">Supplier route</p>
+    <h2>{{ section.title }}</h2>
+  </div>
+  <div class="card-grid two">
+    {% for card in section.cards %}
+    <article class="card supplier-directory-card">
+      <p class="eyebrow">{{ card.relationship_label }}</p>
+      <h3>{{ card.name }}</h3>
+      <p><strong>Best for:</strong> {{ card.best_for }}</p>
+      <p><strong>Typical use case:</strong> {{ card.use_case }}</p>
+      <p><strong>Budget fit:</strong> {{ card.budget_fit }}</p>
+      <p><strong>Notes:</strong> {{ card.notes }}</p>
+      <p class="small-note">Some links may be affiliate or partner links. Confirm pricing, availability and delivery directly.</p>
+      <div class="button-row">
+        <a class="button primary small" href="{{ card.prepare_url }}">Prepare enquiry</a>
+        {% if card.visit_url %}
+        <a class="button secondary small" href="{{ card.visit_url }}" target="_blank" rel="noopener">Visit supplier</a>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+
+<section class="cta-panel">
+  <div>
+    <p class="eyebrow">Need a shortlist?</p>
+    <h2>Not sure who to approach?</h2>
+    <p>Use the planner to generate a supplier-ready enquiry with budget direction, supplier category and next-step checklist.</p>
+  </div>
+  <div class="hero-actions">
+    <a class="button primary" href="/gift-planner">Plan corporate gifts</a>
+    <a class="button secondary" href="/event-planner">Plan a wine tasting event</a>
+  </div>
 </section>
 {% endblock %}

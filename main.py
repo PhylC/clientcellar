@@ -47,6 +47,7 @@ STATIC_ROUTES = [
     "/gift-planner",
     "/event-planner",
     "/pricing",
+    "/about",
     "/faq",
     "/contact",
     "/terms",
@@ -57,6 +58,11 @@ STATIC_ROUTES = [
     "/cookies",
     "/guides",
     "/premium-pack",
+    "/corporate-wine-gifts",
+    "/corporate-wine-tasting-events",
+    "/client-wine-gifts",
+    "/staff-wine-gifts",
+    "/corporate-christmas-wine-gifts",
     "/sign-in",
     "/account",
     "/billing/success",
@@ -126,6 +132,18 @@ def _supabase_json_request(
     return json.loads(raw.decode("utf-8"))
 
 
+def get_supabase_admin():
+    """Create a server-side Supabase admin client when supabase-py is available."""
+    settings = supabase_settings()
+    if not settings["service_configured"]:
+        return None
+    try:
+        from supabase import create_client
+    except Exception:
+        return None
+    return create_client(settings["url"], settings["service_role_key"])
+
+
 def verify_supabase_access_token(access_token: str | None) -> dict | None:
     if not access_token:
         return None
@@ -153,7 +171,7 @@ def fetch_supabase_profile(user_id: str, access_token: str) -> dict:
         return {}
     encoded_id = urllib.parse.quote(user_id, safe="")
     data = _supabase_json_request(
-        f"{settings['url']}/rest/v1/profiles?id=eq.{encoded_id}&select=id,email,plan,subscription_status,stripe_customer_id,stripe_subscription_id",
+        f"{settings['url']}/rest/v1/profiles?id=eq.{encoded_id}&select=id,email,plan,subscription_status,stripe_customer_id,stripe_subscription_id,updated_at",
         headers={
             "apikey": settings["anon_key"],
             "Authorization": f"Bearer {access_token}",
@@ -164,27 +182,67 @@ def fetch_supabase_profile(user_id: str, access_token: str) -> dict:
     return {}
 
 
-def update_supabase_profile_from_payment(user_id: str | None, fields: dict) -> None:
+def upsert_supabase_profile(user_id: str | None, fields: dict) -> None:
     settings = supabase_settings()
     if not user_id or not settings["service_configured"]:
         return
-    encoded_id = urllib.parse.quote(user_id, safe="")
-    payload = {key: value for key, value in fields.items() if value is not None}
-    if not payload:
+    payload = {
+        "id": user_id,
+        **{key: value for key, value in fields.items() if value is not None},
+        "updated_at": datetime.utcnow().isoformat() + "Z",
+    }
+    if len(payload) <= 2:
         return
+
+    admin = get_supabase_admin()
+    if admin is not None:
+        try:
+            admin.table("profiles").upsert(payload).execute()
+            return
+        except Exception as error:
+            print("Supabase admin client upsert failed; trying REST fallback:", str(error))
+
     try:
         _supabase_json_request(
-            f"{settings['url']}/rest/v1/profiles?id=eq.{encoded_id}",
+            f"{settings['url']}/rest/v1/profiles",
+            method="POST",
+            headers={
+                "apikey": settings["service_role_key"],
+                "Authorization": f"Bearer {settings['service_role_key']}",
+                "Prefer": "resolution=merge-duplicates,return=minimal",
+            },
+            payload=payload,
+        )
+    except HTTPException as error:
+        print("Supabase profile upsert skipped:", error.detail)
+
+
+def update_supabase_profile_from_payment(user_id: str | None, fields: dict) -> None:
+    upsert_supabase_profile(user_id, fields)
+
+
+def update_supabase_profile_by_subscription(subscription_id: str | None, fields: dict) -> None:
+    settings = supabase_settings()
+    if not subscription_id or not settings["service_configured"]:
+        return
+    encoded_id = urllib.parse.quote(subscription_id, safe="")
+    payload = {
+        **{key: value for key, value in fields.items() if value is not None},
+        "updated_at": datetime.utcnow().isoformat() + "Z",
+    }
+    try:
+        _supabase_json_request(
+            f"{settings['url']}/rest/v1/profiles?stripe_subscription_id=eq.{encoded_id}",
             method="PATCH",
             headers={
                 "apikey": settings["service_role_key"],
                 "Authorization": f"Bearer {settings['service_role_key']}",
                 "Prefer": "return=minimal",
             },
-            payload={**payload, "updated_at": datetime.utcnow().isoformat() + "Z"},
+            payload=payload,
         )
     except HTTPException as error:
-        print("Supabase profile update skipped:", error.detail)
+        print("Supabase subscription profile update skipped:", error.detail)
 
 
 def stripe_obj_get(obj, key, default=None):
@@ -1153,7 +1211,6 @@ class CheckoutSessionRequest(BaseModel):
     pack_type: Literal["gift", "event"]
     email: EmailStr | None = None
     auth_user_id: str | None = None
-    supabase_access_token: str | None = None
     planner_input: dict | None = None
     planner_output: dict | None = None
     premium_preview: dict | None = None
@@ -1236,6 +1293,77 @@ def supplier_destination_url(supplier: dict) -> str | None:
 
 def is_real_supplier(supplier: dict) -> bool:
     return bool(supplier_destination_url(supplier))
+
+
+def supplier_by_id(supplier_id: str) -> dict | None:
+    return next((supplier for supplier in SUPPLIERS if supplier["id"] == supplier_id and supplier.get("active", True)), None)
+
+
+def supplier_directory_card(
+    name: str,
+    best_for: str,
+    use_case: str,
+    budget_fit: str,
+    notes: str,
+    supplier: dict | None = None,
+) -> dict:
+    return {
+        "name": supplier["name"] if supplier else name,
+        "best_for": best_for,
+        "use_case": use_case,
+        "budget_fit": budget_fit,
+        "notes": notes,
+        "prepare_url": "/event-planner" if "tasting" in use_case.lower() or "event" in use_case.lower() else "/gift-planner",
+        "visit_url": f"/out/supplier/{supplier['tracking_slug']}?source_page=/suppliers" if supplier and is_real_supplier(supplier) else None,
+        "relationship_label": supplier["commercial_relationship_label"] if supplier else "Supplier type",
+    }
+
+
+def supplier_directory_sections() -> list[dict]:
+    return [
+        {
+            "title": "Corporate wine gift suppliers",
+            "cards": [
+                supplier_directory_card("Premium wine merchant", "Client thank-yous, partner gifts and mixed-case orders", "Corporate wine gifts for clients or staff", "Often suitable from £25-£150 per recipient; confirm VAT and delivery.", "Ask about corporate ordering, recipient CSV format, gift notes and alcohol-free alternatives.", supplier_by_id("majestic")),
+                supplier_directory_card("Independent wine shop", "Smaller runs, local delivery and more personal recommendations", "Regional gifting or tailored bottle selection", "Useful when quality matters more than scale; confirm minimum order and delivery area.", "Good for careful shortlist building, but availability can change quickly."),
+            ],
+        },
+        {
+            "title": "Wine tasting event suppliers",
+            "cards": [
+                supplier_directory_card("Event tasting host", "Team socials, client entertainment and hosted learning sessions", "In-person corporate tasting event", "Plan from around £60 per head for many hosted formats; venue and food can change the cost.", "Confirm host availability, timings, glassware, licensing, food, water and alcohol-free options.", supplier_by_id("berry-bros-rudd")),
+                supplier_directory_card("Wine tasting event provider", "Structured team-building or hospitality events", "Corporate wine tasting event", "Budget depends on host, wine quality, venue and attendee count.", "Ask for a run sheet, cancellation terms, accessibility notes and substitution policy."),
+            ],
+        },
+        {
+            "title": "Champagne and premium gift suppliers",
+            "cards": [
+                supplier_directory_card("Champagne gift specialist", "Board gifts, VIP clients and high-value account thank-yous", "Premium wine or sparkling gift", "Often best from £75+ per recipient, before delivery and presentation extras.", "Confirm packaging, vintage/substitution policy and whether Champagne alternatives are appropriate.", supplier_by_id("berry-bros-rudd")),
+                supplier_directory_card("Premium department store gift desk", "Polished hampers, presentation-led gifting and executive gifts", "Premium client gift or hamper", "Useful from around £50-£250+, depending on hamper and delivery.", "Ask about business ordering, personalisation, alcohol-free substitutions and bulk delivery.", supplier_by_id("fortnum-mason")),
+            ],
+        },
+        {
+            "title": "Corporate hamper suppliers",
+            "cards": [
+                supplier_directory_card("Corporate hamper supplier", "Staff gifts, client Christmas gifts and mixed-preference groups", "Wine hamper or food-and-drink gift", "Can work from £40+ per recipient; delivery, packaging and personalisation may add cost.", "Check alcohol-free routes, dietary options, branding, delivery slots and failed-delivery handling.", supplier_by_id("marks-spencer-corporate")),
+                supplier_directory_card("Premium hamper supplier", "Higher-touch gifting where presentation matters", "Client hamper or festive gift", "Budget varies widely; confirm VAT, delivery and substitution policy directly.", "Useful when a bottle alone feels too narrow or recipient preferences are mixed.", supplier_by_id("harvey-nichols-hampers")),
+            ],
+        },
+        {
+            "title": "Virtual wine tasting suppliers",
+            "cards": [
+                supplier_directory_card("Virtual tasting provider", "Remote teams, hybrid clients and distributed offices", "Virtual corporate tasting", "Often priced per attendee with pack delivery as a major cost driver.", "Ask about pack delivery lead times, address collection, host format and alcohol-free options.", supplier_by_id("virgin-wines")),
+                supplier_directory_card("Virtual tasting host", "Beginner-friendly online sessions with delivered packs", "Remote team event", "Compare wine pack, delivery, host fee and platform requirements separately.", "Confirm delivery exceptions and what happens if packs arrive late."),
+            ],
+        },
+        {
+            "title": "UK-wide delivery suppliers",
+            "cards": [
+                supplier_directory_card("UK-wide wine merchant", "Multi-location staff gifts and client lists", "UK-wide corporate gift delivery", "Works best when recipient data is clean and lead times are realistic.", "Confirm postcode coverage, age verification, failed delivery handling and cut-off dates.", supplier_by_id("laithwaites")),
+                supplier_directory_card("Corporate fulfilment supplier", "Larger recipient lists and operationally complex gifting", "Bulk gift fulfilment", "Budget depends on storage, packing, delivery and substitutions.", "Ask about CSV format, fulfilment SLAs, VAT, delivery reporting and customer support process."),
+            ],
+        },
+    ]
 
 
 def supplier_by_tracking_slug(tracking_slug: str) -> dict | None:
@@ -1366,6 +1494,26 @@ def build_supplier_shortlist(items: list[dict], why_prefix: str, budget: float) 
     return shortlist
 
 
+def supplier_category_for_gift(req: GiftPlanRequest) -> str:
+    if req.gift_style in {"hamper", "mixed_case"}:
+        return "Corporate hamper supplier" if req.gift_style == "hamper" else "Corporate wine gift supplier"
+    if req.gift_style in {"champagne", "sparkling"} or req.budget_per_recipient >= 75:
+        return "Champagne or premium wine specialist"
+    if req.branding_needed or req.recipient_count >= 50:
+        return "Corporate wine gift supplier"
+    return "Premium wine merchant"
+
+
+def supplier_category_for_event(req: EventPlanRequest) -> str:
+    if req.format == "virtual":
+        return "Virtual tasting host"
+    if req.format == "in_person":
+        return "Wine tasting event provider"
+    if req.format == "hybrid":
+        return "Hybrid tasting event supplier"
+    return "Wine tasting event provider"
+
+
 def maybe_improve_plan(plan: dict, plan_type: str) -> dict:
     if not OPENAI_ENABLED:
         return plan
@@ -1440,9 +1588,24 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         "Kind regards"
     )
 
+    supplier_category = supplier_category_for_gift(req)
+    budget_guidance = [
+        f"Planning budget: {money(req.budget_per_recipient)} per recipient, around {money(total)} total before supplier-confirmed extras.",
+        "This should cover the gift item or pack direction, but VAT, delivery, fulfilment, gift notes, branding and substitutions need confirming directly.",
+        "Ask suppliers about minimum order quantities, recipient data format and delivery cut-offs before seeking internal approval.",
+    ]
+    internal_approval_summary = (
+        f"Approval requested to approach {supplier_category.lower()} options for {req.recipient_count} "
+        f"{readable(req.recipient_type)} gifts for {req.occasion}. Planning budget is "
+        f"{money(req.budget_per_recipient)} per recipient, subject to supplier quotes, VAT, delivery, "
+        "lead times, substitution policy, alcohol suitability and company gifting rules."
+    )
+
     next_steps = [
-        "Confirm recipient count, addresses and any alcohol-free requirements.",
-        "Ask two or three suppliers for current pricing, delivery cut-offs and data requirements.",
+        "Confirm budget owner, recipient count and any alcohol-free requirements.",
+        "Shortlist two or three suppliers in the recommended category.",
+        "Ask about VAT, delivery costs, minimum order quantities and recipient data format.",
+        "Confirm lead times, delivery cut-offs and substitution policy in writing.",
         "Prepare the recipient CSV and gift message before approving the order.",
         "Keep procurement, tax and HR approval notes with the supplier quote.",
     ]
@@ -1453,12 +1616,16 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         "headline": f"{PRODUCT_NAME} gift plan: {label} {readable(req.recipient_type)} gifting",
         "summary": f"Plan {req.recipient_count} {readable(req.recipient_type)} gifts for {req.occasion} at around {money(req.budget_per_recipient)} each.",
         "estimated_total_budget": f"{money(total)} before confirmed delivery, VAT, packaging or fulfilment extras.",
+        "recommended_direction": strategy,
+        "budget_guidance": budget_guidance,
+        "supplier_category": supplier_category,
         "recommended_strategy": strategy,
         "recommended_gift_types": gift_types(req),
         "supplier_shortlist": shortlist,
         "what_to_avoid": avoid,
         "message_templates": templates_out,
         "supplier_enquiry_email": {"subject": subject, "body": body},
+        "internal_approval_summary": internal_approval_summary,
         "recipient_csv_template": CSV_TEMPLATE,
         "next_steps": next_steps,
         "disclaimer": DISCLAIMER,
@@ -1552,20 +1719,38 @@ def make_event_plan(req: EventPlanRequest) -> dict:
         f"You are invited to a {readable(req.event_type)} wine tasting. The session will be {readable(req.tone)} "
         "and beginner-friendly, with alcohol-free alternatives available. Full details will follow once the supplier and date are confirmed."
     )
+    supplier_category = supplier_category_for_event(req)
+    budget_guidance = [
+        f"Planning budget: {money(req.budget_per_person)} per attendee, around {money(total)} total before supplier-confirmed extras.",
+        "This should cover the broad event format, but VAT, host fee, delivery, venue, glassware, food, corkage and minimum spend need confirming directly.",
+        "Ask suppliers about lead times, cancellation terms, alcohol-free options, delivery logistics and substitution policy before committing.",
+    ]
+    internal_approval_summary = (
+        f"Approval requested to approach {supplier_category.lower()} options for a {readable(req.event_type)} "
+        f"for around {req.attendee_count} attendees. Planning budget is {money(req.budget_per_person)} "
+        "per attendee, subject to supplier quotes, VAT, delivery or venue requirements, host availability, "
+        "alcohol-free options and cancellation terms."
+    )
 
     plan = {
         "headline": f"{PRODUCT_NAME} event plan: {label} {readable(req.event_type)}",
         "summary": f"Plan for {req.attendee_count} attendees at around {money(req.budget_per_person)} per person.",
         "estimated_total_budget": f"{money(total)} before confirmed VAT, delivery, venue, service or food costs.",
+        "recommended_direction": format_copy,
+        "budget_guidance": budget_guidance,
+        "supplier_category": supplier_category,
         "recommended_format": format_copy,
         "event_structure": event_structure(req),
         "supplier_shortlist": shortlist,
         "what_to_avoid": avoid,
         "supplier_enquiry_email": {"subject": subject, "body": body},
+        "internal_approval_summary": internal_approval_summary,
         "internal_invite_copy": invite,
         "next_steps": [
-            "Confirm date options, attendee count and any dietary or alcohol-free requirements.",
-            "Ask shortlisted suppliers for current pricing, availability, delivery and licensing details.",
+            "Confirm budget owner, date options, attendee count and any dietary or alcohol-free requirements.",
+            "Shortlist two or three suppliers in the recommended category.",
+            "Ask shortlisted suppliers for current pricing, VAT, availability, delivery and licensing details.",
+            "Confirm lead times, cancellation terms and substitution policy in writing.",
             "Choose the format that is easiest for attendees and safest for the business context.",
             "Share joining instructions, start time, finish time and responsible drinking expectations.",
         ],
@@ -2141,6 +2326,81 @@ GUIDES = {
 }
 
 
+SEO_PAGES = {
+    "corporate-wine-gifts": {
+        "title": "Corporate Wine Gifts",
+        "h1": "Corporate wine gifts for UK businesses",
+        "description": "Plan UK corporate wine gifts with budget guidance, supplier direction and enquiry-ready briefs for clients, staff and business events.",
+        "intro": "Corporate wine gifts can work well when the brief is practical: clear budget, sensible recipient assumptions, reliable delivery and a supplier who can handle business ordering.",
+        "sections": [
+            ("When wine gifts work well", ["Client thank-yous after a project or renewal.", "Partner gifts where a polished but practical item is appropriate.", "Staff gifting where alcohol-free alternatives are also offered."]),
+            ("Budget ranges", ["£20-£40 per recipient: simple bottle, half bottle, alcohol-free alternative or modest gift route.", "£40-£75 per recipient: stronger wine gift, small hamper or sparkling option.", "£75+ per recipient: premium wine merchant, Champagne route or presentation-led hamper."]),
+            ("What to ask suppliers", ["Can you handle corporate ordering and bulk delivery?", "What recipient data format do you need?", "Are VAT, delivery, gift notes and substitutions included?", "What alcohol-free alternatives are available?"]),
+            ("Delivery and compliance considerations", ["Confirm age verification and failed-delivery handling.", "Check company gifting, anti-bribery, HR and procurement policies.", "Do not assume every recipient drinks alcohol."]),
+        ],
+        "primary_cta": ("Use the gift planner", "/gift-planner"),
+        "related": [("Supplier directory", "/suppliers"), ("Client wine gifts", "/client-wine-gifts"), ("Staff wine gifts", "/staff-wine-gifts")],
+    },
+    "corporate-wine-tasting-events": {
+        "title": "Corporate Wine Tasting Events",
+        "h1": "Corporate wine tasting events",
+        "description": "Plan corporate wine tasting events for clients, teams and hospitality, with budget guidance, supplier questions and event planning checklists.",
+        "intro": "A good corporate wine tasting is structured, inclusive and easy for attendees. The aim is a professional event with sensible pacing, not a heavy-drinking format.",
+        "sections": [
+            ("In-person vs virtual tastings", ["In-person works well for hospitality, private rooms and higher-touch client events.", "Virtual tastings suit remote teams and distributed clients, but delivery logistics matter.", "Hybrid formats need extra planning for both room and remote attendees."]),
+            ("Guest numbers", ["Small groups can be more conversational and premium.", "Larger groups need a clearer run sheet, host control and simpler wine choices.", "Confirm final attendee count before pack delivery or venue commitment."]),
+            ("Budget ranges", ["Under £25 per head: simple or informal route.", "£25-£60 per head: hosted virtual or accessible in-person format.", "£60-£120+ per head: premium host, venue, food pairing or private room."]),
+            ("Venue and delivery considerations", ["Ask about licensing, glassware, food, water, transport and accessibility.", "For virtual events, confirm delivery lead times, substitutions and late-pack process."]),
+        ],
+        "primary_cta": ("Use the event planner", "/event-planner"),
+        "related": [("Supplier directory", "/suppliers"), ("Corporate wine gifts", "/corporate-wine-gifts"), ("Virtual tasting guide", "/guides/virtual-wine-tasting-for-teams")],
+    },
+    "client-wine-gifts": {
+        "title": "Client Wine Gifts",
+        "h1": "Client wine gifts and customer thank-you gifts",
+        "description": "Practical guide to client wine gifts, including budget bands, supplier considerations, delivery timing and enquiry-ready planning.",
+        "intro": "Client wine gifts should feel considered without being awkward. The safest route is usually broad appeal, clear value, a short message and careful delivery planning.",
+        "sections": [
+            ("Choosing gifts by client tier", ["Everyday clients: practical bottle, sparkling alternative or modest hamper.", "Key accounts: stronger presentation, premium merchant or mixed case.", "VIP relationships: check policy first, then consider fine wine or presentation-led hamper."]),
+            ("Avoiding awkward gift choices", ["Avoid highly unusual bottles unless you know the recipient well.", "Offer alcohol-free or non-alcoholic alternatives.", "Check anti-bribery, procurement and client gift policies."]),
+            ("Branding and packaging", ["Subtle gift notes often work better than heavy branding.", "Ask suppliers about branded sleeves, cards, proofing time and minimum order quantity."]),
+            ("Delivery timing", ["Build in time for address collection, failed deliveries and substitutions.", "Christmas and quarter-end periods need earlier supplier contact."]),
+        ],
+        "primary_cta": ("Use the gift planner", "/gift-planner"),
+        "related": [("Corporate wine gifts", "/corporate-wine-gifts"), ("Corporate Christmas wine gifts", "/corporate-christmas-wine-gifts"), ("Supplier directory", "/suppliers")],
+    },
+    "staff-wine-gifts": {
+        "title": "Staff Wine Gifts",
+        "h1": "Staff wine gifts and employee recognition",
+        "description": "Plan staff wine gifts and employee recognition wine gifts with practical guidance on budgets, preferences, alternatives and delivery.",
+        "intro": "Staff wine gifts need more sensitivity than client gifts because preferences, alcohol suitability, religion, culture and workplace policy can vary across a team.",
+        "sections": [
+            ("Staff gifting use cases", ["Year-end thank-yous, milestone recognition and team celebration packs.", "Remote employee gifts where UK-wide delivery is needed.", "Team event follow-ups or optional tasting packs."]),
+            ("Mixed preferences", ["Use broad-appeal styles rather than niche bottles.", "Consider choice-based routes or hampers where possible.", "Avoid implying alcohol is expected."]),
+            ("Alcohol sensitivity and alternatives", ["Offer alcohol-free alternatives as a normal option.", "Check HR guidance and avoid pressure to drink.", "Consider dietary, cultural and health factors."]),
+            ("Budget ranges", ["£15-£30 per person: modest bottle or alcohol-free option.", "£30-£60 per person: stronger bottle, small hamper or tasting pack.", "£60+ per person: premium hamper or hosted experience."]),
+        ],
+        "primary_cta": ("Use the gift planner", "/gift-planner"),
+        "related": [("Corporate wine gifts", "/corporate-wine-gifts"), ("Corporate wine tasting events", "/corporate-wine-tasting-events"), ("Supplier directory", "/suppliers")],
+    },
+    "corporate-christmas-wine-gifts": {
+        "title": "Corporate Christmas Wine Gifts",
+        "h1": "Corporate Christmas wine gifts",
+        "description": "Plan corporate Christmas wine gifts for clients and staff, including budget bands, bulk delivery, supplier lead times and hamper options.",
+        "intro": "Christmas wine gifting is mostly an operations problem: supplier lead times, clean recipient data, sensible budget bands and enough room for substitutions.",
+        "sections": [
+            ("Planning early", ["Start supplier conversations well before December.", "Confirm internal approval, budget owner and recipient list early.", "Allow time for gift notes, branding and address checks."]),
+            ("Bulk delivery", ["Ask suppliers about CSV templates, address validation and failed-delivery reporting.", "Confirm UK coverage, age verification and business address handling.", "Plan for substitutions if stock changes."]),
+            ("Budget bands", ["£20-£40: practical bottle or modest festive gift.", "£40-£75: small hamper, sparkling wine or stronger presentation.", "£75+: premium hamper, Champagne route or fine wine merchant."]),
+            ("Supplier lead times", ["Ask for final order deadlines, branding proof dates and last safe dispatch date.", "Do not rely on website stock for bulk Christmas orders."]),
+            ("Alternatives and hampers", ["Include alcohol-free alternatives.", "Hampers can work well for mixed preferences and staff gifting.", "Check dietary and workplace suitability."]),
+        ],
+        "primary_cta": ("Use the gift planner", "/gift-planner"),
+        "related": [("Client wine gifts", "/client-wine-gifts"), ("Staff wine gifts", "/staff-wine-gifts"), ("Supplier directory", "/suppliers")],
+    },
+}
+
+
 def render_template(request: Request, template_name: str, status_code: int = 200, **context) -> HTMLResponse:
     base_url = os.getenv("APP_BASE_URL", "").rstrip("/")
     canonical_url = f"{base_url}{request.url.path}" if base_url else None
@@ -2239,6 +2499,16 @@ def pricing(request: Request):
     return render(request, "pricing.html", "Pricing", "Compare the free ClientCellar planner with the £29.99 Premium Brief Pack.")
 
 
+@app.get("/about", response_class=HTMLResponse)
+def about(request: Request):
+    return render(
+        request,
+        "about.html",
+        "About ClientCellar",
+        "ClientCellar helps UK businesses plan corporate wine gifts, staff gifting and tasting events with practical supplier-ready briefs.",
+    )
+
+
 @app.get("/sign-in", response_class=HTMLResponse)
 def sign_in(request: Request):
     return render(
@@ -2288,6 +2558,31 @@ def premium_pack(request: Request):
     )
 
 
+@app.get("/corporate-wine-gifts", response_class=HTMLResponse)
+def corporate_wine_gifts(request: Request):
+    return render_seo_landing(request, "corporate-wine-gifts")
+
+
+@app.get("/corporate-wine-tasting-events", response_class=HTMLResponse)
+def corporate_wine_tasting_events(request: Request):
+    return render_seo_landing(request, "corporate-wine-tasting-events")
+
+
+@app.get("/client-wine-gifts", response_class=HTMLResponse)
+def client_wine_gifts(request: Request):
+    return render_seo_landing(request, "client-wine-gifts")
+
+
+@app.get("/staff-wine-gifts", response_class=HTMLResponse)
+def staff_wine_gifts(request: Request):
+    return render_seo_landing(request, "staff-wine-gifts")
+
+
+@app.get("/corporate-christmas-wine-gifts", response_class=HTMLResponse)
+def corporate_christmas_wine_gifts(request: Request):
+    return render_seo_landing(request, "corporate-christmas-wine-gifts")
+
+
 @app.get("/checkout/success", response_class=HTMLResponse)
 def checkout_success(request: Request):
     session_id = request.query_params.get("session_id")
@@ -2322,7 +2617,7 @@ def checkout_success(request: Request):
                     {
                         "email": customer_email,
                         "plan": "premium",
-                        "subscription_status": "active",
+                        "subscription_status": "active" if stripe_obj_get(session, "subscription") else "paid_one_off",
                         "stripe_customer_id": stripe_obj_get(session, "customer"),
                         "stripe_subscription_id": stripe_obj_get(session, "subscription"),
                     },
@@ -2365,16 +2660,27 @@ def checkout_cancelled(request: Request):
 
 @app.get("/billing/success", response_class=HTMLResponse)
 def billing_success(request: Request):
-    session_id = request.query_params.get("session_id", "")
-    suffix = f"?session_id={session_id}" if session_id else ""
-    return RedirectResponse(url=f"/checkout/success{suffix}", status_code=302)
+    return render(
+        request,
+        "billing_success.html",
+        "Payment received",
+        "Payment received. ClientCellar is checking premium access against your account.",
+    )
 
 
 @app.get("/billing/cancel", response_class=HTMLResponse)
 def billing_cancel(request: Request):
-    token = request.query_params.get("token", "")
-    suffix = f"?token={token}" if token else ""
-    return RedirectResponse(url=f"/checkout/cancelled{suffix}", status_code=302)
+    token = request.query_params.get("token")
+    if token:
+        pack = get_premium_pack(token)
+        if pack and pack.get("payment_status") == "pending":
+            update_premium_pack_payment(token, "cancelled")
+    return render(
+        request,
+        "billing_cancel.html",
+        "Payment cancelled",
+        "Payment cancelled. Your account is still on the Free plan.",
+    )
 
 
 @app.get("/premium-pack/view/{pack_token}", response_class=HTMLResponse)
@@ -2444,9 +2750,10 @@ def supplier_directory(request: Request):
     return render(
         request,
         "suppliers.html",
-        "Corporate Wine Gift and Tasting Suppliers",
-        "Browse planning-friendly supplier routes for corporate wine gifts, hampers and tasting events.",
+        "Corporate wine gift and tasting event suppliers",
+        "Shortlist UK wine gift, hamper and tasting suppliers by use case, budget and event type.",
         suppliers=active_suppliers,
+        supplier_sections=supplier_directory_sections(),
     )
 
 
@@ -2632,6 +2939,20 @@ def guides_index(request: Request):
         "Corporate Wine Gift and Tasting Guides",
         "Practical UK guides for corporate wine gifts, hampers, Champagne gifts and wine tasting events.",
         guides=GUIDES,
+    )
+
+
+def render_seo_landing(request: Request, slug: str):
+    page = SEO_PAGES.get(slug)
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found.")
+    return render(
+        request,
+        "seo_landing.html",
+        page["title"],
+        page["description"],
+        page=page,
+        slug=slug,
     )
 
 
@@ -2850,7 +3171,8 @@ def premium_status(request: Request):
         profile = {}
     plan = (profile.get("plan") or "free").lower()
     subscription_status = (profile.get("subscription_status") or "").lower()
-    is_premium = plan == "premium" or subscription_status in {"active", "trialing"}
+    premium_statuses = {"active", "trialing", "paid_one_off"}
+    is_premium = plan == "premium" or subscription_status in premium_statuses
     return {
         "loggedIn": True,
         "authenticated": True,
@@ -2859,8 +3181,10 @@ def premium_status(request: Request):
         "plan": "premium" if is_premium else "free",
         "isPremium": is_premium,
         "premium": is_premium,
-        "subscription_active": subscription_status in {"active", "trialing"},
+        "subscription_active": subscription_status in premium_statuses,
         "subscription_status": subscription_status or None,
+        "stripe_customer_id": profile.get("stripe_customer_id"),
+        "stripe_subscription_id": profile.get("stripe_subscription_id"),
     }
 
 
@@ -2873,18 +3197,20 @@ def premium_pack_preview(req: PremiumPackPreviewRequest):
 
 
 @app.post("/api/create-checkout-session")
-def create_checkout_session(req: CheckoutSessionRequest):
+def create_checkout_session(req: CheckoutSessionRequest, request: Request):
     if not payments_enabled():
         return {
             "enabled": False,
             "message": "Payments are not enabled yet. Please register interest instead.",
         }
 
-    user = verify_supabase_access_token(req.supabase_access_token)
+    auth_header = request.headers.get("authorization", "")
+    access_token = auth_header.removeprefix("Bearer ").strip() if auth_header.lower().startswith("bearer ") else None
+    user = verify_supabase_access_token(access_token)
     if not user:
         raise HTTPException(
             status_code=401,
-            detail="Create an account first so premium can be linked to you.",
+            detail="Please sign in before upgrading.",
         )
 
     try:
@@ -2913,13 +3239,13 @@ def create_checkout_session(req: CheckoutSessionRequest):
         "mode": "payment",
         "line_items": [{"price": os.getenv("STRIPE_PRICE_ID"), "quantity": 1}],
         "success_url": f"{base_url}/billing/success?session_id={{CHECKOUT_SESSION_ID}}",
-        "cancel_url": f"{base_url}/billing/cancel?token={pack_token}",
+        "cancel_url": f"{base_url}/billing/cancel",
         "metadata": {
             "pack_type": req.pack_type,
             "pack_token": pack_token,
-            "source": "clientcellar_premium_pack",
+            "product": "clientcellar_premium_brief_pack",
             "supabase_user_id": user["id"],
-            "customer_email": customer_email or "",
+            "email": customer_email or "",
         },
     }
     if customer_email:
@@ -2929,8 +3255,7 @@ def create_checkout_session(req: CheckoutSessionRequest):
     return {"enabled": True, "checkout_url": session.url, "session_id": session.id, "pack_token": pack_token}
 
 
-@app.post("/stripe/webhook")
-async def stripe_webhook(request: Request):
+async def handle_stripe_webhook(request: Request):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
     webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
@@ -2955,14 +3280,21 @@ async def stripe_webhook(request: Request):
 
     event_type = stripe_obj_get(event, "type")
     data_obj = stripe_obj_get(stripe_obj_get(event, "data", {}), "object", {})
-    pack_token = stripe_obj_get(stripe_obj_get(data_obj, "metadata", {}), "pack_token")
+    metadata = stripe_obj_get(data_obj, "metadata", {}) or {}
+    pack_token = stripe_obj_get(metadata, "pack_token")
     print("Stripe webhook event:", event_type)
     print("Stripe webhook pack_token:", pack_token)
 
     if event_type == "checkout.session.completed":
         payment_status = stripe_obj_get(data_obj, "payment_status")
         if pack_token and payment_status == "paid":
-            customer_email = stripe_obj_get(data_obj, "customer_email") or stripe_obj_get(stripe_obj_get(data_obj, "metadata", {}), "customer_email")
+            customer_details = stripe_obj_get(data_obj, "customer_details", {}) or {}
+            customer_email = (
+                stripe_obj_get(customer_details, "email")
+                or stripe_obj_get(data_obj, "customer_email")
+                or stripe_obj_get(metadata, "email")
+            )
+            subscription_id = stripe_obj_get(data_obj, "subscription")
             update_premium_pack_payment(
                 pack_token,
                 "paid",
@@ -2973,20 +3305,43 @@ async def stripe_webhook(request: Request):
                 customer_email=customer_email,
             )
             update_supabase_profile_from_payment(
-                stripe_obj_get(stripe_obj_get(data_obj, "metadata", {}), "supabase_user_id"),
+                stripe_obj_get(metadata, "supabase_user_id"),
                 {
                     "email": customer_email,
                     "plan": "premium",
-                    "subscription_status": "active",
+                    "subscription_status": "active" if subscription_id else "paid_one_off",
                     "stripe_customer_id": stripe_obj_get(data_obj, "customer"),
-                    "stripe_subscription_id": stripe_obj_get(data_obj, "subscription"),
+                    "stripe_subscription_id": subscription_id,
                 },
             )
+            print("Premium activated for Supabase user:", stripe_obj_get(metadata, "supabase_user_id"))
         elif not pack_token:
             print("Stripe webhook warning: checkout.session.completed missing pack_token")
+            subscription_id = stripe_obj_get(data_obj, "subscription")
+            customer_details = stripe_obj_get(data_obj, "customer_details", {}) or {}
+            update_supabase_profile_from_payment(
+                stripe_obj_get(metadata, "supabase_user_id"),
+                {
+                    "email": stripe_obj_get(customer_details, "email") or stripe_obj_get(data_obj, "customer_email") or stripe_obj_get(metadata, "email"),
+                    "plan": "premium",
+                    "subscription_status": "active" if subscription_id else "paid_one_off",
+                    "stripe_customer_id": stripe_obj_get(data_obj, "customer"),
+                    "stripe_subscription_id": subscription_id,
+                },
+            )
     elif event_type == "checkout.session.expired":
         if pack_token:
             update_premium_pack_payment(pack_token, "cancelled")
+    elif event_type == "customer.subscription.deleted":
+        subscription_id = stripe_obj_get(data_obj, "id")
+        update_supabase_profile_by_subscription(
+            subscription_id,
+            {
+                "plan": "free",
+                "subscription_status": "cancelled",
+            },
+        )
+        print("Subscription cancelled for Stripe subscription:", subscription_id)
     elif event_type == "payment_intent.payment_failed":
         if pack_token:
             update_premium_pack_payment(
@@ -2995,8 +3350,26 @@ async def stripe_webhook(request: Request):
                 stripe_payment_intent=stripe_obj_get(data_obj, "id"),
                 customer_email=stripe_obj_get(data_obj, "receipt_email") or stripe_obj_get(stripe_obj_get(data_obj, "metadata", {}), "customer_email"),
             )
+    elif event_type == "invoice.payment_failed":
+        subscription_id = stripe_obj_get(data_obj, "subscription")
+        if subscription_id:
+            update_supabase_profile_by_subscription(
+                subscription_id,
+                {"subscription_status": "past_due"},
+            )
+            print("Subscription invoice payment failed:", subscription_id)
 
     return {"received": True}
+
+
+@app.post("/api/stripe/webhook")
+async def stripe_webhook_api(request: Request):
+    return await handle_stripe_webhook(request)
+
+
+@app.post("/stripe/webhook")
+async def stripe_webhook(request: Request):
+    return await handle_stripe_webhook(request)
 
 
 @app.post("/api/lead")

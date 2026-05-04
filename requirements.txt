@@ -7,4 +7,5 @@ python-dotenv
 email-validator
 openai
 stripe
+supabase
 pytest

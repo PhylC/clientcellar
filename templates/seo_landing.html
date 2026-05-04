@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Planning guide</p>
+  <h1>{{ page.h1 }}</h1>
+  <p>{{ page.intro }}</p>
+  <div class="hero-actions">
+    <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
+    <a class="button secondary" href="/suppliers">View supplier directory</a>
+  </div>
+</section>
+
+<section class="card-grid two seo-guide-grid">
+  {% for heading, bullets in page.sections %}
+  <article class="card">
+    <h2>{{ heading }}</h2>
+    <ul class="feature-list">
+      {% for item in bullets %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </article>
+  {% endfor %}
+</section>
+
+<section class="trust-strip">
+  ClientCellar provides planning guidance only. Supplier pricing, stock, delivery, event availability and suitability must be confirmed directly.
+</section>
+
+<section class="cta-panel">
+  <div>
+    <p class="eyebrow">Turn guidance into a brief</p>
+    <h2>Create a supplier-ready plan</h2>
+    <p>Use ClientCellar to turn budget, timing and recipient details into a practical enquiry email and checklist.</p>
+  </div>
+  <div class="hero-actions">
+    <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
+    <a class="button secondary" href="/suppliers">Supplier directory</a>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header">
+    <p class="eyebrow">Related pages</p>
+    <h2>Continue planning</h2>
+  </div>
+  <div class="card-grid three">
+    {% for label, href in page.related %}
+    <a class="mini-card" href="{{ href }}">{{ label }}</a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
