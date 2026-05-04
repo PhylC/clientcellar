@@ -5,11 +5,21 @@ const plannerState = {
 };
 const accountState = {
   loading: true,
+  authConfigured: false,
+  userId: null,
+  accessToken: null,
   loggedIn: false,
   email: null,
   plan: "free",
   isPremium: false,
 };
+const authState = {
+  configLoaded: false,
+  configured: false,
+  supabaseUrl: "",
+  supabaseAnonKey: "",
+};
+const AUTH_SESSION_KEY = "clientcellar_auth_session";
 const PREMIUM_TEST_KEYS = [
   "clientcellar_premium",
   "premium",
@@ -51,25 +61,30 @@ function accountActionLinks() {
   }
   if (!accountState.loggedIn) {
     return [
-      { label: "Sign in", href: "/login" },
+      { label: "Sign in", href: "/sign-in" },
       { label: "Upgrade", href: "/pricing" },
     ];
   }
   if (accountState.isPremium) {
     return [
       { label: "Account", href: "/account" },
-      { label: "Logout", href: "/logout" },
+      { label: "Logout", href: "/logout", action: "sign-out" },
     ];
   }
   return [
     { label: "Upgrade", href: "/pricing" },
-    { label: "Logout", href: "/logout" },
+    { label: "Logout", href: "/logout", action: "sign-out" },
   ];
+}
+
+function accountLinkHtml(link, className = "account-link") {
+  const action = link.action ? ` data-auth-action="${escapeHtml(link.action)}"` : "";
+  return `<a class="${className}" href="${link.href}"${action}>${escapeHtml(link.label)}</a>`;
 }
 
 function renderAccountStatus() {
   if (accountState.loading) {
-    for (const target of document.querySelectorAll("[data-desktop-account-status], [data-mobile-account-panel]")) {
+    for (const target of document.querySelectorAll("[data-desktop-account-status], [data-mobile-account-panel], [data-mobile-account-badge]")) {
       target.hidden = true;
       target.innerHTML = "";
     }
@@ -78,12 +93,13 @@ function renderAccountStatus() {
 
   const badge = `<span class="${accountBadgeClass()}">${accountBadgeLabel()}</span>`;
   const links = accountActionLinks()
-    .map((link) => `<a class="account-link" href="${link.href}">${link.label}</a>`)
+    .map((link) => accountLinkHtml(link))
     .join("");
   for (const target of document.querySelectorAll("[data-desktop-account-status]")) {
     target.hidden = false;
     target.innerHTML = `
-      ${accountState.isPremium ? badge : ""}
+      ${badge}
+      ${accountState.loggedIn ? `<span class="account-text">${escapeHtml(accountDisplayLabel())}</span>` : ""}
       ${links}
     `;
   }
@@ -95,36 +111,184 @@ function renderAccountStatus() {
         ${badge}
       </div>
       <div class="account-links">
-        ${accountActionLinks().map((link) => `<a href="${link.href}">${link.label}</a>`).join("")}
+        ${accountActionLinks().map((link) => accountLinkHtml(link)).join("")}
       </div>
     `;
   }
+  for (const target of document.querySelectorAll("[data-mobile-account-badge]")) {
+    target.hidden = false;
+    target.innerHTML = badge;
+  }
+}
+
+async function loadAuthConfig() {
+  if (authState.configLoaded) return authState;
+  try {
+    const response = await fetch("/api/auth-config", { headers: { "Accept": "application/json" } });
+    const data = response.ok ? await response.json() : {};
+    authState.configured = Boolean(data.configured && data.supabaseUrl && data.supabaseAnonKey);
+    authState.supabaseUrl = data.supabaseUrl || "";
+    authState.supabaseAnonKey = data.supabaseAnonKey || "";
+  } catch (error) {
+    authState.configured = false;
+  }
+  authState.configLoaded = true;
+  accountState.authConfigured = authState.configured;
+  return authState;
+}
+
+function getAuthSession() {
+  try {
+    const raw = window.localStorage?.getItem(AUTH_SESSION_KEY);
+    if (!raw) return null;
+    const session = JSON.parse(raw);
+    if (!session?.access_token) return null;
+    if (session.expires_at && Date.now() >= Number(session.expires_at) * 1000) {
+      clearAuthSession();
+      return null;
+    }
+    return session;
+  } catch (error) {
+    return null;
+  }
+}
+
+function saveAuthSession(data) {
+  if (!data?.access_token) return null;
+  const expiresIn = Number(data.expires_in || 3600);
+  const session = {
+    access_token: data.access_token,
+    refresh_token: data.refresh_token || null,
+    expires_at: data.expires_at || Math.floor(Date.now() / 1000) + expiresIn,
+    user: data.user || null,
+  };
+  try {
+    window.localStorage?.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+  } catch (error) {
+    // A signed-in session may not persist if browser storage is blocked.
+  }
+  return session;
+}
+
+function clearAuthSession() {
+  try {
+    window.localStorage?.removeItem(AUTH_SESSION_KEY);
+  } catch (error) {
+    // Ignore restricted storage.
+  }
+}
+
+async function supabaseAuthRequest(path, options = {}, accessToken = null) {
+  await loadAuthConfig();
+  if (!authState.configured) {
+    throw new Error("Account login is not configured yet.");
+  }
+  const headers = {
+    "apikey": authState.supabaseAnonKey,
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    ...(options.headers || {}),
+  };
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+  const response = await fetch(`${authState.supabaseUrl}${path}`, {
+    ...options,
+    headers,
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error_description || data.msg || data.message || "Account request failed.");
+  }
+  return data;
+}
+
+async function signInWithPassword(email, password) {
+  const data = await supabaseAuthRequest("/auth/v1/token?grant_type=password", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+  return saveAuthSession(data);
+}
+
+async function signUpWithPassword(email, password) {
+  const data = await supabaseAuthRequest("/auth/v1/signup", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+  if (data.access_token) {
+    return saveAuthSession(data);
+  }
+  return null;
+}
+
+async function signOut() {
+  const session = getAuthSession();
+  if (session?.access_token && authState.configured) {
+    try {
+      await supabaseAuthRequest("/auth/v1/logout", { method: "POST", body: "{}" }, session.access_token);
+    } catch (error) {
+      // The local session still needs clearing even if Supabase logout is unavailable.
+    }
+  }
+  clearAuthSession();
+  accountState.loading = false;
+  accountState.loggedIn = false;
+  accountState.userId = null;
+  accountState.accessToken = null;
+  accountState.email = null;
+  accountState.plan = "free";
+  accountState.isPremium = false;
+  renderAccountStatus();
 }
 
 async function checkAccountStatus() {
   renderAccountStatus();
+  await loadAuthConfig();
+  const session = getAuthSession();
+  if (!authState.configured || !session?.access_token) {
+    accountState.loading = false;
+    accountState.loggedIn = false;
+    accountState.userId = null;
+    accountState.accessToken = null;
+    accountState.email = null;
+    accountState.plan = "free";
+    accountState.isPremium = false;
+    renderAccountStatus();
+    renderAccountPage();
+    return;
+  }
   try {
     const response = await fetch("/api/premium-status", {
-      headers: { "Accept": "application/json" },
+      headers: {
+        "Accept": "application/json",
+        "Authorization": `Bearer ${session.access_token}`,
+      },
     });
     const data = response.ok ? await response.json() : {};
     accountState.loading = false;
     accountState.loggedIn = Boolean(data.loggedIn || data.authenticated);
+    accountState.userId = data.userId || session.user?.id || null;
+    accountState.accessToken = accountState.loggedIn ? session.access_token : null;
     accountState.email = data.email || null;
     accountState.plan = typeof data.plan === "string" ? data.plan : "free";
     accountState.isPremium = Boolean(
       accountState.loggedIn
-      && accountState.plan === "premium"
+      && (accountState.plan === "premium" || data.subscription_active)
       && (data.isPremium || data.premium || data.subscription_active)
     );
+    if (!accountState.loggedIn) clearAuthSession();
   } catch (error) {
+    clearAuthSession();
     accountState.loading = false;
     accountState.loggedIn = false;
+    accountState.userId = null;
+    accountState.accessToken = null;
     accountState.email = null;
     accountState.plan = "free";
     accountState.isPremium = false;
   }
   renderAccountStatus();
+  renderSignedInAuthCard();
+  renderAccountPage();
 }
 
 function formToJson(form) {
@@ -574,8 +738,13 @@ async function createCheckoutSession(packType, button) {
   const state = plannerState[packType];
   const messageTarget = button.closest(".premium-cta-card")?.querySelector("[data-premium-preview]");
   if (accountState.loading) {
-    if (messageTarget) messageTarget.innerHTML = '<p class="small-note">Checking account access...</p>';
     await checkAccountStatus();
+  }
+  if (!accountState.loggedIn || !accountState.accessToken) {
+    const next = encodeURIComponent(window.location.pathname + window.location.search);
+    if (messageTarget) messageTarget.innerHTML = '<p class="small-note">Create an account first so premium can be linked to you.</p>';
+    window.location.href = `/sign-in?message=upgrade&next=${next}`;
+    return;
   }
   try {
     const response = await fetch("/api/create-checkout-session", {
@@ -583,6 +752,9 @@ async function createCheckoutSession(packType, button) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         pack_type: packType,
+        email: accountState.email,
+        auth_user_id: accountState.userId,
+        supabase_access_token: accountState.accessToken,
         planner_input: state?.input || null,
         planner_output: state?.output || null,
       }),
@@ -590,6 +762,11 @@ async function createCheckoutSession(packType, button) {
     const data = await response.json();
     if (data.enabled && data.checkout_url) {
       window.location.href = data.checkout_url;
+      return;
+    }
+    if (response.status === 401) {
+      const next = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.href = `/sign-in?message=upgrade&next=${next}`;
       return;
     }
     if (messageTarget) {
@@ -645,8 +822,188 @@ function showPaidBanner() {
   banner.hidden = new URLSearchParams(window.location.search).get("paid") !== "true";
 }
 
+function renderAccountPage(message = "") {
+  const target = document.querySelector("[data-account-page]");
+  if (!target) return;
+  if (!authState.configured) {
+    target.innerHTML = `
+      <div class="empty-state">
+        <h2>Account login is not configured yet</h2>
+        <p>Add Supabase environment variables to enable sign in. Until then, everyone is treated as Free.</p>
+        <p><a class="button secondary" href="/pricing">View pricing</a></p>
+      </div>
+    `;
+    return;
+  }
+  if (accountState.loading) {
+    target.innerHTML = `
+      <div class="empty-state">
+        <h2>Checking account status</h2>
+        <p>We are checking whether this browser has a signed-in ClientCellar account.</p>
+      </div>
+    `;
+    return;
+  }
+  if (!accountState.loggedIn) {
+    target.innerHTML = `
+      <div class="account-summary">
+        <span class="account-badge account-badge-free">Free</span>
+        <h2>Not signed in</h2>
+        <p>${escapeHtml(message || "Sign in or create an account so premium access can be linked to you.")}</p>
+        <div class="button-row">
+          <a class="button primary" href="/sign-in">Sign in</a>
+          <a class="button secondary" href="/pricing">Upgrade</a>
+        </div>
+      </div>
+    `;
+    return;
+  }
+  const badge = `<span class="${accountBadgeClass()}">${accountBadgeLabel()}</span>`;
+  const planText = accountState.isPremium ? "Premium active" : "Free";
+  const upgrade = accountState.isPremium ? "" : '<a class="button primary" href="/pricing">Upgrade</a>';
+  target.innerHTML = `
+    <div class="account-summary">
+      ${badge}
+      <h2>${escapeHtml(accountState.email || "Signed in")}</h2>
+      <div class="account-summary-row"><strong>Email</strong><span>${escapeHtml(accountState.email || "Signed in")}</span></div>
+      <div class="account-summary-row"><strong>Current plan</strong><span>${escapeHtml(planText)}</span></div>
+      <div class="button-row">
+        ${upgrade}
+        <a class="button secondary" href="/logout" data-auth-action="sign-out">Sign out</a>
+      </div>
+    </div>
+  `;
+}
+
+function authMessageFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("message") === "upgrade") {
+    return "Create an account first so premium can be linked to you.";
+  }
+  if (params.get("signed_out") === "1") {
+    return "You are now signed out.";
+  }
+  return "";
+}
+
+function bindAuthForms() {
+  const card = document.querySelector("[data-auth-card]");
+  if (!card) return;
+  const form = card.querySelector("[data-auth-form]");
+  const submit = card.querySelector("[data-auth-submit]");
+  const status = card.querySelector("[data-auth-status]");
+  let mode = "signin";
+
+  const setStatus = (message, isError = false) => {
+    if (!status) return;
+    status.textContent = message;
+    status.classList.toggle("error", isError);
+  };
+
+  const setMode = (nextMode) => {
+    mode = nextMode;
+    for (const tab of card.querySelectorAll("[data-auth-mode]")) {
+      tab.classList.toggle("active", tab.dataset.authMode === mode);
+    }
+    if (submit) submit.textContent = mode === "signin" ? "Sign in" : "Create account";
+    const password = form?.querySelector('[name="password"]');
+    if (password) password.autocomplete = mode === "signin" ? "current-password" : "new-password";
+    setStatus("");
+  };
+
+  loadAuthConfig().then(() => {
+    if (!authState.configured) {
+      setStatus("Account login is not configured yet.", true);
+      for (const field of form?.querySelectorAll("input, button") || []) field.disabled = true;
+    } else {
+      setStatus(authMessageFromQuery());
+    }
+  });
+
+  for (const tab of card.querySelectorAll("[data-auth-mode]")) {
+    tab.addEventListener("click", () => setMode(tab.dataset.authMode));
+  }
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const email = form.querySelector('[name="email"]').value.trim();
+    const password = form.querySelector('[name="password"]').value;
+    if (!email || !password) {
+      setStatus("Please enter an email and password.", true);
+      return;
+    }
+    if (password.length < 6) {
+      setStatus("Password must be at least 6 characters.", true);
+      return;
+    }
+    submit.disabled = true;
+    submit.textContent = mode === "signin" ? "Signing in..." : "Creating account...";
+    try {
+      const session = mode === "signin"
+        ? await signInWithPassword(email, password)
+        : await signUpWithPassword(email, password);
+      if (session) {
+        await checkAccountStatus();
+        const next = new URLSearchParams(window.location.search).get("next") || "/";
+        window.location.href = next;
+      } else {
+        setStatus("Check your email to confirm your account.");
+      }
+    } catch (error) {
+      setStatus(mode === "signin" ? "Could not sign in. Check your email and password." : "Could not create account. Try again.", true);
+    } finally {
+      submit.disabled = false;
+      submit.textContent = mode === "signin" ? "Sign in" : "Create account";
+    }
+  });
+}
+
+function renderSignedInAuthCard() {
+  const card = document.querySelector("[data-auth-card]");
+  if (!card || accountState.loading || !accountState.loggedIn) return;
+  const badge = `<span class="${accountBadgeClass()}">${accountBadgeLabel()}</span>`;
+  const upgrade = accountState.isPremium ? "" : '<a class="button primary" href="/pricing">Upgrade</a>';
+  card.innerHTML = `
+    <div class="account-summary">
+      ${badge}
+      <h2>Your ClientCellar account</h2>
+      <p>${escapeHtml(accountState.email || "Signed in")}</p>
+      <div class="account-summary-row"><strong>Current plan</strong><span>${escapeHtml(accountState.isPremium ? "Premium active" : "Free")}</span></div>
+      <div class="button-row">
+        ${upgrade}
+        <a class="button secondary" href="/account">Account</a>
+        <a class="button secondary" href="/logout" data-auth-action="sign-out">Sign out</a>
+      </div>
+    </div>
+  `;
+}
+
+function bindAccountPage() {
+  const page = document.querySelector("[data-account-page]");
+  if (!page) return;
+  loadAuthConfig().then(async () => {
+    if (page.dataset.signOutOnLoad === "true") {
+      await signOut();
+      renderAccountPage("You are now signed out.");
+      window.history.replaceState({}, "", "/sign-in?signed_out=1");
+      window.location.href = "/sign-in?signed_out=1";
+      return;
+    }
+    renderAccountPage();
+  });
+}
+
 function bindResultActions() {
   document.addEventListener("click", (event) => {
+    const authAction = event.target.closest("[data-auth-action]");
+    if (authAction?.dataset.authAction === "sign-out") {
+      event.preventDefault();
+      signOut().then(() => {
+        window.location.href = "/sign-in?signed_out=1";
+      });
+      return;
+    }
+
     const button = event.target.closest("button");
     if (!button) return;
 
@@ -770,6 +1127,8 @@ checkAccountStatus();
 bindMobileMenu();
 bindPlannerForms();
 bindResultActions();
+bindAuthForms();
+bindAccountPage();
 bindContactForm();
 bindSupplierApplicationForm();
 bindLeadForms();

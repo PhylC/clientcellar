@@ -68,8 +68,8 @@ def test_pricing_page_loads():
     assert "Pricing" in response.text
 
 
-def test_account_placeholders_load():
-    for path in ["/login", "/account", "/logout"]:
+def test_account_routes_load():
+    for path in ["/sign-in", "/login", "/account", "/logout"]:
         response = client.get(path)
         assert response.status_code == 200
 
@@ -120,6 +120,16 @@ def test_premium_status_defaults_to_free():
     assert data["plan"] == "free"
     assert data["isPremium"] is False
     assert data["premium"] is False
+
+
+def test_auth_config_defaults_to_unconfigured(monkeypatch):
+    monkeypatch.delenv("SUPABASE_URL", raising=False)
+    monkeypatch.delenv("SUPABASE_ANON_KEY", raising=False)
+    monkeypatch.delenv("VITE_SUPABASE_URL", raising=False)
+    monkeypatch.delenv("VITE_SUPABASE_ANON_KEY", raising=False)
+    response = client.get("/api/auth-config")
+    assert response.status_code == 200
+    assert response.json()["configured"] is False
 
 
 def test_premium_preview_requires_backend_confirmed_access():

@@ -25,6 +25,10 @@ ClientCellar should feel like a polished B2B planning tool, not a generic AI dem
 - `/premium-pack`
 - `/premium-pack/view/{pack_token}`
 - `/pricing`
+- `/sign-in`
+- `/account`
+- `/billing/success`
+- `/billing/cancel`
 - `/suppliers`
 - `/suppliers/{tracking_slug}`
 - `/suppliers/join`
@@ -78,6 +82,16 @@ OPENAI_MODEL=gpt-4o-mini
 
 The app works without OpenAI. If enabled, OpenAI may polish rule-based wording but must not invent supplier prices, stock, delivery or availability.
 
+Account login uses Supabase Auth when configured:
+
+```bash
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+The frontend may also read `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` if that naming style is used in deployment. `SUPABASE_SERVICE_ROLE_KEY` is server-side only and is used for Stripe fulfilment/profile updates. If Supabase is not configured, login pages show a clear setup message and all visitors are treated as Free.
+
 Sitemap and production URLs:
 
 ```bash
@@ -110,6 +124,8 @@ Premium Brief Pack:
 
 The app must continue to work with `PAYMENTS_ENABLED=false`. In that mode, Premium CTAs fall back to registering interest.
 
+Premium status is account-linked. Logged-out users are Free, logged-in users are Free unless the backend/Supabase profile confirms `plan='premium'` or an active/trialling subscription status, and browser storage must never grant premium access.
+
 ## Stripe setup
 
 To enable Stripe Checkout:
@@ -139,6 +155,8 @@ Recommended events:
 The success page also performs fallback session verification when Stripe is available, but webhooks are still recommended before live launch.
 
 Current fulfilment limitations: Stripe webhook fulfilment is MVP-level, automated PDF generation is not yet implemented, automated email delivery is not yet implemented, supplier quote comparison upload is not yet implemented, and saved account history is not yet implemented. The MVP uses the on-page Premium Brief Pack plus browser print/save.
+
+Stripe checkout requires a signed-in account when payments are enabled so the resulting Premium access can be linked to a Supabase profile. Webhook fulfilment updates `profiles.plan`/`profiles.subscription_status` only via the server-side service role key.
 
 ## Lead and supplier data
 

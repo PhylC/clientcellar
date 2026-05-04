@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-shell auth-layout">
+  <div class="section-header">
+    <p class="eyebrow">Account</p>
+    <h1>Sign in to ClientCellar</h1>
+    <p class="lead">Save your premium access and manage wine gift or event plans from one account.</p>
+  </div>
+
+  <div class="auth-grid">
+    <article class="card auth-card" data-auth-card data-auth-configured="{{ 'true' if auth_configured else 'false' }}">
+      <div class="auth-tabs" role="tablist" aria-label="Account mode">
+        <button class="auth-tab active" type="button" data-auth-mode="signin">Sign in</button>
+        <button class="auth-tab" type="button" data-auth-mode="signup">Create account</button>
+      </div>
+
+      <form class="auth-form" data-auth-form>
+        <label>Email
+          <input type="email" name="email" autocomplete="email" required>
+        </label>
+        <label>Password
+          <input type="password" name="password" autocomplete="current-password" minlength="6" required>
+        </label>
+        <button class="button primary full" type="submit" data-auth-submit>Sign in</button>
+        <p class="form-status" data-auth-status aria-live="polite"></p>
+      </form>
+
+      <p class="small-note">Premium access is linked to your account, not this browser.</p>
+
+      {% if not auth_configured %}
+      <div class="notice compact-notice">
+        Account login is not configured yet. Add <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> to enable sign in.
+      </div>
+      {% endif %}
+    </article>
+
+    <aside class="card auth-side-card">
+      <h2>Why sign in?</h2>
+      <ul class="feature-list">
+        <li>Keep Premium Brief Pack access linked to your email.</li>
+        <li>Make checkout safer than browser-only flags.</li>
+        <li>Stay Free by default unless your account confirms Premium.</li>
+      </ul>
+      <p class="small-note">ClientCellar does not sell alcohol directly. Supplier pricing, stock and delivery must be confirmed directly.</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}

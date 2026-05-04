@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-shell auth-layout">
+  <div class="section-header">
+    <p class="eyebrow">Account</p>
+    <h1>Your ClientCellar account</h1>
+    <p class="lead">Premium status is checked against your signed-in account.</p>
+  </div>
+
+  <article class="card account-page-card" data-account-page data-auth-configured="{{ 'true' if auth_configured else 'false' }}" data-sign-out-on-load="{{ 'true' if sign_out_on_load else 'false' }}">
+    <div class="empty-state">
+      <h2>Checking account status</h2>
+      <p>We are checking whether this browser has a signed-in ClientCellar account.</p>
+    </div>
+  </article>
+
+  {% if not auth_configured %}
+  <div class="notice compact-notice">
+    Account login is not configured yet. Add <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> to enable sign in.
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

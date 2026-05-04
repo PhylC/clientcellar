@@ -4,6 +4,9 @@ import json
 import os
 import re
 import sqlite3
+import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime
 from pathlib import Path
 from typing import Literal
@@ -54,6 +57,10 @@ STATIC_ROUTES = [
     "/cookies",
     "/guides",
     "/premium-pack",
+    "/sign-in",
+    "/account",
+    "/billing/success",
+    "/billing/cancel",
     "/checkout/success",
     "/checkout/cancelled",
     "/suppliers",
@@ -68,6 +75,116 @@ def payments_enabled() -> bool:
         and bool(os.getenv("STRIPE_PRICE_ID"))
         and bool(os.getenv("APP_BASE_URL"))
     )
+
+
+def supabase_settings() -> dict:
+    url = (
+        os.getenv("SUPABASE_URL")
+        or os.getenv("VITE_SUPABASE_URL")
+        or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+        or ""
+    ).strip().rstrip("/")
+    anon_key = (
+        os.getenv("SUPABASE_ANON_KEY")
+        or os.getenv("VITE_SUPABASE_ANON_KEY")
+        or os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+        or ""
+    ).strip()
+    service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+    return {
+        "url": url,
+        "anon_key": anon_key,
+        "service_role_key": service_role_key,
+        "configured": bool(url and anon_key),
+        "service_configured": bool(url and service_role_key),
+    }
+
+
+def _supabase_json_request(
+    url: str,
+    method: str = "GET",
+    headers: dict | None = None,
+    payload: dict | None = None,
+    timeout: int = 8,
+) -> dict | list | None:
+    body = None
+    request_headers = {"Accept": "application/json", **(headers or {})}
+    if payload is not None:
+        body = json.dumps(payload).encode("utf-8")
+        request_headers["Content-Type"] = "application/json"
+    request = urllib.request.Request(url, data=body, headers=request_headers, method=method)
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            raw = response.read()
+    except urllib.error.HTTPError as error:
+        raw = error.read().decode("utf-8", errors="replace")
+        raise HTTPException(status_code=401, detail="Account session could not be verified.") from error
+    except Exception as error:
+        raise HTTPException(status_code=503, detail="Account service is temporarily unavailable.") from error
+    if not raw:
+        return None
+    return json.loads(raw.decode("utf-8"))
+
+
+def verify_supabase_access_token(access_token: str | None) -> dict | None:
+    if not access_token:
+        return None
+    settings = supabase_settings()
+    if not settings["configured"]:
+        return None
+    try:
+        data = _supabase_json_request(
+            f"{settings['url']}/auth/v1/user",
+            headers={
+                "apikey": settings["anon_key"],
+                "Authorization": f"Bearer {access_token}",
+            },
+        )
+    except HTTPException:
+        return None
+    if not isinstance(data, dict) or not data.get("id"):
+        return None
+    return data
+
+
+def fetch_supabase_profile(user_id: str, access_token: str) -> dict:
+    settings = supabase_settings()
+    if not settings["configured"]:
+        return {}
+    encoded_id = urllib.parse.quote(user_id, safe="")
+    data = _supabase_json_request(
+        f"{settings['url']}/rest/v1/profiles?id=eq.{encoded_id}&select=id,email,plan,subscription_status,stripe_customer_id,stripe_subscription_id",
+        headers={
+            "apikey": settings["anon_key"],
+            "Authorization": f"Bearer {access_token}",
+        },
+    )
+    if isinstance(data, list) and data:
+        return data[0] if isinstance(data[0], dict) else {}
+    return {}
+
+
+def update_supabase_profile_from_payment(user_id: str | None, fields: dict) -> None:
+    settings = supabase_settings()
+    if not user_id or not settings["service_configured"]:
+        return
+    encoded_id = urllib.parse.quote(user_id, safe="")
+    payload = {key: value for key, value in fields.items() if value is not None}
+    if not payload:
+        return
+    try:
+        _supabase_json_request(
+            f"{settings['url']}/rest/v1/profiles?id=eq.{encoded_id}",
+            method="PATCH",
+            headers={
+                "apikey": settings["service_role_key"],
+                "Authorization": f"Bearer {settings['service_role_key']}",
+                "Prefer": "return=minimal",
+            },
+            payload={**payload, "updated_at": datetime.utcnow().isoformat() + "Z"},
+        )
+    except HTTPException as error:
+        print("Supabase profile update skipped:", error.detail)
 
 
 def stripe_obj_get(obj, key, default=None):
@@ -1035,6 +1152,8 @@ class PremiumPackPreviewRequest(BaseModel):
 class CheckoutSessionRequest(BaseModel):
     pack_type: Literal["gift", "event"]
     email: EmailStr | None = None
+    auth_user_id: str | None = None
+    supabase_access_token: str | None = None
     planner_input: dict | None = None
     planner_output: dict | None = None
     premium_preview: dict | None = None
@@ -2120,48 +2239,42 @@ def pricing(request: Request):
     return render(request, "pricing.html", "Pricing", "Compare the free ClientCellar planner with the £29.99 Premium Brief Pack.")
 
 
-@app.get("/login", response_class=HTMLResponse)
-def login_placeholder(request: Request):
-    return render_template(
+@app.get("/sign-in", response_class=HTMLResponse)
+def sign_in(request: Request):
+    return render(
         request,
-        "message.html",
-        eyebrow="Account",
-        title="Sign in is not available yet",
-        body="Premium features require an account so we can keep your access linked to you. Account sign-in is not live yet, so every visitor is treated as Free.",
-        primary_label="View pricing",
-        primary_href="/pricing",
-        secondary_label="Contact support",
-        secondary_href="/contact?interest=premium-pack-support",
+        "sign_in.html",
+        "Sign in",
+        "Sign in to ClientCellar to link Premium Brief Pack access to your account.",
+        auth_configured=supabase_settings()["configured"],
     )
 
 
+@app.get("/login", response_class=HTMLResponse)
+def login_redirect():
+    return RedirectResponse(url="/sign-in", status_code=302)
+
+
 @app.get("/account", response_class=HTMLResponse)
-def account_placeholder(request: Request):
-    return render_template(
+def account(request: Request):
+    return render(
         request,
-        "message.html",
-        eyebrow="Account",
-        title="Account access is not available yet",
-        body="There is no active account session, so ClientCellar is treating this browser as Free.",
-        primary_label="View pricing",
-        primary_href="/pricing",
-        secondary_label="Contact support",
-        secondary_href="/contact?interest=premium-pack-support",
+        "account.html",
+        "Account",
+        "View your ClientCellar account and current Premium Brief Pack access.",
+        auth_configured=supabase_settings()["configured"],
     )
 
 
 @app.get("/logout", response_class=HTMLResponse)
-def logout_placeholder(request: Request):
-    return render_template(
+def logout(request: Request):
+    return render(
         request,
-        "message.html",
-        eyebrow="Account",
-        title="You are signed out",
-        body="There is no active account session. ClientCellar is treating this browser as Free.",
-        primary_label="Return home",
-        primary_href="/",
-        secondary_label="View pricing",
-        secondary_href="/pricing",
+        "account.html",
+        "Signed out",
+        "Sign out of ClientCellar on this browser.",
+        auth_configured=supabase_settings()["configured"],
+        sign_out_on_load=True,
     )
 
 
@@ -2204,6 +2317,16 @@ def checkout_success(request: Request):
                         currency=stripe_obj_get(session, "currency"),
                         customer_email=customer_email,
                     )
+                update_supabase_profile_from_payment(
+                    stripe_obj_get(stripe_obj_get(session, "metadata", {}), "supabase_user_id"),
+                    {
+                        "email": customer_email,
+                        "plan": "premium",
+                        "subscription_status": "active",
+                        "stripe_customer_id": stripe_obj_get(session, "customer"),
+                        "stripe_subscription_id": stripe_obj_get(session, "subscription"),
+                    },
+                )
         except Exception:
             verification_error = True
 
@@ -2238,6 +2361,20 @@ def checkout_cancelled(request: Request):
         title="Checkout cancelled",
         description="No payment was taken. You can return to pricing or contact ClientCellar for support.",
     )
+
+
+@app.get("/billing/success", response_class=HTMLResponse)
+def billing_success(request: Request):
+    session_id = request.query_params.get("session_id", "")
+    suffix = f"?session_id={session_id}" if session_id else ""
+    return RedirectResponse(url=f"/checkout/success{suffix}", status_code=302)
+
+
+@app.get("/billing/cancel", response_class=HTMLResponse)
+def billing_cancel(request: Request):
+    token = request.query_params.get("token", "")
+    suffix = f"?token={token}" if token else ""
+    return RedirectResponse(url=f"/checkout/cancelled{suffix}", status_code=302)
 
 
 @app.get("/premium-pack/view/{pack_token}", response_class=HTMLResponse)
@@ -2680,17 +2817,50 @@ def event_plan(req: EventPlanRequest):
     return make_event_plan(req)
 
 
-@app.get("/api/premium-status")
-def premium_status():
-    """Placeholder auth hook: without a real account session, every visitor is free."""
+@app.get("/api/auth-config")
+def auth_config():
+    settings = supabase_settings()
     return {
-        "loggedIn": False,
-        "authenticated": False,
-        "email": None,
-        "plan": "free",
-        "isPremium": False,
-        "premium": False,
-        "subscription_active": False,
+        "configured": settings["configured"],
+        "supabaseUrl": settings["url"] if settings["configured"] else "",
+        "supabaseAnonKey": settings["anon_key"] if settings["configured"] else "",
+    }
+
+
+@app.get("/api/premium-status")
+def premium_status(request: Request):
+    """Return account-linked premium status. Without verified auth, everyone is free."""
+    auth_header = request.headers.get("authorization", "")
+    access_token = auth_header.removeprefix("Bearer ").strip() if auth_header.lower().startswith("bearer ") else None
+    user = verify_supabase_access_token(access_token)
+    if not user:
+        return {
+            "loggedIn": False,
+            "authenticated": False,
+            "email": None,
+            "plan": "free",
+            "isPremium": False,
+            "premium": False,
+            "subscription_active": False,
+        }
+
+    try:
+        profile = fetch_supabase_profile(user["id"], access_token or "")
+    except HTTPException:
+        profile = {}
+    plan = (profile.get("plan") or "free").lower()
+    subscription_status = (profile.get("subscription_status") or "").lower()
+    is_premium = plan == "premium" or subscription_status in {"active", "trialing"}
+    return {
+        "loggedIn": True,
+        "authenticated": True,
+        "userId": user["id"],
+        "email": profile.get("email") or user.get("email"),
+        "plan": "premium" if is_premium else "free",
+        "isPremium": is_premium,
+        "premium": is_premium,
+        "subscription_active": subscription_status in {"active", "trialing"},
+        "subscription_status": subscription_status or None,
     }
 
 
@@ -2710,6 +2880,13 @@ def create_checkout_session(req: CheckoutSessionRequest):
             "message": "Payments are not enabled yet. Please register interest instead.",
         }
 
+    user = verify_supabase_access_token(req.supabase_access_token)
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Create an account first so premium can be linked to you.",
+        )
+
     try:
         import stripe
     except Exception:
@@ -2719,10 +2896,11 @@ def create_checkout_session(req: CheckoutSessionRequest):
         }
 
     pack_token = generate_pack_token()
+    customer_email = str(req.email or user.get("email") or "") or None
     save_premium_pack(
         pack_token=pack_token,
         pack_type=req.pack_type,
-        customer_email=str(req.email) if req.email else None,
+        customer_email=customer_email,
         payment_status="pending",
         planner_input=req.planner_input,
         planner_output=req.planner_output,
@@ -2734,16 +2912,18 @@ def create_checkout_session(req: CheckoutSessionRequest):
     session_data = {
         "mode": "payment",
         "line_items": [{"price": os.getenv("STRIPE_PRICE_ID"), "quantity": 1}],
-        "success_url": f"{base_url}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
-        "cancel_url": f"{base_url}/checkout/cancelled?token={pack_token}",
+        "success_url": f"{base_url}/billing/success?session_id={{CHECKOUT_SESSION_ID}}",
+        "cancel_url": f"{base_url}/billing/cancel?token={pack_token}",
         "metadata": {
             "pack_type": req.pack_type,
             "pack_token": pack_token,
             "source": "clientcellar_premium_pack",
+            "supabase_user_id": user["id"],
+            "customer_email": customer_email or "",
         },
     }
-    if req.email:
-        session_data["customer_email"] = str(req.email)
+    if customer_email:
+        session_data["customer_email"] = customer_email
 
     session = stripe.checkout.Session.create(**session_data)
     return {"enabled": True, "checkout_url": session.url, "session_id": session.id, "pack_token": pack_token}
@@ -2782,6 +2962,7 @@ async def stripe_webhook(request: Request):
     if event_type == "checkout.session.completed":
         payment_status = stripe_obj_get(data_obj, "payment_status")
         if pack_token and payment_status == "paid":
+            customer_email = stripe_obj_get(data_obj, "customer_email") or stripe_obj_get(stripe_obj_get(data_obj, "metadata", {}), "customer_email")
             update_premium_pack_payment(
                 pack_token,
                 "paid",
@@ -2789,7 +2970,17 @@ async def stripe_webhook(request: Request):
                 stripe_payment_intent=stripe_obj_get(data_obj, "payment_intent"),
                 amount_total=stripe_obj_get(data_obj, "amount_total"),
                 currency=stripe_obj_get(data_obj, "currency"),
-                customer_email=stripe_obj_get(data_obj, "customer_email"),
+                customer_email=customer_email,
+            )
+            update_supabase_profile_from_payment(
+                stripe_obj_get(stripe_obj_get(data_obj, "metadata", {}), "supabase_user_id"),
+                {
+                    "email": customer_email,
+                    "plan": "premium",
+                    "subscription_status": "active",
+                    "stripe_customer_id": stripe_obj_get(data_obj, "customer"),
+                    "stripe_subscription_id": stripe_obj_get(data_obj, "subscription"),
+                },
             )
         elif not pack_token:
             print("Stripe webhook warning: checkout.session.completed missing pack_token")
