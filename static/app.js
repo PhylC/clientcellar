@@ -90,8 +90,10 @@ function renderAccountStatus() {
   for (const target of document.querySelectorAll("[data-mobile-account-panel]")) {
     target.hidden = false;
     target.innerHTML = `
-      <span class="account-label">${escapeHtml(accountDisplayLabel())}</span>
-      ${badge}
+      <div class="mobile-account-status">
+        <span class="account-label">${escapeHtml(accountDisplayLabel())}</span>
+        ${badge}
+      </div>
       <div class="account-links">
         ${accountActionLinks().map((link) => `<a href="${link.href}">${link.label}</a>`).join("")}
       </div>
@@ -691,11 +693,21 @@ function bindResultActions() {
 function bindMobileMenu() {
   const header = document.querySelector(".site-header");
   const toggle = document.querySelector(".menu-toggle");
+  const nav = document.getElementById("main-nav");
   if (!header || !toggle) return;
+
+  const closeMenu = () => {
+    header.classList.remove("menu-open");
+    toggle.setAttribute("aria-expanded", "false");
+  };
 
   toggle.addEventListener("click", () => {
     const isOpen = header.classList.toggle("menu-open");
     toggle.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  nav?.addEventListener("click", (event) => {
+    if (event.target.closest("a")) closeMenu();
   });
 }
 
