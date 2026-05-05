@@ -1,50 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="page-intro">
-  <p class="eyebrow">Checkout</p>
-  <h1>Payment received — create your Premium Brief Pack</h1>
-  <p>Generate your gift or event plan, then create the full supplier-ready pack from the result.</p>
-  <div class="notice compact-notice">
-    Payment received. We’re confirming premium access against your account. If this does not update shortly, contact support.
-  </div>
-
-  {% if payment_verified and pack_token %}
-  <p>Your payment is confirmed and your Premium Brief Pack is ready to view.</p>
-  <div class="hero-actions">
-    <a class="button primary" href="{{ open_pack_url or ('/premium-pack/view/' ~ pack_token) }}">Open Premium Brief Pack</a>
-    <a class="button secondary" href="/pricing">View pricing</a>
-  </div>
+  <p class="eyebrow">Billing</p>
+  <h1>Payment received</h1>
+  {% if verification_error %}
+  <p>We could not verify the payment automatically. If payment was taken, contact support.</p>
   {% elif payment_verified %}
-  <p>Your payment has been received. If the pack link is missing, contact us with the email used at checkout.</p>
-  <div class="hero-actions">
-    <a class="button secondary" href="/contact?interest=premium-pack-support">Contact support</a>
-  </div>
+  <p>Your Premium Brief Pack purchase is confirmed.</p>
+  {% elif session_id %}
+  <p>Payment received. If payment was taken, you can continue creating your Premium Brief Pack or contact support for help.</p>
   {% else %}
-  <p>We could not verify your payment automatically. If a payment was taken, contact us with the email used at checkout.</p>
-  <div class="hero-actions">
-    <a class="button secondary" href="/contact?interest=premium-pack-support">Contact support</a>
-    <a class="button secondary" href="/pricing">Pricing</a>
-  </div>
+  <p>Use this page to continue creating a Premium Brief Pack after checkout.</p>
   {% endif %}
+</section>
 
-  <div class="card-grid three success-cards">
-    <article class="success-card">
-      <h2>Gift Premium Brief Pack</h2>
-      <p>Create a supplier-ready gift brief with approval notes, supplier questions and message bank.</p>
-      <a class="button primary full" href="/gift-planner">Create gift brief pack</a>
-    </article>
-    <article class="success-card">
-      <h2>Event Premium Brief Pack</h2>
-      <p>Create a polished event brief with run-of-show, host questions and inclusivity notes.</p>
-      <a class="button primary full" href="/event-planner">Create event brief pack</a>
-    </article>
-    <article class="success-card">
-      <h2>Need help with your purchase?</h2>
-      <p>Contact ClientCellar support for questions about your payment or Premium Brief Pack access.</p>
-      <a class="button secondary full" href="/contact?interest=premium-pack-support">Contact support</a>
-    </article>
-  </div>
+<section class="card-grid three success-cards">
+  {% if payment_verified and pack_token %}
+  <article class="success-card">
+    <h2>Open paid pack</h2>
+    <p>Your paid Premium Brief Pack is ready to view. You can also return to the planners to create another supplier-ready brief.</p>
+    <a class="button primary full" href="{{ open_pack_url or ('/premium-pack/view/' ~ pack_token) }}">Open paid pack</a>
+  </article>
+  {% endif %}
+  <article class="success-card">
+    <h2>Create your Premium Brief Pack</h2>
+    <p>Generate a gift plan, then create a supplier-ready brief with budget notes, supplier questions, message variants, risk checklist and print/save output.</p>
+    <a class="button primary full" href="/gift-planner?paid=true">Create gift brief pack</a>
+  </article>
+  <article class="success-card">
+    <h2>Create event brief pack</h2>
+    <p>Generate an event plan, then create a polished tasting brief with supplier questions, run-of-show notes and suitability checks.</p>
+    <a class="button primary full" href="/event-planner?paid=true">Create event brief pack</a>
+  </article>
+  <article class="success-card">
+    <h2>Need help?</h2>
+    <p>If you have any issue accessing your pack, contact support and include the email used at checkout.</p>
+    <a class="button secondary full" href="/contact?interest=premium-pack-support">Contact support</a>
+  </article>
+</section>
 
-  <p class="small-note">If you created a plan before checkout, return to that page and use “Create Premium Brief Pack” or “Print / save as PDF”. Automated email delivery is coming soon.</p>
+<section class="trust-strip">
+  <a href="/premium-pack">View Premium Brief Pack</a>
+  <a href="/pricing">Return to pricing</a>
+  <a href="/gift-planner">Continue with free planner</a>
 </section>
 {% endblock %}

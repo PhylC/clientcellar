@@ -24,7 +24,9 @@
           </span>
         </a>
         <div class="mobile-header-controls">
+          {% if not hide_account_status %}
           <span data-mobile-account-badge hidden></span>
+          {% endif %}
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
             <span class="menu-toggle-lines" aria-hidden="true"></span>
             <span class="sr-only">Menu</span>
@@ -39,13 +41,17 @@
         <a href="/pricing">Pricing</a>
         <a href="/faq">FAQ</a>
         <a href="/contact">Contact</a>
+        {% if not hide_account_status %}
         <div class="mobile-account-panel" data-mobile-account-panel hidden></div>
+        {% endif %}
         <div class="mobile-menu-actions">
           <a class="button primary small" href="/gift-planner">Plan gifts</a>
           <a class="button secondary small" href="/event-planner">Plan event</a>
         </div>
       </nav>
+      {% if not hide_account_status %}
       <div class="account-status desktop-account-status" data-desktop-account-status hidden></div>
+      {% endif %}
       <div class="header-actions">
         <a class="button primary small" href="/gift-planner">Plan gifts</a>
         <a class="button secondary small" href="/event-planner">Plan event</a>

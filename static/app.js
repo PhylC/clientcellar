@@ -300,7 +300,6 @@ async function checkAccountStatus() {
     accountState.isPremium = false;
     renderAccountStatus();
     renderAccountPage();
-    renderBillingSuccess();
     return;
   }
   try {
@@ -342,7 +341,6 @@ async function checkAccountStatus() {
   renderAccountStatus();
   renderSignedInAuthCard();
   renderAccountPage();
-  renderBillingSuccess();
 }
 
 function formToJson(form) {
@@ -804,19 +802,12 @@ async function createCheckoutSession(packType, button) {
   }
   const session = getAuthSession();
   const accessToken = session?.access_token || accountState.accessToken;
-  if (!accountState.loggedIn || !accessToken) {
-    const next = encodeURIComponent(window.location.pathname + window.location.search);
-    if (messageTarget) messageTarget.innerHTML = '<p class="small-note">Create an account first so premium can be linked to you.</p>';
-    window.location.href = `/sign-in?message=upgrade&next=${next}`;
-    return;
-  }
   try {
+    const headers = { "Content-Type": "application/json" };
+    if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
     const response = await fetch("/api/stripe/create-checkout-session", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${accessToken}`,
-      },
+      headers,
       body: JSON.stringify({
         pack_type: packType,
         email: accountState.email,
@@ -937,54 +928,6 @@ function renderAccountPage(message = "") {
       <div class="button-row">
         ${upgrade}
         <a class="button secondary" href="/logout" data-auth-action="sign-out">Sign out</a>
-      </div>
-    </div>
-  `;
-}
-
-function renderBillingSuccess() {
-  const target = document.querySelector("[data-billing-success]");
-  if (!target) return;
-  if (accountState.loading) {
-    target.innerHTML = `
-      <div class="empty-state">
-        <h2>Payment received. Checking your premium access…</h2>
-        <p>We are re-checking your Supabase profile for premium status.</p>
-      </div>
-    `;
-    return;
-  }
-  if (!accountState.loggedIn) {
-    target.innerHTML = `
-      <div class="empty-state">
-        <h2>Sign in to check premium access</h2>
-        <p>Payment received. Sign in with the account used at checkout so ClientCellar can check your premium status.</p>
-        <p><a class="button primary" href="/sign-in?message=upgrade&next=/billing/success">Sign in</a></p>
-      </div>
-    `;
-    return;
-  }
-  if (accountState.isPremium) {
-    target.innerHTML = `
-      <div class="account-summary">
-        <span class="account-badge account-badge-premium">Premium</span>
-        <h2>Premium is active on your account.</h2>
-        <p>${escapeHtml(accountState.email || "Signed in")}</p>
-        <div class="button-row">
-          <a class="button primary" href="/gift-planner">Plan corporate gifts</a>
-          <a class="button secondary" href="/event-planner">Plan a wine tasting event</a>
-        </div>
-      </div>
-    `;
-    return;
-  }
-  target.innerHTML = `
-    <div class="empty-state">
-      <h2>Payment received. We’re confirming premium access.</h2>
-      <p>Refresh in a moment or contact support if this does not update.</p>
-      <div class="button-row">
-        <button class="button primary" type="button" onclick="window.location.reload()">Refresh</button>
-        <a class="button secondary" href="/contact?interest=premium-pack-support">Contact support</a>
       </div>
     </div>
   `;

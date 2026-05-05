@@ -2636,7 +2636,7 @@ def checkout_success(request: Request):
     return render_template(
         request,
         "checkout_success.html",
-        eyebrow="Checkout",
+        eyebrow="Billing",
         title="Payment received",
         payment_verified=payment_verified,
         pack_token=pack_token,
@@ -2645,6 +2645,8 @@ def checkout_success(request: Request):
         verification_error=verification_error,
         payment_status=payment_status,
         customer_email=customer_email,
+        session_id=session_id,
+        hide_account_status=True,
     )
 
 
@@ -2667,12 +2669,7 @@ def checkout_cancelled(request: Request):
 
 @app.get("/billing/success", response_class=HTMLResponse)
 def billing_success(request: Request):
-    return render(
-        request,
-        "billing_success.html",
-        "Payment received",
-        "Payment received. ClientCellar is checking premium access against your account.",
-    )
+    return checkout_success(request)
 
 
 @app.get("/billing/cancel", response_class=HTMLResponse)
@@ -3213,11 +3210,6 @@ def create_checkout_session_response(req: CheckoutSessionRequest, request: Reque
     auth_header = request.headers.get("authorization", "")
     access_token = auth_header.removeprefix("Bearer ").strip() if auth_header.lower().startswith("bearer ") else None
     user = verify_supabase_access_token(access_token)
-    if not user:
-        raise HTTPException(
-            status_code=401,
-            detail="Please sign in before upgrading.",
-        )
 
     try:
         import stripe
@@ -3228,15 +3220,18 @@ def create_checkout_session_response(req: CheckoutSessionRequest, request: Reque
         }
 
     pack_token = generate_pack_token()
-    customer_email = str(req.email or user.get("email") or "") or None
+    customer_email = str(req.email or (user or {}).get("email") or "") or None
     checkout_metadata = {
-        "supabase_user_id": user["id"],
+        "supabase_user_id": (user or {}).get("id", ""),
         "email": customer_email or "",
         "product": "clientcellar_premium_brief_pack",
         "pack_type": req.pack_type,
         "pack_token": pack_token,
     }
-    print("Creating checkout for Supabase user", user["id"])
+    if user:
+        print("Creating checkout for Supabase user", user["id"])
+    else:
+        print("Creating one-off checkout without Supabase user metadata")
     save_premium_pack(
         pack_token=pack_token,
         pack_type=req.pack_type,

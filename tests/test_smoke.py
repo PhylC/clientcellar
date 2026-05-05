@@ -156,11 +156,33 @@ def test_premium_status_defaults_to_free():
     assert data["premium"] is False
 
 
-def test_checkout_requires_signed_in_user_when_payments_enabled(monkeypatch):
+def test_checkout_allows_one_off_purchase_without_login(monkeypatch):
+    captured = {}
+
+    class FakeSession:
+        url = "https://checkout.stripe.test/session"
+        id = "cs_test_no_user"
+
+    def fake_create(**kwargs):
+        captured.update(kwargs)
+        return FakeSession()
+
     monkeypatch.setattr(main, "payments_enabled", lambda: True)
+    monkeypatch.setattr(main, "verify_supabase_access_token", lambda token: None)
+    monkeypatch.setattr(main, "generate_pack_token", lambda: "pack_no_user")
+    monkeypatch.setattr(main, "save_premium_pack", lambda **kwargs: 1)
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_123")
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_123")
+    monkeypatch.setenv("APP_BASE_URL", "https://clientcellar.test")
+
+    import stripe
+    monkeypatch.setattr(stripe.checkout.Session, "create", fake_create)
+
     response = client.post("/api/create-checkout-session", json={"pack_type": "gift"})
-    assert response.status_code == 401
-    assert "Please sign in before upgrading" in response.text
+    assert response.status_code == 200
+    assert response.json()["url"] == "https://checkout.stripe.test/session"
+    assert captured["metadata"]["supabase_user_id"] == ""
+    assert captured["payment_intent_data"]["metadata"]["supabase_user_id"] == ""
 
 
 def test_checkout_session_includes_supabase_metadata(monkeypatch):
