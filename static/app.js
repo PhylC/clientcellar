@@ -802,18 +802,20 @@ async function createCheckoutSession(packType, button) {
   if (accountState.loading) {
     await checkAccountStatus();
   }
-  if (!accountState.loggedIn || !accountState.accessToken) {
+  const session = getAuthSession();
+  const accessToken = session?.access_token || accountState.accessToken;
+  if (!accountState.loggedIn || !accessToken) {
     const next = encodeURIComponent(window.location.pathname + window.location.search);
     if (messageTarget) messageTarget.innerHTML = '<p class="small-note">Create an account first so premium can be linked to you.</p>';
     window.location.href = `/sign-in?message=upgrade&next=${next}`;
     return;
   }
   try {
-    const response = await fetch("/api/create-checkout-session", {
+    const response = await fetch("/api/stripe/create-checkout-session", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${accountState.accessToken}`,
+        "Authorization": `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         pack_type: packType,
@@ -824,8 +826,8 @@ async function createCheckoutSession(packType, button) {
       }),
     });
     const data = await response.json();
-    if (data.enabled && data.checkout_url) {
-      window.location.href = data.checkout_url;
+    if (data.enabled && (data.url || data.checkout_url)) {
+      window.location.href = data.url || data.checkout_url;
       return;
     }
     if (response.status === 401) {

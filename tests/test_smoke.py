@@ -163,6 +163,48 @@ def test_checkout_requires_signed_in_user_when_payments_enabled(monkeypatch):
     assert "Please sign in before upgrading" in response.text
 
 
+def test_checkout_session_includes_supabase_metadata(monkeypatch):
+    captured = {}
+
+    class FakeSession:
+        url = "https://checkout.stripe.test/session"
+        id = "cs_test_123"
+
+    def fake_create(**kwargs):
+        captured.update(kwargs)
+        return FakeSession()
+
+    monkeypatch.setattr(main, "payments_enabled", lambda: True)
+    monkeypatch.setattr(main, "verify_supabase_access_token", lambda token: {"id": "user_123", "email": "buyer@example.com"} if token == "valid-token" else None)
+    monkeypatch.setattr(main, "generate_pack_token", lambda: "pack_123")
+    monkeypatch.setattr(main, "save_premium_pack", lambda **kwargs: 1)
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_123")
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_123")
+    monkeypatch.setenv("APP_BASE_URL", "https://clientcellar.test")
+
+    import stripe
+    monkeypatch.setattr(stripe.checkout.Session, "create", fake_create)
+
+    response = client.post(
+        "/api/stripe/create-checkout-session",
+        headers={"Authorization": "Bearer valid-token"},
+        json={"pack_type": "gift"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["url"] == "https://checkout.stripe.test/session"
+    assert captured["line_items"] == [{"price": "price_123", "quantity": 1}]
+    assert captured["success_url"] == "https://clientcellar.test/billing/success?session_id={CHECKOUT_SESSION_ID}"
+    assert captured["cancel_url"] == "https://clientcellar.test/billing/cancel"
+    assert captured["customer_email"] == "buyer@example.com"
+    assert captured["metadata"]["supabase_user_id"] == "user_123"
+    assert captured["metadata"]["email"] == "buyer@example.com"
+    assert captured["metadata"]["product"] == "clientcellar_premium_brief_pack"
+    assert captured["payment_intent_data"]["metadata"]["supabase_user_id"] == "user_123"
+    assert captured["payment_intent_data"]["metadata"]["email"] == "buyer@example.com"
+    assert captured["payment_intent_data"]["metadata"]["product"] == "clientcellar_premium_brief_pack"
+
+
 def test_auth_config_defaults_to_unconfigured(monkeypatch):
     monkeypatch.delenv("SUPABASE_URL", raising=False)
     monkeypatch.delenv("SUPABASE_ANON_KEY", raising=False)

@@ -2597,9 +2597,11 @@ def checkout_success(request: Request):
             import stripe
             stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
             session = stripe.checkout.Session.retrieve(session_id)
-            pack_token = stripe_obj_get(stripe_obj_get(session, "metadata", {}), "pack_token")
+            metadata = stripe_obj_get(session, "metadata", {}) or {}
+            customer_details = stripe_obj_get(session, "customer_details", {}) or {}
+            pack_token = stripe_obj_get(metadata, "pack_token")
             payment_status = stripe_obj_get(session, "payment_status")
-            customer_email = stripe_obj_get(session, "customer_email")
+            customer_email = stripe_obj_get(customer_details, "email") or stripe_obj_get(session, "customer_email") or stripe_obj_get(metadata, "email")
             if payment_status == "paid":
                 payment_verified = True
                 if pack_token:
@@ -2612,16 +2614,21 @@ def checkout_success(request: Request):
                         currency=stripe_obj_get(session, "currency"),
                         customer_email=customer_email,
                     )
-                update_supabase_profile_from_payment(
-                    stripe_obj_get(stripe_obj_get(session, "metadata", {}), "supabase_user_id"),
-                    {
-                        "email": customer_email,
-                        "plan": "premium",
-                        "subscription_status": "active" if stripe_obj_get(session, "subscription") else "paid_one_off",
-                        "stripe_customer_id": stripe_obj_get(session, "customer"),
-                        "stripe_subscription_id": stripe_obj_get(session, "subscription"),
-                    },
-                )
+                supabase_user_id = stripe_obj_get(metadata, "supabase_user_id")
+                if supabase_user_id:
+                    print("Activating premium for Supabase user", supabase_user_id)
+                    update_supabase_profile_from_payment(
+                        supabase_user_id,
+                        {
+                            "email": customer_email,
+                            "plan": "premium",
+                            "subscription_status": "active" if stripe_obj_get(session, "subscription") else "paid_one_off",
+                            "stripe_customer_id": stripe_obj_get(session, "customer"),
+                            "stripe_subscription_id": stripe_obj_get(session, "subscription"),
+                        },
+                    )
+                else:
+                    print("Stripe checkout completed without supabase_user_id metadata")
         except Exception:
             verification_error = True
 
@@ -3196,8 +3203,7 @@ def premium_pack_preview(req: PremiumPackPreviewRequest):
     )
 
 
-@app.post("/api/create-checkout-session")
-def create_checkout_session(req: CheckoutSessionRequest, request: Request):
+def create_checkout_session_response(req: CheckoutSessionRequest, request: Request):
     if not payments_enabled():
         return {
             "enabled": False,
@@ -3223,6 +3229,14 @@ def create_checkout_session(req: CheckoutSessionRequest, request: Request):
 
     pack_token = generate_pack_token()
     customer_email = str(req.email or user.get("email") or "") or None
+    checkout_metadata = {
+        "supabase_user_id": user["id"],
+        "email": customer_email or "",
+        "product": "clientcellar_premium_brief_pack",
+        "pack_type": req.pack_type,
+        "pack_token": pack_token,
+    }
+    print("Creating checkout for Supabase user", user["id"])
     save_premium_pack(
         pack_token=pack_token,
         pack_type=req.pack_type,
@@ -3240,19 +3254,26 @@ def create_checkout_session(req: CheckoutSessionRequest, request: Request):
         "line_items": [{"price": os.getenv("STRIPE_PRICE_ID"), "quantity": 1}],
         "success_url": f"{base_url}/billing/success?session_id={{CHECKOUT_SESSION_ID}}",
         "cancel_url": f"{base_url}/billing/cancel",
-        "metadata": {
-            "pack_type": req.pack_type,
-            "pack_token": pack_token,
-            "product": "clientcellar_premium_brief_pack",
-            "supabase_user_id": user["id"],
-            "email": customer_email or "",
+        "metadata": checkout_metadata,
+        "payment_intent_data": {
+            "metadata": checkout_metadata,
         },
     }
     if customer_email:
         session_data["customer_email"] = customer_email
 
     session = stripe.checkout.Session.create(**session_data)
-    return {"enabled": True, "checkout_url": session.url, "session_id": session.id, "pack_token": pack_token}
+    return {"enabled": True, "url": session.url, "checkout_url": session.url, "session_id": session.id, "pack_token": pack_token}
+
+
+@app.post("/api/stripe/create-checkout-session")
+def create_stripe_checkout_session(req: CheckoutSessionRequest, request: Request):
+    return create_checkout_session_response(req, request)
+
+
+@app.post("/api/create-checkout-session")
+def create_checkout_session(req: CheckoutSessionRequest, request: Request):
+    return create_checkout_session_response(req, request)
 
 
 async def handle_stripe_webhook(request: Request):
@@ -3287,6 +3308,10 @@ async def handle_stripe_webhook(request: Request):
 
     if event_type == "checkout.session.completed":
         payment_status = stripe_obj_get(data_obj, "payment_status")
+        supabase_user_id = stripe_obj_get(metadata, "supabase_user_id")
+        if not supabase_user_id:
+            print("Stripe checkout completed without supabase_user_id metadata")
+            return {"received": True}
         if pack_token and payment_status == "paid":
             customer_details = stripe_obj_get(data_obj, "customer_details", {}) or {}
             customer_email = (
@@ -3295,6 +3320,7 @@ async def handle_stripe_webhook(request: Request):
                 or stripe_obj_get(metadata, "email")
             )
             subscription_id = stripe_obj_get(data_obj, "subscription")
+            print("Activating premium for Supabase user", supabase_user_id)
             update_premium_pack_payment(
                 pack_token,
                 "paid",
@@ -3305,7 +3331,7 @@ async def handle_stripe_webhook(request: Request):
                 customer_email=customer_email,
             )
             update_supabase_profile_from_payment(
-                stripe_obj_get(metadata, "supabase_user_id"),
+                supabase_user_id,
                 {
                     "email": customer_email,
                     "plan": "premium",
@@ -3314,13 +3340,14 @@ async def handle_stripe_webhook(request: Request):
                     "stripe_subscription_id": subscription_id,
                 },
             )
-            print("Premium activated for Supabase user:", stripe_obj_get(metadata, "supabase_user_id"))
+            print("Premium activated for Supabase user:", supabase_user_id)
         elif not pack_token:
             print("Stripe webhook warning: checkout.session.completed missing pack_token")
             subscription_id = stripe_obj_get(data_obj, "subscription")
             customer_details = stripe_obj_get(data_obj, "customer_details", {}) or {}
+            print("Activating premium for Supabase user", supabase_user_id)
             update_supabase_profile_from_payment(
-                stripe_obj_get(metadata, "supabase_user_id"),
+                supabase_user_id,
                 {
                     "email": stripe_obj_get(customer_details, "email") or stripe_obj_get(data_obj, "customer_email") or stripe_obj_get(metadata, "email"),
                     "plan": "premium",
