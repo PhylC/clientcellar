@@ -96,6 +96,51 @@ def test_commercial_content_routes_load():
         assert "404" not in response.text
 
 
+def test_new_high_intent_guides_load():
+    for path in [
+        "/guides/corporate-wine-gifts-under-50",
+        "/guides/corporate-wine-gifts-under-100",
+        "/guides/luxury-wine-gifts-for-clients",
+        "/guides/english-sparkling-corporate-gifts",
+        "/guides/wine-gifts-for-sales-teams",
+        "/guides/wine-gifts-for-agencies",
+        "/guides/wine-gifts-for-law-firms",
+        "/guides/wine-gifts-for-accountancy-firms",
+        "/guides/client-gift-policy-checklist",
+        "/guides/corporate-gifting-recipient-csv-template",
+    ]:
+        response = client.get(path)
+        assert response.status_code == 200
+        assert "<h1" in response.text
+        assert "Turn this guide into a practical plan" in response.text
+
+
+def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
+    response = client.get("/sitemap.xml")
+    assert response.status_code == 200
+    text = response.text
+    assert "/guides/corporate-wine-gifts-under-50" in text
+    assert "/guides/corporate-gifting-recipient-csv-template" in text
+    assert "/corporate-wine-gifts" in text
+    assert "/checkout/success" not in text
+    assert "/billing/success" not in text
+    assert "/admin" not in text
+
+
+def test_checkout_pages_are_noindex():
+    response = client.get("/checkout/success")
+    assert response.status_code == 200
+    assert 'name="robots" content="noindex, nofollow"' in response.text
+
+
+def test_homepage_has_structured_data_and_conversion_links():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert 'application/ld+json' in response.text
+    assert "See Premium Brief Pack" in response.text
+    assert "/guides/corporate-wine-gifts-uk" in response.text
+
+
 def test_account_routes_load():
     for path in ["/sign-in", "/login", "/account", "/logout"]:
         response = client.get(path)

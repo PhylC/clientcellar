@@ -45,6 +45,32 @@
   </article>
 </section>
 
+<section class="section warm">
+  <div class="section-header section-heading">
+    <p class="eyebrow">Which should I choose?</p>
+    <h2>Use the right level of output for the job</h2>
+  </div>
+  <div class="card-grid two">
+    <article class="card">
+      <h3>Choose the Free Planner if...</h3>
+      <p>You just need a quick route, budget sense and starting point before speaking to suppliers.</p>
+      <div class="button-row">
+        <a class="button secondary small" href="/gift-planner">Start free gift planner</a>
+        <a class="button secondary small" href="/event-planner">Start free event planner</a>
+      </div>
+    </article>
+    <article class="card">
+      <h3>Choose Premium Brief Pack if...</h3>
+      <p>You need to brief suppliers, compare options, share internally or look organised quickly.</p>
+      {% if payments_enabled %}
+      <button class="button primary small" type="button" data-pack-checkout data-pack-type="gift">Create Premium Brief Pack</button>
+      {% else %}
+      <a class="button primary small" href="/contact?interest=premium-pack">Register interest</a>
+      {% endif %}
+    </article>
+  </div>
+</section>
+
 <section class="trust-strip pricing-trust">
   ClientCellar does not sell alcohol directly. Supplier pricing, stock and delivery must be confirmed directly.
   <a href="/terms">Terms</a>

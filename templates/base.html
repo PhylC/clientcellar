@@ -3,14 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ title }} | {{ product }}</title>
-  <meta name="description" content="{{ description }}">
+  <title>{{ page_title }}</title>
+  <meta name="description" content="{{ meta_description }}">
+  {% if noindex %}<meta name="robots" content="noindex, nofollow">{% endif %}
   {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
-  <meta property="og:title" content="{{ title }} | {{ product }}">
-  <meta property="og:description" content="{{ description }}">
-  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ og_title }}">
+  <meta property="og:description" content="{{ og_description }}">
+  <meta property="og:type" content="{{ og_type }}">
   {% if canonical_url %}<meta property="og:url" content="{{ canonical_url }}">{% endif %}
   <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}">
+  {% for schema in structured_data %}
+  <script type="application/ld+json">{{ schema | tojson }}</script>
+  {% endfor %}
 </head>
 <body>
   <header class="site-header">

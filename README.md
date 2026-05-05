@@ -156,7 +156,48 @@ The success page also performs fallback session verification when Stripe is avai
 
 Current fulfilment limitations: Stripe webhook fulfilment is MVP-level, automated PDF generation is not yet implemented, automated email delivery is not yet implemented, supplier quote comparison upload is not yet implemented, and saved account history is not yet implemented. The MVP uses the on-page Premium Brief Pack plus browser print/save.
 
-Stripe checkout requires a signed-in account when payments are enabled so the resulting Premium access can be linked to a Supabase profile. Webhook fulfilment updates `profiles.plan`/`profiles.subscription_status` only via the server-side service role key.
+Stripe checkout supports one-off Premium Brief Pack purchases. If a user is signed in, checkout metadata links the payment to their Supabase profile; if not, the purchase still returns them to the paid pack creation flow. Do not grant premium from browser storage or query strings. Webhook fulfilment can update `profiles.plan`/`profiles.subscription_status` only via the server-side service role key when user metadata exists.
+
+## SEO and conversion strategy
+
+ClientCellar’s public content is structured around a simple funnel:
+
+1. High-intent guide or SEO landing page.
+2. Free gift planner or event planner.
+3. Premium Brief Pack, lead capture or supplier directory.
+4. Supplier enquiry or tracked supplier link where appropriate.
+
+The guide library currently includes:
+
+- `/guides/corporate-wine-gifts-uk`
+- `/guides/christmas-wine-gifts-for-clients`
+- `/guides/staff-wine-gifts`
+- `/guides/client-thank-you-wine-gifts`
+- `/guides/corporate-wine-hampers`
+- `/guides/corporate-champagne-gifts`
+- `/guides/virtual-wine-tasting-for-teams`
+- `/guides/corporate-wine-tasting-london`
+- `/guides/wine-tasting-team-building`
+- `/guides/corporate-wine-gifts-under-50`
+- `/guides/corporate-wine-gifts-under-100`
+- `/guides/luxury-wine-gifts-for-clients`
+- `/guides/english-sparkling-corporate-gifts`
+- `/guides/wine-gifts-for-sales-teams`
+- `/guides/wine-gifts-for-agencies`
+- `/guides/wine-gifts-for-law-firms`
+- `/guides/wine-gifts-for-accountancy-firms`
+- `/guides/client-gift-policy-checklist`
+- `/guides/corporate-gifting-recipient-csv-template`
+
+Internal links should point naturally from guides to planners, from planners to Premium Brief Pack and suppliers, and from supplier pages to planners and affiliate disclosure. Checkout, billing and admin routes should not be included in the sitemap and should render with `noindex` if they produce HTML.
+
+Manual SEO QA:
+
+1. Check each public page has a unique title, meta description and canonical URL without query strings.
+2. Confirm guide pages include quick answer, budget guidance, checklist, responsible gifting note and planner CTA.
+3. Confirm `/sitemap.xml` includes public SEO pages and guide pages, but not admin, checkout or billing success/cancel pages.
+4. Confirm `/robots.txt` references the sitemap.
+5. Keep Product schema limited to the real £29.99 Premium Brief Pack and never add fake reviews or ratings.
 
 ## Lead and supplier data
 

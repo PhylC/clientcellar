@@ -578,7 +578,7 @@ function renderLeadForm(interestedIn, sourcePage, contextType = "") {
   return `
     <form class="lead-capture-form planner-form" data-lead-form data-interested-in="${interestedIn}" data-source-page="${sourcePage}" data-context-type="${contextType}">
       <h2>Want help turning this into a supplier-ready brief?</h2>
-      <p>Leave your details and we’ll use your plan to help prepare a clearer gifting or event brief.</p>
+      <p>Leave your details if you want support with a Premium Brief Pack, supplier shortlist or corporate gifting brief.</p>
       <div class="form-row">
         <label>Name
           <input name="name" required>
@@ -688,11 +688,11 @@ function renderPlan(plan, type) {
       <div class="premium-cta-card">
         <p class="eyebrow">Premium Brief Pack</p>
         <h2>Need to brief suppliers or get sign-off?</h2>
-        <p>Upgrade this quick recommendation into a supplier-ready brief pack with internal approval notes, supplier questions, recipient CSV, message bank and risk checklist.</p>
+        <p>Need to brief suppliers or get internal sign-off? Upgrade this recommendation into a Premium Brief Pack with supplier questions, message variants, internal approval note and print/save output.</p>
         <div class="result-actions">
           <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Create Premium Brief Pack</button>
-          <a class="button secondary" href="/premium-pack">View Premium Brief Pack</a>
-          <a class="button secondary" href="/contact?interest=premium-pack">Register interest</a>
+          <a class="button secondary" href="/contact?interest=${type === "gift" ? "gift-planning" : "event-planning"}">Send enquiry / request help</a>
+          <a class="button secondary" href="/suppliers">${type === "gift" ? "View supplier directory" : "View tasting suppliers"}</a>
         </div>
         <div data-premium-preview></div>
       </div>
@@ -1140,11 +1140,27 @@ function bindContactForm() {
   const interest = new URLSearchParams(window.location.search).get("interest");
   const select = form.querySelector('[name="interested_in"]');
   const note = document.getElementById("contact-note");
-  if ((interest === "premium-pack" || interest === "premium-pack-support") && select) {
-    select.value = "premium_pack";
+  const interestMap = {
+    "premium-pack": "premium_pack",
+    "premium-pack-support": "premium_pack",
+    supplier: "supplier_intro",
+    "supplier_intro": "supplier_intro",
+    "gift-planning": "gifts",
+    "event-planning": "events",
+  };
+  if (interestMap[interest] && select) {
+    select.value = interestMap[interest];
   }
   if (interest === "premium-pack-support" && note) {
     note.textContent = "Need help with payment or Premium Brief Pack access? Please include the email used at checkout.";
+    note.hidden = false;
+  }
+  if (interest === "supplier" && note) {
+    note.textContent = "Suppliers can share regions covered, fulfilment capabilities and corporate ordering options.";
+    note.hidden = false;
+  }
+  if ((interest === "gift-planning" || interest === "event-planning") && note) {
+    note.textContent = "Include recipient or attendee count, budget, deadline and any workplace suitability notes.";
     note.hidden = false;
   }
 

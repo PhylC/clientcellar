@@ -22,6 +22,11 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 load_dotenv()
 
 PRODUCT_NAME = "ClientCellar"
+DEFAULT_PAGE_TITLE = "ClientCellar | Corporate Wine Gifts and Tasting Event Planning"
+DEFAULT_META_DESCRIPTION = (
+    "Plan corporate wine gifts, staff gifts and tasting events with budget guidance, "
+    "supplier-ready briefs and practical checklists."
+)
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 DB_PATH = DATA_DIR / "clientcellar.db"
@@ -63,12 +68,6 @@ STATIC_ROUTES = [
     "/client-wine-gifts",
     "/staff-wine-gifts",
     "/corporate-christmas-wine-gifts",
-    "/sign-in",
-    "/account",
-    "/billing/success",
-    "/billing/cancel",
-    "/checkout/success",
-    "/checkout/cancelled",
     "/suppliers",
     "/suppliers/join",
 ]
@@ -2326,6 +2325,404 @@ GUIDES = {
 }
 
 
+GUIDES.update(
+    {
+        "corporate-wine-gifts-under-50": {
+            "title": "Corporate Wine Gifts Under £50",
+            "description": "Plan corporate wine gifts under £50 per person with sensible supplier routes, budget caveats and policy checks.",
+            "h1": "Corporate wine gifts under £50 per person",
+            "intro": "A £50 per person budget can produce a polished corporate wine gift if you keep the brief focused and leave room for VAT, delivery and substitutions.",
+            "audience": [
+                "Sales and account teams sending client thank-yous.",
+                "Office managers planning seasonal staff gifts.",
+                "Businesses that need a credible gift without a luxury budget.",
+            ],
+            "budget": [
+                "£25-£35: single bottle, compact sparkling option or modest wine-plus-snack route.",
+                "£35-£50: better presentation, classic red/white pair, English sparkling alternative or small hamper.",
+                "Confirm whether prices include VAT, delivery, gift notes and packaging before comparing suppliers.",
+            ],
+            "approaches": [
+                "Ask wine merchants for broad-appeal options rather than obscure bottles.",
+                "Use hampers where mixed preferences or presentation matter.",
+                "Keep alcohol-free alternatives in scope for employees and unknown recipients.",
+            ],
+            "avoid": [
+                "Spending the full £50 on product before delivery and VAT are confirmed.",
+                "Assuming bulk orders qualify for the same price as a single website listing.",
+                "Choosing novelty packaging that delays fulfilment.",
+            ],
+            "checklist": [
+                "Confirm recipient count, delivery deadline and budget owner.",
+                "Ask for two or three options within budget including delivery and VAT.",
+                "Request substitution policy, failed-delivery handling and gift note options.",
+                "Check workplace gifting and anti-bribery limits.",
+            ],
+            "faqs": [
+                {"q": "Is £50 enough for a corporate wine gift?", "a": "Yes, for many UK business gifts. The safest route is usually a classic bottle, sparkling alternative or compact hamper with delivery costs confirmed."}
+            ],
+            "cta": "Plan gifts under £50",
+            "cta_url": "/gift-planner",
+            "related": ["corporate-wine-gifts-under-100", "corporate-wine-gifts-uk", "corporate-wine-hampers"],
+            "affiliate": True,
+        },
+        "corporate-wine-gifts-under-100": {
+            "title": "Corporate Wine Gifts Under £100",
+            "description": "A practical guide to corporate wine gifts under £100 per person, including premium routes, supplier questions and delivery checks.",
+            "h1": "Corporate wine gifts under £100 per person",
+            "intro": "A budget up to £100 per recipient gives you more room for polished presentation, stronger supplier service and premium-but-appropriate choices.",
+            "audience": [
+                "Client teams planning priority account gifts.",
+                "Founders thanking partners or referrers.",
+                "Marketing and operations teams comparing premium hampers, Champagne and fine wine merchant routes.",
+            ],
+            "budget": [
+                "£50-£75: strong corporate range for English sparkling, premium hampers or classic mixed wine gifts.",
+                "£75-£100: Champagne route, fine wine merchant gift, larger hamper or presentation-led option.",
+                "Keep a reserve for VAT, delivery, branded inserts and failed-delivery handling.",
+            ],
+            "approaches": [
+                "Use tiering: reserve higher budgets for priority relationships while keeping policy limits visible.",
+                "Ask suppliers for a premium option and a fallback option in case stock changes.",
+                "Consider English sparkling or hampers when Champagne feels too obvious.",
+            ],
+            "avoid": [
+                "Sending a gift that feels excessive for the relationship or policy context.",
+                "Choosing highly specialist wine unless the recipient's taste is known.",
+                "Skipping internal approval for higher-value client gifts.",
+            ],
+            "checklist": [
+                "Confirm gifting limits and procurement approval route.",
+                "Ask suppliers for itemised quotes and delivery assumptions.",
+                "Prepare a recipient CSV with messages and delivery notes.",
+                "Record gift values for internal compliance.",
+            ],
+            "faqs": [
+                {"q": "What should be included in a £100 client wine gift?", "a": "Common routes include Champagne or English sparkling, a polished hamper, a premium red/white pair or a fine wine merchant selection. Confirm fit and policy before ordering."}
+            ],
+            "cta": "Plan premium corporate gifts",
+            "cta_url": "/gift-planner",
+            "related": ["luxury-wine-gifts-for-clients", "corporate-champagne-gifts", "client-gift-policy-checklist"],
+            "affiliate": True,
+        },
+        "luxury-wine-gifts-for-clients": {
+            "title": "Luxury Wine Gifts for Clients",
+            "description": "Plan luxury wine gifts for clients without overclaiming, overstepping policy or relying on unverified supplier availability.",
+            "h1": "Luxury wine gifts for clients",
+            "intro": "Luxury client wine gifts need careful judgement. The gift should feel appropriate, well presented and easy to justify internally, not excessive or awkward.",
+            "audience": [
+                "Senior account teams thanking priority clients.",
+                "Professional services firms arranging partner or referrer gifts.",
+                "Founders sending high-touch thank-yous to investors or strategic partners.",
+            ],
+            "budget": [
+                "£75-£150: premium sparkling, fine wine merchant route or high-quality hamper.",
+                "£150+: specialist fine wine, Champagne or tailored merchant selection where policy allows.",
+                "Always confirm VAT, delivery, age verification and insurance for higher-value shipments.",
+            ],
+            "approaches": [
+                "Use a fine wine merchant or premium gift supplier that understands corporate fulfilment.",
+                "Ask for restrained presentation rather than flashy branding.",
+                "Prepare an internal approval note before ordering higher-value gifts.",
+            ],
+            "avoid": [
+                "Assuming expensive always means more appropriate.",
+                "Sending alcohol to recipients whose policy may prohibit it.",
+                "Using language that implies a gift is intended to influence a decision.",
+            ],
+            "checklist": [
+                "Check gift value thresholds and anti-bribery policy.",
+                "Request itemised supplier quote and substitution rules.",
+                "Confirm recipient suitability and alcohol-free alternatives.",
+                "Keep a clear record of the business reason and recipient list.",
+            ],
+            "faqs": [
+                {"q": "Are luxury wine gifts suitable for clients?", "a": "Sometimes, but only where relationship, policy and recipient suitability support it. A restrained, well-documented approach is safer than a flashy one."}
+            ],
+            "cta": "Plan luxury client gifts",
+            "cta_url": "/gift-planner",
+            "related": ["corporate-wine-gifts-under-100", "client-gift-policy-checklist", "client-thank-you-wine-gifts"],
+            "affiliate": True,
+        },
+        "english-sparkling-corporate-gifts": {
+            "title": "English Sparkling Corporate Gifts",
+            "description": "Use English sparkling wine as a polished UK corporate gift route, with budget bands, supplier questions and suitability reminders.",
+            "h1": "English sparkling wine corporate gifts",
+            "intro": "English sparkling wine can be a strong UK-focused alternative to Champagne for client gifts, staff gifts and celebration moments where alcohol is appropriate.",
+            "audience": [
+                "Teams looking for a UK business gifting angle.",
+                "Client gift buyers comparing sparkling options.",
+                "Event planners pairing tasting packs with a hosted session.",
+            ],
+            "budget": [
+                "£30-£45: practical entry point for many English sparkling gift routes.",
+                "£45-£75: stronger presentation, gift packaging or hamper pairing.",
+                "£75+: premium sparkling hamper or merchant-led selection.",
+            ],
+            "approaches": [
+                "Use English sparkling where the UK provenance is relevant to the business relationship.",
+                "Ask suppliers for gift notes, packaging and bulk delivery support.",
+                "Compare with Champagne, Crémant-style alternatives and alcohol-free sparkling options.",
+            ],
+            "avoid": [
+                "Claiming it is a guaranteed better choice than Champagne.",
+                "Ignoring recipients who do not drink alcohol.",
+                "Assuming all producers can handle corporate bulk delivery.",
+            ],
+            "checklist": [
+                "Confirm minimum order quantities and delivery coverage.",
+                "Ask about current vintage, substitutions and presentation.",
+                "Prepare recipient data in the supplier's preferred format.",
+                "Include alcohol-free sparkling alternatives where appropriate.",
+            ],
+            "faqs": [
+                {"q": "Is English sparkling suitable for corporate gifting?", "a": "It can be a polished option, especially when a UK-focused gift feels appropriate. Suppliers must still confirm availability and delivery."}
+            ],
+            "cta": "Plan sparkling wine gifts",
+            "cta_url": "/gift-planner",
+            "related": ["corporate-champagne-gifts", "corporate-wine-gifts-uk", "corporate-wine-gifts-under-50"],
+            "affiliate": True,
+        },
+        "wine-gifts-for-sales-teams": {
+            "title": "Wine Gifts for Sales Teams",
+            "description": "A practical guide for sales teams sending client wine gifts with approval, budget and supplier briefing in mind.",
+            "h1": "Wine gifts for sales teams to send clients",
+            "intro": "Sales teams often need repeatable gift routes: clear budget bands, consistent messages, recipient data control and enough policy awareness to avoid awkward moments.",
+            "audience": [
+                "Sales teams sending post-renewal or end-of-year client gifts.",
+                "Account managers thanking key contacts after projects.",
+                "Revenue leaders setting a consistent gifting process.",
+            ],
+            "budget": [
+                "£25-£50: useful for broad client thank-you gifting at scale.",
+                "£50-£100: stronger route for priority accounts where policy allows.",
+                "Use tiering carefully and document why recipients sit in each band.",
+            ],
+            "approaches": [
+                "Create a small approved menu of gift routes rather than each salesperson improvising.",
+                "Use neutral, appreciative message copy without sales pressure.",
+                "Ask suppliers for repeatable CSV ordering and delivery reporting.",
+            ],
+            "avoid": [
+                "Sending gifts without checking client acceptance rules.",
+                "Using gifts as leverage around negotiations or renewals.",
+                "Letting inconsistent messages or budgets create internal risk.",
+            ],
+            "checklist": [
+                "Agree recipient tiers and budget bands.",
+                "Collect addresses securely and confirm consent where needed.",
+                "Ask suppliers for delivery reports and failed-delivery process.",
+                "Keep a record for finance and compliance.",
+            ],
+            "faqs": [
+                {"q": "Should sales teams send wine gifts?", "a": "They can where appropriate, but the process should be policy-aware, documented and inclusive of non-alcohol options."}
+            ],
+            "cta": "Plan client gifts",
+            "cta_url": "/gift-planner",
+            "related": ["client-thank-you-wine-gifts", "client-gift-policy-checklist", "corporate-gifting-recipient-csv-template"],
+            "affiliate": True,
+        },
+        "wine-gifts-for-agencies": {
+            "title": "Corporate Wine Gifts for Agencies",
+            "description": "Plan corporate wine gifts for agencies sending client thank-yous, festive gifts or project completion gifts.",
+            "h1": "Corporate wine gifts for agencies",
+            "intro": "Agencies often need gifts that feel creative but still client-safe. The best route is polished, practical and easy for account teams to brief.",
+            "audience": [
+                "Creative, media, digital and PR agencies thanking clients.",
+                "Account teams sending project completion gifts.",
+                "Agency founders planning partner or referral thank-yous.",
+            ],
+            "budget": [
+                "£25-£50: practical thank-you bottle, compact hamper or sparkling alternative.",
+                "£50-£100: stronger presentation or client-tiered gifting.",
+                "Allow extra time and budget for branded inserts if needed.",
+            ],
+            "approaches": [
+                "Use gift notes that thank the client for the project or partnership without sounding promotional.",
+                "Choose presentation-led hampers or sparkling routes for broad appeal.",
+                "Keep a simple approval process for account teams.",
+            ],
+            "avoid": [
+                "Overly quirky bottles that reflect agency taste more than recipient fit.",
+                "Branded packaging that delays fulfilment beyond the deadline.",
+                "Assuming every client contact can accept alcohol.",
+            ],
+            "checklist": [
+                "Confirm client list, messages and budget owner.",
+                "Ask suppliers about gift notes, branding, substitutions and delivery reports.",
+                "Check client gift policies for public sector or regulated clients.",
+                "Offer alcohol-free alternatives where appropriate.",
+            ],
+            "faqs": [
+                {"q": "What wine gifts work well for agencies?", "a": "Sparkling, classic wine hampers and polished gift boxes usually work better than risky novelty choices."}
+            ],
+            "cta": "Plan agency wine gifts",
+            "cta_url": "/gift-planner",
+            "related": ["wine-gifts-for-sales-teams", "client-thank-you-wine-gifts", "christmas-wine-gifts-for-clients"],
+            "affiliate": True,
+        },
+        "wine-gifts-for-law-firms": {
+            "title": "Corporate Wine Gifts for Law Firms",
+            "description": "Plan professional, policy-aware wine gifts for law firms and legal services businesses.",
+            "h1": "Corporate wine gifts for law firms",
+            "intro": "Law firm gifting should be restrained, professional and easy to document. Policy, conflicts and client suitability matter as much as the bottle.",
+            "audience": [
+                "Legal marketing and business development teams.",
+                "Partners thanking referrers, clients or intermediaries.",
+                "Operations teams arranging festive gifting with compliance awareness.",
+            ],
+            "budget": [
+                "£40-£75: polished but controlled range for many professional services gifts.",
+                "£75-£150: priority relationships where policy allows and approval is documented.",
+                "Confirm VAT, delivery and acceptance limits before shortlisting.",
+            ],
+            "approaches": [
+                "Use classic, conservative gift styles and restrained messages.",
+                "Prepare an internal approval summary with recipient, value and business reason.",
+                "Consider hampers or alcohol-free alternatives for uncertain recipients.",
+            ],
+            "avoid": [
+                "Extravagant gifts that could create perception or compliance concerns.",
+                "Sending gifts connected to active decisions or sensitive matters.",
+                "Skipping conflict, bribery or procurement checks.",
+            ],
+            "checklist": [
+                "Check firm and client gifting policy.",
+                "Record gift value, recipient and reason.",
+                "Ask suppliers for itemised quotes and proof of delivery.",
+                "Include alternatives for recipients who do not drink alcohol.",
+            ],
+            "faqs": [
+                {"q": "Can law firms send client wine gifts?", "a": "Often yes, but they should be modest, policy-aware and documented. Client acceptance rules should be checked directly."}
+            ],
+            "cta": "Plan professional services gifts",
+            "cta_url": "/gift-planner",
+            "related": ["client-gift-policy-checklist", "luxury-wine-gifts-for-clients", "corporate-wine-gifts-uk"],
+            "affiliate": True,
+        },
+        "wine-gifts-for-accountancy-firms": {
+            "title": "Corporate Wine Gifts for Accountancy Firms",
+            "description": "A practical guide to corporate wine gifts for accountancy firms, including client tiers, policy checks and supplier briefs.",
+            "h1": "Corporate wine gifts for accountancy firms",
+            "intro": "Accountancy firm gifting works best when it is predictable, appropriate and easy for finance or practice management to approve.",
+            "audience": [
+                "Accountancy practices sending year-end client gifts.",
+                "Partners thanking referrers or long-term clients.",
+                "Practice managers coordinating bulk festive gifting.",
+            ],
+            "budget": [
+                "£25-£50: scalable route for broad client lists.",
+                "£50-£100: stronger option for priority clients and referrers.",
+                "Use clear tiering and keep records for internal review.",
+            ],
+            "approaches": [
+                "Build a repeatable supplier brief for annual gifting.",
+                "Use classic styles, hampers or English sparkling for broad appeal.",
+                "Ask for clean invoices, VAT clarity and delivery reporting.",
+            ],
+            "avoid": [
+                "Unclear recipient lists that lead to duplicate or missed deliveries.",
+                "Leaving address collection until December.",
+                "Overlooking client gift acceptance policies.",
+            ],
+            "checklist": [
+                "Confirm client tiers and approval thresholds.",
+                "Prepare recipient CSV and gift messages.",
+                "Ask suppliers about VAT, delivery charges and failed deliveries.",
+                "Include alcohol-free or non-wine alternatives.",
+            ],
+            "faqs": [
+                {"q": "What wine gifts suit accountancy clients?", "a": "Classic wine gifts, sparkling routes and compact hampers are usually safer than niche bottles. Confirm policy and suitability first."}
+            ],
+            "cta": "Plan accountancy client gifts",
+            "cta_url": "/gift-planner",
+            "related": ["corporate-gifting-recipient-csv-template", "client-gift-policy-checklist", "christmas-wine-gifts-for-clients"],
+            "affiliate": True,
+        },
+        "client-gift-policy-checklist": {
+            "title": "Client Gift Policy Checklist",
+            "description": "Use this client gift policy checklist before sending corporate wine gifts, hampers or tasting invitations.",
+            "h1": "Client gift policy checklist",
+            "intro": "Before ordering wine gifts or event invitations, check the policy context. A small amount of preparation can prevent awkward acceptance, bribery or procurement issues.",
+            "audience": [
+                "Sales, marketing and operations teams sending client gifts.",
+                "Professional services firms with regulated or public sector clients.",
+                "Teams preparing an internal approval note for gift spend.",
+            ],
+            "budget": [
+                "Set a maximum gift value per recipient before choosing suppliers.",
+                "Check whether VAT, delivery and packaging count towards the internal limit.",
+                "Higher-value gifts should have a clearer business reason and approval trail.",
+            ],
+            "approaches": [
+                "Ask whether the recipient organisation publishes gift acceptance rules.",
+                "Record recipient, company, value, occasion and business reason.",
+                "Offer non-alcohol alternatives for recipient suitability and inclusion.",
+            ],
+            "avoid": [
+                "Sending gifts around procurement, renewal or decision points without review.",
+                "Using language that implies the gift is designed to influence business.",
+                "Treating alcohol as the default where suitability is unknown.",
+            ],
+            "checklist": [
+                "Confirm your organisation's gifting, anti-bribery and expenses policies.",
+                "Check client acceptance limits and disclosure requirements.",
+                "Confirm recipient suitability and alcohol-free alternatives.",
+                "Record item value, delivery cost, VAT and supplier details.",
+                "Keep approval notes with the order record.",
+            ],
+            "faqs": [
+                {"q": "Is this legal advice?", "a": "No. This is a practical planning checklist. Use your own legal, procurement or compliance guidance where required."}
+            ],
+            "cta": "Create a policy-aware gift plan",
+            "cta_url": "/gift-planner",
+            "related": ["corporate-gifting-recipient-csv-template", "wine-gifts-for-law-firms", "corporate-wine-gifts-uk"],
+            "affiliate": False,
+        },
+        "corporate-gifting-recipient-csv-template": {
+            "title": "Corporate Gifting Recipient CSV Template",
+            "description": "Plan the recipient data needed for corporate wine gifts, including addresses, messages, delivery notes and suitability fields.",
+            "h1": "Corporate gifting recipient CSV template",
+            "intro": "Clean recipient data is one of the biggest differences between a smooth corporate gift order and a messy one. Prepare the CSV before asking suppliers for final quotes.",
+            "audience": [
+                "Operations teams coordinating bulk gift delivery.",
+                "Sales teams preparing client recipient lists.",
+                "HR teams sending staff gifts with alternative options.",
+            ],
+            "budget": [
+                "A CSV does not set budget, but it helps suppliers price delivery, packaging and substitutions accurately.",
+                "Separate recipient tiers if different budget bands apply.",
+                "Include notes for alcohol-free alternatives so supplier quotes are realistic.",
+            ],
+            "approaches": [
+                "Use columns for name, email, company, address lines, city, postcode, country, gift message and notes.",
+                "Add optional fields for tier, alcohol-free preference, delivery deadline and internal owner.",
+                "Ask suppliers which fields they require before finalising the upload.",
+            ],
+            "avoid": [
+                "Collecting more personal data than needed.",
+                "Mixing unconfirmed addresses with final addresses.",
+                "Sending spreadsheets without access control or privacy checks.",
+            ],
+            "checklist": [
+                "Confirm recipient consent or appropriate business basis for delivery data.",
+                "Validate postcodes and delivery countries.",
+                "Mark VIP, policy-sensitive or alcohol-free recipients clearly.",
+                "Confirm failed-delivery reporting with the supplier.",
+                "Delete or archive data according to your internal privacy process.",
+            ],
+            "faqs": [
+                {"q": "What fields should a recipient CSV include?", "a": "Start with recipient name, company, email, address, postcode, country, gift message and notes. Add tier, deadline and alcohol-free preference where useful."}
+            ],
+            "cta": "Create a gift plan",
+            "cta_url": "/gift-planner",
+            "related": ["client-gift-policy-checklist", "wine-gifts-for-sales-teams", "corporate-wine-gifts-uk"],
+            "affiliate": False,
+        },
+    }
+)
+
+
 SEO_PAGES = {
     "corporate-wine-gifts": {
         "title": "Corporate Wine Gifts",
@@ -2401,24 +2798,146 @@ SEO_PAGES = {
 }
 
 
+def public_site_url(request: Request) -> str:
+    return (os.getenv("APP_BASE_URL") or str(request.base_url)).rstrip("/")
+
+
+def absolute_url(request: Request, path: str) -> str:
+    if not path.startswith("/"):
+        path = f"/{path}"
+    return f"{public_site_url(request)}{path}"
+
+
+def organisation_schema(request: Request) -> dict:
+    return {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": PRODUCT_NAME,
+        "url": public_site_url(request),
+        "description": "Corporate wine gifting and tasting event planning tool",
+        "sameAs": [],
+    }
+
+
+def website_schema(request: Request) -> dict:
+    return {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": PRODUCT_NAME,
+        "url": public_site_url(request),
+        "description": DEFAULT_META_DESCRIPTION,
+    }
+
+
+def web_app_schema(request: Request) -> dict:
+    return {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": PRODUCT_NAME,
+        "url": public_site_url(request),
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Plan UK corporate wine gifts and tasting events with supplier-ready planning outputs.",
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"},
+    }
+
+
+def premium_pack_product_schema(request: Request) -> dict:
+    return {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": "ClientCellar Premium Brief Pack",
+        "description": "One-off supplier-ready corporate gifting or wine tasting planning pack",
+        "brand": {"@type": "Brand", "name": PRODUCT_NAME},
+        "offers": {
+            "@type": "Offer",
+            "price": "29.99",
+            "priceCurrency": "GBP",
+            "availability": "https://schema.org/InStock",
+            "url": absolute_url(request, "/premium-pack"),
+        },
+    }
+
+
+def article_schema(request: Request, guide: dict, slug: str) -> dict:
+    return {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": guide["h1"],
+        "description": guide["description"],
+        "author": {"@type": "Organization", "name": PRODUCT_NAME},
+        "publisher": {"@type": "Organization", "name": PRODUCT_NAME},
+        "mainEntityOfPage": absolute_url(request, f"/guides/{slug}"),
+    }
+
+
+def breadcrumb_schema(request: Request, crumbs: list[tuple[str, str]]) -> dict:
+    return {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": index,
+                "name": name,
+                "item": absolute_url(request, path),
+            }
+            for index, (name, path) in enumerate(crumbs, start=1)
+        ],
+    }
+
+
+def faq_schema(questions: list[dict]) -> dict:
+    return {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": item["q"],
+                "acceptedAnswer": {"@type": "Answer", "text": item["a"]},
+            }
+            for item in questions
+        ],
+    }
+
+
 def render_template(request: Request, template_name: str, status_code: int = 200, **context) -> HTMLResponse:
-    base_url = os.getenv("APP_BASE_URL", "").rstrip("/")
-    canonical_url = f"{base_url}{request.url.path}" if base_url else None
-    context.setdefault("title", "ClientCellar")
-    context.setdefault("description", "Corporate wine gifts and tasting events made simple.")
+    canonical_url = context.get("canonical_url") or absolute_url(request, request.url.path)
+    title = context.get("title") or "ClientCellar"
+    description = context.get("description") or DEFAULT_META_DESCRIPTION
+    page_title = context.get("page_title") or (DEFAULT_PAGE_TITLE if title == "ClientCellar" else f"{title} | {PRODUCT_NAME}")
+    structured_data = [organisation_schema(request), *context.get("structured_data", [])]
+    context.setdefault("title", title)
+    context.setdefault("description", description)
+    context.setdefault("page_title", page_title)
+    context.setdefault("meta_description", context.get("meta_description") or description)
+    context.setdefault("og_title", context.get("og_title") or page_title)
+    context.setdefault("og_description", context.get("og_description") or context["meta_description"])
+    context.setdefault("og_type", context.get("og_type") or "website")
     context.setdefault("product", PRODUCT_NAME)
     context.setdefault("payments_enabled", payments_enabled())
     context.setdefault("canonical_url", canonical_url)
+    context.setdefault("structured_data", structured_data)
+    context.setdefault("noindex", context.get("noindex") or request.url.path.startswith("/admin"))
 
     if not isinstance(template_name, str):
         print("Invalid template_name passed to render_template:", repr(template_name))
         template_name = "message.html"
         context = {
             "title": "Something went wrong",
+            "page_title": f"Something went wrong | {PRODUCT_NAME}",
+            "meta_description": "We could not load this page correctly.",
+            "og_title": f"Something went wrong | {PRODUCT_NAME}",
+            "og_description": "We could not load this page correctly.",
+            "og_type": "website",
             "eyebrow": "Error",
             "body": "We could not load this page correctly. Please try again or contact us.",
             "primary_label": "Return home",
             "primary_href": "/",
+            "structured_data": structured_data,
+            "canonical_url": canonical_url,
+            "noindex": True,
             **context,
         }
 
@@ -2438,9 +2957,16 @@ def render_template(request: Request, template_name: str, status_code: int = 200
             "request": request,
             "title": "Something went wrong",
             "description": "We could not load this page correctly.",
+            "page_title": f"Something went wrong | {PRODUCT_NAME}",
+            "meta_description": "We could not load this page correctly.",
+            "og_title": f"Something went wrong | {PRODUCT_NAME}",
+            "og_description": "We could not load this page correctly.",
+            "og_type": "website",
             "product": PRODUCT_NAME,
             "payments_enabled": payments_enabled(),
             "canonical_url": canonical_url,
+            "structured_data": [organisation_schema(request)],
+            "noindex": True,
             "eyebrow": "Error",
             "body": "We could not load this page correctly. Please try again or contact us.",
             "primary_label": "Return home",
@@ -2481,6 +3007,7 @@ def index(request: Request):
         "index.html",
         "Corporate Wine Gifts and Tasting Events",
         "Plan corporate wine gifts and tasting events with UK budget guidance, supplier options and ready-to-send enquiry emails.",
+        structured_data=[website_schema(request), web_app_schema(request)],
     )
 
 
@@ -2496,7 +3023,13 @@ def event_planner(request: Request):
 
 @app.get("/pricing", response_class=HTMLResponse)
 def pricing(request: Request):
-    return render(request, "pricing.html", "Pricing", "Compare the free ClientCellar planner with the £29.99 Premium Brief Pack.")
+    return render(
+        request,
+        "pricing.html",
+        "Pricing",
+        "Compare the free ClientCellar planner with the £29.99 Premium Brief Pack.",
+        structured_data=[premium_pack_product_schema(request)],
+    )
 
 
 @app.get("/about", response_class=HTMLResponse)
@@ -2555,6 +3088,7 @@ def premium_pack(request: Request):
         "premium_pack.html",
         "Premium Brief Pack",
         "Turn a rough gift or event idea into a supplier-ready brief and internal approval pack.",
+        structured_data=[premium_pack_product_schema(request)],
     )
 
 
@@ -2647,6 +3181,7 @@ def checkout_success(request: Request):
         customer_email=customer_email,
         session_id=session_id,
         hide_account_status=True,
+        noindex=True,
     )
 
 
@@ -2664,6 +3199,7 @@ def checkout_cancelled(request: Request):
         eyebrow="Checkout",
         title="Checkout cancelled",
         description="No payment was taken. You can return to pricing or contact ClientCellar for support.",
+        noindex=True,
     )
 
 
@@ -2684,6 +3220,7 @@ def billing_cancel(request: Request):
         "billing_cancel.html",
         "Payment cancelled",
         "Payment cancelled. Your account is still on the Free plan.",
+        noindex=True,
     )
 
 
@@ -2927,7 +3464,20 @@ def admin_supplier_applications(request: Request):
 
 @app.get("/faq", response_class=HTMLResponse)
 def faq(request: Request):
-    return render(request, "faq.html", "FAQ")
+    questions = [
+        {"q": "Do you sell wine directly?", "a": "No. ClientCellar provides planning guidance and supplier briefing tools. You buy directly from suppliers."},
+        {"q": "Do you check live stock or prices?", "a": "No. We do not check live stock, live prices, delivery slots or supplier availability. The planner tells you what to confirm."},
+        {"q": "What is the Premium Brief Pack?", "a": "A supplier-ready planning document with a full brief, approval note, supplier questions, message bank, risk checklist and decision scorecard."},
+        {"q": "Can I use this for staff gifts?", "a": "Yes. The planner includes staff-friendly prompts, budget awareness and alcohol-free alternative reminders."},
+        {"q": "Can suppliers pay to appear?", "a": "Supplier, referral, affiliate or sponsored placements may be added with clear disclosure. Fit should come before commercial relationship."},
+    ]
+    return render(
+        request,
+        "faq.html",
+        "FAQ",
+        "Plain answers about ClientCellar, corporate wine gifting, suppliers, payments and responsible workplace gifting.",
+        structured_data=[faq_schema(questions)],
+    )
 
 
 @app.get("/contact", response_class=HTMLResponse)
@@ -2957,6 +3507,9 @@ def render_seo_landing(request: Request, slug: str):
         page["description"],
         page=page,
         slug=slug,
+        structured_data=[
+            breadcrumb_schema(request, [("Home", "/"), ("Guides", "/guides"), (page["h1"], f"/{slug}")])
+        ],
     )
 
 
@@ -2981,6 +3534,11 @@ def guide_detail(request: Request, slug: str):
         guide=guide,
         guides=GUIDES,
         slug=slug,
+        og_type="article",
+        structured_data=[
+            article_schema(request, guide, slug),
+            breadcrumb_schema(request, [("Home", "/"), ("Guides", "/guides"), (guide["h1"], f"/guides/{slug}")]),
+        ],
     )
 
 

@@ -3,7 +3,7 @@
 <section class="page-intro">
   <p class="eyebrow">Guides</p>
   <h1>Corporate wine gift and tasting guides</h1>
-  <p>Practical UK buying and planning guides for client gifts, staff gifts, hampers, Champagne routes and corporate tasting events.</p>
+  <p>Practical guides for UK businesses planning client gifts, staff gifts, hampers and tasting events.</p>
   <div class="hero-actions">
     <a class="button primary" href="/gift-planner">Plan corporate gifts</a>
     <a class="button secondary" href="/event-planner">Plan a wine tasting event</a>
@@ -11,18 +11,31 @@
 </section>
 
 <section class="guide-group">
+  {% set corporate_guides = [
+    "corporate-wine-gifts-uk",
+    "corporate-wine-gifts-under-50",
+    "corporate-wine-gifts-under-100",
+    "luxury-wine-gifts-for-clients",
+    "english-sparkling-corporate-gifts",
+    "corporate-champagne-gifts",
+    "corporate-wine-hampers"
+  ] %}
   <div class="section-header section-heading">
-    <p class="eyebrow">Corporate gifts</p>
+    <p class="eyebrow">Corporate gift planning</p>
     <h2>Planning guides for business gifting routes</h2>
   </div>
   <div class="guide-grid">
-    {% for slug, guide in guides.items() %}
-      {% if guide.cta_url == "/gift-planner" and "staff" not in slug and "client-thank-you" not in slug %}
+    {% for slug in corporate_guides %}
+      {% if slug in guides %}
+      {% set guide = guides[slug] %}
       <article class="guide-card">
         <p class="eyebrow">Gift guide</p>
         <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
-        <p>{{ guide.intro }}</p>
-        <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
+        <p>{{ guide.description }}</p>
+        <div class="button-row">
+          <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
+          <a class="text-link" href="{{ guide.cta_url }}">Plan this</a>
+        </div>
       </article>
       {% endif %}
     {% endfor %}
@@ -30,18 +43,31 @@
 </section>
 
 <section class="guide-group">
+  {% set relationship_guides = [
+    "christmas-wine-gifts-for-clients",
+    "client-thank-you-wine-gifts",
+    "wine-gifts-for-sales-teams",
+    "wine-gifts-for-agencies",
+    "wine-gifts-for-law-firms",
+    "wine-gifts-for-accountancy-firms",
+    "staff-wine-gifts"
+  ] %}
   <div class="section-header section-heading">
     <p class="eyebrow">Staff and client gifts</p>
     <h2>Guidance for relationship-specific gifting</h2>
   </div>
   <div class="guide-grid">
-    {% for slug, guide in guides.items() %}
-      {% if guide.cta_url == "/gift-planner" and ("staff" in slug or "client-thank-you" in slug) %}
+    {% for slug in relationship_guides %}
+      {% if slug in guides %}
+      {% set guide = guides[slug] %}
       <article class="guide-card">
         <p class="eyebrow">Gift guide</p>
         <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
-        <p>{{ guide.intro }}</p>
-        <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
+        <p>{{ guide.description }}</p>
+        <div class="button-row">
+          <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
+          <a class="text-link" href="{{ guide.cta_url }}">Plan this</a>
+        </div>
       </article>
       {% endif %}
     {% endfor %}
@@ -49,18 +75,54 @@
 </section>
 
 <section class="guide-group">
+  {% set event_guides = [
+    "virtual-wine-tasting-for-teams",
+    "corporate-wine-tasting-london",
+    "wine-tasting-team-building"
+  ] %}
   <div class="section-header section-heading">
     <p class="eyebrow">Wine tasting events</p>
     <h2>Planning guides for hosted, virtual and in-person tastings</h2>
   </div>
   <div class="guide-grid">
-    {% for slug, guide in guides.items() %}
-      {% if guide.cta_url == "/event-planner" %}
+    {% for slug in event_guides %}
+      {% if slug in guides %}
+      {% set guide = guides[slug] %}
       <article class="guide-card">
         <p class="eyebrow">Event guide</p>
         <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
-        <p>{{ guide.intro }}</p>
-        <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
+        <p>{{ guide.description }}</p>
+        <div class="button-row">
+          <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
+          <a class="text-link" href="{{ guide.cta_url }}">Plan this</a>
+        </div>
+      </article>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<section class="guide-group">
+  {% set planning_guides = [
+    "client-gift-policy-checklist",
+    "corporate-gifting-recipient-csv-template"
+  ] %}
+  <div class="section-header section-heading">
+    <p class="eyebrow">Supplier and premium planning</p>
+    <h2>Checklists before you brief suppliers</h2>
+  </div>
+  <div class="guide-grid">
+    {% for slug in planning_guides %}
+      {% if slug in guides %}
+      {% set guide = guides[slug] %}
+      <article class="guide-card">
+        <p class="eyebrow">Checklist</p>
+        <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
+        <p>{{ guide.description }}</p>
+        <div class="button-row">
+          <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
+          <a class="text-link" href="/premium-pack">View Premium Brief Pack</a>
+        </div>
       </article>
       {% endif %}
     {% endfor %}
