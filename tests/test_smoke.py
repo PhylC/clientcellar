@@ -54,7 +54,7 @@ def test_billing_pages_load():
     assert success.status_code == 200
     assert "Payment received" in success.text
     assert cancel.status_code == 200
-    assert "Payment cancelled" in cancel.text
+    assert "Checkout cancelled" in cancel.text
 
 
 def test_premium_pack_page_loads():
@@ -292,4 +292,4 @@ def test_premium_preview_requires_backend_confirmed_access():
         },
     )
     assert response.status_code == 403
-    assert "Premium features require an account" in response.text
+    assert "Premium Brief Pack features require a completed one-off purchase" in response.text

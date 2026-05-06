@@ -8,7 +8,7 @@
     <p class="small-note">£29.99 one-off. No subscription. Supplier pricing and availability must be confirmed directly.</p>
     <div class="hero-actions">
       {% if payments_enabled %}
-      <button class="button primary" type="button" data-pack-checkout data-pack-type="gift">Create Premium Brief Pack — £29.99</button>
+      <button class="button primary" type="button" data-pack-checkout data-pack-type="gift">Buy Premium Brief Pack — £29.99</button>
       {% else %}
       <a class="button primary" href="/contact?interest=premium-pack">Register interest</a>
       {% endif %}
@@ -94,7 +94,7 @@
 
 <section class="premium-comparison">
   <div class="section-header section-heading">
-    <p class="eyebrow">Free vs Premium</p>
+    <p class="eyebrow">Free Planner vs Premium Brief Pack</p>
     <h2>Useful quick plan or complete brief pack</h2>
   </div>
   <div class="card-grid two">
@@ -142,7 +142,7 @@
     </article>
     <article>
       <h2>What happens after payment?</h2>
-      <p>When Stripe is enabled and payment is verified, ClientCellar opens the paid pack view linked to the checkout token.</p>
+      <p>When Stripe is enabled and payment is verified, ClientCellar opens the Premium Brief Pack view linked to the checkout token.</p>
     </article>
     <article>
       <h2>What if payments are disabled?</h2>
@@ -155,11 +155,11 @@
   <div>
     <p class="eyebrow">Create the documents</p>
     <h2>Ready to move from idea to supplier brief?</h2>
-    <p>Start from a free plan or create a Premium Brief Pack when checkout is enabled.</p>
+    <p>Start from the Free Planner or create a Premium Brief Pack when checkout is enabled.</p>
   </div>
   <div class="hero-actions">
     {% if payments_enabled %}
-    <button class="button primary" type="button" data-pack-checkout data-pack-type="gift">Create Premium Brief Pack — £29.99</button>
+    <button class="button primary" type="button" data-pack-checkout data-pack-type="gift">Buy Premium Brief Pack — £29.99</button>
     {% else %}
     <a class="button primary" href="/contact?interest=premium-pack">Register interest</a>
     {% endif %}

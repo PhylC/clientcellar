@@ -904,7 +904,7 @@ textarea {
   gap: 0.75rem;
 }
 
-.paid-banner {
+.brief-pack-banner {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem 1rem;
@@ -918,7 +918,7 @@ textarea {
   font-weight: 700;
 }
 
-.paid-banner a {
+.brief-pack-banner a {
   color: var(--burgundy);
   font-weight: 900;
 }

@@ -3048,7 +3048,7 @@ def sign_in(request: Request):
         request,
         "sign_in.html",
         "Sign in",
-        "Sign in to ClientCellar to link Premium Brief Pack access to your account.",
+        "Sign in to ClientCellar where checkout details need to be linked to your email.",
         auth_configured=supabase_settings()["configured"],
     )
 
@@ -3064,7 +3064,7 @@ def account(request: Request):
         request,
         "account.html",
         "Account",
-        "View your ClientCellar account and current Premium Brief Pack access.",
+        "View your ClientCellar sign-in details.",
         auth_configured=supabase_settings()["configured"],
     )
 
@@ -3218,8 +3218,8 @@ def billing_cancel(request: Request):
     return render(
         request,
         "billing_cancel.html",
-        "Payment cancelled",
-        "Payment cancelled. Your account is still on the Free plan.",
+        "Checkout cancelled",
+        "Checkout cancelled. No payment was taken.",
         noindex=True,
     )
 
@@ -3754,7 +3754,7 @@ def premium_status(request: Request):
 def premium_pack_preview(req: PremiumPackPreviewRequest):
     raise HTTPException(
         status_code=403,
-        detail="Premium features require an account so we can keep your access linked to you.",
+        detail="Premium Brief Pack features require a completed one-off purchase.",
     )
 
 

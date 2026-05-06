@@ -37,11 +37,11 @@
       <li>Print/save-ready document</li>
     </ul>
     {% if payments_enabled %}
-    <button class="button primary full" type="button" data-pack-checkout data-pack-type="gift">Create Premium Brief Pack — £29.99</button>
+    <button class="button primary full" type="button" data-pack-checkout data-pack-type="gift">Buy Premium Brief Pack — £29.99</button>
     {% else %}
     <a class="button primary full" href="/contact?interest=premium-pack">Register interest</a>
     {% endif %}
-    <p class="small-note">{% if payments_enabled %}Secure Stripe checkout is enabled.{% else %}Payments are currently disabled during MVP testing. Register interest instead.{% endif %}</p>
+    <p class="small-note">{% if payments_enabled %}No subscription. One-off purchase through Stripe checkout.{% else %}Payments are currently disabled during MVP testing. Register interest instead.{% endif %}</p>
   </article>
 </section>
 
@@ -63,7 +63,7 @@
       <h3>Choose Premium Brief Pack if...</h3>
       <p>You need to brief suppliers, compare options, share internally or look organised quickly.</p>
       {% if payments_enabled %}
-      <button class="button primary small" type="button" data-pack-checkout data-pack-type="gift">Create Premium Brief Pack</button>
+      <button class="button primary small" type="button" data-pack-checkout data-pack-type="gift">Buy Premium Brief Pack — £29.99</button>
       {% else %}
       <a class="button primary small" href="/contact?interest=premium-pack">Register interest</a>
       {% endif %}

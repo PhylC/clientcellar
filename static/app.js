@@ -32,7 +32,7 @@ const PREMIUM_TEST_KEYS = [
   "pro",
   "clientcellar_plan",
 ];
-const premiumAccountMessage = "Premium features require an account so we can keep your access linked to you.";
+const premiumAccountMessage = "Premium Brief Pack features require a completed one-off purchase.";
 
 function clearLegacyPremiumTestState() {
   for (const key of PREMIUM_TEST_KEYS) {
@@ -50,7 +50,7 @@ function accountBadgeClass() {
 }
 
 function accountBadgeLabel() {
-  return accountState.isPremium ? "Premium" : "Free";
+  return accountState.isPremium ? "Premium Brief Pack purchased" : "No Premium Brief Pack purchase linked";
 }
 
 function accountDisplayLabel() {
@@ -65,7 +65,7 @@ function mobileAccountActionLinks() {
   if (!accountState.loggedIn) {
     return [
       { label: "Sign in", href: "/sign-in" },
-      { label: "Upgrade", href: "/pricing" },
+      { label: "View pricing", href: "/pricing" },
     ];
   }
   if (accountState.isPremium) {
@@ -75,7 +75,7 @@ function mobileAccountActionLinks() {
     ];
   }
   return [
-    { label: "Upgrade", href: "/pricing" },
+    { label: "View pricing", href: "/pricing" },
     { label: "Account", href: "/account" },
     { label: "Logout", href: "/logout", action: "sign-out" },
   ];
@@ -103,7 +103,7 @@ function desktopAccountHtml(badge) {
   }
   const upgrade = accountState.isPremium
     ? ""
-    : '<a class="account-dropdown-action primary" href="/pricing">Upgrade</a>';
+    : '<a class="account-dropdown-action primary" href="/pricing">Buy Premium Brief Pack</a>';
   return `
     ${badge}
     <details class="account-dropdown">
@@ -116,7 +116,7 @@ function desktopAccountHtml(badge) {
         <p class="account-dropdown-kicker">Signed in as</p>
         <p class="account-dropdown-email">${escapeHtml(accountState.email || "Signed in")}</p>
         <div class="account-dropdown-plan">
-          <span>Current plan</span>
+          <span>Premium Brief Pack</span>
           ${badge}
         </div>
         <div class="account-dropdown-actions">
@@ -130,6 +130,7 @@ function desktopAccountHtml(badge) {
 }
 
 function renderAccountStatus() {
+  // The public header does not render account status for the one-off product flow.
   if (accountState.loading) {
     for (const target of document.querySelectorAll("[data-desktop-account-status], [data-mobile-account-panel], [data-mobile-account-badge]")) {
       target.hidden = true;
@@ -688,7 +689,7 @@ function renderPlan(plan, type) {
       <div class="premium-cta-card">
         <p class="eyebrow">Premium Brief Pack</p>
         <h2>Need to brief suppliers or get sign-off?</h2>
-        <p>Need to brief suppliers or get internal sign-off? Upgrade this recommendation into a Premium Brief Pack with supplier questions, message variants, internal approval note and print/save output.</p>
+        <p>Need to brief suppliers or get internal sign-off? Turn this quick plan into a supplier-ready Premium Brief Pack with supplier questions, message variants, internal approval note, recipient CSV and risk checklist.</p>
         <div class="result-actions">
           <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Create Premium Brief Pack</button>
           <a class="button secondary" href="/contact?interest=${type === "gift" ? "gift-planning" : "event-planning"}">Send enquiry / request help</a>
@@ -793,7 +794,7 @@ async function submitPlan(form, type) {
 
 async function createCheckoutSession(packType, button) {
   const original = button.textContent;
-  button.textContent = "Checking...";
+  button.textContent = "Starting checkout...";
   button.disabled = true;
   const state = plannerState[packType];
   const messageTarget = button.closest(".premium-cta-card")?.querySelector("[data-premium-preview]");
@@ -864,7 +865,7 @@ function downloadCsv(text) {
 }
 
 function bindPlannerForms() {
-  showPaidBanner();
+  showBriefPackBanner();
   for (const form of document.querySelectorAll("[data-plan-form]")) {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -873,10 +874,12 @@ function bindPlannerForms() {
   }
 }
 
-function showPaidBanner() {
-  const banner = document.getElementById("paid-banner");
+function showBriefPackBanner() {
+  const banner = document.getElementById("brief-pack-banner");
   if (!banner) return;
-  banner.hidden = new URLSearchParams(window.location.search).get("paid") !== "true";
+  const params = new URLSearchParams(window.location.search);
+  const isBriefPackFlow = params.get("pack") === "brief" || params.get("paid") === "true";
+  banner.hidden = !isBriefPackFlow;
 }
 
 function renderAccountPage(message = "") {
@@ -885,8 +888,8 @@ function renderAccountPage(message = "") {
   if (!authState.configured) {
     target.innerHTML = `
       <div class="empty-state">
-        <h2>Account login is not configured yet</h2>
-        <p>Add Supabase environment variables to enable sign in. Until then, everyone is treated as Free.</p>
+        <h2>Sign in is not configured yet</h2>
+        <p>Add Supabase environment variables to enable sign in. The Free Planner and one-off checkout flow can still be used where configured.</p>
         <p><a class="button secondary" href="/pricing">View pricing</a></p>
       </div>
     `;
@@ -895,8 +898,8 @@ function renderAccountPage(message = "") {
   if (accountState.loading) {
     target.innerHTML = `
       <div class="empty-state">
-        <h2>Checking account status</h2>
-        <p>We are checking whether this browser has a signed-in ClientCellar account.</p>
+        <h2>Loading sign-in details</h2>
+        <p>We are checking whether this browser is signed in.</p>
       </div>
     `;
     return;
@@ -904,29 +907,26 @@ function renderAccountPage(message = "") {
   if (!accountState.loggedIn) {
     target.innerHTML = `
       <div class="account-summary">
-        <span class="account-badge account-badge-free">Free</span>
         <h2>Not signed in</h2>
-        <p>${escapeHtml(message || "Sign in or create an account so premium access can be linked to you.")}</p>
+        <p>${escapeHtml(message || "You can use the Free Planner without signing in. Sign in is only needed where checkout needs to link details to your email.")}</p>
         <div class="button-row">
           <a class="button primary" href="/sign-in">Sign in</a>
-          <a class="button secondary" href="/pricing">Upgrade</a>
+          <a class="button secondary" href="/pricing">View pricing</a>
         </div>
       </div>
     `;
     return;
   }
-  const badge = `<span class="${accountBadgeClass()}">${accountBadgeLabel()}</span>`;
-  const planText = accountState.isPremium ? "Premium active" : "Free";
-  const upgrade = accountState.isPremium ? "" : '<a class="button primary" href="/pricing">Upgrade</a>';
+  const purchaseText = accountState.isPremium ? "Premium Brief Pack purchased" : "No Premium Brief Pack purchase linked";
+  const buyLink = accountState.isPremium ? "" : '<a class="button primary" href="/pricing">Buy Premium Brief Pack — £29.99</a>';
   target.innerHTML = `
     <div class="account-summary">
-      ${badge}
       <h2>${escapeHtml(accountState.email || "Signed in")}</h2>
       <div class="account-summary-row"><strong>Email</strong><span>${escapeHtml(accountState.email || "Signed in")}</span></div>
-      <div class="account-summary-row"><strong>Current plan</strong><span>${escapeHtml(planText)}</span></div>
-      <div class="account-summary-row"><strong>Payment status</strong><span>${escapeHtml(accountState.subscriptionStatus || "No active premium payment")}</span></div>
+      <div class="account-summary-row"><strong>Premium Brief Pack</strong><span>${escapeHtml(purchaseText)}</span></div>
+      <div class="account-summary-row"><strong>Checkout record</strong><span>${escapeHtml(accountState.subscriptionStatus || "No completed one-off checkout linked here")}</span></div>
       <div class="button-row">
-        ${upgrade}
+        ${buyLink}
         <a class="button secondary" href="/logout" data-auth-action="sign-out">Sign out</a>
       </div>
     </div>
@@ -936,7 +936,7 @@ function renderAccountPage(message = "") {
 function authMessageFromQuery() {
   const params = new URLSearchParams(window.location.search);
   if (params.get("message") === "upgrade") {
-    return "Create an account first so premium can be linked to you.";
+    return "Create an account first if you want checkout details linked to your email.";
   }
   if (params.get("signed_out") === "1") {
     return "You are now signed out.";
@@ -971,7 +971,7 @@ function bindAuthForms() {
 
   loadAuthConfig().then(() => {
     if (!authState.configured) {
-      setStatus("Account login is not configured yet.", true);
+      setStatus("Sign in is not configured yet.", true);
       for (const field of form?.querySelectorAll("input, button") || []) field.disabled = true;
     } else {
       setStatus(authMessageFromQuery());
@@ -1019,18 +1019,17 @@ function bindAuthForms() {
 function renderSignedInAuthCard() {
   const card = document.querySelector("[data-auth-card]");
   if (!card || accountState.loading || !accountState.loggedIn) return;
-  const badge = `<span class="${accountBadgeClass()}">${accountBadgeLabel()}</span>`;
-  const upgrade = accountState.isPremium ? "" : '<a class="button primary" href="/pricing">Upgrade</a>';
+  const purchaseText = accountState.isPremium ? "Premium Brief Pack purchased" : "No Premium Brief Pack purchase linked";
+  const buyLink = accountState.isPremium ? "" : '<a class="button primary" href="/pricing">Buy Premium Brief Pack — £29.99</a>';
   card.innerHTML = `
     <div class="account-summary">
-      ${badge}
-      <h2>Your ClientCellar account</h2>
+      <h2>Your sign-in details</h2>
       <p>${escapeHtml(accountState.email || "Signed in")}</p>
-      <div class="account-summary-row"><strong>Current plan</strong><span>${escapeHtml(accountState.isPremium ? "Premium active" : "Free")}</span></div>
-      <div class="account-summary-row"><strong>Payment status</strong><span>${escapeHtml(accountState.subscriptionStatus || "No active premium payment")}</span></div>
+      <div class="account-summary-row"><strong>Premium Brief Pack</strong><span>${escapeHtml(purchaseText)}</span></div>
+      <div class="account-summary-row"><strong>Checkout record</strong><span>${escapeHtml(accountState.subscriptionStatus || "No completed one-off checkout linked here")}</span></div>
       <div class="button-row">
-        ${upgrade}
-        <a class="button secondary" href="/account">Account</a>
+        ${buyLink}
+        <a class="button secondary" href="/account">Sign-in details</a>
         <a class="button secondary" href="/logout" data-auth-action="sign-out">Sign out</a>
       </div>
     </div>

@@ -90,7 +90,7 @@ SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 ```
 
-The frontend may also read `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` if that naming style is used in deployment. `SUPABASE_SERVICE_ROLE_KEY` is server-side only and is used for Stripe fulfilment/profile updates. If Supabase is not configured, login pages show a clear setup message and all visitors are treated as Free.
+The frontend may also read `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` if that naming style is used in deployment. `SUPABASE_SERVICE_ROLE_KEY` is server-side only and is used for Stripe fulfilment/profile updates. If Supabase is not configured, login pages show a clear setup message and the Free Planner remains available.
 
 Sitemap and production URLs:
 
@@ -122,9 +122,9 @@ Premium Brief Pack:
 - Decision scorecard
 - Print/save-ready document
 
-The app must continue to work with `PAYMENTS_ENABLED=false`. In that mode, Premium CTAs fall back to registering interest.
+The app must continue to work with `PAYMENTS_ENABLED=false`. In that mode, Premium Brief Pack CTAs fall back to registering interest.
 
-Premium status is account-linked. Logged-out users are Free, logged-in users are Free unless the backend/Supabase profile confirms `plan='premium'` or an active/trialling subscription status, and browser storage must never grant premium access.
+ClientCellar currently sells a one-off Premium Brief Pack, not a subscription upgrade. Browser storage and query strings must never grant permanent premium status.
 
 ## Stripe setup
 
@@ -156,7 +156,7 @@ The success page also performs fallback session verification when Stripe is avai
 
 Current fulfilment limitations: Stripe webhook fulfilment is MVP-level, automated PDF generation is not yet implemented, automated email delivery is not yet implemented, supplier quote comparison upload is not yet implemented, and saved account history is not yet implemented. The MVP uses the on-page Premium Brief Pack plus browser print/save.
 
-Stripe checkout supports one-off Premium Brief Pack purchases. If a user is signed in, checkout metadata links the payment to their Supabase profile; if not, the purchase still returns them to the paid pack creation flow. Do not grant premium from browser storage or query strings. Webhook fulfilment can update `profiles.plan`/`profiles.subscription_status` only via the server-side service role key when user metadata exists.
+Stripe checkout supports one-off Premium Brief Pack purchases. If a user is signed in, checkout metadata can link the payment to their Supabase profile; if not, the purchase still returns them to the Premium Brief Pack creation flow. Do not grant premium from browser storage or query strings. Webhook fulfilment can update server-side payment fields only via the service role key when user metadata exists.
 
 ## SEO and conversion strategy
 

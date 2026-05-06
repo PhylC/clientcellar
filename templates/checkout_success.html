@@ -17,20 +17,20 @@
 <section class="card-grid three success-cards">
   {% if payment_verified and pack_token %}
   <article class="success-card">
-    <h2>Open paid pack</h2>
-    <p>Your paid Premium Brief Pack is ready to view. You can also return to the planners to create another supplier-ready brief.</p>
-    <a class="button primary full" href="{{ open_pack_url or ('/premium-pack/view/' ~ pack_token) }}">Open paid pack</a>
+    <h2>Open purchased pack</h2>
+    <p>Your Premium Brief Pack purchased through checkout is ready to view. You can also return to the planners to create another supplier-ready brief.</p>
+    <a class="button primary full" href="{{ open_pack_url or ('/premium-pack/view/' ~ pack_token) }}">Open purchased pack</a>
   </article>
   {% endif %}
   <article class="success-card">
     <h2>Create your Premium Brief Pack</h2>
     <p>Generate a gift plan, then create a supplier-ready brief with budget notes, supplier questions, message variants, risk checklist and print/save output.</p>
-    <a class="button primary full" href="/gift-planner?paid=true">Create gift brief pack</a>
+    <a class="button primary full" href="/gift-planner?pack=brief">Create gift brief pack</a>
   </article>
   <article class="success-card">
     <h2>Create event brief pack</h2>
     <p>Generate an event plan, then create a polished tasting brief with supplier questions, run-of-show notes and suitability checks.</p>
-    <a class="button primary full" href="/event-planner?paid=true">Create event brief pack</a>
+    <a class="button primary full" href="/event-planner?pack=brief">Create event brief pack</a>
   </article>
   <article class="success-card">
     <h2>Need help?</h2>
@@ -42,6 +42,6 @@
 <section class="trust-strip">
   <a href="/premium-pack">View Premium Brief Pack</a>
   <a href="/pricing">Return to pricing</a>
-  <a href="/gift-planner">Continue with free planner</a>
+  <a href="/gift-planner">Return to free planner</a>
 </section>
 {% endblock %}
