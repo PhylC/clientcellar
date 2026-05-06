@@ -10,14 +10,23 @@
   </div>
 </section>
 
+{% if guide.affiliate_disclosure %}
+<section class="trust-strip affiliate-guide-disclosure">
+  {{ guide.affiliate_disclosure }}
+</section>
+{% endif %}
+
 <section class="guide-toc">
   <strong>In this guide</strong>
   <a href="#summary">Quick answer</a>
   <a href="#who">Who it is for</a>
+  {% if guide.best_for %}<a href="#best-for">Best for</a>{% endif %}
   <a href="#budget">Budget guidance</a>
+  {% if guide.considerations %}<a href="#consider">What to consider</a>{% endif %}
   <a href="#approach">Recommended approaches</a>
   <a href="#avoid">What to avoid</a>
   <a href="#checklist">Checklist</a>
+  {% if guide.merchant_links %}<a href="#supplier-links">Supplier links</a>{% endif %}
   {% if guide.faqs %}<a href="#faq">FAQ</a>{% endif %}
 </section>
 
@@ -36,6 +45,15 @@
       </ul>
     </section>
 
+    {% if guide.best_for %}
+    <section id="best-for">
+      <h2>Best for</h2>
+      <ul>
+        {% for item in guide.best_for %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
     <section id="budget">
       <h2>Budget guidance</h2>
       <ul>
@@ -43,6 +61,15 @@
       </ul>
       <p class="small-note">These are planning bands only. Supplier prices, delivery charges, VAT, stock and availability must be confirmed directly.</p>
     </section>
+
+    {% if guide.considerations %}
+    <section id="consider">
+      <h2>What to consider before buying</h2>
+      <ul>
+        {% for item in guide.considerations %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
 
     <section class="guide-cta">
       <h2>Turn this guide into a practical plan</h2>
@@ -77,6 +104,21 @@
         {% for item in guide.checklist %}<li>{{ item }}</li>{% endfor %}
       </ul>
     </section>
+
+    {% if guide.merchant_links %}
+    <section id="supplier-links">
+      <h2>Supplier links to consider</h2>
+      <p>These are ordinary merchant references for research. A link does not mean ClientCellar has a confirmed partnership with that supplier.</p>
+      <div class="card-grid three">
+        {% for merchant in guide.merchant_links %}
+        <article class="mini-card">
+          <h3><a href="{{ merchant.url }}" target="_blank" rel="nofollow sponsored noopener">{{ merchant.name }}</a></h3>
+          <p>{{ merchant.note }}</p>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
 
     {% if guide.faqs %}
     <section id="faq">

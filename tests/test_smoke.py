@@ -84,7 +84,9 @@ def test_commercial_content_routes_load():
         "/contact",
         "/terms",
         "/privacy",
+        "/privacy-policy",
         "/affiliate-disclosure",
+        "/editorial-policy",
         "/corporate-wine-gifts",
         "/corporate-wine-tasting-events",
         "/client-wine-gifts",
@@ -94,6 +96,38 @@ def test_commercial_content_routes_load():
         response = client.get(path)
         assert response.status_code == 200
         assert "404" not in response.text
+
+
+def test_required_affiliate_ready_guides_load():
+    guide_paths = [
+        "/guides/best-client-wine-gifts",
+        "/guides/corporate-wine-gifts-uk",
+        "/guides/best-wine-gifts-under-25",
+        "/guides/best-wine-gifts-under-50",
+        "/guides/best-wine-gifts-under-100",
+        "/guides/champagne-gifts-for-clients",
+        "/guides/red-wine-gifts-for-clients",
+        "/guides/white-wine-gifts-for-clients",
+        "/guides/luxury-wine-hampers-uk",
+        "/guides/wine-gifts-for-christmas",
+        "/guides/wine-gifts-for-thank-you",
+        "/guides/wine-gifts-for-new-business",
+        "/guides/wine-gifts-for-events",
+        "/guides/best-wine-accessories-for-gifts",
+        "/guides/how-much-to-spend-on-client-gifts",
+        "/guides/client-gifting-etiquette-uk",
+        "/guides/food-and-wine-hampers",
+        "/guides/non-alcoholic-client-gifts",
+        "/guides/personalised-wine-gifts",
+        "/guides/wine-gift-baskets-uk",
+    ]
+    for path in guide_paths:
+        response = client.get(path)
+        assert response.status_code == 200
+        assert "ClientCellar may earn a commission" in response.text
+        assert "What to consider before buying" in response.text
+        assert "Best for" in response.text
+        assert "Supplier links to consider" in response.text
 
 
 def test_new_high_intent_guides_load():
@@ -120,8 +154,12 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
     assert response.status_code == 200
     text = response.text
     assert "/guides/corporate-wine-gifts-under-50" in text
+    assert "/guides/best-client-wine-gifts" in text
+    assert "/guides/non-alcoholic-client-gifts" in text
     assert "/guides/corporate-gifting-recipient-csv-template" in text
     assert "/corporate-wine-gifts" in text
+    assert "/privacy-policy" in text
+    assert "/editorial-policy" in text
     assert "/checkout/success" not in text
     assert "/billing/success" not in text
     assert "/admin" not in text
@@ -138,7 +176,7 @@ def test_homepage_has_structured_data_and_conversion_links():
     assert response.status_code == 200
     assert 'application/ld+json' in response.text
     assert "See Premium Brief Pack" in response.text
-    assert "/guides/corporate-wine-gifts-uk" in response.text
+    assert "/guides/best-client-wine-gifts" in response.text
 
 
 def test_account_routes_load():
