@@ -209,7 +209,8 @@ def test_homepage_has_structured_data_and_conversion_links():
     response = client.get("/")
     assert response.status_code == 200
     assert 'application/ld+json' in response.text
-    assert "See Premium Brief Pack" in response.text
+    assert "See how Premium works" in response.text
+    assert "/pricing#premium-brief-pack" in response.text
     assert "/guides/best-client-wine-gifts" in response.text
 
 

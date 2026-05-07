@@ -877,14 +877,12 @@ async function createCheckoutSession(packType, button) {
       return;
     }
     if (messageTarget) {
-      messageTarget.innerHTML = `<p class="small-note">${premiumAccountMessage}</p>`;
+      messageTarget.innerHTML = `<p class="small-note">${escapeHtml(data.message || data.detail || "Checkout could not be started. Your generated plan is still available on this page.")}</p>`;
     }
-    window.location.href = "/contact?interest=premium-pack";
   } catch (error) {
     if (messageTarget) {
-      messageTarget.innerHTML = `<p class="small-note">${premiumAccountMessage}</p>`;
+      messageTarget.innerHTML = `<p class="small-note">Checkout could not be started. Your generated plan is still available on this page.</p>`;
     }
-    window.location.href = "/contact?interest=premium-pack";
   } finally {
     button.textContent = original;
     button.disabled = false;
@@ -1234,6 +1232,10 @@ function bindContactForm() {
   }
   if (interest === "premium-pack-support" && note) {
     note.textContent = "Need help with payment or Premium Brief Pack access? Please include the email used at checkout.";
+    note.hidden = false;
+  }
+  if (interest === "premium-pack" && note) {
+    note.textContent = "Premium Brief Pack enquiries are handled as support requests here. To buy, create a free plan first and upgrade from the generated result.";
     note.hidden = false;
   }
   if (interest === "supplier" && note) {
