@@ -1,151 +1,72 @@
-<file name=premium_pack_view.html path=/Users/phylsion/Desktop/clientcellar/templates>
 {% extends "base.html" %}
 {% block content %}
-<div class="premium-pack-container">
-  <section class="premium-pack-header">
-    <p class="eyebrow">CLIENTCELLAR PREMIUM BRIEF PACK</p>
-    <h1>Supplier-ready gifting brief</h1>
-    <p class="subtitle">A comprehensive overview of your premium gifting strategy.</p>
-    <div class="action-buttons">
-      <button class="button primary">Download PDF</button>
-      <button class="button secondary">Share</button>
-    </div>
-    <div class="prepared-by">Prepared by ClientCellar</div>
-  </section>
-  <section class="executive-summary">
-    <h2>Executive Summary</h2>
-    <p>Here is the executive summary content...</p>
-  </section>
-  <aside class="status-card">
-    <h3>Status</h3>
-    <p>Current status details...</p>
-  </aside>
-</div>
-{% if notice %}
-<div class="notice-banner">{{ notice }}</div>
+<section class="page-intro">
+  <p class="eyebrow">Admin</p>
+  <h1>Supplier applications</h1>
+  {% if not enabled %}
+  <p>Supplier application admin is not enabled.</p>
+  <p class="notice">Set <code>ADMIN_PASSWORD</code> in the environment to enable this MVP admin view.</p>
+  {% elif not authorised %}
+  <p>Enter the admin password to view supplier applications.</p>
+  <form class="planner-form admin-password-form" method="get" action="/admin/supplier-applications">
+    <label>Password
+      <input name="password" type="password" required>
+    </label>
+    <button class="button primary" type="submit">View applications</button>
+  </form>
+  {% else %}
+  <p>Recent supplier applications are shown below. This is MVP protection only and should be replaced before production use at scale.</p>
+  {% endif %}
+</section>
+
+{% if enabled and authorised %}
+<section class="admin-table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>created_at</th>
+        <th>business_name</th>
+        <th>contact_name</th>
+        <th>email</th>
+        <th>phone</th>
+        <th>website</th>
+        <th>supplier_type</th>
+        <th>regions_covered</th>
+        <th>corporate_gifting</th>
+        <th>wine_tasting_events</th>
+        <th>virtual_events</th>
+        <th>bulk_orders</th>
+        <th>personalisation</th>
+        <th>typical_budget_min</th>
+        <th>typical_budget_max</th>
+        <th>message</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for application in applications %}
+      <tr>
+        <td>{{ application.created_at }}</td>
+        <td>{{ application.business_name }}</td>
+        <td>{{ application.contact_name }}</td>
+        <td>{{ application.email }}</td>
+        <td>{{ application.phone or "" }}</td>
+        <td>{% if application.website %}<a href="{{ application.website }}">{{ application.website }}</a>{% endif %}</td>
+        <td>{{ application.supplier_type }}</td>
+        <td>{{ application.regions_covered }}</td>
+        <td>{{ "Yes" if application.corporate_gifting else "No" }}</td>
+        <td>{{ "Yes" if application.wine_tasting_events else "No" }}</td>
+        <td>{{ "Yes" if application.virtual_events else "No" }}</td>
+        <td>{{ "Yes" if application.bulk_orders else "No" }}</td>
+        <td>{{ "Yes" if application.personalisation else "No" }}</td>
+        <td>{{ application.typical_budget_min or "" }}</td>
+        <td>{{ application.typical_budget_max or "" }}</td>
+        <td>{{ application.message or "" }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="16">No supplier applications yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
 {% endif %}
 {% endblock %}
-</file>
-
-<file name=premium_pack_view.css path=/Users/phylsion/Desktop/clientcellar/static/css>
-.premium-pack-container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 0 48px;
-  background-color: #f9f4ec; /* cream background */
-  color: #5b1a18; /* burgundy text */
-  font-family: serif;
-  position: relative;
-  box-sizing: border-box;
-}
-
-.premium-pack-header {
-  padding-top: 24px;
-  padding-bottom: 32px;
-}
-
-.premium-pack-header .eyebrow {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 12px; /* more spacing below eyebrow */
-  color: #7a2b2a; /* slightly lighter burgundy */
-}
-
-.premium-pack-header h1 {
-  font-size: 2.5rem;
-  margin-top: 0;
-  margin-bottom: 20px; /* increased spacing below H1 */
-  font-family: serif;
-  line-height: 1.2;
-}
-
-.premium-pack-header .subtitle {
-  font-size: 1.125rem;
-  margin-top: 0;
-  margin-bottom: 28px; /* added spacing below subtitle */
-  color: #7a2b2a;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 36px; /* spacing before next content */
-}
-
-.prepared-by {
-  font-style: italic;
-  font-size: 0.9rem;
-  color: #7a2b2a;
-  margin-bottom: 40px;
-}
-
-.executive-summary h2 {
-  font-family: serif;
-  font-size: 1.75rem;
-  margin-top: 0;
-  margin-bottom: 16px;
-  color: #5b1a18;
-}
-
-.executive-summary p {
-  margin-top: 0;
-  margin-bottom: 32px;
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-.status-card {
-  position: absolute;
-  top: 48px;
-  right: 48px;
-  width: 280px;
-  background-color: #7a2b2a;
-  color: #f9f4ec;
-  padding: 24px;
-  border-radius: 8px;
-  font-family: serif;
-}
-
-.status-card h3 {
-  margin-top: 0;
-  margin-bottom: 12px;
-  font-size: 1.25rem;
-}
-
-.notice-banner {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 12px 48px;
-  background-color: #fce5e5;
-  border: 1px solid #d96c6c;
-  color: #a12b2b;
-  font-size: 1rem;
-  box-sizing: border-box;
-  font-family: serif;
-  margin-top: 24px;
-  border-radius: 4px;
-}
-
-@media (max-width: 767px) {
-  .premium-pack-container {
-    padding: 0 16px;
-  }
-
-  .status-card {
-    position: static;
-    width: 100%;
-    margin-top: 24px;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .notice-banner {
-    padding: 12px 16px;
-    margin: 16px;
-  }
-}
-</file>
