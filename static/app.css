@@ -952,6 +952,13 @@ textarea {
   margin-top: 0.7rem;
 }
 
+.success-flow {
+  width: min(760px, calc(100% - 2rem));
+  margin: 0 auto 2.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
 .success-card {
   padding: 1.5rem;
   border-radius: 16px;
@@ -959,6 +966,22 @@ textarea {
   border: 1px solid var(--line);
   display: grid;
   gap: 1rem;
+}
+
+.success-card-primary {
+  padding: clamp(1.4rem, 4vw, 2rem);
+  box-shadow: var(--shadow);
+}
+
+.success-state {
+  width: fit-content;
+  margin: 0;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: #f6eee9;
+  color: var(--burgundy);
+  font-weight: 800;
+  font-size: 0.86rem;
 }
 
 .success-card h2 {
@@ -969,6 +992,40 @@ textarea {
 .success-card p {
   margin: 0;
   color: var(--muted);
+}
+
+.success-card .button {
+  margin-top: 0.2rem;
+}
+
+.success-secondary {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.9rem 0.2rem 0;
+}
+
+.success-secondary h2 {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.secondary-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.secondary-link-row a {
+  color: var(--muted);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.secondary-link-row a:hover {
+  color: var(--burgundy);
 }
 
 .premium-doc {

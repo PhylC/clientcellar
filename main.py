@@ -3530,7 +3530,7 @@ def checkout_success(request: Request):
         request,
         "checkout_success.html",
         eyebrow="Billing",
-        title="Payment received",
+        title="Premium Gift Brief Pack unlocked",
         payment_verified=payment_verified,
         pack_token=pack_token,
         open_pack_url=open_pack_url,

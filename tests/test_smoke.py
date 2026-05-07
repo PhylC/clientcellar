@@ -33,13 +33,13 @@ def test_health_endpoint():
 def test_checkout_success_loads_without_session_id():
     response = client.get("/checkout/success")
     assert response.status_code == 200
-    assert "Payment received" in response.text
+    assert "Premium Gift Brief Pack unlocked" in response.text
 
 
 def test_checkout_success_loads_with_fake_session_id():
     response = client.get("/checkout/success?session_id=fake")
     assert response.status_code == 200
-    assert "Payment received" in response.text
+    assert "Premium Gift Brief Pack unlocked" in response.text
 
 
 def test_checkout_cancelled_loads():
@@ -52,7 +52,7 @@ def test_billing_pages_load():
     success = client.get("/billing/success")
     cancel = client.get("/billing/cancel")
     assert success.status_code == 200
-    assert "Payment received" in success.text
+    assert "Premium Gift Brief Pack unlocked" in success.text
     assert cancel.status_code == 200
     assert "Checkout cancelled" in cancel.text
 
