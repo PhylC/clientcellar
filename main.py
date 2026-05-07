@@ -330,6 +330,7 @@ def init_leads_db() -> None:
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
                 pack_token TEXT UNIQUE NOT NULL,
+                access_token TEXT UNIQUE,
                 pack_type TEXT NOT NULL,
                 email TEXT,
                 customer_email TEXT,
@@ -360,6 +361,7 @@ def _ensure_premium_pack_columns(connection: sqlite3.Connection) -> None:
     }
     additional_columns = [
         ("updated_at", "TEXT"),
+        ("access_token", "TEXT"),
         ("customer_email", "TEXT"),
         ("stripe_payment_intent", "TEXT"),
         ("amount_total", "INTEGER"),
@@ -374,6 +376,8 @@ def _ensure_premium_pack_columns(connection: sqlite3.Connection) -> None:
     for column_name, column_type in additional_columns:
         if column_name not in existing_columns:
             connection.execute(f"ALTER TABLE premium_packs ADD COLUMN {column_name} {column_type}")
+    if "access_token" not in existing_columns:
+        connection.execute("UPDATE premium_packs SET access_token = pack_token WHERE access_token IS NULL")
 
 
 def generate_pack_token() -> str:
@@ -402,17 +406,18 @@ def save_premium_pack(
         cursor = connection.execute(
             """
             INSERT INTO premium_packs (
-                created_at, updated_at, pack_token, pack_type, email,
+                created_at, updated_at, pack_token, access_token, pack_type, email,
                 customer_email, payment_status, stripe_session_id,
                 stripe_payment_intent, amount_total, currency,
                 planner_input_json, planner_output_json, premium_preview_json,
                 generated_content_json, title
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 now,
                 now,
+                pack_token,
                 pack_token,
                 pack_type,
                 customer_email,
@@ -438,8 +443,8 @@ def get_premium_pack(pack_token: str) -> dict | None:
     init_leads_db()
     with get_db_connection() as connection:
         cursor = connection.execute(
-            "SELECT * FROM premium_packs WHERE pack_token = ?",
-            (pack_token,)
+            "SELECT * FROM premium_packs WHERE pack_token = ? OR access_token = ?",
+            (pack_token, pack_token)
         )
         row = cursor.fetchone()
         if not row:
@@ -460,6 +465,27 @@ def get_premium_pack(pack_token: str) -> dict | None:
         if pack.get("generated_content_json"):
             pack["generated_content"] = json.loads(pack["generated_content_json"])
         return pack
+
+
+def fetch_paid_premium_packs_by_email(email: str) -> list[dict]:
+    init_leads_db()
+    with get_db_connection() as connection:
+        rows = connection.execute(
+            """
+            SELECT * FROM premium_packs
+            WHERE lower(COALESCE(customer_email, email, '')) = lower(?)
+              AND payment_status = 'paid'
+            ORDER BY created_at DESC
+            """,
+            (email,),
+        ).fetchall()
+    packs = []
+    for row in rows:
+        pack = dict(row)
+        pack["customer_email"] = pack.get("customer_email") or pack.get("email")
+        pack["access_token"] = pack.get("access_token") or pack.get("pack_token")
+        packs.append(pack)
+    return packs
 
 
 def update_premium_pack_payment(
@@ -1256,6 +1282,10 @@ class CheckoutSessionRequest(BaseModel):
     planner_input: dict | None = None
     planner_output: dict | None = None
     premium_preview: dict | None = None
+
+
+class PackAccessRequest(BaseModel):
+    email: EmailStr
 
 
 class LeadRequest(BaseModel):
@@ -2239,6 +2269,25 @@ def build_premium_pack_email(request: Request, customer_email: str | None, pack_
     else:
         print("Premium pack ready email prepared for", customer_email, premium_pack_url)
     return email_payload
+
+
+def send_pack_ready_email(request: Request, pack: dict) -> dict | None:
+    """Server-side saved-pack email helper. TODO: integrate Resend/Postmark/SendGrid."""
+    customer_email = pack.get("customer_email") or pack.get("email")
+    access_token = pack.get("access_token") or pack.get("pack_token")
+    return build_premium_pack_email(request, customer_email, access_token)
+
+
+def send_pack_recovery_email(request: Request, email: str, packs: list[dict]) -> list[dict]:
+    """Prepare recovery emails without revealing pack existence to the browser."""
+    prepared = []
+    for pack in packs:
+        payload = send_pack_ready_email(request, pack)
+        if payload:
+            prepared.append(payload)
+    if not prepared:
+        print("Premium pack recovery requested for email with no paid packs:", email)
+    return prepared
 
 
 GUIDES = {
@@ -3788,8 +3837,8 @@ def checkout_success(request: Request):
                     missing_plan_details = not bool(
                         pack and (pack.get("planner_input") or pack.get("planner_output") or pack.get("premium_preview"))
                     )
-                    if not missing_plan_details:
-                        pack_email = build_premium_pack_email(request, customer_email, pack_token)
+                    if not missing_plan_details and pack:
+                        pack_email = send_pack_ready_email(request, pack)
                 supabase_user_id = stripe_obj_get(metadata, "supabase_user_id")
                 if supabase_user_id:
                     print("Activating premium for Supabase user", supabase_user_id)
@@ -3813,7 +3862,7 @@ def checkout_success(request: Request):
         request,
         "checkout_success.html",
         eyebrow="Billing",
-        title="Premium Gift Brief Pack unlocked",
+        title="Your Premium Brief Pack is saved",
         payment_verified=payment_verified,
         pack_token=pack_token,
         open_pack_url=open_pack_url,
@@ -3950,6 +3999,19 @@ def premium_pack_download_count(pack_token: str):
         raise HTTPException(status_code=403, detail="Payment is required for this Premium Brief Pack.")
     increment_premium_pack_download(pack_token)
     return {"ok": True}
+
+
+@app.post("/api/premium-packs/request-access")
+def request_premium_pack_access(req: PackAccessRequest, request: Request):
+    packs = fetch_paid_premium_packs_by_email(str(req.email))
+    prepared = send_pack_recovery_email(request, str(req.email), packs)
+    response = {
+        "ok": True,
+        "message": "If that email has saved packs, we’ll send a secure access link.",
+    }
+    if os.getenv("CLIENTCELLAR_DEV_ACCESS_LINKS", "").lower() == "true":
+        response["dev_links"] = [item["premium_pack_url"] for item in prepared]
+    return response
 
 
 @app.get("/suppliers", response_class=HTMLResponse)
@@ -4578,9 +4640,6 @@ async def handle_stripe_webhook(request: Request):
     if event_type == "checkout.session.completed":
         payment_status = stripe_obj_get(data_obj, "payment_status")
         supabase_user_id = stripe_obj_get(metadata, "supabase_user_id")
-        if not supabase_user_id:
-            print("Stripe checkout completed without supabase_user_id metadata")
-            return {"received": True}
         if pack_token and payment_status == "paid":
             customer_details = stripe_obj_get(data_obj, "customer_details", {}) or {}
             customer_email = (
@@ -4589,7 +4648,6 @@ async def handle_stripe_webhook(request: Request):
                 or stripe_obj_get(metadata, "email")
             )
             subscription_id = stripe_obj_get(data_obj, "subscription")
-            print("Activating premium for Supabase user", supabase_user_id)
             update_premium_pack_payment(
                 pack_token,
                 "paid",
@@ -4599,17 +4657,23 @@ async def handle_stripe_webhook(request: Request):
                 currency=stripe_obj_get(data_obj, "currency"),
                 customer_email=customer_email,
             )
-            update_supabase_profile_from_payment(
-                supabase_user_id,
-                {
-                    "email": customer_email,
-                    "plan": "premium",
-                    "subscription_status": "active" if subscription_id else "paid_one_off",
-                    "stripe_customer_id": stripe_obj_get(data_obj, "customer"),
-                    "stripe_subscription_id": subscription_id,
-                },
-            )
-            print("Premium activated for Supabase user:", supabase_user_id)
+            pack = get_premium_pack(pack_token)
+            if pack:
+                send_pack_ready_email(request, pack)
+            if supabase_user_id:
+                update_supabase_profile_from_payment(
+                    supabase_user_id,
+                    {
+                        "email": customer_email,
+                        "plan": "premium",
+                        "subscription_status": "active" if subscription_id else "paid_one_off",
+                        "stripe_customer_id": stripe_obj_get(data_obj, "customer"),
+                        "stripe_subscription_id": subscription_id,
+                    },
+                )
+                print("Premium activated for Supabase user:", supabase_user_id)
+            else:
+                print("Saved paid Premium Brief Pack without Supabase user metadata")
         elif not pack_token:
             print("Stripe webhook warning: checkout.session.completed missing pack_token")
             subscription_id = stripe_obj_get(data_obj, "subscription")

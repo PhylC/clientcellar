@@ -33,13 +33,13 @@ def test_health_endpoint():
 def test_checkout_success_loads_without_session_id():
     response = client.get("/checkout/success")
     assert response.status_code == 200
-    assert "Premium Gift Brief Pack unlocked" in response.text
+    assert "Your Premium Brief Pack is saved" in response.text
 
 
 def test_checkout_success_loads_with_fake_session_id():
     response = client.get("/checkout/success?session_id=fake")
     assert response.status_code == 200
-    assert "Premium Gift Brief Pack unlocked" in response.text
+    assert "Your Premium Brief Pack is saved" in response.text
 
 
 def test_checkout_cancelled_loads():
@@ -52,7 +52,7 @@ def test_billing_pages_load():
     success = client.get("/billing/success")
     cancel = client.get("/billing/cancel")
     assert success.status_code == 200
-    assert "Premium Gift Brief Pack unlocked" in success.text
+    assert "Your Premium Brief Pack is saved" in success.text
     assert cancel.status_code == 200
     assert "Checkout cancelled" in cancel.text
 
@@ -66,7 +66,8 @@ def test_premium_pack_page_loads():
 def test_my_packs_page_loads():
     response = client.get("/my-packs")
     assert response.status_code == 200
-    assert "Account access is coming soon" in response.text
+    assert "Find your Premium Brief Packs" in response.text
+    assert "Send access link" in response.text
 
 
 def test_missing_premium_pack_view_loads_friendly_error(tmp_path, monkeypatch):
@@ -96,6 +97,50 @@ def test_paid_premium_pack_view_renders_fallback_content(tmp_path, monkeypatch):
     assert "Recipient / occasion context" in response.text
     assert "Supplier questions" in response.text
     assert "Some planning details were not available" in response.text
+    assert "Saved pack" in response.text
+
+
+def test_pack_access_request_is_generic_and_calls_email_helper(tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(main, "DB_PATH", tmp_path / "clientcellar.db")
+    token = "saved-access-token"
+    main.save_premium_pack(
+        pack_token=token,
+        pack_type="gift",
+        customer_email="buyer@example.com",
+        payment_status="paid",
+        premium_preview={"pack_name": "Saved gift pack", "pack_type": "gift", "executive_summary": "Saved content"},
+    )
+    calls = []
+
+    def fake_send(request, email, packs):
+        calls.append((email, packs))
+        return [{"premium_pack_url": f"https://testserver/premium-pack/view/{token}"}]
+
+    monkeypatch.setattr(main, "send_pack_recovery_email", fake_send)
+
+    response = client.post("/api/premium-packs/request-access", json={"email": "buyer@example.com"})
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "ok": True,
+        "message": "If that email has saved packs, we’ll send a secure access link.",
+    }
+    assert calls[0][0] == "buyer@example.com"
+    assert calls[0][1][0]["pack_token"] == token
+
+
+def test_pack_access_request_does_not_reveal_missing_email(monkeypatch):
+    calls = []
+    monkeypatch.setattr(main, "fetch_paid_premium_packs_by_email", lambda email: [])
+    monkeypatch.setattr(main, "send_pack_recovery_email", lambda request, email, packs: calls.append((email, packs)) or [])
+
+    response = client.post("/api/premium-packs/request-access", json={"email": "missing@example.com"})
+
+    assert response.status_code == 200
+    assert response.json()["message"] == "If that email has saved packs, we’ll send a secure access link."
+    assert "missing" not in response.text
+    assert calls == [("missing@example.com", [])]
 
 
 def test_pricing_page_loads():

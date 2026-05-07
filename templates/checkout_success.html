@@ -2,13 +2,13 @@
 {% block content %}
 <section class="page-intro">
   <p class="eyebrow">Billing</p>
-  <h1>Premium Gift Brief Pack unlocked</h1>
+  <h1>Your Premium Brief Pack is saved</h1>
   {% if verification_error %}
   <p>We could not verify the payment automatically. If payment was taken, contact support.</p>
   {% elif missing_plan_details %}
   <p>We couldn’t find the plan details for this purchase.</p>
   {% elif payment_verified %}
-  <p>Your Premium Brief Pack has been saved.</p>
+  <p>You can download it now or return later using the secure link sent to your email.</p>
   {% elif session_id %}
   <p>Payment successful. Your premium pack is ready to use.</p>
   {% else %}
@@ -26,18 +26,19 @@
     <p class="small-note">If you were charged, your payment is still verified. Create a plan and contact support if your pack does not unlock.</p>
     {% else %}
     <p class="success-state">✓ Payment successful</p>
-    <h2>Open your saved brief pack</h2>
-    <p>Your Premium Brief Pack has been saved with the plan details used at checkout. You can view it now, print/save it and download it again later from the secure link.</p>
+    <h2>Your Premium Brief Pack is saved</h2>
+    <p>You can download it now or return later using the secure link sent to your email.</p>
     {% if payment_verified and pack_token %}
     <p class="small-note">We’ll also email you a secure link so you can download it again later.</p>
     {% endif %}
-    <a class="button primary full" href="{{ open_pack_url if payment_verified and pack_token else '/gift-planner?pack=brief' }}">Open saved Premium Brief Pack</a>
+    <a class="button primary full" href="{{ open_pack_url if payment_verified and pack_token else '/gift-planner?pack=brief' }}">Open Premium Brief Pack</a>
     {% endif %}
   </article>
 
   <div class="success-secondary">
-    <h2>Other tools</h2>
+    <h2>Need it later?</h2>
     <div class="secondary-link-row">
+      <a href="/my-packs">Find my packs</a>
       <a href="/gift-planner">Create another gift plan</a>
       <a href="/event-planner">Plan an event</a>
       <a href="/contact?interest=premium-pack-support">Contact support</a>

@@ -942,6 +942,42 @@ function bindPremiumPackDownloads() {
   });
 }
 
+function bindPackAccessForm() {
+  const form = document.querySelector("[data-pack-access-form]");
+  if (!form) return;
+  const status = form.querySelector("[data-pack-access-status]");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = form.querySelector('button[type="submit"]');
+    const original = button?.textContent || "Send access link";
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Sending...";
+    }
+    if (status) status.textContent = "";
+    try {
+      const response = await fetch("/api/premium-packs/request-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formToJson(form)),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(errorMessageFromResponse(data));
+      if (status) {
+        status.textContent = "Check your email. If that address has saved Premium Brief Packs, we’ll send secure access links shortly.";
+      }
+      form.reset();
+    } catch (error) {
+      if (status) status.textContent = "Please check the email address and try again.";
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = original;
+      }
+    }
+  });
+}
+
 function bindPlannerForms() {
   const message = new URLSearchParams(window.location.search).get("message");
   if (message === "create-plan-first") {
@@ -1297,3 +1333,4 @@ bindContactForm();
 bindSupplierApplicationForm();
 bindLeadForms();
 bindPremiumPackDownloads();
+bindPackAccessForm();
