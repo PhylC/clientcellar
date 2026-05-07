@@ -5,8 +5,10 @@
   <h1>Premium Gift Brief Pack unlocked</h1>
   {% if verification_error %}
   <p>We could not verify the payment automatically. If payment was taken, contact support.</p>
+  {% elif missing_plan_details %}
+  <p>We couldn’t find the plan details for this purchase.</p>
   {% elif payment_verified %}
-  <p>Payment successful. Your premium pack is ready to use.</p>
+  <p>Your Premium Brief Pack has been saved.</p>
   {% elif session_id %}
   <p>Payment successful. Your premium pack is ready to use.</p>
   {% else %}
@@ -16,13 +18,21 @@
 
 <section class="success-flow">
   <article class="success-card success-card-primary">
+    {% if missing_plan_details %}
+    <p class="success-state">✓ Payment verified</p>
+    <h2>Create your plan now</h2>
+    <p>We couldn’t find the plan details for this purchase. Premium Brief Packs are generated from a completed free plan, so create your plan now and contact support if your pack does not unlock.</p>
+    <a class="button primary full" href="/gift-planner?message=create-plan-first">Create your plan now</a>
+    <p class="small-note">If you were charged, your payment is still verified. Create a plan and contact support if your pack does not unlock.</p>
+    {% else %}
     <p class="success-state">✓ Payment successful</p>
-    <h2>Continue your premium brief</h2>
-    <p>Create a supplier-ready gift brief with budget notes, shortlist recommendations, supplier questions, message templates, risk checklist and print/save output.</p>
+    <h2>Open your saved brief pack</h2>
+    <p>Your Premium Brief Pack has been saved with the plan details used at checkout. You can view it now, print/save it and download it again later from the secure link.</p>
     {% if payment_verified and pack_token %}
-    <p class="small-note">Opening your premium pack...</p>
+    <p class="small-note">We’ll also email you a secure link so you can download it again later.</p>
     {% endif %}
-    <a class="button primary full" href="{{ open_pack_url if payment_verified and pack_token else '/gift-planner?pack=brief' }}">Continue to Premium Gift Brief</a>
+    <a class="button primary full" href="{{ open_pack_url if payment_verified and pack_token else '/gift-planner?pack=brief' }}">Open saved Premium Brief Pack</a>
+    {% endif %}
   </article>
 
   <div class="success-secondary">

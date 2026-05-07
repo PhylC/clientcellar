@@ -341,7 +341,11 @@ def init_leads_db() -> None:
                 planner_input_json TEXT,
                 planner_output_json TEXT,
                 premium_preview_json TEXT,
+                generated_content_json TEXT,
+                plan_id TEXT,
+                title TEXT,
                 access_count INTEGER DEFAULT 0,
+                download_count INTEGER DEFAULT 0,
                 last_accessed_at TEXT
             )
             """
@@ -360,7 +364,11 @@ def _ensure_premium_pack_columns(connection: sqlite3.Connection) -> None:
         ("stripe_payment_intent", "TEXT"),
         ("amount_total", "INTEGER"),
         ("currency", "TEXT"),
+        ("generated_content_json", "TEXT"),
+        ("plan_id", "TEXT"),
+        ("title", "TEXT"),
         ("access_count", "INTEGER DEFAULT 0"),
+        ("download_count", "INTEGER DEFAULT 0"),
         ("last_accessed_at", "TEXT"),
     ]
     for column_name, column_type in additional_columns:
@@ -397,9 +405,10 @@ def save_premium_pack(
                 created_at, updated_at, pack_token, pack_type, email,
                 customer_email, payment_status, stripe_session_id,
                 stripe_payment_intent, amount_total, currency,
-                planner_input_json, planner_output_json, premium_preview_json
+                planner_input_json, planner_output_json, premium_preview_json,
+                generated_content_json, title
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 now,
@@ -416,6 +425,8 @@ def save_premium_pack(
                 json.dumps(planner_input) if planner_input else None,
                 json.dumps(planner_output) if planner_output else None,
                 json.dumps(premium_preview) if premium_preview else None,
+                json.dumps(premium_preview) if premium_preview else None,
+                (premium_preview or {}).get("pack_name") if premium_preview else None,
             ),
         )
         connection.commit()
@@ -444,6 +455,10 @@ def get_premium_pack(pack_token: str) -> dict | None:
             pack["planner_output"] = json.loads(pack["planner_output_json"])
         if pack.get("premium_preview_json"):
             pack["premium_preview"] = json.loads(pack["premium_preview_json"])
+        elif pack.get("generated_content_json"):
+            pack["premium_preview"] = json.loads(pack["generated_content_json"])
+        if pack.get("generated_content_json"):
+            pack["generated_content"] = json.loads(pack["generated_content_json"])
         return pack
 
 
@@ -506,6 +521,23 @@ def touch_premium_pack_access(pack_token: str) -> bool:
         return True
 
 
+def increment_premium_pack_download(pack_token: str) -> bool:
+    init_leads_db()
+    with get_db_connection() as connection:
+        now = datetime.utcnow().isoformat() + "Z"
+        connection.execute(
+            """
+            UPDATE premium_packs
+            SET download_count = COALESCE(download_count, 0) + 1,
+                updated_at = ?
+            WHERE pack_token = ?
+            """,
+            (now, pack_token),
+        )
+        connection.commit()
+        return True
+
+
 def update_premium_pack_preview(pack_token: str, premium_preview: dict) -> bool:
     init_leads_db()
     with get_db_connection() as connection:
@@ -513,10 +545,19 @@ def update_premium_pack_preview(pack_token: str, premium_preview: dict) -> bool:
         connection.execute(
             """
             UPDATE premium_packs
-            SET premium_preview_json = ?, updated_at = ?
+            SET premium_preview_json = ?,
+                generated_content_json = ?,
+                title = COALESCE(?, title),
+                updated_at = ?
             WHERE pack_token = ?
             """,
-            (json.dumps(premium_preview), now, pack_token),
+            (
+                json.dumps(premium_preview),
+                json.dumps(premium_preview),
+                premium_preview.get("pack_name"),
+                now,
+                pack_token,
+            ),
         )
         connection.commit()
         return True
@@ -1241,6 +1282,11 @@ class LeadRequest(BaseModel):
         return value
 
 
+def has_generated_plan_payload(req: CheckoutSessionRequest) -> bool:
+    """Checkout must upgrade a generated free plan, not start from a blank purchase."""
+    return bool(req.planner_input and req.planner_output)
+
+
 class SupplierApplicationRequest(BaseModel):
     business_name: str = Field(min_length=1, max_length=180)
     contact_name: str = Field(min_length=1, max_length=160)
@@ -1764,8 +1810,8 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
     output = req.planner_output
     planner_input = req.planner_input
     is_gift = req.pack_type == "gift"
-    count = int(planner_input.get("recipient_count") if is_gift else planner_input.get("attendee_count") or 0)
-    unit_budget = float(planner_input.get("budget_per_recipient") if is_gift else planner_input.get("budget_per_person") or 0)
+    count = int((planner_input.get("recipient_count") if is_gift else planner_input.get("attendee_count")) or 0)
+    unit_budget = float((planner_input.get("budget_per_recipient") if is_gift else planner_input.get("budget_per_person")) or 0)
     planned_spend = count * unit_budget
     contingency = planned_spend * 0.1
     supplier_shortlist = output.get("supplier_shortlist", [])
@@ -1964,6 +2010,235 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
             "disclaimer": DISCLAIMER,
         }
     return maybe_improve_plan(preview, "premium_pack")
+
+
+def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | None = None) -> dict:
+    """Build a complete paid-pack document when saved planner details are unavailable."""
+    is_event = pack_type == "event"
+    pack_label = "event wine brief" if is_event else "gift brief"
+    route = "Corporate wine tasting event provider" if is_event else "Corporate wine gift supplier or premium wine merchant"
+    count_label = "attendee count" if is_event else "recipient count"
+    csv_template = (
+        "attendee_name,email,company,delivery_address,dietary_requirements,alcohol_free_required,accessibility_needs,notes"
+        if is_event
+        else "recipient_name,email,company,address_line_1,address_line_2,city,postcode,country,gift_message,alcohol_free_required,delivery_notes"
+    )
+    email_subject = (
+        "Corporate wine tasting quote request"
+        if is_event
+        else "Corporate gifting quote request"
+    )
+    email_body = (
+        "Hello,\n\n"
+        f"We are preparing a corporate {pack_label} and would like an itemised recommendation and quote.\n\n"
+        "Please include suitable options, budget assumptions, VAT, delivery or venue requirements, lead times, alcohol-free alternatives, substitutions and any minimum order terms.\n\n"
+        "We will confirm final quantities, deadline and delivery details before placing any order or booking.\n\n"
+        "Kind regards"
+    )
+    fallback_note = (
+        "Some planning details were not available, so this pack has been prepared as a supplier-ready starting point. "
+        "Confirm live pricing, stock, delivery and suitability directly with suppliers."
+    )
+    return {
+        "pack_name": "ClientCellar Premium Brief Pack",
+        "pack_type": pack_type,
+        "fallback_note": fallback_note,
+        "executive_summary": (
+            f"{fallback_note} Use this pack to brief suppliers, compare options and prepare a decision-ready internal recommendation."
+        ),
+        "decision_recommendation": {
+            "recommended_route": route,
+            "why": "This route keeps the buying process structured while supplier details, pricing and availability are confirmed directly.",
+            "suits": "UK business gifting, client thank-yous, staff recognition or workplace-appropriate wine planning.",
+            "may_not_suit": "Recipients or workplaces where alcohol is unsuitable, gift limits are strict or international delivery is complex.",
+        },
+        "budget_breakdown": [
+            {"label": "Planning budget", "amount": "To confirm", "note": "Set a per-person or per-recipient budget before requesting quotes."},
+            {"label": "Estimated quantity", "amount": "To confirm", "note": f"Confirm final {count_label} and any alcohol-free alternatives."},
+            {"label": "Delivery / fulfilment", "amount": "TBC", "note": "Ask suppliers to itemise delivery, packaging, VAT and substitutions."},
+            {"label": "Contingency", "amount": "10% suggested", "note": "Allow for failed deliveries, substitutions, extra guests or deadline changes."},
+        ],
+        "supplier_brief": {
+            "Brief type": "Corporate wine tasting event" if is_event else "Corporate wine gift",
+            "Quantity": f"Final {count_label} to be confirmed",
+            "Budget": "Ask supplier for options at sensible budget bands and itemised costs",
+            "Deadline": "To be confirmed before order or booking",
+            "Delivery / location": "UK requirements to be confirmed directly",
+            "Preferences": "Provide known preferences, dietary needs and alcohol-free requirements where relevant",
+            "Quote format": "Itemised quote showing VAT, delivery, lead time, substitutions and cancellation terms",
+        },
+        "supplier_comparison": [
+            {
+                "supplier_type": route,
+                "best_for": "Primary buying route",
+                "budget_fit": "Confirm against agreed budget bands.",
+                "strengths": "Structured corporate enquiry and supplier-ready quote comparison.",
+                "watchouts": "No live stock, price or availability is included.",
+                "questions_to_ask": "Can you meet the quantity, deadline, delivery/location and alcohol-free requirements?",
+            },
+            {
+                "supplier_type": "Corporate hamper supplier",
+                "best_for": "Reducing taste risk and improving presentation",
+                "budget_fit": "Useful when one bottle may feel too narrow.",
+                "strengths": "Can combine wine with food, packaging and gift messaging.",
+                "watchouts": "Check allergens, substitutions, breakage and delivery coverage.",
+                "questions_to_ask": "Can you provide alcohol-free or food-only alternatives for unsuitable recipients?",
+            },
+            {
+                "supplier_type": "Wine retailer or supermarket",
+                "best_for": "Simple orders and clear price points",
+                "budget_fit": "Often useful for early comparison.",
+                "strengths": "Transparent ranges and familiar fulfilment routes.",
+                "watchouts": "May offer less corporate support, personalisation or recipient-list handling.",
+                "questions_to_ask": "Can you support business orders, VAT receipts, multiple addresses and message inserts?",
+            },
+        ],
+        "supplier_enquiry_email": {"subject": email_subject, "body": email_body},
+        "supplier_questions_checklist": [
+            "Can you support the required quantity and deadline?",
+            "What exactly is included in the quoted price?",
+            "Is VAT included or excluded?",
+            "Are delivery, packaging and message inserts included?",
+            "What recipient or attendee data format do you need?",
+            "What substitutions may be made, and how are they approved?",
+            "Can you provide alcohol-free alternatives?",
+            "Can you provide a VAT receipt or itemised invoice?",
+            "What are the cancellation, amendment and failed-delivery terms?",
+        ],
+        "message_variants": [
+            {"tone": "Formal client", "message": "Thank you for your continued partnership. With best wishes from the team."},
+            {"tone": "Warm thank-you", "message": "A small thank-you for your support. We appreciate working with you."},
+            {"tone": "Staff recognition", "message": "Thank you for your hard work and contribution. We hope you enjoy this small token of appreciation."},
+        ],
+        "risk_checklist": [
+            "Check whether alcohol is suitable for every recipient or workplace.",
+            "Consider alcohol-free alternatives.",
+            "Confirm client gift, procurement and anti-bribery policies.",
+            "Confirm supplier pricing, stock, delivery and substitutions directly.",
+            "Check GDPR/data sharing before sending recipient or attendee details.",
+            "Keep written supplier quotes and approval notes.",
+        ],
+        "timeline_action_plan": [
+            "Confirm budget owner, quantity, deadline and suitability requirements.",
+            "Send the supplier-ready enquiry email to 2-3 relevant supplier types.",
+            "Compare quotes using budget, delivery, suitability and admin effort.",
+            "Get internal approval before order or booking.",
+            "Confirm final data, messaging, delivery and substitution policy with the chosen supplier.",
+        ],
+        "internal_approval_note": (
+            f"Approval requested to proceed with a supplier shortlist for a corporate {pack_label}. "
+            "Final supplier choice should be based on itemised quotes, VAT/delivery assumptions, recipient suitability, policy checks and fulfilment confidence."
+        ),
+        "recipient_csv_template": None if is_event else csv_template,
+        "attendee_info_template": csv_template if is_event else None,
+        "internal_update": (
+            f"I have prepared a supplier-ready {pack_label} pack. Next step is to request itemised quotes and compare options for approval."
+        ),
+        "print_note": "Print or save this page as a PDF for internal approval.",
+        "disclaimer": DISCLAIMER,
+    }
+
+
+def normalise_premium_pack_view_preview(pack: dict, preview: dict | None) -> dict:
+    """Ensure the paid pack view always has visible document sections."""
+    pack_type = (preview or {}).get("pack_type") or pack.get("pack_type") or "gift"
+    preview = dict(preview or {})
+    if not preview:
+        preview = make_fallback_premium_pack_preview(pack_type, pack)
+
+    sections = preview.get("sections") or preview.get("document_sections")
+    document_sections = []
+    if isinstance(sections, list):
+        for index, section in enumerate(sections, start=1):
+            if isinstance(section, dict):
+                title = section.get("title") or section.get("heading") or f"Section {index}"
+                content = section.get("content") or section.get("body") or section.get("text")
+                item_list = section.get("items") or section.get("item_list")
+            else:
+                title = f"Section {index}"
+                content = str(section)
+                item_list = None
+            document_sections.append({"title": title, "content": content, "item_list": item_list})
+    elif preview.get("content"):
+        document_sections.append({"title": "Premium Brief Pack", "content": preview.get("content")})
+
+    if not document_sections:
+        supplier_brief = preview.get("supplier_brief") or {}
+        decision = preview.get("decision_recommendation") or {}
+        budget = preview.get("budget_breakdown") or []
+        comparison = preview.get("supplier_comparison") or []
+        questions = preview.get("supplier_questions_checklist") or []
+        messages = preview.get("message_variants") or []
+        risks = preview.get("risk_checklist") or []
+        next_steps = preview.get("timeline_action_plan") or []
+
+        def table_items(mapping: dict) -> list[str]:
+            return [f"{str(key).replace('_', ' ').title()}: {value}" for key, value in mapping.items() if value]
+
+        def budget_items(rows: list[dict]) -> list[str]:
+            return [
+                f"{row.get('label', 'Budget item')}: {row.get('amount', 'TBC')} - {row.get('note', 'Confirm directly.')}"
+                for row in rows
+            ]
+
+        def supplier_items(rows: list[dict]) -> list[str]:
+            return [
+                f"{row.get('supplier_type') or row.get('supplier')}: {row.get('best_for') or row.get('fit')}. {row.get('watchouts') or 'Confirm details directly.'}"
+                for row in rows
+            ]
+
+        def message_items(rows: list[dict]) -> list[str]:
+            return [f"{row.get('tone', 'Message')}: {row.get('message')}" for row in rows if row.get("message")]
+
+        document_sections = [
+            {"title": "Executive summary", "content": preview.get("executive_summary")},
+            {"title": "Recipient / occasion context", "item_list": table_items(supplier_brief)},
+            {"title": "Budget guidance", "item_list": budget_items(budget)},
+            {"title": "Recommended approach", "item_list": table_items(decision)},
+            {"title": "Supplier shortlist", "item_list": supplier_items(comparison)},
+            {"title": "Supplier questions", "item_list": questions},
+            {"title": "Message templates", "item_list": message_items(messages)},
+            {"title": "Risk checklist", "item_list": risks},
+            {"title": "Procurement / finance notes", "content": preview.get("internal_approval_note")},
+            {"title": "Final recommendation", "content": decision.get("why") or preview.get("internal_update")},
+            {"title": "Next steps", "item_list": next_steps},
+        ]
+
+    document_sections = [
+        section for section in document_sections
+        if section.get("content") or section.get("item_list")
+    ]
+    if not document_sections:
+        fallback = make_fallback_premium_pack_preview(pack_type, pack)
+        return normalise_premium_pack_view_preview(pack, fallback)
+
+    preview["document_sections"] = document_sections
+    preview.setdefault("pack_name", "ClientCellar Premium Brief Pack")
+    preview.setdefault("pack_type", pack_type)
+    preview.setdefault("disclaimer", DISCLAIMER)
+    return preview
+
+
+def build_premium_pack_email(request: Request, customer_email: str | None, pack_token: str) -> dict | None:
+    """Prepare the saved-pack email payload. TODO: replace dev logging with email provider send."""
+    if not customer_email:
+        return None
+    premium_pack_url = absolute_url(request, f"/premium-pack/view/{pack_token}")
+    email_payload = {
+        "to": customer_email,
+        "subject": "Your ClientCellar Premium Brief Pack is ready",
+        "body": (
+            "Your Premium Brief Pack is ready to view, save and download.\n\n"
+            f"View your pack:\n{premium_pack_url}\n\n"
+            "If you create more packs later, use the same email address so they can be linked to your account."
+        ),
+        "premium_pack_url": premium_pack_url,
+    }
+    if os.getenv("EMAIL_PROVIDER_ENABLED", "").lower() == "true":
+        print("Premium pack email provider TODO for", customer_email, premium_pack_url)
+    else:
+        print("Premium pack ready email prepared for", customer_email, premium_pack_url)
+    return email_payload
 
 
 GUIDES = {
@@ -3484,6 +3759,8 @@ def checkout_success(request: Request):
     payment_status = None
     verification_error = False
     customer_email = None
+    missing_plan_details = False
+    pack_email = None
 
     if session_id and payments_enabled():
         try:
@@ -3507,6 +3784,12 @@ def checkout_success(request: Request):
                         currency=stripe_obj_get(session, "currency"),
                         customer_email=customer_email,
                     )
+                    pack = get_premium_pack(pack_token)
+                    missing_plan_details = not bool(
+                        pack and (pack.get("planner_input") or pack.get("planner_output") or pack.get("premium_preview"))
+                    )
+                    if not missing_plan_details:
+                        pack_email = build_premium_pack_email(request, customer_email, pack_token)
                 supabase_user_id = stripe_obj_get(metadata, "supabase_user_id")
                 if supabase_user_id:
                     print("Activating premium for Supabase user", supabase_user_id)
@@ -3539,6 +3822,8 @@ def checkout_success(request: Request):
         payment_status=payment_status,
         customer_email=customer_email,
         session_id=session_id,
+        missing_plan_details=missing_plan_details,
+        pack_email=pack_email,
         hide_account_status=True,
         noindex=True,
     )
@@ -3583,6 +3868,17 @@ def billing_cancel(request: Request):
     )
 
 
+@app.get("/my-packs", response_class=HTMLResponse)
+def my_packs(request: Request):
+    return render_template(
+        request,
+        "my_packs.html",
+        title="My packs",
+        description="Find saved ClientCellar Premium Brief Packs.",
+        noindex=True,
+    )
+
+
 @app.get("/premium-pack/view/{pack_token}", response_class=HTMLResponse)
 def premium_pack_view(request: Request, pack_token: str):
     """Serve a premium pack if payment is verified or payments are disabled."""
@@ -3594,10 +3890,10 @@ def premium_pack_view(request: Request, pack_token: str):
             "message.html",
             status_code=404,
             eyebrow="Premium Brief Pack",
-            title="Pack not found",
-            body="The Premium Brief Pack you're looking for wasn't found. Please check the link and try again.",
-            primary_label="Return to Premium Brief Pack",
-            primary_href="/premium-pack",
+            title="We couldn’t find this Premium Brief Pack.",
+            body="The secure pack link may be incomplete or expired. Create a new plan or contact support if you have already paid.",
+            primary_label="Create a new plan",
+            primary_href="/gift-planner",
             secondary_label="Contact support",
             secondary_href="/contact?interest=premium-pack-support",
         )
@@ -3630,6 +3926,7 @@ def premium_pack_view(request: Request, pack_token: str):
         except Exception:
             preview = {}
 
+    preview = normalise_premium_pack_view_preview(pack, preview)
     touch_premium_pack_access(pack_token)
 
     return render_template(
@@ -3642,6 +3939,17 @@ def premium_pack_view(request: Request, pack_token: str):
         planner_output=pack.get("planner_output", {}),
         payment_verified=pack.get("payment_status") == "paid",
     )
+
+
+@app.post("/api/premium-pack/{pack_token}/download")
+def premium_pack_download_count(pack_token: str):
+    pack = get_premium_pack(pack_token)
+    if not pack:
+        raise HTTPException(status_code=404, detail="Premium Brief Pack not found.")
+    if payments_enabled() and pack.get("payment_status") != "paid":
+        raise HTTPException(status_code=403, detail="Payment is required for this Premium Brief Pack.")
+    increment_premium_pack_download(pack_token)
+    return {"ok": True}
 
 
 @app.get("/suppliers", response_class=HTMLResponse)
@@ -4138,15 +4446,34 @@ def premium_pack_preview(req: PremiumPackPreviewRequest):
 
 
 def create_checkout_session_response(req: CheckoutSessionRequest, request: Request):
+    if not has_generated_plan_payload(req):
+        planner_url = "/event-planner?message=create-plan-first" if req.pack_type == "event" else "/gift-planner?message=create-plan-first"
+        return JSONResponse(
+            status_code=400,
+            content={
+                "detail": "Create a free plan first, then you can upgrade it to a Premium Brief Pack.",
+                "redirect_url": planner_url,
+            },
+        )
+
+    auth_header = request.headers.get("authorization", "")
+    access_token = auth_header.removeprefix("Bearer ").strip() if auth_header.lower().startswith("bearer ") else None
+    user = verify_supabase_access_token(access_token)
+    customer_email = str(req.email or (user or {}).get("email") or "") or None
+    if not customer_email:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "detail": "Please enter an email before checkout so we can save your Premium Brief Pack link.",
+                "requires_email": True,
+            },
+        )
+
     if not payments_enabled():
         return {
             "enabled": False,
             "message": "Payments are not enabled yet. Please register interest instead.",
         }
-
-    auth_header = request.headers.get("authorization", "")
-    access_token = auth_header.removeprefix("Bearer ").strip() if auth_header.lower().startswith("bearer ") else None
-    user = verify_supabase_access_token(access_token)
 
     try:
         import stripe
@@ -4157,13 +4484,22 @@ def create_checkout_session_response(req: CheckoutSessionRequest, request: Reque
         }
 
     pack_token = generate_pack_token()
-    customer_email = str(req.email or (user or {}).get("email") or "") or None
+    premium_preview = req.premium_preview
+    if not premium_preview:
+        premium_preview = make_premium_pack_preview(
+            PremiumPackPreviewRequest(
+                pack_type=req.pack_type,
+                planner_input=req.planner_input or {},
+                planner_output=req.planner_output or {},
+            )
+        )
     checkout_metadata = {
         "supabase_user_id": (user or {}).get("id", ""),
         "email": customer_email or "",
         "product": "clientcellar_premium_brief_pack",
         "pack_type": req.pack_type,
         "pack_token": pack_token,
+        "plan_id": pack_token,
     }
     if user:
         print("Creating checkout for Supabase user", user["id"])
@@ -4176,7 +4512,7 @@ def create_checkout_session_response(req: CheckoutSessionRequest, request: Reque
         payment_status="pending",
         planner_input=req.planner_input,
         planner_output=req.planner_output,
-        premium_preview=req.premium_preview,
+        premium_preview=premium_preview,
     )
 
     stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -4186,6 +4522,7 @@ def create_checkout_session_response(req: CheckoutSessionRequest, request: Reque
         "line_items": [{"price": os.getenv("STRIPE_PRICE_ID"), "quantity": 1}],
         "success_url": f"{base_url}/billing/success?session_id={{CHECKOUT_SESSION_ID}}",
         "cancel_url": f"{base_url}/billing/cancel",
+        "client_reference_id": pack_token,
         "metadata": checkout_metadata,
         "payment_intent_data": {
             "metadata": checkout_metadata,

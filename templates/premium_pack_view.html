@@ -8,12 +8,13 @@
     <div class="hero-actions">
       <button class="button primary" type="button" onclick="window.print()">Print / Save as PDF</button>
       <button class="button secondary" type="button" onclick="copyEmail(this)">Copy enquiry email</button>
+      <button class="button secondary" type="button" data-download-pack-text>Download pack text</button>
       <button class="button secondary" type="button" onclick="downloadCSV()">Download CSV</button>
     </div>
   </div>
 </section>
 
-<article class="premium-pack-content premium-doc">
+<article class="premium-pack-content premium-doc" data-premium-pack-document data-pack-token="{{ pack_token }}" data-pack-title="{{ preview.pack_name or 'ClientCellar Premium Brief Pack' }}">
   <header class="premium-doc-header">
     <div>
       <p class="eyebrow">Prepared by ClientCellar</p>
@@ -36,6 +37,53 @@
     </dl>
   </header>
 
+  {% if preview.document_sections %}
+  {% if preview.fallback_note %}
+  <section class="pack-section notice compact-notice">
+    <p>{{ preview.fallback_note }}</p>
+  </section>
+  {% endif %}
+
+  {% for section in preview.document_sections %}
+  <section class="pack-section">
+    <h2>{{ loop.index }}. {{ section.title }}</h2>
+    {% if section.content %}
+    <p>{{ section.content }}</p>
+    {% endif %}
+    {% if section.item_list %}
+    <ul>
+      {% for item in section.item_list %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+  {% endfor %}
+
+  {% if preview.supplier_enquiry_email %}
+  <section class="pack-section">
+    <div class="section-title-row">
+      <h2>Ready-to-send supplier enquiry email</h2>
+      <button class="button secondary small" type="button" onclick="copyEmail(this)">Copy email</button>
+    </div>
+    <div class="email-template">
+      <p><strong>Subject:</strong> {{ preview.supplier_enquiry_email.subject }}</p>
+      <pre id="enquiryEmail">{{ preview.supplier_enquiry_email.body }}</pre>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if preview.recipient_csv_template or preview.attendee_info_template %}
+  <section class="pack-section">
+    <div class="section-title-row">
+      <h2>{% if preview.pack_type == "event" %}Attendee info template{% else %}Recipient CSV template{% endif %}</h2>
+      <button class="button secondary small" type="button" onclick="downloadCSV()">Download CSV</button>
+    </div>
+    <p>Use this template to collate details for supplier delivery or event planning.</p>
+    <pre class="csv-template" id="csvTemplate">{{ preview.recipient_csv_template or preview.attendee_info_template }}</pre>
+  </section>
+  {% endif %}
+  {% else %}
   {% if preview.executive_summary %}
   <section class="pack-section">
     <h2>1. Executive Summary</h2>
@@ -253,6 +301,7 @@
       </table>
     </div>
   </section>
+  {% endif %}
   {% endif %}
 
   {% if preview.disclaimer %}

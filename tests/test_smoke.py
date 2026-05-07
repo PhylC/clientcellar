@@ -63,18 +63,52 @@ def test_premium_pack_page_loads():
     assert "Premium Brief Pack" in response.text
 
 
+def test_my_packs_page_loads():
+    response = client.get("/my-packs")
+    assert response.status_code == 200
+    assert "Account access is coming soon" in response.text
+
+
 def test_missing_premium_pack_view_loads_friendly_error(tmp_path, monkeypatch):
     monkeypatch.setattr(main, "DATA_DIR", tmp_path)
     monkeypatch.setattr(main, "DB_PATH", tmp_path / "clientcellar.db")
     response = client.get("/premium-pack/view/not-a-real-token")
     assert response.status_code == 404
-    assert "Pack not found" in response.text
+    assert "We couldn’t find this Premium Brief Pack." in response.text
+    assert "Create a new plan" in response.text
+
+
+def test_paid_premium_pack_view_renders_fallback_content(tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(main, "DB_PATH", tmp_path / "clientcellar.db")
+    token = "verified-pack-token"
+    main.save_premium_pack(
+        pack_token=token,
+        pack_type="gift",
+        customer_email="buyer@example.com",
+        payment_status="paid",
+    )
+
+    response = client.get(f"/premium-pack/view/{token}")
+
+    assert response.status_code == 200
+    assert "Executive summary" in response.text
+    assert "Recipient / occasion context" in response.text
+    assert "Supplier questions" in response.text
+    assert "Some planning details were not available" in response.text
 
 
 def test_pricing_page_loads():
     response = client.get("/pricing")
     assert response.status_code == 200
     assert "Pricing" in response.text
+
+
+def test_pricing_premium_cta_routes_to_planner_not_checkout():
+    response = client.get("/pricing")
+    assert response.status_code == 200
+    assert "Create free plan to unlock Premium Brief Pack" in response.text
+    assert "data-pack-checkout" not in response.text
 
 
 def test_commercial_content_routes_load():
@@ -239,7 +273,17 @@ def test_premium_status_defaults_to_free():
     assert data["premium"] is False
 
 
-def test_checkout_allows_one_off_purchase_without_login(monkeypatch):
+def test_checkout_blocks_purchase_without_generated_plan(monkeypatch):
+    monkeypatch.setattr(main, "payments_enabled", lambda: True)
+
+    response = client.post("/api/create-checkout-session", json={"pack_type": "gift"})
+
+    assert response.status_code == 400
+    assert response.json()["redirect_url"] == "/gift-planner?message=create-plan-first"
+    assert "Create a free plan first" in response.text
+
+
+def test_checkout_allows_one_off_purchase_without_login_after_plan(monkeypatch):
     captured = {}
 
     class FakeSession:
@@ -261,11 +305,39 @@ def test_checkout_allows_one_off_purchase_without_login(monkeypatch):
     import stripe
     monkeypatch.setattr(stripe.checkout.Session, "create", fake_create)
 
-    response = client.post("/api/create-checkout-session", json={"pack_type": "gift"})
+    response = client.post(
+        "/api/create-checkout-session",
+        json={
+            "pack_type": "gift",
+            "email": "buyer@example.com",
+            "planner_input": {"recipient_count": 10, "budget_per_recipient": 50},
+            "planner_output": {"headline": "Gift plan", "supplier_category": "Wine merchant"},
+        },
+    )
     assert response.status_code == 200
     assert response.json()["url"] == "https://checkout.stripe.test/session"
     assert captured["metadata"]["supabase_user_id"] == ""
+    assert captured["metadata"]["plan_id"] == "pack_no_user"
+    assert captured["client_reference_id"] == "pack_no_user"
     assert captured["payment_intent_data"]["metadata"]["supabase_user_id"] == ""
+
+
+def test_checkout_requires_email_with_generated_plan(monkeypatch):
+    monkeypatch.setattr(main, "payments_enabled", lambda: True)
+    monkeypatch.setattr(main, "verify_supabase_access_token", lambda token: None)
+
+    response = client.post(
+        "/api/create-checkout-session",
+        json={
+            "pack_type": "gift",
+            "planner_input": {"recipient_count": 10, "budget_per_recipient": 50},
+            "planner_output": {"headline": "Gift plan", "supplier_category": "Wine merchant"},
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json()["requires_email"] is True
+    assert "Please enter an email before checkout" in response.text
 
 
 def test_checkout_session_includes_supabase_metadata(monkeypatch):
@@ -293,7 +365,11 @@ def test_checkout_session_includes_supabase_metadata(monkeypatch):
     response = client.post(
         "/api/stripe/create-checkout-session",
         headers={"Authorization": "Bearer valid-token"},
-        json={"pack_type": "gift"},
+        json={
+            "pack_type": "gift",
+            "planner_input": {"recipient_count": 10, "budget_per_recipient": 50},
+            "planner_output": {"headline": "Gift plan", "supplier_category": "Wine merchant"},
+        },
     )
 
     assert response.status_code == 200
@@ -305,6 +381,8 @@ def test_checkout_session_includes_supabase_metadata(monkeypatch):
     assert captured["metadata"]["supabase_user_id"] == "user_123"
     assert captured["metadata"]["email"] == "buyer@example.com"
     assert captured["metadata"]["product"] == "clientcellar_premium_brief_pack"
+    assert captured["metadata"]["plan_id"] == "pack_123"
+    assert captured["client_reference_id"] == "pack_123"
     assert captured["payment_intent_data"]["metadata"]["supabase_user_id"] == "user_123"
     assert captured["payment_intent_data"]["metadata"]["email"] == "buyer@example.com"
     assert captured["payment_intent_data"]["metadata"]["product"] == "clientcellar_premium_brief_pack"

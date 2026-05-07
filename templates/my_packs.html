@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">My packs</p>
+  <h1>Find your Premium Brief Packs</h1>
+  <p>Saved Premium Brief Packs use secure email-linked access links. A dashboard and magic-link sign-in flow are planned so you can view previous gift and event packs from one place.</p>
+</section>
+
+<section class="card-grid two">
+  <article class="card">
+    <h2>Access by secure link</h2>
+    <p>For now, use the secure link sent after purchase to view, save or download your Premium Brief Pack again.</p>
+    <p class="small-note">Account access is coming soon. For now, use the secure link emailed after purchase or contact support.</p>
+    <a class="button primary" href="/contact?interest=premium-pack-support">Contact support</a>
+  </article>
+  <article class="card">
+    <h2>Future dashboard</h2>
+    <p>Later, Supabase magic-link auth can power a My Brief Packs dashboard, saved gift packs, saved event packs, duplicate previous pack and download again.</p>
+    <form class="planner-form" onsubmit="event.preventDefault(); document.getElementById('my-packs-status').textContent = 'Account access is coming soon. For now, use the secure link emailed after purchase or contact support.';">
+      <label>Email address
+        <input type="email" name="email" placeholder="you@company.co.uk" required>
+      </label>
+      <button class="button secondary" type="submit">Send access email</button>
+      <p id="my-packs-status" class="small-note" aria-live="polite"></p>
+    </form>
+  </article>
+</section>
+{% endblock %}

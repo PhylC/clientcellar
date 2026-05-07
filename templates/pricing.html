@@ -35,13 +35,9 @@
       <li>Clear next steps checklist</li>
       <li>Best for real buying decisions</li>
     </ul>
-    <p class="small-note">Create your free plan first, then use the result to build a clearer supplier brief.</p>
-    {% if payments_enabled %}
-    <button class="button primary full" type="button" data-pack-checkout data-pack-type="gift">Buy Premium Brief Pack — £29.99</button>
-    {% else %}
-    <a class="button primary full" href="/contact?interest=premium-pack">Register interest</a>
-    {% endif %}
-    <p class="small-note">{% if payments_enabled %}No subscription. One-off purchase through Stripe checkout.{% else %}Payments are currently disabled during MVP testing. Register interest instead.{% endif %}</p>
+    <p class="small-note">Premium upgrades are generated from your completed plan, so we need your brief details first.</p>
+    <a class="button primary full" href="/gift-planner">Create free plan to unlock Premium Brief Pack</a>
+    <p class="small-note">{% if payments_enabled %}No subscription. One-off purchase through Stripe checkout after your plan is generated.{% else %}Payments are currently disabled during MVP testing. Register interest after creating a free plan.{% endif %}</p>
   </article>
 </section>
 
@@ -62,11 +58,7 @@
     <article class="card">
       <h3>Choose Premium Brief Pack if...</h3>
       <p>You have generated a free plan and need to brief suppliers, compare options, share internally or look organised quickly.</p>
-      {% if payments_enabled %}
-      <button class="button primary small" type="button" data-pack-checkout data-pack-type="gift">Buy Premium Brief Pack — £29.99</button>
-      {% else %}
-      <a class="button primary small" href="/contact?interest=premium-pack">Register interest</a>
-      {% endif %}
+      <a class="button primary small" href="/gift-planner">Create free plan to unlock Premium Brief Pack</a>
     </article>
   </div>
 </section>

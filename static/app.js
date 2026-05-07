@@ -34,6 +34,10 @@ const PREMIUM_TEST_KEYS = [
 ];
 const premiumAccountMessage = "Premium Brief Pack features require a completed one-off purchase.";
 
+function looksLikeEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+}
+
 function clearLegacyPremiumTestState() {
   for (const key of PREMIUM_TEST_KEYS) {
     try {
@@ -103,7 +107,7 @@ function desktopAccountHtml(badge) {
   }
   const upgrade = accountState.isPremium
     ? ""
-    : '<a class="account-dropdown-action primary" href="/pricing">Buy Premium Brief Pack</a>';
+    : '<a class="account-dropdown-action primary" href="/gift-planner">Create free plan first</a>';
   return `
     ${badge}
     <details class="account-dropdown">
@@ -702,7 +706,7 @@ function renderPlan(plan, type) {
           <li>Internal approval summary</li>
         </ul>
         <div class="result-actions">
-          <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Create Premium Brief Pack</button>
+          <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Upgrade this plan to Premium Brief Pack</button>
           <a class="button secondary" href="/contact?interest=${type === "gift" ? "gift-planning" : "event-planning"}">Send enquiry / request help</a>
           <a class="button secondary" href="/suppliers">${type === "gift" ? "View supplier directory" : "View tasting suppliers"}</a>
         </div>
@@ -810,11 +814,34 @@ async function createCheckoutSession(packType, button) {
   button.disabled = true;
   const state = plannerState[packType];
   const messageTarget = button.closest(".premium-cta-card")?.querySelector("[data-premium-preview]");
+  const plannerUrl = packType === "event" ? "/event-planner?message=create-plan-first" : "/gift-planner?message=create-plan-first";
+  if (!state?.input || !state?.output) {
+    if (messageTarget) {
+      messageTarget.innerHTML = `<p class="small-note">Create a free plan first, then you can upgrade it to a Premium Brief Pack.</p>`;
+    }
+    button.textContent = original;
+    button.disabled = false;
+    window.location.href = plannerUrl;
+    return;
+  }
   if (accountState.loading) {
     await checkAccountStatus();
   }
   const session = getAuthSession();
   const accessToken = session?.access_token || accountState.accessToken;
+  let checkoutEmail = accountState.email || "";
+  if (!checkoutEmail) {
+    checkoutEmail = window.prompt("Enter the email address we should use to save your Premium Brief Pack link.") || "";
+  }
+  checkoutEmail = checkoutEmail.trim();
+  if (!looksLikeEmail(checkoutEmail)) {
+    if (messageTarget) {
+      messageTarget.innerHTML = `<p class="small-note">Please enter a valid email so we can save your Premium Brief Pack link.</p>`;
+    }
+    button.textContent = original;
+    button.disabled = false;
+    return;
+  }
   try {
     const headers = { "Content-Type": "application/json" };
     if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
@@ -823,13 +850,23 @@ async function createCheckoutSession(packType, button) {
       headers,
       body: JSON.stringify({
         pack_type: packType,
-        email: accountState.email,
+        email: checkoutEmail,
         auth_user_id: accountState.userId,
         planner_input: state?.input || null,
         planner_output: state?.output || null,
       }),
     });
     const data = await response.json();
+    if (response.status === 400 && data.redirect_url) {
+      window.location.href = data.redirect_url;
+      return;
+    }
+    if (response.status === 400 && data.requires_email) {
+      if (messageTarget) {
+        messageTarget.innerHTML = `<p class="small-note">${escapeHtml(data.detail || "Please enter an email before checkout.")}</p>`;
+      }
+      return;
+    }
     if (data.enabled && (data.url || data.checkout_url)) {
       window.location.href = data.url || data.checkout_url;
       return;
@@ -876,7 +913,49 @@ function downloadCsv(text) {
   URL.revokeObjectURL(url);
 }
 
+async function recordPackDownload(packToken) {
+  if (!packToken) return;
+  try {
+    await fetch(`/api/premium-pack/${encodeURIComponent(packToken)}/download`, { method: "POST" });
+  } catch (error) {
+    // Download tracking is best-effort and should never block the user's file.
+  }
+}
+
+function bindPremiumPackDownloads() {
+  const documentEl = document.querySelector("[data-premium-pack-document]");
+  if (!documentEl) return;
+  const packToken = documentEl.dataset.packToken || "";
+  const title = documentEl.dataset.packTitle || "ClientCellar Premium Brief Pack";
+  const button = document.querySelector("[data-download-pack-text]");
+  if (!button) return;
+  button.addEventListener("click", async () => {
+    const text = documentEl.innerText.trim();
+    const blob = new Blob([`${text}\n`], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "clientcellar-premium-brief-pack"}.txt`;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+    await recordPackDownload(packToken);
+  });
+}
+
 function bindPlannerForms() {
+  const message = new URLSearchParams(window.location.search).get("message");
+  if (message === "create-plan-first") {
+    const hero = document.querySelector(".planner-hero");
+    if (hero) {
+      const notice = document.createElement("div");
+      notice.className = "notice compact-notice";
+      notice.textContent = "Create a free plan first, then you can upgrade it to a Premium Brief Pack.";
+      hero.append(notice);
+    }
+  }
+
   for (const form of document.querySelectorAll("[data-plan-form]")) {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -921,7 +1000,7 @@ function renderAccountPage(message = "") {
     return;
   }
   const purchaseText = accountState.isPremium ? "Premium Brief Pack purchased" : "No Premium Brief Pack purchase linked";
-  const buyLink = accountState.isPremium ? "" : '<a class="button primary" href="/pricing">Buy Premium Brief Pack — £29.99</a>';
+  const buyLink = accountState.isPremium ? "" : '<a class="button primary" href="/gift-planner">Create free plan to unlock Premium Brief Pack</a>';
   target.innerHTML = `
     <div class="account-summary">
       <h2>${escapeHtml(accountState.email || "Signed in")}</h2>
@@ -1023,7 +1102,7 @@ function renderSignedInAuthCard() {
   const card = document.querySelector("[data-auth-card]");
   if (!card || accountState.loading || !accountState.loggedIn) return;
   const purchaseText = accountState.isPremium ? "Premium Brief Pack purchased" : "No Premium Brief Pack purchase linked";
-  const buyLink = accountState.isPremium ? "" : '<a class="button primary" href="/pricing">Buy Premium Brief Pack — £29.99</a>';
+  const buyLink = accountState.isPremium ? "" : '<a class="button primary" href="/gift-planner">Create free plan to unlock Premium Brief Pack</a>';
   card.innerHTML = `
     <div class="account-summary">
       <h2>Your sign-in details</h2>
@@ -1215,3 +1294,4 @@ bindAccountPage();
 bindContactForm();
 bindSupplierApplicationForm();
 bindLeadForms();
+bindPremiumPackDownloads();
