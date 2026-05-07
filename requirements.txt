@@ -8,4 +8,5 @@ email-validator
 openai
 stripe
 supabase
+resend
 pytest

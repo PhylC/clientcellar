@@ -98,6 +98,15 @@ Sitemap and production URLs:
 APP_BASE_URL=https://your-domain.example
 ```
 
+Transactional email uses Resend for saved Premium Brief Pack links:
+
+```bash
+RESEND_API_KEY=
+EMAIL_FROM="ClientCellar <hello@clientcellar.co.uk>"
+```
+
+The sending domain, for example `clientcellar.co.uk`, must be verified in the Resend dashboard before production delivery. If `RESEND_API_KEY` is missing, the app logs the intended email server-side and keeps checkout/recovery flows working.
+
 ## Monetisation model
 
 The current monetisation model is a one-off Premium Brief Pack at £29.99.
@@ -259,6 +268,16 @@ Check desktop around 1200px, tablet around 900px and mobile around 390px:
 ## Tests
 
 Basic smoke tests live in `tests/test_smoke.py`.
+
+Premium pack email smoke checklist:
+
+- Buy Premium Brief Pack from a generated free plan.
+- Receive “Your ClientCellar Premium Brief Pack is ready”.
+- Open the secure pack link.
+- Visit `/my-packs`.
+- Request an access link with the checkout email.
+- Receive “Your ClientCellar Premium Brief Packs”.
+- Confirm links open saved Premium Brief Packs.
 
 ```bash
 pytest

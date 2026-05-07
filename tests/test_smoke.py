@@ -113,11 +113,12 @@ def test_pack_access_request_is_generic_and_calls_email_helper(tmp_path, monkeyp
     )
     calls = []
 
-    def fake_send(request, email, packs):
-        calls.append((email, packs))
-        return [{"premium_pack_url": f"https://testserver/premium-pack/view/{token}"}]
+    def fake_send_email(recipient_email, subject, text_body, html_body=None):
+        calls.append((recipient_email, subject, text_body))
+        return {"sent": True, "id": "email_123"}
 
-    monkeypatch.setattr(main, "send_pack_recovery_email", fake_send)
+    monkeypatch.setattr(main, "send_email", fake_send_email)
+    monkeypatch.setattr(main, "PACK_ACCESS_REQUEST_COUNTS", {})
 
     response = client.post("/api/premium-packs/request-access", json={"email": "buyer@example.com"})
 
@@ -127,7 +128,9 @@ def test_pack_access_request_is_generic_and_calls_email_helper(tmp_path, monkeyp
         "message": "If that email has saved packs, we’ll send a secure access link.",
     }
     assert calls[0][0] == "buyer@example.com"
-    assert calls[0][1][0]["pack_token"] == token
+    assert calls[0][1] == "Your ClientCellar Premium Brief Packs"
+    assert f"/premium-pack/view/{token}" in calls[0][2]
+    assert token not in response.text
 
 
 def test_pack_access_request_does_not_reveal_missing_email(monkeypatch):
@@ -141,6 +144,29 @@ def test_pack_access_request_does_not_reveal_missing_email(monkeypatch):
     assert response.json()["message"] == "If that email has saved packs, we’ll send a secure access link."
     assert "missing" not in response.text
     assert calls == [("missing@example.com", [])]
+
+
+def test_pack_ready_email_uses_resend_helper():
+    calls = []
+
+    def fake_send_email(recipient_email, subject, text_body, html_body=None):
+        calls.append((recipient_email, subject, text_body))
+        return {"sent": True, "id": "email_ready"}
+
+    original = main.send_email
+    main.send_email = fake_send_email
+    try:
+        class DummyRequest:
+            base_url = "https://clientcellar.test/"
+
+        payload = main.build_premium_pack_email(DummyRequest(), "buyer@example.com", "secure-token")
+    finally:
+        main.send_email = original
+
+    assert payload["send_result"]["sent"] is True
+    assert calls[0][0] == "buyer@example.com"
+    assert calls[0][1] == "Your ClientCellar Premium Brief Pack is ready"
+    assert "/premium-pack/view/secure-token" in calls[0][2]
 
 
 def test_pricing_page_loads():

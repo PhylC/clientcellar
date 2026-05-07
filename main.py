@@ -31,6 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 DB_PATH = DATA_DIR / "clientcellar.db"
 OPENAI_ENABLED = bool(os.getenv("OPENAI_API_KEY"))
+PACK_ACCESS_REQUEST_COUNTS: dict[str, int] = {}
 CSV_TEMPLATE = (
     "recipient_name,email,company,address_line_1,address_line_2,city,postcode,"
     "country,gift_message,notes"
@@ -2249,25 +2250,67 @@ def normalise_premium_pack_view_preview(pack: dict, preview: dict | None) -> dic
     return preview
 
 
+def render_email_html(text_body: str) -> str:
+    paragraphs = "".join(
+        f"<p>{line}</p>" if line else "<br>"
+        for line in text_body.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").split("\n")
+    )
+    return f"""
+    <div style="font-family:Arial,sans-serif;line-height:1.5;color:#241713">
+      {paragraphs}
+    </div>
+    """
+
+
+def send_email(recipient_email: str, subject: str, text_body: str, html_body: str | None = None) -> dict:
+    """Send transactional email with Resend. Requires verified sending domain in Resend dashboard."""
+    from_email = os.getenv("EMAIL_FROM", "ClientCellar <hello@clientcellar.co.uk>")
+    resend_api_key = os.getenv("RESEND_API_KEY")
+    if not resend_api_key:
+        print("Resend not configured; email prepared for", recipient_email, "subject:", subject)
+        return {"sent": False, "provider": "resend", "reason": "missing_api_key"}
+
+    try:
+        import resend
+        resend.api_key = resend_api_key
+        response = resend.Emails.send(
+            {
+                "from": from_email,
+                "to": [recipient_email],
+                "subject": subject,
+                "html": html_body or render_email_html(text_body),
+                "text": text_body,
+            }
+        )
+        response_id = response.get("id") if isinstance(response, dict) else getattr(response, "id", None)
+        if os.getenv("ENV", "").lower() != "production":
+            print("Resend email sent to", recipient_email, "id:", response_id)
+        return {"sent": True, "provider": "resend", "id": response_id}
+    except Exception as exc:
+        print("Resend email failed for", recipient_email, "error:", repr(exc))
+        return {"sent": False, "provider": "resend", "error": str(exc)}
+
+
 def build_premium_pack_email(request: Request, customer_email: str | None, pack_token: str) -> dict | None:
-    """Prepare the saved-pack email payload. TODO: replace dev logging with email provider send."""
+    """Send/prepare the post-payment saved-pack email."""
     if not customer_email:
         return None
     premium_pack_url = absolute_url(request, f"/premium-pack/view/{pack_token}")
+    subject = "Your ClientCellar Premium Brief Pack is ready"
+    body = (
+        "Your Premium Brief Pack is ready to view and download.\n\n"
+        f"Open your pack:\n{premium_pack_url}\n\n"
+        "Keep this email safe — it lets you return to your saved pack later.\n\n"
+        "You can also use My packs on ClientCellar to request your secure link again."
+    )
+    send_result = send_email(customer_email, subject, body)
     email_payload = {
         "to": customer_email,
-        "subject": "Your ClientCellar Premium Brief Pack is ready",
-        "body": (
-            "Your Premium Brief Pack is ready to view, save and download.\n\n"
-            f"View your pack:\n{premium_pack_url}\n\n"
-            "If you create more packs later, use the same email address so they can be linked to your account."
-        ),
+        "subject": subject,
+        "body": body,
         "premium_pack_url": premium_pack_url,
+        "send_result": send_result,
     }
-    if os.getenv("EMAIL_PROVIDER_ENABLED", "").lower() == "true":
-        print("Premium pack email provider TODO for", customer_email, premium_pack_url)
-    else:
-        print("Premium pack ready email prepared for", customer_email, premium_pack_url)
     return email_payload
 
 
@@ -2279,15 +2322,43 @@ def send_pack_ready_email(request: Request, pack: dict) -> dict | None:
 
 
 def send_pack_recovery_email(request: Request, email: str, packs: list[dict]) -> list[dict]:
-    """Prepare recovery emails without revealing pack existence to the browser."""
+    """Send recovery email without revealing pack existence to the browser."""
     prepared = []
     for pack in packs:
-        payload = send_pack_ready_email(request, pack)
-        if payload:
-            prepared.append(payload)
+        access_token = pack.get("access_token") or pack.get("pack_token")
+        prepared.append(
+            {
+                "title": pack.get("title") or "Premium Brief Pack",
+                "premium_pack_url": absolute_url(request, f"/premium-pack/view/{access_token}"),
+            }
+        )
+    if prepared:
+        lines = [
+            "Your saved Premium Brief Packs are ready to access.",
+            "",
+            *[
+                f"- {item['title']}\n  {item['premium_pack_url']}"
+                for item in prepared
+            ],
+            "",
+            "Keep these links secure.",
+            "",
+            "If you did not request this email, you can ignore it.",
+        ]
+        result = send_email(email, "Your ClientCellar Premium Brief Packs", "\n".join(lines))
+        if os.getenv("ENV", "").lower() != "production":
+            print("Pack recovery email prepared for", email, "pack count:", len(prepared), "send result:", result)
     if not prepared:
         print("Premium pack recovery requested for email with no paid packs:", email)
     return prepared
+
+
+def allow_pack_access_request(email: str) -> bool:
+    """Lightweight process-local throttle for recovery requests; replace with durable rate limiting later."""
+    key = email.lower().strip()
+    count = PACK_ACCESS_REQUEST_COUNTS.get(key, 0) + 1
+    PACK_ACCESS_REQUEST_COUNTS[key] = count
+    return count <= 5
 
 
 GUIDES = {
@@ -4003,8 +4074,13 @@ def premium_pack_download_count(pack_token: str):
 
 @app.post("/api/premium-packs/request-access")
 def request_premium_pack_access(req: PackAccessRequest, request: Request):
-    packs = fetch_paid_premium_packs_by_email(str(req.email))
-    prepared = send_pack_recovery_email(request, str(req.email), packs)
+    email = str(req.email)
+    prepared = []
+    if allow_pack_access_request(email):
+        packs = fetch_paid_premium_packs_by_email(email)
+        prepared = send_pack_recovery_email(request, email, packs)
+    else:
+        print("Premium pack recovery throttled for", email)
     response = {
         "ok": True,
         "message": "If that email has saved packs, we’ll send a secure access link.",
