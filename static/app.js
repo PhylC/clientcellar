@@ -688,13 +688,14 @@ function renderPlan(plan, type) {
       </div>
       <div class="premium-cta-card">
         <p class="eyebrow">Premium Brief Pack</p>
-        <h2>Need to brief suppliers or get sign-off?</h2>
-        <p>Need to brief suppliers or get internal sign-off? Turn this quick plan into a supplier-ready Premium Brief Pack with supplier questions, message variants, internal approval note, recipient CSV and risk checklist.</p>
+        <h2>Ready to turn this into a supplier brief?</h2>
+        <p>Upgrade this free plan into a Premium Brief Pack: a cleaner buying brief, supplier enquiry email and decision-ready recommendation summary.</p>
         <div class="result-actions">
           <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Create Premium Brief Pack</button>
           <a class="button secondary" href="/contact?interest=${type === "gift" ? "gift-planning" : "event-planning"}">Send enquiry / request help</a>
           <a class="button secondary" href="/suppliers">${type === "gift" ? "View supplier directory" : "View tasting suppliers"}</a>
         </div>
+        <p class="small-note">Best for teams who need to send a clear request to suppliers or get internal approval.</p>
         <div data-premium-preview></div>
       </div>
       ${renderLeadForm(type === "gift" ? "gifts" : "events", `${type}-planner-results`, type)}
@@ -865,21 +866,12 @@ function downloadCsv(text) {
 }
 
 function bindPlannerForms() {
-  showBriefPackBanner();
   for (const form of document.querySelectorAll("[data-plan-form]")) {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       submitPlan(form, form.dataset.planForm);
     });
   }
-}
-
-function showBriefPackBanner() {
-  const banner = document.getElementById("brief-pack-banner");
-  if (!banner) return;
-  const params = new URLSearchParams(window.location.search);
-  const isBriefPackFlow = params.get("pack") === "brief" || params.get("paid") === "true";
-  banner.hidden = !isBriefPackFlow;
 }
 
 function renderAccountPage(message = "") {
