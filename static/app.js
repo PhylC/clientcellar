@@ -505,60 +505,63 @@ function renderPremiumPreview(preview, type) {
         ${renderKeyValueTable(preview.decision_recommendation)}
       </section>
       <section class="result-block">
-        <h3>3. Budget breakdown</h3>
-        ${renderBudgetRows(preview.budget_breakdown)}
-      </section>
-      <section class="result-block">
-        <h3>4. Supplier brief</h3>
-        ${renderKeyValueTable(preview.supplier_brief)}
-      </section>
-      <section class="result-block">
-        <h3>5. Supplier comparison matrix</h3>
+        <h3>3. Recommended buying route</h3>
         ${renderPremiumComparison(preview.supplier_comparison)}
       </section>
       <section class="result-block">
-        <h3>6. Ready-to-send supplier enquiry email</h3>
+        <h3>4. Budget breakdown</h3>
+        ${renderBudgetRows(preview.budget_breakdown)}
+      </section>
+      <section class="result-block">
+        <h3>5. Supplier-ready brief</h3>
+        <button class="button secondary small" type="button" data-copy-target="[data-supplier-ready-brief]">Copy brief</button>
+        <div data-supplier-ready-brief>
+          ${renderKeyValueTable(preview.supplier_brief)}
+        </div>
+      </section>
+      <section class="result-block">
+        <h3>6. Supplier enquiry email</h3>
         <button class="button secondary small" type="button" data-copy-target="[data-preview-email]">Copy email</button>
         <pre class="email-preview" data-preview-email>${escapeHtml(email)}</pre>
       </section>
       <section class="result-block">
-        <h3>7. Supplier questions checklist</h3>
+        <h3>7. Internal approval note</h3>
+        <button class="button secondary small" type="button" data-copy-target="[data-approval-note]">Copy approval note</button>
+        <p data-approval-note>${escapeHtml(preview.internal_approval_note)}</p>
+      </section>
+      <section class="result-block">
+        <h3>8. Next steps checklist</h3>
+        ${list(preview.timeline_action_plan)}
+      </section>
+      <section class="result-block">
+        <h3>Supplier questions checklist</h3>
         ${list(preview.supplier_questions_checklist)}
       </section>
-      ${type === "event" && preview.event_run_of_show ? `<section class="result-block"><h3>8. Event run-of-show</h3>${list(preview.event_run_of_show)}</section>` : ""}
-      ${type === "event" && preview.internal_invite_copy ? `<section class="result-block"><h3>9. Internal invite copy</h3><button class="button secondary small" type="button" data-copy-target="[data-internal-invite-copy]">Copy invite</button><pre class="email-preview" data-internal-invite-copy>${escapeHtml(preview.internal_invite_copy)}</pre></section>` : ""}
+      ${type === "event" && preview.event_run_of_show ? `<section class="result-block"><h3>Event run-of-show</h3>${list(preview.event_run_of_show)}</section>` : ""}
+      ${type === "event" && preview.internal_invite_copy ? `<section class="result-block"><h3>Internal invite copy</h3><button class="button secondary small" type="button" data-copy-target="[data-internal-invite-copy]">Copy invite</button><pre class="email-preview" data-internal-invite-copy>${escapeHtml(preview.internal_invite_copy)}</pre></section>` : ""}
       <section class="result-block">
-        <h3>${type === "gift" ? "8" : "10"}. ${type === "gift" ? "Gift message bank" : "Message variants"}</h3>
+        <h3>${type === "gift" ? "Gift message bank" : "Message variants"}</h3>
         ${preview.message_variants
           .map((variant, index) => `<div class="message-row"><p><strong>${escapeHtml(variant.tone)}:</strong> ${escapeHtml(variant.message)}</p><button class="button secondary small" type="button" data-copy-literal="${escapeHtml(variant.message)}">Copy</button></div>`)
           .join("")}
       </section>
       <section class="result-block">
-        <h3>${type === "gift" ? "9" : "11"}. ${type === "gift" ? "Recipient CSV template" : "Attendee info template"}</h3>
+        <h3>${type === "gift" ? "Recipient CSV template" : "Attendee info template"}</h3>
         <button class="button secondary small" type="button" data-download-preview-csv>Download CSV</button>
         <pre data-preview-csv>${escapeHtml(infoTemplate)}</pre>
       </section>
       <section class="result-block">
-        <h3>${type === "gift" ? "10" : "12"}. Internal approval note</h3>
-        <button class="button secondary small" type="button" data-copy-target="[data-approval-note]">Copy approval note</button>
-        <p data-approval-note>${escapeHtml(preview.internal_approval_note)}</p>
-      </section>
-      <section class="result-block">
-        <h3>${type === "gift" ? "11" : "13"}. Risk and suitability checklist</h3>
+        <h3>Risk and suitability checklist</h3>
         ${list(preview.risk_checklist)}
         ${preview.alcohol_free_options_note ? `<p class="small-note">${escapeHtml(preview.alcohol_free_options_note)}</p>` : ""}
       </section>
       <section class="result-block">
-        <h3>${type === "gift" ? "12" : "14"}. Timeline / action plan</h3>
-        ${list(preview.timeline_action_plan)}
-      </section>
-      <section class="result-block">
-        <h3>${type === "gift" ? "13" : "15"}. Internal Slack / Teams update</h3>
+        <h3>Internal Slack / Teams update</h3>
         <button class="button secondary small" type="button" data-copy-target="[data-internal-update]">Copy update</button>
         <p data-internal-update>${escapeHtml(preview.internal_update)}</p>
       </section>
       <section class="result-block">
-        <h3>${type === "gift" ? "14" : "16"}. Decision scorecard</h3>
+        <h3>Decision scorecard</h3>
         ${renderScorecard(preview.decision_scorecard)}
       </section>
       <section class="result-block">
@@ -688,14 +691,22 @@ function renderPlan(plan, type) {
       </div>
       <div class="premium-cta-card">
         <p class="eyebrow">Premium Brief Pack</p>
-        <h2>Ready to turn this into a supplier brief?</h2>
-        <p>Upgrade this free plan into a Premium Brief Pack: a cleaner buying brief, supplier enquiry email and decision-ready recommendation summary.</p>
+        <h2>Turn this into a supplier-ready pack</h2>
+        <p>Your free plan gives you the direction. The Premium Brief Pack turns it into practical documents you can send, share and act on.</p>
+        <h3>Included in Premium:</h3>
+        <ul class="feature-list">
+          <li>Supplier-ready buying brief</li>
+          <li>Copy-and-send supplier enquiry email</li>
+          <li>Budget and quantity breakdown</li>
+          <li>Supplier shortlist guidance</li>
+          <li>Internal approval summary</li>
+        </ul>
         <div class="result-actions">
           <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Create Premium Brief Pack</button>
           <a class="button secondary" href="/contact?interest=${type === "gift" ? "gift-planning" : "event-planning"}">Send enquiry / request help</a>
           <a class="button secondary" href="/suppliers">${type === "gift" ? "View supplier directory" : "View tasting suppliers"}</a>
         </div>
-        <p class="small-note">Best for teams who need to send a clear request to suppliers or get internal approval.</p>
+        <p class="small-note">Best for teams who need to contact suppliers, compare options or get approval without rewriting everything themselves.</p>
         <div data-premium-preview></div>
       </div>
       ${renderLeadForm(type === "gift" ? "gifts" : "events", `${type}-planner-results`, type)}

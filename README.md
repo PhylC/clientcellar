@@ -112,14 +112,12 @@ Free Planner:
 
 Premium Brief Pack:
 
-- Full supplier or event host brief
-- Internal approval note
-- Supplier comparison matrix
-- Supplier questions checklist
-- Message bank or event invite copy
-- Risk and suitability checklist
-- Timeline/action plan
-- Decision scorecard
+- Supplier-ready buying brief
+- Copy-and-send supplier enquiry email
+- Budget and quantity breakdown
+- Supplier shortlist guidance
+- Internal approval summary
+- Clear next steps checklist
 - Print/save-ready document
 
 The app must continue to work with `PAYMENTS_ENABLED=false`. In that mode, Premium Brief Pack CTAs fall back to registering interest.
