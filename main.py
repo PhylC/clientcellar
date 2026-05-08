@@ -2286,6 +2286,12 @@ def send_email(recipient_email: str, subject: str, text_body: str, html_body: st
     try:
         import resend
         resend.api_key = resend_api_key
+        logger.info(
+            "Resend email send attempted recipient=%s subject=%s from=%s",
+            recipient_email,
+            subject,
+            from_email,
+        )
         response = resend.Emails.send(
             {
                 "from": from_email,
@@ -2365,6 +2371,11 @@ def send_pack_recovery_email(request: Request, email: str, packs: list[dict]) ->
             "",
             "If you did not request this email, you can ignore it.",
         ]
+        logger.info(
+            "Premium pack recovery Resend send attempted recipient=%s pack_count=%s",
+            email,
+            len(prepared),
+        )
         result = send_email(email, "Your ClientCellar Premium Brief Packs", "\n".join(lines))
         logger.info(
             "Premium pack recovery email processed recipient=%s pack_count=%s sent=%s response_id=%s reason=%s",
@@ -2374,6 +2385,13 @@ def send_pack_recovery_email(request: Request, email: str, packs: list[dict]) ->
             result.get("id"),
             result.get("reason") or result.get("error"),
         )
+        if not result.get("sent"):
+            logger.warning(
+                "Premium pack recovery email failed; server-side fallback access URLs recipient=%s reason=%s urls=%s",
+                email,
+                result.get("reason") or result.get("error"),
+                [item["premium_pack_url"] for item in prepared],
+            )
     if not prepared:
         logger.info("Premium pack recovery requested for email with no paid packs recipient=%s", email)
     return prepared
@@ -4100,13 +4118,21 @@ def premium_pack_download_count(pack_token: str):
 
 @app.post("/api/premium-packs/request-access")
 def request_premium_pack_access(req: PackAccessRequest, request: Request):
-    email = str(req.email)
+    logger.info("Premium pack request-access endpoint hit")
+    email = str(req.email).strip().lower()
+    logger.info("Premium pack request-access submitted email normalised email=%s", email)
+    logger.info(
+        "Premium pack request-access email config resend_api_key_present=%s email_from_present=%s",
+        bool(os.getenv("RESEND_API_KEY")),
+        bool(os.getenv("EMAIL_FROM")),
+    )
     prepared = []
     if allow_pack_access_request(email):
         packs = fetch_paid_premium_packs_by_email(email)
+        logger.info("Premium pack request-access matching paid packs count=%s email=%s", len(packs), email)
         prepared = send_pack_recovery_email(request, email, packs)
     else:
-        print("Premium pack recovery throttled for", email)
+        logger.warning("Premium pack recovery throttled email=%s", email)
     response = {
         "ok": True,
         "message": "If that email has saved packs, we’ll send a secure access link.",
