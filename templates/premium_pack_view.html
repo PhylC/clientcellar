@@ -48,6 +48,47 @@
   {% for section in preview.document_sections %}
   <section class="pack-section">
     <h2>{{ loop.index }}. {{ section.title }}</h2>
+    {% set section_key = section.title | lower %}
+    {% if section_key == "supplier enquiry email" and preview.supplier_enquiry_email %}
+    <div class="section-title-row">
+      <p><strong>Subject:</strong> {{ preview.supplier_enquiry_email.subject }}</p>
+      <button class="button secondary small" type="button" onclick="copyEmail(this)">Copy email</button>
+    </div>
+    <pre id="enquiryEmail">{{ preview.supplier_enquiry_email.body }}</pre>
+    {% elif section_key == "supplier quote comparison table" and preview.supplier_comparison %}
+    <div class="table-scroll">
+      <table class="budget-table pack-table">
+        <thead>
+          <tr>
+            <th>Supplier</th>
+            <th>Product / package</th>
+            <th>Unit price</th>
+            <th>Delivery cost</th>
+            <th>Personalisation</th>
+            <th>Lead time</th>
+            <th>Pros</th>
+            <th>Risks / watchouts</th>
+            <th>Decision</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for comp in preview.supplier_comparison %}
+          <tr>
+            <td>{{ comp.supplier or comp.supplier_type or "Supplier" }}</td>
+            <td>{{ comp.product_package or comp.best_for or comp.fit or "To quote" }}</td>
+            <td>{{ comp.unit_price or "To quote" }}</td>
+            <td>{{ comp.delivery_cost or "To quote" }}</td>
+            <td>{{ comp.personalisation or "Confirm" }}</td>
+            <td>{{ comp.lead_time or "Confirm" }}</td>
+            <td>{{ comp.pros or comp.strengths or "" }}</td>
+            <td>{{ comp.risks or comp.watchouts or "" }}</td>
+            <td>{{ comp.decision or "To decide" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
     {% if section.content %}
     <p>{{ section.content }}</p>
     {% endif %}
@@ -58,21 +99,9 @@
       {% endfor %}
     </ul>
     {% endif %}
+    {% endif %}
   </section>
   {% endfor %}
-
-  {% if preview.supplier_enquiry_email %}
-  <section class="pack-section">
-    <div class="section-title-row">
-      <h2>Ready-to-send supplier enquiry email</h2>
-      <button class="button secondary small" type="button" onclick="copyEmail(this)">Copy email</button>
-    </div>
-    <div class="email-template">
-      <p><strong>Subject:</strong> {{ preview.supplier_enquiry_email.subject }}</p>
-      <pre id="enquiryEmail">{{ preview.supplier_enquiry_email.body }}</pre>
-    </div>
-  </section>
-  {% endif %}
 
   {% if preview.recipient_csv_template or preview.attendee_info_template %}
   <section class="pack-section">

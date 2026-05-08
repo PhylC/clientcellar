@@ -429,12 +429,15 @@ function renderPremiumComparison(items) {
     .map(
       (item) => `
         <tr>
-          <td>${escapeHtml(item.supplier_type || item.supplier || "Supplier type")}</td>
-          <td>${escapeHtml(item.best_for || item.fit || "")}</td>
-          <td>${escapeHtml(item.budget_fit || "")}</td>
-          <td>${escapeHtml(item.strengths || (item.pros || []).join("; "))}</td>
-          <td>${escapeHtml(item.watchouts || "")}</td>
-          <td>${escapeHtml(item.questions_to_ask || "")}</td>
+          <td>${escapeHtml(item.supplier || item.supplier_type || "Supplier")}</td>
+          <td>${escapeHtml(item.product_package || item.best_for || item.fit || "To quote")}</td>
+          <td>${escapeHtml(item.unit_price || "To quote")}</td>
+          <td>${escapeHtml(item.delivery_cost || "To quote")}</td>
+          <td>${escapeHtml(item.personalisation || "Confirm")}</td>
+          <td>${escapeHtml(item.lead_time || "Confirm")}</td>
+          <td>${escapeHtml(item.pros || item.strengths || "")}</td>
+          <td>${escapeHtml(item.risks || item.watchouts || "")}</td>
+          <td>${escapeHtml(item.decision || "To decide")}</td>
         </tr>
       `
     )
@@ -442,7 +445,7 @@ function renderPremiumComparison(items) {
   return `
     <div class="table-scroll">
       <table class="pack-table">
-        <thead><tr><th>Supplier type</th><th>Best for</th><th>Budget fit</th><th>Strengths</th><th>Watchouts</th><th>Questions to ask</th></tr></thead>
+        <thead><tr><th>Supplier</th><th>Product / package</th><th>Unit price</th><th>Delivery cost</th><th>Personalisation</th><th>Lead time</th><th>Pros</th><th>Risks / watchouts</th><th>Decision</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
@@ -492,7 +495,7 @@ function renderPremiumPreview(preview, type) {
         <div>
           <p class="eyebrow">ClientCellar Premium Brief Pack</p>
           <h2>${escapeHtml(packLabel)}</h2>
-          <p>Supplier-ready brief and internal approval pack.</p>
+          <p>Copy-ready business documents for suppliers, finance/procurement and internal stakeholders.</p>
         </div>
         <div class="premium-doc-actions">
           <button class="button secondary" type="button" data-print-plan>Print / save as PDF</button>
@@ -509,7 +512,7 @@ function renderPremiumPreview(preview, type) {
         ${renderKeyValueTable(preview.decision_recommendation)}
       </section>
       <section class="result-block">
-        <h3>3. Recommended buying route</h3>
+        <h3>3. Supplier quote comparison table</h3>
         ${renderPremiumComparison(preview.supplier_comparison)}
       </section>
       <section class="result-block">
@@ -517,7 +520,7 @@ function renderPremiumPreview(preview, type) {
         ${renderBudgetRows(preview.budget_breakdown)}
       </section>
       <section class="result-block">
-        <h3>5. Supplier-ready brief</h3>
+        <h3>5. Supplier brief data</h3>
         <button class="button secondary small" type="button" data-copy-target="[data-supplier-ready-brief]">Copy brief</button>
         <div data-supplier-ready-brief>
           ${renderKeyValueTable(preview.supplier_brief)}
@@ -585,7 +588,7 @@ function renderPremiumPreview(preview, type) {
 function renderLeadForm(interestedIn, sourcePage, contextType = "") {
   return `
     <form class="lead-capture-form planner-form" data-lead-form data-interested-in="${interestedIn}" data-source-page="${sourcePage}" data-context-type="${contextType}">
-      <h2>Want help turning this into a supplier-ready brief?</h2>
+      <h2>Want help turning this into working documents?</h2>
       <p>Leave your details if you want support with a Premium Brief Pack, supplier shortlist or corporate gifting brief.</p>
       <div class="form-row">
         <label>Name
@@ -615,17 +618,12 @@ function renderLeadForm(interestedIn, sourcePage, contextType = "") {
 }
 
 function renderPlan(plan, type) {
-  const email = `${plan.supplier_enquiry_email.subject}\n\n${plan.supplier_enquiry_email.body}`;
   const eventExtras =
     type === "event"
       ? `
         <div class="result-block">
-          <h2>Event structure</h2>
+          <h2>Event structure direction</h2>
           ${list(plan.event_structure)}
-        </div>
-        <div class="result-block">
-          <h2>Internal invite</h2>
-          <div class="invite-preview" data-invite>${escapeHtml(plan.internal_invite_copy)}</div>
         </div>
       `
       : `
@@ -633,32 +631,13 @@ function renderPlan(plan, type) {
           <h2>Recommended gift types</h2>
           ${list(plan.recommended_gift_types)}
         </div>
-        <div class="result-block">
-          <h2>Message templates</h2>
-          ${list(plan.message_templates)}
-        </div>
       `;
-
-  const csvButton =
-    type === "gift"
-      ? '<button class="button secondary" type="button" data-download-csv>Download recipient CSV template</button>'
-      : "";
-  const inviteButton =
-    type === "event"
-      ? '<button class="button secondary" type="button" data-copy-invite>Copy internal invite</button>'
-      : "";
 
   return `
     <article class="plan-result">
       <p class="eyebrow">Generated plan</p>
       <h2>${escapeHtml(plan.headline)}</h2>
       <p class="result-meta">${escapeHtml(plan.summary)}</p>
-      <div class="result-actions">
-        <button class="button primary" type="button" data-copy-email>Copy supplier enquiry email</button>
-        ${csvButton}
-        ${inviteButton}
-        <button class="button secondary" type="button" data-print-plan>Print / save as PDF</button>
-      </div>
       <div class="result-block">
         <h2>1. Recommended direction</h2>
         <p>${escapeHtml(plan.recommended_direction || plan.recommended_strategy || plan.recommended_format)}</p>
@@ -674,40 +653,27 @@ function renderPlan(plan, type) {
       </div>
       ${eventExtras}
       <div class="result-block">
-        <h2>Supplier shortlist</h2>
-        ${renderSuppliers(plan.supplier_shortlist)}
-      </div>
-      <div class="result-block">
-        <h2>What to avoid</h2>
+        <h2>4. Suitability notes</h2>
         ${list(plan.what_to_avoid)}
       </div>
       <div class="result-block">
-        <h2>4. Supplier-ready enquiry email</h2>
-        <div class="email-preview" data-email>${escapeHtml(email)}</div>
-      </div>
-      <div class="result-block">
-        <h2>5. Internal approval summary</h2>
-        <p>${escapeHtml(plan.internal_approval_summary || "Use supplier quotes, budget assumptions and policy checks before seeking approval.")}</p>
-      </div>
-      <div class="result-block">
-        <h2>6. Next-step checklist</h2>
-        ${list(plan.next_steps)}
+        <h2>5. Simple next steps</h2>
+        ${list((plan.next_steps || []).slice(0, 4))}
       </div>
       <div class="premium-cta-card">
         <p class="eyebrow">Premium Brief Pack</p>
-        <h2>Need to brief suppliers or get approval?</h2>
-        <p>Your free plan gives you the direction. Premium turns it into a saved supplier-ready pack with email templates, budget breakdown, risk checklist and internal approval notes.</p>
+        <h2>Want the documents to actually send?</h2>
+        <p>Your free plan gives you the direction. Premium creates the working pack: supplier enquiry email, quote comparison table, budget breakdown, approval summary and risk checklist.</p>
         <ul class="feature-list">
-          <li>Saved secure pack link</li>
-          <li>Copy-and-send supplier email</li>
-          <li>Budget and quantity breakdown</li>
-          <li>Internal approval notes</li>
-          <li>Risk checklist</li>
+          <li>Copy-ready supplier email</li>
+          <li>Quote comparison table</li>
+          <li>Internal approval summary</li>
+          <li>Budget breakdown</li>
+          <li>Saved download link</li>
         </ul>
-        <p class="small-note">Premium is for when the plan needs to leave your browser — to suppliers, finance, procurement or a manager.</p>
         <div class="result-actions">
-          <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Upgrade this plan to Premium Brief Pack</button>
-          <button class="button secondary" type="button" data-copy-email>Continue with free plan</button>
+          <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Upgrade to working documents</button>
+          <a class="button secondary" href="${type === "gift" ? "/gift-planner" : "/event-planner"}">Continue with free plan</a>
         </div>
         <details class="premium-detail">
           <summary>Other next steps</summary>
