@@ -234,6 +234,9 @@ def test_required_affiliate_ready_guides_load():
         response = client.get(path)
         assert response.status_code == 200
         assert "ClientCellar may earn a commission" in response.text
+        assert "Written by ClientCellar editorial team" in response.text
+        assert "Last updated: May 2026" in response.text
+        assert "We do not claim live stock, live prices or first-hand product testing" in response.text
         assert "What to consider before buying" in response.text
         assert "Best for" in response.text
         assert "Supplier links to consider" in response.text
@@ -307,8 +310,18 @@ def test_homepage_has_structured_data_and_conversion_links():
     assert response.status_code == 200
     assert 'application/ld+json' in response.text
     assert "Free plan first. Upgrade only if you need copy-ready business documents." in response.text
+    assert "ClientCellar provides planning guidance and supplier direction only" in response.text
     assert "Plan corporate gifts" in response.text
     assert "Plan a tasting event" in response.text
+
+
+def test_supplier_page_has_trust_sections():
+    response = client.get("/suppliers")
+    assert response.status_code == 200
+    assert "Some supplier links may be affiliate or tracked links" in response.text
+    assert "Supplier categories" in response.text
+    assert "Important checks before ordering" in response.text
+    assert "Champagne and sparkling wine retailers" in response.text
 
 
 def test_account_routes_load():

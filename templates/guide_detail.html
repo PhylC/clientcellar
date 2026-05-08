@@ -3,7 +3,12 @@
 <section class="page-intro guide-intro">
   <p class="eyebrow">{% if guide.cta_url == "/gift-planner" %}Corporate gifting guide{% else %}Corporate event guide{% endif %}</p>
   <h1>{{ guide.h1 }}</h1>
+  <div class="guide-meta-row" aria-label="Guide details">
+    <span>Written by ClientCellar editorial team</span>
+    <span>Last updated: May 2026</span>
+  </div>
   <p>{{ guide.intro }}</p>
+  <p class="small-note">Our guidance focuses on suitability, budget, recipient type, presentation, delivery practicality and buyer usefulness. We do not claim live stock, live prices or first-hand product testing unless explicitly stated.</p>
   <div class="hero-actions">
     <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
     <a class="button secondary" href="/guides">All guides</a>

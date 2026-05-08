@@ -706,8 +706,27 @@ main {
   text-underline-offset: 0.18em;
 }
 
+.planner-guidance-strip {
+  margin-top: 1rem;
+}
+
 .page-intro {
   padding: clamp(2.4rem, 5vw, 4rem) 0 clamp(1.2rem, 2vw, 1.75rem);
+}
+
+.guide-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.9rem;
+  margin: -0.15rem 0 0.9rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.guide-meta-row span {
+  display: inline-flex;
+  align-items: center;
 }
 
 .planner-page {

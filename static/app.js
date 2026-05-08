@@ -569,6 +569,7 @@ function renderPremiumPreview(preview, type) {
           <p class="eyebrow">ClientCellar Premium Brief Pack</p>
           <h2>${escapeHtml(packLabel)}</h2>
           <p>Copy-ready business documents for suppliers, finance/procurement and internal stakeholders.</p>
+          <p class="small-note">Supplier-ready means formatted for enquiry and internal approval; it does not mean supplier availability or pricing has been confirmed.</p>
         </div>
         <div class="premium-doc-actions">
           <button class="button secondary" type="button" data-print-plan>Print / save as PDF</button>
@@ -711,6 +712,7 @@ function renderPlan(plan, type) {
       <p class="eyebrow">Generated plan</p>
       <h2>${escapeHtml(plan.headline)}</h2>
       <p class="result-meta">${escapeHtml(plan.summary)}</p>
+      <p class="small-note">This is planning guidance, not a confirmed quote. Check stock, pricing, delivery, age restrictions and suitability directly with your chosen supplier.</p>
       <div class="result-block">
         <h2>1. Recommended direction</h2>
         <p>${escapeHtml(plan.recommended_direction || plan.recommended_strategy || plan.recommended_format)}</p>
