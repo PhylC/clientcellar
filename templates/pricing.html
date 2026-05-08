@@ -2,65 +2,42 @@
 {% block content %}
 <section class="page-intro">
   <p class="eyebrow">Pricing</p>
-  <h1>Simple pricing for corporate gifting plans</h1>
-  <p>Create a free gift or event plan first. The Premium Brief Pack is an optional one-off upgrade after generation when you need supplier-ready documents and internal approval notes.</p>
+  <h1>Simple pricing</h1>
+  <p>Start with a free plan. Premium upgrades a completed free plan into a saved supplier-ready pack.</p>
 </section>
 
 <section class="card-grid two pricing-grid">
   <article class="price-card">
-    <p class="eyebrow">Free Gift Plan</p>
-    <h2>Start with the free planner</h2>
+    <p class="eyebrow">Free Plan</p>
+    <h2>Best for deciding direction</h2>
     <p class="price">£0</p>
     <ul class="feature-list">
       <li>Gift/event direction</li>
-      <li>Budget starting point</li>
-      <li>Recipient/occasion guidance</li>
-      <li>Basic recommendations</li>
-      <li>Good for early planning</li>
+      <li>Budget guidance</li>
+      <li>Suitability notes</li>
+      <li>Basic supplier next steps</li>
     </ul>
-    <a class="button primary full" href="/gift-planner">Create free gift plan</a>
+    <div class="button-row">
+      <a class="button primary" href="/gift-planner">Start free plan</a>
+      <a class="button secondary" href="/event-planner">Plan an event</a>
+    </div>
   </article>
 
   <article class="price-card premium-price-card" id="premium-brief-pack">
     <p class="eyebrow">Premium Brief Pack</p>
-    <h2>Optional supplier-ready approval pack</h2>
+    <h2>Best for suppliers and approval</h2>
     <p class="price">£29.99 one-off</p>
+    <p>Premium is for when the plan needs to leave your browser — to suppliers, finance, procurement or a manager.</p>
     <ul class="feature-list">
-      <li>Everything in the free plan</li>
-      <li>Supplier-ready buying brief</li>
+      <li>Saved secure pack link</li>
+      <li>Print/save PDF</li>
       <li>Copy-and-send supplier enquiry email</li>
       <li>Budget and quantity breakdown</li>
-      <li>Supplier shortlist guidance</li>
-      <li>Internal approval summary</li>
-      <li>Clear next steps checklist</li>
-      <li>Best for real buying decisions</li>
+      <li>Internal approval/procurement summary</li>
     </ul>
-    <p class="small-note">Premium upgrades are generated from your completed plan, so we need your brief details first.</p>
-    <a class="button primary full" href="/gift-planner">Create free plan to unlock Premium Brief Pack</a>
-    <p class="small-note">{% if payments_enabled %}No subscription. One-off purchase through Stripe checkout after your plan is generated.{% else %}Payments are currently disabled during MVP testing. Register interest after creating a free plan.{% endif %}</p>
+    <a class="button primary full" href="/gift-planner">Create free plan first</a>
+    <p class="small-note">{% if payments_enabled %}No subscription. Checkout appears after your plan is generated.{% else %}Payments are currently disabled during MVP testing.{% endif %}</p>
   </article>
-</section>
-
-<section class="section warm">
-  <div class="section-header section-heading">
-    <p class="eyebrow">Which should I choose?</p>
-    <h2>Use the right level of output for the job</h2>
-  </div>
-  <div class="card-grid two">
-    <article class="card">
-      <h3>Choose the Free Gift Plan if...</h3>
-      <p>You just need a quick route, budget sense and starting point before speaking to suppliers.</p>
-      <div class="button-row">
-        <a class="button secondary small" href="/gift-planner">Create free gift plan</a>
-        <a class="button secondary small" href="/event-planner">Create free event plan</a>
-      </div>
-    </article>
-    <article class="card">
-      <h3>Choose Premium Brief Pack if...</h3>
-      <p>You have generated a free plan and need to brief suppliers, compare options, share internally or look organised quickly.</p>
-      <a class="button primary small" href="/gift-planner">Create free plan to unlock Premium Brief Pack</a>
-    </article>
-  </div>
 </section>
 
 <section class="trust-strip pricing-trust">

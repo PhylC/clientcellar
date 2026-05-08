@@ -695,22 +695,27 @@ function renderPlan(plan, type) {
       </div>
       <div class="premium-cta-card">
         <p class="eyebrow">Premium Brief Pack</p>
-        <h2>Turn this into a supplier-ready pack</h2>
-        <p>Your free plan gives you the direction. The Premium Brief Pack turns it into practical documents you can send, share and act on.</p>
-        <h3>Included in Premium:</h3>
+        <h2>Need to brief suppliers or get approval?</h2>
+        <p>Your free plan gives you the direction. Premium turns it into a saved supplier-ready pack with email templates, budget breakdown, risk checklist and internal approval notes.</p>
         <ul class="feature-list">
-          <li>Supplier-ready buying brief</li>
-          <li>Copy-and-send supplier enquiry email</li>
+          <li>Saved secure pack link</li>
+          <li>Copy-and-send supplier email</li>
           <li>Budget and quantity breakdown</li>
-          <li>Supplier shortlist guidance</li>
-          <li>Internal approval summary</li>
+          <li>Internal approval notes</li>
+          <li>Risk checklist</li>
         </ul>
+        <p class="small-note">Premium is for when the plan needs to leave your browser — to suppliers, finance, procurement or a manager.</p>
         <div class="result-actions">
           <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Upgrade this plan to Premium Brief Pack</button>
-          <a class="button secondary" href="/contact?interest=${type === "gift" ? "gift-planning" : "event-planning"}">Send enquiry / request help</a>
-          <a class="button secondary" href="/suppliers">${type === "gift" ? "View supplier directory" : "View tasting suppliers"}</a>
+          <button class="button secondary" type="button" data-copy-email>Continue with free plan</button>
         </div>
-        <p class="small-note">Best for teams who need to contact suppliers, compare options or get approval without rewriting everything themselves.</p>
+        <details class="premium-detail">
+          <summary>Other next steps</summary>
+          <div class="button-row">
+            <a class="button secondary small" href="/contact?interest=${type === "gift" ? "gift-planning" : "event-planning"}">Send enquiry / request help</a>
+            <a class="button secondary small" href="/suppliers">${type === "gift" ? "View supplier directory" : "View tasting suppliers"}</a>
+          </div>
+        </details>
         <div data-premium-preview></div>
       </div>
       ${renderLeadForm(type === "gift" ? "gifts" : "events", `${type}-planner-results`, type)}
@@ -721,7 +726,6 @@ function renderPlan(plan, type) {
     </article>
   `;
 }
-
 function leadPayloadFromForm(form) {
   const payload = formToJson(form);
   payload.interested_in = form.dataset.interestedIn || payload.interested_in || "other";
@@ -1034,7 +1038,7 @@ function renderAccountPage(message = "") {
     return;
   }
   const purchaseText = accountState.isPremium ? "Premium Brief Pack purchased" : "No Premium Brief Pack purchase linked";
-  const buyLink = accountState.isPremium ? "" : '<a class="button primary" href="/gift-planner">Create free plan to unlock Premium Brief Pack</a>';
+  const buyLink = accountState.isPremium ? "" : '<a class="button primary" href="/gift-planner">Create free plan first</a>';
   target.innerHTML = `
     <div class="account-summary">
       <h2>${escapeHtml(accountState.email || "Signed in")}</h2>
@@ -1136,7 +1140,7 @@ function renderSignedInAuthCard() {
   const card = document.querySelector("[data-auth-card]");
   if (!card || accountState.loading || !accountState.loggedIn) return;
   const purchaseText = accountState.isPremium ? "Premium Brief Pack purchased" : "No Premium Brief Pack purchase linked";
-  const buyLink = accountState.isPremium ? "" : '<a class="button primary" href="/gift-planner">Create free plan to unlock Premium Brief Pack</a>';
+  const buyLink = accountState.isPremium ? "" : '<a class="button primary" href="/gift-planner">Create free plan first</a>';
   card.innerHTML = `
     <div class="account-summary">
       <h2>Your sign-in details</h2>

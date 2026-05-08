@@ -178,7 +178,8 @@ def test_pricing_page_loads():
 def test_pricing_premium_cta_routes_to_planner_not_checkout():
     response = client.get("/pricing")
     assert response.status_code == 200
-    assert "Create free plan to unlock Premium Brief Pack" in response.text
+    assert "Create free plan first" in response.text
+    assert "Premium upgrades a completed free plan" in response.text
     assert "data-pack-checkout" not in response.text
 
 
@@ -280,9 +281,9 @@ def test_homepage_has_structured_data_and_conversion_links():
     response = client.get("/")
     assert response.status_code == 200
     assert 'application/ld+json' in response.text
-    assert "See how Premium works" in response.text
-    assert "/pricing#premium-brief-pack" in response.text
-    assert "/guides/best-client-wine-gifts" in response.text
+    assert "Free plan first. Upgrade only if you need a supplier-ready brief." in response.text
+    assert "Plan corporate gifts" in response.text
+    assert "Plan a tasting event" in response.text
 
 
 def test_account_routes_load():

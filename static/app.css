@@ -930,6 +930,18 @@ textarea {
   background: #fffaf3;
 }
 
+.premium-detail {
+  border-top: 1px solid var(--line);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+.premium-detail summary {
+  color: var(--burgundy);
+  cursor: pointer;
+  font-weight: 800;
+}
+
 .premium-price-card,
 .premium-price {
   border-color: #d8b06a;
