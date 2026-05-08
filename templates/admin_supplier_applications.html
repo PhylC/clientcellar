@@ -5,7 +5,7 @@
   <h1>Supplier applications</h1>
   {% if not enabled %}
   <p>Supplier application admin is not enabled.</p>
-  <p class="notice">Set <code>ADMIN_PASSWORD</code> in the environment to enable this MVP admin view.</p>
+  <p class="notice">Set <code>ADMIN_PASSWORD</code> in the environment to enable this internal admin view.</p>
   {% elif not authorised %}
   <p>Enter the admin password to view supplier applications.</p>
   <form class="planner-form admin-password-form" method="get" action="/admin/supplier-applications">
@@ -15,7 +15,7 @@
     <button class="button primary" type="submit">View applications</button>
   </form>
   {% else %}
-  <p>Recent supplier applications are shown below. This is MVP protection only and should be replaced before production use at scale.</p>
+  <p>Recent supplier applications are shown below. Keep access restricted and handle supplier data carefully.</p>
   {% endif %}
 </section>
 

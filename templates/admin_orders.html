@@ -5,7 +5,7 @@
   <h1>Premium orders</h1>
   {% if not enabled %}
   <p>Premium order admin is not enabled.</p>
-  <p class="notice">Set <code>ADMIN_PASSWORD</code> in the environment to enable this MVP admin view.</p>
+  <p class="notice">Set <code>ADMIN_PASSWORD</code> in the environment to enable this internal admin view.</p>
   {% elif not authorised %}
   <p>Enter the admin password to view premium order history.</p>
   <form class="planner-form admin-password-form" method="get" action="/admin/orders">
@@ -15,7 +15,7 @@
     <button class="button primary" type="submit">View orders</button>
   </form>
   {% else %}
-  <p>Recent Premium Brief Pack orders are shown below. This is MVP protection only and should be replaced before production use at scale.</p>
+  <p>Recent Premium Brief Pack orders are shown below. Keep access restricted and handle customer data carefully.</p>
   {% endif %}
 </section>
 

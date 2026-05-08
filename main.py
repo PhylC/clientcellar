@@ -1005,7 +1005,7 @@ SUPPLIERS = [
         "website_url": None,
         "affiliate_url": None,
         "enquiry_url": None,
-        "notes": "Category placeholder for Champagne-led suppliers and merchants.",
+        "notes": "Supplier type for Champagne-led suppliers and merchants.",
         "best_for": ["celebrations", "premium clients", "safe impressive gifts"],
     },
     {
@@ -1976,7 +1976,7 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
     base_budget = [
         {"label": "Planning budget", "amount": money(unit_budget), "note": "Per recipient/attendee before live supplier confirmation."},
         {"label": "Estimated spend", "amount": money(planned_spend), "note": "Count multiplied by planning budget."},
-        {"label": "Delivery/venue allowance", "amount": "TBC", "note": "Ask suppliers to quote this separately."},
+        {"label": "Delivery/venue allowance", "amount": "To confirm", "note": "Ask suppliers to quote this separately."},
         {"label": "Optional contingency", "amount": money(contingency), "note": "10% planning allowance for changes or extras."},
         {"label": "Estimated total range", "amount": f"{money(planned_spend)} + extras to {money(planned_spend + contingency)} + extras", "note": "Live supplier pricing, VAT and availability must be confirmed."},
     ]
@@ -1998,11 +1998,11 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
         }
         email_body = (
             "Hi [Supplier Name],\n\n"
-            f"We are preparing a corporate gifting order for {count or 'TBC'} recipients and would like a written quote and recommendation.\n\n"
+            f"We are preparing a corporate gifting order for {count or 'the planned number of'} recipients and would like a written quote and recommendation.\n\n"
             "Requirements:\n"
             f"- Recommended route: {route}\n"
             f"- Occasion: {supplier_brief['Occasion']}\n"
-            f"- Recipient count: {count or 'TBC'}\n"
+            f"- Recipient count: {count or 'to confirm'}\n"
             f"- Budget range: around {money(unit_budget)} per recipient, plus VAT/delivery/personalisation where applicable\n"
             f"- Delivery deadline: {deadline}\n"
             f"- Delivery coverage: {supplier_brief['Required delivery coverage']}\n"
@@ -2022,9 +2022,9 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
             "budget_breakdown": base_budget,
             "supplier_brief": supplier_brief,
             "supplier_comparison": supplier_matrix(),
-            "supplier_enquiry_email": {"subject": f"Corporate gifting quote request - {count or 'TBC'} recipients", "body": email_body},
+            "supplier_enquiry_email": {"subject": f"Corporate gifting quote request - {count or 'to confirm'} recipients", "body": email_body},
             "supplier_questions_checklist": supplier_questions,
-            "internal_approval_note": f"Approval requested to progress a {route.lower()} corporate gifting route for {count or 'TBC'} recipients at a planning budget of {money(unit_budget)} per recipient, subject to supplier quotes, VAT, delivery, company gifting policy and alcohol suitability checks.",
+            "internal_approval_note": f"Approval requested to progress a {route.lower()} corporate gifting route for {count or 'the planned number of'} recipients at a planning budget of {money(unit_budget)} per recipient, subject to supplier quotes, VAT, delivery, company gifting policy and alcohol suitability checks.",
             "risk_checklist": risk_checklist,
             "recipient_csv_template": "recipient_name,email,company,address_line_1,address_line_2,city,postcode,country,gift_message,alcohol_free_required,delivery_notes",
             "message_variants": [
@@ -2038,10 +2038,10 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
                 {"tone": "Premium understated", "message": "With thanks from all of us. Please accept this as a small note of appreciation."},
             ],
             "timeline_action_plan": ["Today: confirm recipient list, budget owner, gift policy and alcohol-free requirements.", "Within 24 hours: send supplier enquiry using the structured brief.", "Within 48 hours: compare quotes using the scorecard and check VAT/delivery assumptions.", "One week before deadline: approve final messages, artwork and recipient CSV.", "Delivery week: monitor exceptions, failed deliveries and replacements."],
-            "internal_update": f"Update: I’ve prepared a supplier-ready gifting brief for {count or 'TBC'} recipients. Recommended route: {route}. Planning budget: {money(unit_budget)} per recipient, with delivery/VAT to be confirmed. Next step is to request itemised supplier quotes and compare options for approval.",
+            "internal_update": f"Update: I’ve prepared a supplier-ready gifting brief for {count or 'the planned number of'} recipients. Recommended route: {route}. Planning budget: {money(unit_budget)} per recipient, with delivery/VAT to be confirmed. Next step is to request itemised supplier quotes and compare options for approval.",
             "final_recommendation": f"Send the supplier enquiry email to 2-3 suppliers, compare itemised quotes in the table, then approve the {route.lower()} option with the best balance of budget fit, delivery confidence, suitability and admin effort.",
             "decision_scorecard": decision_scorecard,
-            "print_note": "Print or save this page as a PDF for internal approval. Automated PDF/email delivery is a roadmap item.",
+            "print_note": "Use the print/save, copy and download actions on this page for internal approval records.",
             "disclaimer": DISCLAIMER,
         }
     else:
@@ -2062,11 +2062,11 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
         }
         email_body = (
             "Hi [Supplier Name],\n\n"
-            f"We are planning a corporate wine tasting for around {count or 'TBC'} attendees and would like a written quote and suggested format.\n\n"
+            f"We are planning a corporate wine tasting for around {count or 'the planned number of'} attendees and would like a written quote and suggested format.\n\n"
             f"- Recommended format: {event_format}\n"
             f"- Event type: {supplier_brief['Event type']}\n"
             f"- Location/date: {supplier_brief['Location']} / {supplier_brief['Date']}\n"
-            f"- Attendee count: {count or 'TBC'}\n"
+            f"- Attendee count: {count or 'to confirm'}\n"
             f"- Budget range: around {money(unit_budget)} per attendee, plus VAT/delivery/venue/food where applicable\n"
             f"- Tone: {supplier_brief['Tone']}\n"
             f"- Wine knowledge level: {supplier_brief['Wine knowledge level']}\n"
@@ -2082,7 +2082,7 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
             "budget_breakdown": base_budget,
             "supplier_brief": supplier_brief,
             "supplier_comparison": supplier_matrix(),
-            "supplier_enquiry_email": {"subject": f"Corporate wine tasting quote request - {count or 'TBC'} attendees", "body": email_body},
+            "supplier_enquiry_email": {"subject": f"Corporate wine tasting quote request - {count or 'to confirm'} attendees", "body": email_body},
             "event_run_of_show": ["Welcome and responsible drinking note - 5 minutes", "Host introduction and format overview - 5 minutes", "First wine or alcohol-free serve - 15 minutes", "Second wine with guided discussion - 15 minutes", "Optional food pairing or team activity - 20 minutes", "Final tasting, Q&A and close - 10 minutes"],
             "internal_invite_copy": output.get("internal_invite_copy", "You are invited to a corporate wine tasting. Full details will follow."),
             "supplier_questions_checklist": supplier_questions,
@@ -2090,12 +2090,12 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
             "alcohol_free_options_note": "Ask the supplier for alcohol-free tasting packs or a comparable non-alcoholic alternative so the event remains inclusive.",
             "attendee_info_template": "attendee_name,email,company,delivery_address,dietary_requirements,alcohol_free_required,accessibility_needs,notes",
             "timeline_action_plan": ["Today: confirm attendees, format, budget owner and alcohol-free requirements.", "Within 24 hours: send supplier/host enquiry using the structured brief.", "Within 48 hours: compare quotes using the scorecard and check inclusions/exclusions.", "One week before event: confirm attendee list, delivery addresses, joining details and dietary needs.", "Event week: monitor pack delivery, final run sheet and attendee exceptions."],
-            "internal_approval_note": f"Approval requested to progress a corporate wine tasting for {count or 'TBC'} attendees at a planning budget of {money(unit_budget)} per attendee, subject to supplier quotes, VAT, delivery, host availability, venue requirements and cancellation terms.",
+            "internal_approval_note": f"Approval requested to progress a corporate wine tasting for {count or 'the planned number of'} attendees at a planning budget of {money(unit_budget)} per attendee, subject to supplier quotes, VAT, delivery, host availability, venue requirements and cancellation terms.",
             "decision_scorecard": decision_scorecard,
             "message_variants": [{"tone": "Internal invite", "message": output.get("internal_invite_copy", "You are invited to a corporate wine tasting. Full details will follow.")}, {"tone": "Client-safe", "message": "Join us for a relaxed hosted wine tasting with light structure, sensible pacing and alcohol-free options available."}, {"tone": "Team social", "message": "Join the team for a beginner-friendly wine tasting session with plenty of space for questions and conversation."}],
-            "internal_update": f"Update: I’ve prepared a supplier-ready event brief for {count or 'TBC'} attendees. Recommended format: {event_format}. Planning budget: {money(unit_budget)} per attendee, with delivery/venue/VAT to be confirmed. Next step is to request itemised supplier quotes and compare options for approval.",
+            "internal_update": f"Update: I’ve prepared a supplier-ready event brief for {count or 'the planned number of'} attendees. Recommended format: {event_format}. Planning budget: {money(unit_budget)} per attendee, with delivery/venue/VAT to be confirmed. Next step is to request itemised supplier quotes and compare options for approval.",
             "final_recommendation": f"Send the supplier enquiry email to 2-3 event providers, compare itemised quotes in the table, then approve the format with the clearest inclusions, delivery/venue confidence, alcohol-free support and cancellation terms.",
-            "print_note": "Print or save this page as a PDF for internal approval. Automated PDF/email delivery is a roadmap item.",
+            "print_note": "Use the print/save, copy and download actions on this page for internal approval records.",
             "disclaimer": DISCLAIMER,
         }
     return maybe_improve_plan(preview, "premium_pack")
@@ -2144,7 +2144,7 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
         "budget_breakdown": [
             {"label": "Planning budget", "amount": "To confirm", "note": "Set a per-person or per-recipient budget before requesting quotes."},
             {"label": "Estimated quantity", "amount": "To confirm", "note": f"Confirm final {count_label} and any alcohol-free alternatives."},
-            {"label": "Delivery / fulfilment", "amount": "TBC", "note": "Ask suppliers to itemise delivery, packaging, VAT and substitutions."},
+            {"label": "Delivery / fulfilment", "amount": "To confirm", "note": "Ask suppliers to itemise delivery, packaging, VAT and substitutions."},
             {"label": "Contingency", "amount": "10% suggested", "note": "Allow for failed deliveries, substitutions, extra guests or deadline changes."},
         ],
         "supplier_brief": {
@@ -2296,7 +2296,7 @@ def normalise_premium_pack_view_preview(pack: dict, preview: dict | None) -> dic
 
         def budget_items(rows: list[dict]) -> list[str]:
             return [
-                f"{row.get('label', 'Budget item')}: {row.get('amount', 'TBC')} - {row.get('note', 'Confirm directly.')}"
+                f"{row.get('label', 'Budget item')}: {row.get('amount', 'To confirm')} - {row.get('note', 'Confirm directly.')}"
                 for row in rows
             ]
 

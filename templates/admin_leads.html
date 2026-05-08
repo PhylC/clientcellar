@@ -5,7 +5,7 @@
   <h1>Lead admin</h1>
   {% if not enabled %}
   <p>Lead admin is not enabled.</p>
-  <p class="notice">Set <code>ADMIN_PASSWORD</code> in the environment to enable this MVP admin view.</p>
+  <p class="notice">Set <code>ADMIN_PASSWORD</code> in the environment to enable this internal admin view.</p>
   {% elif not authorised %}
   <p>Enter the admin password to view recent leads.</p>
   <form class="planner-form admin-password-form" method="get" action="/admin/leads-basic">
@@ -15,7 +15,7 @@
     <button class="button primary" type="submit">View leads</button>
   </form>
   {% else %}
-  <p>Recent lead enquiries are shown below. This is MVP protection only and should be replaced before production use at scale.</p>
+  <p>Recent lead enquiries are shown below. Keep access restricted and handle enquiry data carefully.</p>
   <div class="hero-actions">
     <a class="button primary" href="/api/leads/export.csv?password={{ password }}">Export CSV</a>
   </div>

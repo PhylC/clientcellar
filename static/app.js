@@ -226,7 +226,7 @@ function clearAuthSession() {
 async function supabaseAuthRequest(path, options = {}, accessToken = null) {
   await loadAuthConfig();
   if (!authState.configured) {
-    throw new Error("Account login is not configured yet.");
+    throw new Error("Account login is not enabled on this deployment.");
   }
   const headers = {
     "apikey": authState.supabaseAnonKey,
@@ -1054,8 +1054,8 @@ function renderAccountPage(message = "") {
   if (!authState.configured) {
     target.innerHTML = `
       <div class="empty-state">
-        <h2>Sign in is not configured yet</h2>
-        <p>Add Supabase environment variables to enable sign in. The Free Planner and one-off checkout flow can still be used where configured.</p>
+        <h2>Account login is not enabled</h2>
+        <p>The Free Planner and one-off Premium Brief Pack flow can still be used where checkout is available.</p>
         <p><a class="button secondary" href="/pricing">View pricing</a></p>
       </div>
     `;
@@ -1137,7 +1137,7 @@ function bindAuthForms() {
 
   loadAuthConfig().then(() => {
     if (!authState.configured) {
-      setStatus("Sign in is not configured yet.", true);
+      setStatus("Account login is not enabled on this deployment.", true);
       for (const field of form?.querySelectorAll("input, button") || []) field.disabled = true;
     } else {
       setStatus(authMessageFromQuery());
