@@ -12,23 +12,9 @@
     Disclosure: Some links may earn commission. Our guidance is written to help buyers choose suitable client gifts and event wine, not to favour any single retailer.
   </p>
   <div class="hero-actions">
-    <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+    <a class="button primary" href="{{ guide.cta_url }}">{% if guide.cta_url == "/event-planner" %}Plan event wine{% else %}Plan corporate gifts{% endif %}</a>
     <a class="button secondary" href="/guides">All guides</a>
   </div>
-</section>
-
-<section class="guide-toc">
-  <strong>In this guide</strong>
-  <a href="#summary">Quick answer</a>
-  <a href="#who">Who it is for</a>
-  {% if guide.best_for %}<a href="#best-for">Best for</a>{% endif %}
-  <a href="#budget">Budget guidance</a>
-  {% if guide.considerations %}<a href="#consider">What to consider</a>{% endif %}
-  <a href="#approach">Recommended approaches</a>
-  <a href="#avoid">What to avoid</a>
-  <a href="#checklist">Checklist</a>
-  {% if guide.merchant_links %}<a href="#supplier-links">Supplier links</a>{% endif %}
-  {% if guide.faqs %}<a href="#faq">FAQ</a>{% endif %}
 </section>
 
 <section class="guide-planning-note">
@@ -37,13 +23,23 @@
 
 <section class="guide-layout">
   <article class="guide-content">
-    <section id="summary" class="summary-card">
-      <h2>Quick answer</h2>
+    <section id="recommended-approach" class="summary-card">
+      <h2>Recommended approach</h2>
       <p>{{ guide.description }}</p>
+      {% if guide.cta_url == "/event-planner" %}
+      <p>Start with the event format, guest count, budget and delivery or venue constraints. Then choose a supplier route that can handle the tasting structure, timings, alcohol-free options and any business hospitality requirements before you ask for current quotes.</p>
+      {% else %}
+      <p>Start with the recipient, occasion and budget, then choose a supplier route that can handle presentation, delivery and any business gifting requirements. For most client gifts, a clear brief matters more than chasing a specific bottle before stock and delivery are confirmed.</p>
+      {% endif %}
+      {% if guide.approaches %}
+      <ul class="editorial-highlight-list">
+        {% for item in guide.approaches[:2] %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+      {% endif %}
     </section>
 
     <section id="who">
-      <h2>Who it is for</h2>
+      <h2>Who this suits</h2>
       <ul>
         {% for item in guide.audience %}<li>{{ item }}</li>{% endfor %}
       </ul>
@@ -51,7 +47,7 @@
 
     {% if guide.best_for %}
     <section id="best-for">
-      <h2>Best for</h2>
+      <h2>Best use cases</h2>
       <ul>
         {% for item in guide.best_for %}<li>{{ item }}</li>{% endfor %}
       </ul>
@@ -68,28 +64,15 @@
 
     {% if guide.considerations %}
     <section id="consider">
-      <h2>What to consider before buying</h2>
+      <h2>What to check before ordering</h2>
       <ul>
         {% for item in guide.considerations %}<li>{{ item }}</li>{% endfor %}
       </ul>
     </section>
     {% endif %}
 
-    <section class="guide-cta">
-      <h2>Turn this guide into a practical plan</h2>
-      <p>Answer a few questions and ClientCellar will turn the brief into a practical plan with supplier suggestions and next-step checklist.</p>
-      <div class="hero-actions compact-actions">
-        <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
-        {% if guide.cta_url == "/gift-planner" %}
-        <a class="button secondary" href="/event-planner">Plan event</a>
-        {% else %}
-        <a class="button secondary" href="/gift-planner">Plan gifts</a>
-        {% endif %}
-      </div>
-    </section>
-
     <section id="approach">
-      <h2>Recommended approaches</h2>
+      <h2>Supplier route options</h2>
       <ul>
         {% for item in guide.approaches %}<li>{{ item }}</li>{% endfor %}
       </ul>
@@ -103,7 +86,7 @@
     </section>
 
     <section id="checklist">
-      <h2>Practical checklist</h2>
+      <h2>Supplier questions and checklist</h2>
       <ul>
         {% for item in guide.checklist %}<li>{{ item }}</li>{% endfor %}
       </ul>
@@ -126,7 +109,7 @@
 
     {% if guide.faqs %}
     <section id="faq">
-      <h2>Quick FAQ</h2>
+      <h2>FAQs</h2>
       <div class="mini-faqs">
         {% for faq in guide.faqs %}
         <div>
@@ -149,15 +132,11 @@
     {% endif %}
 
     <section class="guide-cta">
-      <h2>Turn this into a plan</h2>
-      <p>Use ClientCellar to create a practical shortlist and checklist for your brief. Upgrade only if you need supplier emails and approval notes.</p>
+      <h2>Turn this into a buying brief</h2>
+      <p>Use the free planner to turn your requirements into a practical gift plan. Upgrade only if you need supplier-ready copy, budget breakdowns and an internal approval summary.</p>
       <div class="hero-actions compact-actions">
-        <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
-        {% if guide.cta_url == "/gift-planner" %}
-        <a class="button secondary" href="/premium-pack">View Premium Brief Pack</a>
-        {% else %}
-        <a class="button secondary" href="/gift-planner">Plan gifts</a>
-        {% endif %}
+        <a class="button primary" href="{{ guide.cta_url }}">{% if guide.cta_url == "/event-planner" %}Plan event wine{% else %}Plan corporate gifts{% endif %}</a>
+        <a class="button secondary" href="/guides">View all guides</a>
       </div>
     </section>
   </article>

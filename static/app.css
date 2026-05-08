@@ -388,7 +388,6 @@ main {
 .legal-page,
 .guide-grid,
 .guide-layout,
-.guide-toc,
 .guide-planning-note,
 .related-bottom,
 .trust-strip,
@@ -1429,26 +1428,6 @@ textarea {
   padding-bottom: 1.5rem;
 }
 
-.guide-toc {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.85rem;
-  align-items: center;
-  margin-top: 0.15rem;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  padding: 0.55rem 0;
-  color: var(--muted);
-  font-size: 0.88rem;
-}
-
-.guide-toc a {
-  color: var(--burgundy);
-  font-size: 0.88rem;
-  font-weight: 800;
-  text-decoration: none;
-}
-
 .guide-planning-note a {
   color: var(--burgundy);
   font-weight: 800;
@@ -1482,10 +1461,14 @@ textarea {
   padding-bottom: 0.7rem;
 }
 
+.guide-intro p {
+  max-width: 880px;
+}
+
 .guide-layout {
   display: block;
-  max-width: 860px;
-  padding-bottom: 2.5rem;
+  max-width: 960px;
+  padding-bottom: 2.2rem;
 }
 
 .guide-content {
@@ -1518,22 +1501,35 @@ textarea {
   margin-top: 0.45rem;
 }
 
-.mini-faqs {
-  display: grid;
-  gap: 0.8rem;
+.editorial-highlight-list {
+  margin-top: 0.75rem;
 }
 
-.mini-faqs div,
+.mini-faqs {
+  display: grid;
+  gap: 0;
+}
+
 .guide-cta {
   border-radius: 8px;
   background: #fffaf3;
   padding: 1rem;
 }
 
+.mini-faqs div {
+  border-top: 1px solid var(--line);
+  padding: 0.85rem 0;
+}
+
+.mini-faqs div:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
 .summary-card {
   border-bottom: 1px solid var(--line) !important;
   background: transparent;
-  padding: 0.4rem 0 1.2rem !important;
+  padding: 0.2rem 0 1.35rem !important;
 }
 
 .summary-card h2 {

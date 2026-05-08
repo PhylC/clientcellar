@@ -237,9 +237,12 @@ def test_required_affiliate_ready_guides_load():
         assert "Written by ClientCellar editorial team" in response.text
         assert "Last updated: May 2026" in response.text
         assert "Planning note: ClientCellar provides guidance only" in response.text
-        assert "What to consider before buying" in response.text
-        assert "Best for" in response.text
+        assert "Recommended approach" in response.text
+        assert "What to check before ordering" in response.text
+        assert "Best use cases" in response.text
         assert "Supplier links to consider" in response.text
+        assert "In this guide" not in response.text
+        assert "Quick answer" not in response.text
 
 
 def test_new_high_intent_guides_load():
@@ -258,7 +261,7 @@ def test_new_high_intent_guides_load():
         response = client.get(path)
         assert response.status_code == 200
         assert "<h1" in response.text
-        assert "Turn this guide into a practical plan" in response.text
+        assert "Turn this into a buying brief" in response.text
 
 
 def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
