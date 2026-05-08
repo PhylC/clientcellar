@@ -313,6 +313,8 @@ def test_gift_plan_endpoint():
     data = response.json()
     assert "supplier_shortlist" in data
     assert "supplier_category" in data
+    assert data["supplier_shortlist"]
+    assert data["supplier_shortlist"][0]["tracked_url"].startswith("/out/supplier/")
     assert "internal_approval_summary" in data
 
 
@@ -333,6 +335,8 @@ def test_event_plan_endpoint():
     data = response.json()
     assert "event_structure" in data
     assert "supplier_category" in data
+    assert data["supplier_shortlist"]
+    assert data["supplier_shortlist"][0]["tracked_url"].startswith("/out/supplier/")
     assert "internal_approval_summary" in data
 
 

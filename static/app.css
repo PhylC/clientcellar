@@ -1286,10 +1286,20 @@ textarea {
   padding-left: 1.2rem;
 }
 
+.supplier-suggestions > p {
+  color: var(--muted);
+}
+
+.supplier-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 0.9rem;
+}
+
 .supplier-card {
   border: 1px solid var(--line);
   border-radius: 8px;
-  margin-top: 0.75rem;
   padding: 0.9rem;
   background: #fffaf3;
 }

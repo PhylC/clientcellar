@@ -385,17 +385,64 @@ function list(items) {
   return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
 }
 
-function renderSuppliers(suppliers) {
-  return suppliers
+function fallbackSupplierData(type) {
+  if (type === "event") {
+    return [
+      {
+        name: "Virtual tasting host",
+        category: "Tasting events",
+        why: "Useful for remote teams or client sessions where tasting packs need to be sent to each attendee.",
+        budget_fit: "Usually priced per attendee plus delivery. Confirm format, kit contents and host availability.",
+      },
+      {
+        name: "Wine tasting event provider",
+        category: "Event supplier",
+        why: "Useful for hosted in-person events, client entertainment or team sessions with a structured tasting.",
+        budget_fit: "Confirm host fee, venue needs, glassware, VAT, food pairing and any minimum guest numbers.",
+      },
+      {
+        name: "Wine merchant events team",
+        category: "Wine merchant",
+        why: "Useful when you want wine advice, bottle supply and event support from the same buying route.",
+        budget_fit: "Ask for package options by headcount and confirm delivery, substitutions and lead times.",
+      },
+    ];
+  }
+
+  return [
+    {
+      name: "Premium wine merchant",
+      category: "Wine merchant",
+      why: "Useful for client gifts, mixed cases and advice-led recommendations by budget and occasion.",
+      budget_fit: "Often suitable from around £25-£150 per recipient. Confirm current pricing directly.",
+    },
+    {
+      name: "Corporate hamper supplier",
+      category: "Hamper supplier",
+      why: "Useful when recipient tastes vary or you want food, alcohol-free options and presentation handled together.",
+      budget_fit: "Often useful from around £40+ per recipient. Confirm contents, substitutions and delivery fees.",
+    },
+    {
+      name: "Corporate gifting supplier",
+      category: "Corporate gifting",
+      why: "Useful for larger recipient lists, message inserts, fulfilment support and multi-address delivery.",
+      budget_fit: "Ask about minimum order quantities, VAT, delivery costs and personalisation charges.",
+    },
+  ];
+}
+
+function renderSuppliers(suppliers = [], type = "gift") {
+  const supplierList = Array.isArray(suppliers) && suppliers.length ? suppliers : fallbackSupplierData(type);
+  return supplierList
     .map((supplier) => {
       const link = supplier.tracked_url
-        ? `<p><a class="button secondary" href="${escapeHtml(supplier.tracked_url)}" target="_blank" rel="noopener">Visit supplier</a></p>`
-        : '<p class="small-note">Use this as a supplier type rather than a direct supplier link.</p>';
+        ? `<p><a class="button secondary" href="${escapeHtml(supplier.tracked_url)}" target="_blank" rel="sponsored noopener">View supplier</a></p>`
+        : '<p><a class="button secondary" href="/suppliers">View supplier directory</a></p><p class="small-note">Use this as a supplier type rather than a direct supplier link.</p>';
       return `
         <article class="supplier-card">
           <h3>${escapeHtml(supplier.name)}</h3>
           <p><strong>${escapeHtml(supplier.category)}</strong></p>
-          <p><strong>${escapeHtml(supplier.relationship_label || "Listed supplier")}</strong></p>
+          ${supplier.relationship_label ? `<p><strong>${escapeHtml(supplier.relationship_label)}</strong></p>` : ""}
           <p>${escapeHtml(supplier.why)}</p>
           <p>${escapeHtml(supplier.budget_fit)}</p>
           ${link}
@@ -651,6 +698,13 @@ function renderPlan(plan, type) {
         <h2>3. Supplier category to approach</h2>
         <p>${escapeHtml(plan.supplier_category || "Corporate wine supplier")}</p>
       </div>
+      <div class="result-block supplier-suggestions">
+        <h2>Suggested suppliers to check</h2>
+        <p>These suppliers may fit your brief. Confirm live pricing, stock, delivery dates and suitability directly.</p>
+        <div class="supplier-card-grid">
+          ${renderSuppliers(plan.supplier_shortlist || [], type)}
+        </div>
+      </div>
       ${eventExtras}
       <div class="result-block">
         <h2>4. Suitability notes</h2>
@@ -663,7 +717,7 @@ function renderPlan(plan, type) {
       <div class="premium-cta-card">
         <p class="eyebrow">Premium Brief Pack</p>
         <h2>Want the documents to actually send?</h2>
-        <p>Your free plan gives you the direction. Premium creates the working pack: supplier enquiry email, quote comparison table, budget breakdown, approval summary and risk checklist.</p>
+        <p>Your free plan gives you supplier suggestions and direction. Premium creates the working pack: supplier enquiry email, quote comparison table, budget breakdown, approval summary and risk checklist.</p>
         <ul class="feature-list">
           <li>Copy-ready supplier email</li>
           <li>Quote comparison table</li>
@@ -672,7 +726,7 @@ function renderPlan(plan, type) {
           <li>Saved download link</li>
         </ul>
         <div class="result-actions">
-          <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Upgrade to working documents</button>
+          <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Upgrade this plan to Premium Brief Pack</button>
           <a class="button secondary" href="${type === "gift" ? "/gift-planner" : "/event-planner"}">Continue with free plan</a>
         </div>
         <details class="premium-detail">
