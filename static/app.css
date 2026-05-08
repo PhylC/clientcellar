@@ -12,7 +12,7 @@
   --shadow: 0 18px 50px rgba(68, 30, 40, 0.11);
   --container: 1200px;
   --container-narrow: 920px;
-  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --page-gutter: clamp(1.25rem, 4vw, 3rem);
   --grid-gap: clamp(1.25rem, 2.4vw, 1.75rem);
 }
 
@@ -1414,18 +1414,18 @@ textarea {
 
 .guide-grid {
   display: grid;
-  gap: 1rem;
-  padding-bottom: 2rem;
+  gap: var(--grid-gap);
+  padding-bottom: 2.2rem;
 }
 
 .guide-group {
   margin: 0 auto;
-  padding: 0.5rem 0 1rem;
+  padding: 0.75rem 0 1.35rem;
 }
 
 .guide-group .guide-grid {
   width: 100%;
-  padding-bottom: 1.5rem;
+  padding-bottom: 1.6rem;
 }
 
 .guide-planning-note a {
@@ -1436,6 +1436,33 @@ textarea {
 
 .guide-card {
   box-shadow: none;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.guide-card:hover {
+  border-color: rgba(123, 23, 51, 0.28);
+  transform: translateY(-2px);
+}
+
+.guide-group .section-heading {
+  max-width: 860px;
+  margin-bottom: 1.35rem;
+}
+
+.guide-group .section-heading h2 {
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.75rem, 3.2vw, 2.45rem);
+  line-height: 1.05;
+}
+
+.guide-card h2 {
+  font-size: clamp(1.12rem, 1.5vw, 1.32rem);
+  line-height: 1.16;
+}
+
+.guide-card p {
+  line-height: 1.55;
 }
 
 .guide-card h2 a,
@@ -1458,20 +1485,30 @@ textarea {
 }
 
 .guide-intro {
-  padding-bottom: 0.7rem;
+  width: min(1180px, calc(100% - (var(--page-gutter) * 2)));
+  padding-bottom: 0.45rem;
+}
+
+.guide-intro h1 {
+  max-width: 980px;
 }
 
 .guide-intro p {
-  max-width: 880px;
+  max-width: 920px;
+}
+
+.guide-intro .hero-actions {
+  margin-top: 1rem;
 }
 
 .guide-layout {
   display: block;
-  max-width: 960px;
-  padding-bottom: 2.2rem;
+  width: min(1180px, calc(100% - (var(--page-gutter) * 2)));
+  padding-bottom: 2.4rem;
 }
 
 .guide-content {
+  width: min(980px, 100%);
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -1479,8 +1516,9 @@ textarea {
 }
 
 .guide-content section {
-  border-bottom: 1px solid var(--line);
-  padding: 1.2rem 0;
+  border-bottom: 0;
+  margin: 0 0 clamp(2rem, 4vw, 3rem);
+  padding: 0;
 }
 
 .guide-content section:first-child {
@@ -1489,20 +1527,44 @@ textarea {
 
 .guide-content section:last-child {
   border-bottom: 0;
+  margin-bottom: 0;
   padding-bottom: 0;
 }
 
-.guide-content ul {
+.guide-content h2 {
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.55rem, 3vw, 2.15rem);
+  line-height: 1.05;
+  margin: 0 0 0.85rem;
+}
+
+.guide-content p,
+.guide-content li {
+  color: var(--muted);
+  font-size: clamp(1rem, 1.35vw, 1.125rem);
+  line-height: 1.65;
+}
+
+.guide-content p {
+  margin: 0 0 1rem;
+}
+
+.guide-content p:last-child {
   margin-bottom: 0;
-  padding-left: 1.2rem;
+}
+
+.guide-content ul {
+  margin: 0;
+  padding-left: 1.25rem;
 }
 
 .guide-content li + li {
-  margin-top: 0.45rem;
+  margin-top: 0.65rem;
 }
 
 .editorial-highlight-list {
-  margin-top: 0.75rem;
+  margin-top: 1rem !important;
 }
 
 .mini-faqs {
@@ -1511,14 +1573,15 @@ textarea {
 }
 
 .guide-cta {
+  border: 1px solid rgba(123, 23, 51, 0.14);
   border-radius: 8px;
   background: #fffaf3;
-  padding: 1rem;
+  padding: clamp(1rem, 2.5vw, 1.35rem) !important;
 }
 
 .mini-faqs div {
   border-top: 1px solid var(--line);
-  padding: 0.85rem 0;
+  padding: 1rem 0;
 }
 
 .mini-faqs div:first-child {
@@ -1527,18 +1590,21 @@ textarea {
 }
 
 .summary-card {
-  border-bottom: 1px solid var(--line) !important;
-  background: transparent;
-  padding: 0.2rem 0 1.35rem !important;
+  margin-top: 1.25rem !important;
+  border: 1px solid rgba(123, 23, 51, 0.13) !important;
+  border-radius: 8px;
+  background: rgba(255, 253, 249, 0.72);
+  padding: clamp(1rem, 2.4vw, 1.35rem) !important;
 }
 
 .summary-card h2 {
-  font-size: 1.35rem;
+  font-size: clamp(1.65rem, 3vw, 2.2rem);
 }
 
 .mini-faqs h3 {
   margin: 0 0 0.35rem;
-  font-size: 1rem;
+  color: var(--ink);
+  font-size: 1.05rem;
 }
 
 .mini-faqs p {
@@ -1546,10 +1612,17 @@ textarea {
 }
 
 .guide-planning-note {
-  margin-top: 0.8rem;
+  width: min(1180px, calc(100% - (var(--page-gutter) * 2)));
+  max-width: none;
+  margin-top: 0.45rem;
+  margin-bottom: 0;
   color: var(--muted);
   font-size: 0.88rem;
   line-height: 1.45;
+}
+
+.guide-planning-note a {
+  color: var(--burgundy);
 }
 
 .related-links {
@@ -2301,6 +2374,17 @@ textarea {
 }
 
 @media (max-width: 480px) {
+  .guide-intro .hero-actions,
+  .guide-cta .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .guide-intro .button,
+  .guide-cta .button {
+    width: 100%;
+  }
+
   .site-header.menu-open .mobile-menu-actions {
     grid-template-columns: 1fr;
   }
