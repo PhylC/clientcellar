@@ -233,10 +233,10 @@ def test_required_affiliate_ready_guides_load():
     for path in guide_paths:
         response = client.get(path)
         assert response.status_code == 200
-        assert "ClientCellar may earn a commission" in response.text
+        assert "Disclosure: Some links may earn commission" in response.text
         assert "Written by ClientCellar editorial team" in response.text
         assert "Last updated: May 2026" in response.text
-        assert "We do not claim live stock, live prices or first-hand product testing" in response.text
+        assert "Planning note: ClientCellar provides guidance only" in response.text
         assert "What to consider before buying" in response.text
         assert "Best for" in response.text
         assert "Supplier links to consider" in response.text
@@ -281,6 +281,8 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
     assert "/guides/best-client-wine-gifts" in text
     assert "/guides/non-alcoholic-client-gifts" in text
     assert "/guides/corporate-gifting-recipient-csv-template" in text
+    assert "/guides/champagne-gifts-for-clients" in text
+    assert "/guides/corporate-champagne-gifts" not in text
     assert "/corporate-wine-gifts" in text
     assert "/privacy-policy" in text
     assert "/privacy</loc>" not in text
@@ -297,6 +299,12 @@ def test_robots_points_to_canonical_sitemap():
     response = client.get("/robots.txt")
     assert response.status_code == 200
     assert response.text == "User-agent: *\nAllow: /\n\nSitemap: https://clientcellar.co.uk/sitemap.xml\n"
+
+
+def test_legacy_champagne_guide_redirects_to_canonical_url():
+    response = client.get("/guides/corporate-champagne-gifts", follow_redirects=False)
+    assert response.status_code == 301
+    assert response.headers["location"] == "/guides/champagne-gifts-for-clients"
 
 
 def test_checkout_pages_are_noindex():

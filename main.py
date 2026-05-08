@@ -83,6 +83,7 @@ SITEMAP_STATIC_ROUTES = [
     "/staff-wine-gifts",
     "/corporate-christmas-wine-gifts",
 ]
+SITEMAP_EXCLUDED_GUIDE_SLUGS = {"corporate-champagne-gifts"}
 
 
 def payments_enabled() -> bool:
@@ -2553,7 +2554,7 @@ GUIDES = {
         ],
         "cta": "Plan Christmas client gifts",
         "cta_url": "/gift-planner",
-        "related": ["corporate-wine-gifts-uk", "corporate-champagne-gifts", "client-thank-you-wine-gifts"],
+        "related": ["corporate-wine-gifts-uk", "champagne-gifts-for-clients", "client-thank-you-wine-gifts"],
         "affiliate": True,
     },
     "staff-wine-gifts": {
@@ -2632,7 +2633,7 @@ GUIDES = {
         ],
         "cta": "Create a thank-you gift plan",
         "cta_url": "/gift-planner",
-        "related": ["corporate-wine-gifts-uk", "christmas-wine-gifts-for-clients", "corporate-champagne-gifts"],
+        "related": ["corporate-wine-gifts-uk", "christmas-wine-gifts-for-clients", "champagne-gifts-for-clients"],
         "affiliate": True,
     },
     "corporate-wine-hampers": {
@@ -2912,7 +2913,7 @@ GUIDES.update(
             ],
             "cta": "Plan premium corporate gifts",
             "cta_url": "/gift-planner",
-            "related": ["luxury-wine-gifts-for-clients", "corporate-champagne-gifts", "client-gift-policy-checklist"],
+            "related": ["luxury-wine-gifts-for-clients", "champagne-gifts-for-clients", "client-gift-policy-checklist"],
             "affiliate": True,
         },
         "luxury-wine-gifts-for-clients": {
@@ -2990,7 +2991,7 @@ GUIDES.update(
             ],
             "cta": "Plan sparkling wine gifts",
             "cta_url": "/gift-planner",
-            "related": ["corporate-champagne-gifts", "corporate-wine-gifts-uk", "corporate-wine-gifts-under-50"],
+            "related": ["champagne-gifts-for-clients", "corporate-wine-gifts-uk", "corporate-wine-gifts-under-50"],
             "affiliate": True,
         },
         "wine-gifts-for-sales-teams": {
@@ -3374,7 +3375,7 @@ GUIDES.update(
             ["Buying for status alone.", "Ignoring sparkling alternatives.", "Assuming all clients can accept alcohol."],
             ["Confirm policy.", "Ask for options at two budgets.", "Check presentation and delivery.", "Include alcohol-free alternative if needed."],
             [{"q": "Is Champagne a good client gift?", "a": "It can be, especially for celebratory moments, but English sparkling or a hamper may be more suitable in some contexts."}],
-            ["corporate-champagne-gifts", "english-sparkling-corporate-gifts", "best-wine-gifts-under-100"],
+            ["english-sparkling-corporate-gifts", "best-wine-gifts-under-100", "luxury-wine-gifts-for-clients"],
         ),
         "red-wine-gifts-for-clients": publisher_guide(
             "Red Wine Gifts for Clients",
@@ -4426,6 +4427,11 @@ def guides_index(request: Request):
     )
 
 
+@app.get("/guides/corporate-champagne-gifts")
+def corporate_champagne_guide_redirect():
+    return RedirectResponse(url="/guides/champagne-gifts-for-clients", status_code=301)
+
+
 def render_seo_landing(request: Request, slug: str):
     page = SEO_PAGES.get(slug)
     if not page:
@@ -4545,7 +4551,8 @@ def cookies(request: Request):
 @app.get("/sitemap.xml")
 def sitemap(request: Request):
     base_url = (os.getenv("APP_BASE_URL") or "https://clientcellar.co.uk").rstrip("/")
-    urls = list(dict.fromkeys(SITEMAP_STATIC_ROUTES + [f"/guides/{slug}" for slug in GUIDES]))
+    guide_urls = [f"/guides/{slug}" for slug in GUIDES if slug not in SITEMAP_EXCLUDED_GUIDE_SLUGS]
+    urls = list(dict.fromkeys(SITEMAP_STATIC_ROUTES + guide_urls))
     lastmod = date.today().isoformat()
     body = "\n".join(
         [

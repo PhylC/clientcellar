@@ -8,22 +8,14 @@
     <span>Last updated: May 2026</span>
   </div>
   <p>{{ guide.intro }}</p>
-  <p class="small-note">Our guidance focuses on suitability, budget, recipient type, presentation, delivery practicality and buyer usefulness. We do not claim live stock, live prices or first-hand product testing unless explicitly stated.</p>
+  <p class="guide-disclosure-line">
+    Disclosure: Some links may earn commission. Our guidance is written to help buyers choose suitable client gifts and event wine, not to favour any single retailer.
+  </p>
   <div class="hero-actions">
     <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
     <a class="button secondary" href="/guides">All guides</a>
   </div>
 </section>
-
-{% if guide.affiliate_disclosure %}
-<section class="trust-strip affiliate-guide-disclosure">
-  {{ guide.affiliate_disclosure }}
-</section>
-{% elif guide.affiliate %}
-<section class="trust-strip affiliate-guide-disclosure">
-  Disclosure: ClientCellar may earn commission from some retailer or supplier links. Our guidance is written to help buyers choose suitable client gifts and event wine, not to favour any single retailer.
-</section>
-{% endif %}
 
 <section class="guide-toc">
   <strong>In this guide</strong>
@@ -39,12 +31,15 @@
   {% if guide.faqs %}<a href="#faq">FAQ</a>{% endif %}
 </section>
 
+<section class="guide-planning-note">
+  Planning note: ClientCellar provides guidance only. We do not sell alcohol directly or verify live stock, pricing or delivery. Confirm details with the supplier. <a href="/responsible-drinking">Responsible drinking guidance</a>.
+</section>
+
 <section class="guide-layout">
   <article class="guide-content">
     <section id="summary" class="summary-card">
       <h2>Quick answer</h2>
       <p>{{ guide.description }}</p>
-      <p class="small-note">Use this as planning guidance only. Confirm stock, pricing, delivery, suitability and event availability directly with suppliers.</p>
     </section>
 
     <section id="who">
@@ -166,27 +161,6 @@
       </div>
     </section>
   </article>
-
-  <aside class="guide-sidebar">
-    <div class="side-note">
-      <h2>Planning notes</h2>
-      <p>ClientCellar provides planning guidance only. We do not sell alcohol directly or verify live stock, live pricing, delivery or supplier availability.</p>
-      <p>Drink responsibly. Alcohol is not appropriate for every recipient, event or workplace. Always consider alcohol-free alternatives.</p>
-      {% if guide.affiliate %}
-      <p>Some supplier links may be affiliate links. Recommendations should be based on fit, not commission.</p>
-      {% endif %}
-    </div>
-
-    <div class="side-note">
-      <h2>Related guides</h2>
-      <nav class="related-links" aria-label="Related guides">
-        {% for related_slug in guide.related %}
-          {% set related = guides[related_slug] %}
-          <a href="/guides/{{ related_slug }}">{{ related.title }}</a>
-        {% endfor %}
-      </nav>
-    </div>
-  </aside>
 </section>
 
 <section class="related-bottom">
