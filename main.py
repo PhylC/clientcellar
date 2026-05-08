@@ -21,7 +21,9 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 load_dotenv()
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO").upper())
 logger = logging.getLogger("clientcellar")
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
 
 PRODUCT_NAME = "ClientCellar"
 DEFAULT_PAGE_TITLE = "ClientCellar | Corporate Wine Gifts and Tasting Event Planning"
@@ -48,6 +50,11 @@ DISCLAIMER = (
 app = FastAPI(title=PRODUCT_NAME)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
+logger.info(
+    "RESEND_ENABLED=%s EMAIL_FROM_SET=%s",
+    bool(os.getenv("RESEND_API_KEY")),
+    bool(os.getenv("EMAIL_FROM")),
+)
 
 
 STATIC_ROUTES = [
@@ -489,6 +496,25 @@ def fetch_paid_premium_packs_by_email(email: str) -> list[dict]:
         pack["access_token"] = pack.get("access_token") or pack.get("pack_token")
         packs.append(pack)
     return packs
+
+
+def count_premium_packs_by_email(email: str) -> dict:
+    init_leads_db()
+    with get_db_connection() as connection:
+        row = connection.execute(
+            """
+            SELECT
+              COUNT(*) AS total_count,
+              SUM(CASE WHEN payment_status = 'paid' THEN 1 ELSE 0 END) AS paid_count
+            FROM premium_packs
+            WHERE lower(COALESCE(customer_email, email, '')) = lower(?)
+            """,
+            (email,),
+        ).fetchone()
+    return {
+        "total_count": int(row["total_count"] or 0) if row else 0,
+        "paid_count": int(row["paid_count"] or 0) if row else 0,
+    }
 
 
 def update_premium_pack_payment(
@@ -2264,30 +2290,24 @@ def render_email_html(text_body: str) -> str:
     """
 
 
-def is_production() -> bool:
-    return (
-        os.getenv("ENV", "").lower() == "production"
-        or os.getenv("APP_ENV", "").lower() == "production"
-        or os.getenv("RENDER", "").lower() == "true"
-    )
-
-
 def send_email(recipient_email: str, subject: str, text_body: str, html_body: str | None = None) -> dict:
     """Send transactional email with Resend. Requires verified sending domain in Resend dashboard."""
     from_email = os.getenv("EMAIL_FROM", "ClientCellar <hello@clientcellar.co.uk>")
     resend_api_key = os.getenv("RESEND_API_KEY")
     if not resend_api_key:
-        if is_production():
-            logger.error("Resend email send skipped: RESEND_API_KEY is missing for recipient=%s subject=%s", recipient_email, subject)
-        else:
-            logger.warning("Resend not configured; email prepared in development for recipient=%s subject=%s", recipient_email, subject)
+        logger.error(
+            "REQUEST_ACCESS_EMAIL_FAILED error=missing_resend_api_key recipient=%s subject=%s",
+            recipient_email,
+            subject,
+        )
         return {"sent": False, "provider": "resend", "reason": "missing_api_key"}
 
     try:
         import resend
+        logger.info("RESEND_IMPORT_OK")
         resend.api_key = resend_api_key
         logger.info(
-            "Resend email send attempted recipient=%s subject=%s from=%s",
+            "REQUEST_ACCESS_SENDING_EMAIL recipient=%s subject=%s from=%s",
             recipient_email,
             subject,
             from_email,
@@ -2302,10 +2322,10 @@ def send_email(recipient_email: str, subject: str, text_body: str, html_body: st
             }
         )
         response_id = response.get("id") if isinstance(response, dict) else getattr(response, "id", None)
-        logger.info("Resend email send success recipient=%s subject=%s response_id=%s", recipient_email, subject, response_id)
+        logger.info("REQUEST_ACCESS_EMAIL_SENT resend_id=%s recipient=%s subject=%s", response_id, recipient_email, subject)
         return {"sent": True, "provider": "resend", "id": response_id}
     except Exception as exc:
-        logger.exception("Resend email send failure recipient=%s subject=%s reason=%s", recipient_email, subject, repr(exc))
+        logger.exception("REQUEST_ACCESS_EMAIL_FAILED error=%s recipient=%s subject=%s", repr(exc), recipient_email, subject)
         return {"sent": False, "provider": "resend", "error": str(exc)}
 
 
@@ -2372,7 +2392,7 @@ def send_pack_recovery_email(request: Request, email: str, packs: list[dict]) ->
             "If you did not request this email, you can ignore it.",
         ]
         logger.info(
-            "Premium pack recovery Resend send attempted recipient=%s pack_count=%s",
+            "REQUEST_ACCESS_SENDING_EMAIL recipient=%s pack_count=%s",
             email,
             len(prepared),
         )
@@ -2387,13 +2407,13 @@ def send_pack_recovery_email(request: Request, email: str, packs: list[dict]) ->
         )
         if not result.get("sent"):
             logger.warning(
-                "Premium pack recovery email failed; server-side fallback access URLs recipient=%s reason=%s urls=%s",
-                email,
+                "REQUEST_ACCESS_EMAIL_FAILED error=%s recipient=%s fallback_urls=%s",
                 result.get("reason") or result.get("error"),
+                email,
                 [item["premium_pack_url"] for item in prepared],
             )
     if not prepared:
-        logger.info("Premium pack recovery requested for email with no paid packs recipient=%s", email)
+        logger.info("REQUEST_ACCESS_NO_PACKS email=%s", email)
     return prepared
 
 
@@ -4118,27 +4138,31 @@ def premium_pack_download_count(pack_token: str):
 
 @app.post("/api/premium-packs/request-access")
 def request_premium_pack_access(req: PackAccessRequest, request: Request):
-    logger.info("Premium pack request-access endpoint hit")
     email = str(req.email).strip().lower()
-    logger.info("Premium pack request-access submitted email normalised email=%s", email)
+    logger.info("REQUEST_ACCESS_START email=%s", email)
     logger.info(
-        "Premium pack request-access email config resend_api_key_present=%s email_from_present=%s",
+        "REQUEST_ACCESS_EMAIL_CONFIG resend_api_key_present=%s email_from_present=%s",
         bool(os.getenv("RESEND_API_KEY")),
         bool(os.getenv("EMAIL_FROM")),
     )
     prepared = []
     if allow_pack_access_request(email):
+        pack_counts = count_premium_packs_by_email(email)
+        logger.info(
+            "REQUEST_ACCESS_LOOKUP email=%s total_count=%s paid_only_count=%s",
+            email,
+            pack_counts["total_count"],
+            pack_counts["paid_count"],
+        )
         packs = fetch_paid_premium_packs_by_email(email)
-        logger.info("Premium pack request-access matching paid packs count=%s email=%s", len(packs), email)
+        logger.info("REQUEST_ACCESS_PACK_COUNT count=%s email=%s", len(packs), email)
         prepared = send_pack_recovery_email(request, email, packs)
     else:
-        logger.warning("Premium pack recovery throttled email=%s", email)
+        logger.warning("REQUEST_ACCESS_THROTTLED email=%s", email)
     response = {
         "ok": True,
         "message": "If that email has saved packs, we’ll send a secure access link.",
     }
-    if os.getenv("CLIENTCELLAR_DEV_ACCESS_LINKS", "").lower() == "true":
-        response["dev_links"] = [item["premium_pack_url"] for item in prepared]
     return response
 
 

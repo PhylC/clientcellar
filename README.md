@@ -105,7 +105,7 @@ RESEND_API_KEY=
 EMAIL_FROM="ClientCellar <hello@clientcellar.co.uk>"
 ```
 
-The sending domain, for example `clientcellar.co.uk`, must be verified in the Resend dashboard before production delivery. If `RESEND_API_KEY` is missing in production, email delivery is skipped and logged as a server-side failure. In local development only, the app logs that the email was prepared so checkout/recovery flows can still be tested without exposing secrets.
+The sending domain, for example `clientcellar.co.uk`, must be verified in the Resend dashboard before production delivery. If `RESEND_API_KEY` is missing, email delivery is skipped and logged as a server-side failure; the browser response remains generic.
 
 ## Monetisation model
 
