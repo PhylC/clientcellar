@@ -8,7 +8,7 @@ import sqlite3
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Literal
 
@@ -57,16 +57,17 @@ logger.info(
 )
 
 
-STATIC_ROUTES = [
+SITEMAP_STATIC_ROUTES = [
     "/",
     "/gift-planner",
     "/event-planner",
+    "/guides",
+    "/suppliers",
     "/pricing",
-    "/about",
     "/faq",
+    "/about",
     "/contact",
     "/terms",
-    "/privacy",
     "/privacy-policy",
     "/affiliate-disclosure",
     "/editorial-policy",
@@ -81,9 +82,6 @@ STATIC_ROUTES = [
     "/client-wine-gifts",
     "/staff-wine-gifts",
     "/corporate-christmas-wine-gifts",
-    "/suppliers",
-    "/suppliers/join",
-    "/network-readiness",
 ]
 
 
@@ -4546,15 +4544,14 @@ def cookies(request: Request):
 
 @app.get("/sitemap.xml")
 def sitemap(request: Request):
-    base_url = os.getenv("APP_BASE_URL") or str(request.base_url).rstrip("/")
-    urls = STATIC_ROUTES + [f"/guides/{slug}" for slug in GUIDES] + [
-        f"/suppliers/{supplier['tracking_slug']}" for supplier in SUPPLIERS if supplier.get("active", True)
-    ]
+    base_url = (os.getenv("APP_BASE_URL") or "https://clientcellar.co.uk").rstrip("/")
+    urls = list(dict.fromkeys(SITEMAP_STATIC_ROUTES + [f"/guides/{slug}" for slug in GUIDES]))
+    lastmod = date.today().isoformat()
     body = "\n".join(
         [
             '<?xml version="1.0" encoding="UTF-8"?>',
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-            *[f"  <url><loc>{base_url}{path}</loc></url>" for path in urls],
+            *[f"  <url><loc>{base_url}{path}</loc><lastmod>{lastmod}</lastmod></url>" for path in urls],
             "</urlset>",
         ]
     )
@@ -4563,8 +4560,7 @@ def sitemap(request: Request):
 
 @app.get("/robots.txt")
 def robots(request: Request):
-    base_url = (os.getenv("APP_BASE_URL") or "https://clientcellar.co.uk").rstrip("/")
-    return Response(content=f"User-agent: *\nAllow: /\nSitemap: {base_url}/sitemap.xml\n", media_type="text/plain")
+    return Response(content="User-agent: *\nAllow: /\n\nSitemap: https://clientcellar.co.uk/sitemap.xml\n", media_type="text/plain")
 
 
 @app.get("/api/health")

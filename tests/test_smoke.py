@@ -262,18 +262,38 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
     response = client.get("/sitemap.xml")
     assert response.status_code == 200
     text = response.text
+    assert text.startswith('<?xml version="1.0" encoding="UTF-8"?>')
+    assert "<lastmod>" in text
+    assert "https://clientcellar.co.uk/" in text
+    assert "https://clientcellar.co.uk/gift-planner" in text
+    assert "https://clientcellar.co.uk/event-planner" in text
+    assert "https://clientcellar.co.uk/guides" in text
+    assert "https://clientcellar.co.uk/suppliers" in text
+    assert "https://clientcellar.co.uk/pricing" in text
+    assert "https://clientcellar.co.uk/faq" in text
+    assert "https://clientcellar.co.uk/about" in text
+    assert "https://clientcellar.co.uk/contact" in text
+    assert "https://clientcellar.co.uk/terms" in text
     assert "/guides/corporate-wine-gifts-under-50" in text
     assert "/guides/best-client-wine-gifts" in text
     assert "/guides/non-alcoholic-client-gifts" in text
     assert "/guides/corporate-gifting-recipient-csv-template" in text
     assert "/corporate-wine-gifts" in text
     assert "/privacy-policy" in text
+    assert "/privacy</loc>" not in text
     assert "/editorial-policy" in text
     assert "/supplier-partnerships" in text
-    assert "/network-readiness" in text
+    assert "/network-readiness" not in text
+    assert "/suppliers/majestic" not in text
     assert "/checkout/success" not in text
     assert "/billing/success" not in text
     assert "/admin" not in text
+
+
+def test_robots_points_to_canonical_sitemap():
+    response = client.get("/robots.txt")
+    assert response.status_code == 200
+    assert response.text == "User-agent: *\nAllow: /\n\nSitemap: https://clientcellar.co.uk/sitemap.xml\n"
 
 
 def test_checkout_pages_are_noindex():
