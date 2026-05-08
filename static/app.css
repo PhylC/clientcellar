@@ -403,7 +403,7 @@ main {
 }
 
 .page-shell {
-  padding: 2.5rem 0 3rem;
+  padding: 2rem 0 2.5rem;
 }
 
 .planner-page.page-shell {
@@ -427,7 +427,7 @@ main {
 .hero {
   display: grid;
   gap: 1.5rem;
-  padding: 3.2rem 0 2rem;
+  padding: 2.7rem 0 1.6rem;
 }
 
 .hero-copy h1,
@@ -435,8 +435,15 @@ main {
   max-width: 860px;
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2.35rem, 8vw, 5.4rem);
   line-height: 0.95;
+}
+
+.hero-copy h1 {
+  font-size: clamp(2.35rem, 8vw, 5.4rem);
+}
+
+.page-intro h1 {
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
 }
 
 .lead,
@@ -580,12 +587,12 @@ main {
 }
 
 .section {
-  padding: 2.5rem 0;
+  padding: 2.15rem 0;
 }
 
 .section.warm {
   width: 100%;
-  padding: 2.5rem max(var(--page-gutter), calc((100% - var(--container)) / 2));
+  padding: 2.15rem max(var(--page-gutter), calc((100% - var(--container)) / 2));
   background: #f4eadc;
 }
 
@@ -682,18 +689,19 @@ main {
 .trust-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 0.75rem;
+  gap: 0.25rem 0.65rem;
   align-items: center;
-  justify-content: center;
-  margin: 1.5rem auto 0;
-  border: 1px solid rgba(123, 23, 51, 0.16);
-  border-radius: 999px;
-  background: #fff7f2;
-  padding: 0.7rem 1rem;
+  justify-content: flex-start;
+  margin: 1rem auto 0;
+  border: 1px solid rgba(123, 23, 51, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 247, 242, 0.74);
+  padding: 0.5rem 0.72rem;
   color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-align: center;
+  font-size: 0.84rem;
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: left;
 }
 
 .trust-strip a {
@@ -706,12 +714,8 @@ main {
   text-underline-offset: 0.18em;
 }
 
-.planner-guidance-strip {
-  margin-top: 1rem;
-}
-
 .page-intro {
-  padding: clamp(2.4rem, 5vw, 4rem) 0 clamp(1.2rem, 2vw, 1.75rem);
+  padding: clamp(2rem, 4vw, 3.2rem) 0 clamp(1rem, 2vw, 1.4rem);
 }
 
 .guide-meta-row {
@@ -730,13 +734,13 @@ main {
 }
 
 .planner-page {
-  padding-bottom: 3rem;
+  padding-bottom: 2.5rem;
 }
 
 .planner-hero {
   display: grid;
-  gap: 0.85rem;
-  padding: 0 0 1.4rem;
+  gap: 0.55rem;
+  padding: 0 0 0.8rem;
 }
 
 .planner-hero h1 {
@@ -751,14 +755,21 @@ main {
   max-width: 780px;
   margin: 0;
   color: var(--muted);
-  font-size: 1.05rem;
+  font-size: 1rem;
+}
+
+.planner-compliance-note {
+  max-width: 860px !important;
+  color: var(--muted) !important;
+  font-size: 0.86rem !important;
+  line-height: 1.4;
 }
 
 .planner-trust-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-top: 0.35rem;
+  gap: 0.45rem;
+  margin-top: 0.2rem;
 }
 
 .planner-trust-row span {
@@ -768,10 +779,10 @@ main {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.76);
   color: var(--burgundy);
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   font-weight: 800;
   line-height: 1.2;
-  padding: 0.45rem 0.7rem;
+  padding: 0.35rem 0.58rem;
 }
 
 .planner-layout,
@@ -779,17 +790,17 @@ main {
   display: grid;
   gap: var(--grid-gap);
   align-items: start;
-  padding-bottom: 3rem;
+  padding-bottom: 2.4rem;
 }
 
 .planner-form,
 .results-panel {
-  padding: clamp(1rem, 2vw, 1.35rem);
+  padding: clamp(0.95rem, 1.8vw, 1.2rem);
 }
 
 .planner-form {
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .planner-form label {
@@ -1296,7 +1307,7 @@ textarea {
 }
 
 .pricing-trust {
-  margin: 0 auto 3rem;
+  margin: 0 auto 2.2rem;
   border-radius: 8px;
   text-align: left;
 }
@@ -1394,7 +1405,7 @@ textarea {
 .guide-grid {
   display: grid;
   gap: 1rem;
-  padding-bottom: 3rem;
+  padding-bottom: 2rem;
 }
 
 .guide-group {
@@ -1404,7 +1415,7 @@ textarea {
 
 .guide-group .guide-grid {
   width: 100%;
-  padding-bottom: 2rem;
+  padding-bottom: 1.5rem;
 }
 
 .guide-toc {
@@ -1415,7 +1426,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
-  padding: 0.8rem 1rem;
+  padding: 0.65rem 0.8rem;
 }
 
 .guide-toc a {
@@ -2238,12 +2249,12 @@ textarea {
   .hero,
   .planner-hero,
   .page-intro {
-    padding-top: 1.75rem;
+    padding-top: 1.5rem;
   }
 
   .planner-page.page-shell {
     width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
-    padding-top: 1.75rem;
+    padding-top: 1.5rem;
   }
 
   .planner-page .planner-hero {
