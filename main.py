@@ -1,6 +1,7 @@
 import csv
 import io
 import json
+import logging
 import os
 import re
 import sqlite3
@@ -20,6 +21,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 load_dotenv()
+logger = logging.getLogger("clientcellar")
 
 PRODUCT_NAME = "ClientCellar"
 DEFAULT_PAGE_TITLE = "ClientCellar | Corporate Wine Gifts and Tasting Event Planning"
@@ -2262,12 +2264,23 @@ def render_email_html(text_body: str) -> str:
     """
 
 
+def is_production() -> bool:
+    return (
+        os.getenv("ENV", "").lower() == "production"
+        or os.getenv("APP_ENV", "").lower() == "production"
+        or os.getenv("RENDER", "").lower() == "true"
+    )
+
+
 def send_email(recipient_email: str, subject: str, text_body: str, html_body: str | None = None) -> dict:
     """Send transactional email with Resend. Requires verified sending domain in Resend dashboard."""
     from_email = os.getenv("EMAIL_FROM", "ClientCellar <hello@clientcellar.co.uk>")
     resend_api_key = os.getenv("RESEND_API_KEY")
     if not resend_api_key:
-        print("Resend not configured; email prepared for", recipient_email, "subject:", subject)
+        if is_production():
+            logger.error("Resend email send skipped: RESEND_API_KEY is missing for recipient=%s subject=%s", recipient_email, subject)
+        else:
+            logger.warning("Resend not configured; email prepared in development for recipient=%s subject=%s", recipient_email, subject)
         return {"sent": False, "provider": "resend", "reason": "missing_api_key"}
 
     try:
@@ -2283,11 +2296,10 @@ def send_email(recipient_email: str, subject: str, text_body: str, html_body: st
             }
         )
         response_id = response.get("id") if isinstance(response, dict) else getattr(response, "id", None)
-        if os.getenv("ENV", "").lower() != "production":
-            print("Resend email sent to", recipient_email, "id:", response_id)
+        logger.info("Resend email send success recipient=%s subject=%s response_id=%s", recipient_email, subject, response_id)
         return {"sent": True, "provider": "resend", "id": response_id}
     except Exception as exc:
-        print("Resend email failed for", recipient_email, "error:", repr(exc))
+        logger.exception("Resend email send failure recipient=%s subject=%s reason=%s", recipient_email, subject, repr(exc))
         return {"sent": False, "provider": "resend", "error": str(exc)}
 
 
@@ -2304,6 +2316,14 @@ def build_premium_pack_email(request: Request, customer_email: str | None, pack_
         "You can also use My packs on ClientCellar to request your secure link again."
     )
     send_result = send_email(customer_email, subject, body)
+    logger.info(
+        "Premium pack ready email processed recipient=%s pack_token=%s sent=%s response_id=%s reason=%s",
+        customer_email,
+        pack_token,
+        send_result.get("sent"),
+        send_result.get("id"),
+        send_result.get("reason") or send_result.get("error"),
+    )
     email_payload = {
         "to": customer_email,
         "subject": subject,
@@ -2315,7 +2335,7 @@ def build_premium_pack_email(request: Request, customer_email: str | None, pack_
 
 
 def send_pack_ready_email(request: Request, pack: dict) -> dict | None:
-    """Server-side saved-pack email helper. TODO: integrate Resend/Postmark/SendGrid."""
+    """Server-side saved-pack email helper backed by Resend."""
     customer_email = pack.get("customer_email") or pack.get("email")
     access_token = pack.get("access_token") or pack.get("pack_token")
     return build_premium_pack_email(request, customer_email, access_token)
@@ -2346,10 +2366,16 @@ def send_pack_recovery_email(request: Request, email: str, packs: list[dict]) ->
             "If you did not request this email, you can ignore it.",
         ]
         result = send_email(email, "Your ClientCellar Premium Brief Packs", "\n".join(lines))
-        if os.getenv("ENV", "").lower() != "production":
-            print("Pack recovery email prepared for", email, "pack count:", len(prepared), "send result:", result)
+        logger.info(
+            "Premium pack recovery email processed recipient=%s pack_count=%s sent=%s response_id=%s reason=%s",
+            email,
+            len(prepared),
+            result.get("sent"),
+            result.get("id"),
+            result.get("reason") or result.get("error"),
+        )
     if not prepared:
-        print("Premium pack recovery requested for email with no paid packs:", email)
+        logger.info("Premium pack recovery requested for email with no paid packs recipient=%s", email)
     return prepared
 
 
