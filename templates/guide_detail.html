@@ -131,15 +131,43 @@
     </section>
     {% endif %}
 
-    <section class="guide-cta">
-      <h2>Turn this into a buying brief</h2>
-      <p>Use the free planner to turn your requirements into a practical gift plan. Upgrade only if you need supplier-ready copy, budget breakdowns and an internal approval summary.</p>
-      <div class="hero-actions compact-actions">
-        <a class="button primary" href="{{ guide.cta_url }}">{% if guide.cta_url == "/event-planner" %}Plan event wine{% else %}Plan corporate gifts{% endif %}</a>
-        <a class="button secondary" href="/guides">View all guides</a>
-      </div>
-    </section>
   </article>
+
+  <aside class="guide-rail" aria-label="Guide actions and related links">
+    <div class="guide-rail-card">
+      <p class="eyebrow">{% if guide.cta_url == "/event-planner" %}Plan this event{% else %}Plan this gift{% endif %}</p>
+      <h2>Turn guidance into a brief</h2>
+      <p>Use the free planner to shape budget, recipient details, supplier route and enquiry copy.</p>
+      <a class="button primary full" href="{{ guide.cta_url }}">{% if guide.cta_url == "/event-planner" %}Plan event wine{% else %}Plan corporate gifts{% endif %}</a>
+    </div>
+
+    <div class="guide-rail-card">
+      <p class="eyebrow">Related guides</p>
+      <nav class="guide-rail-links" aria-label="Related guides">
+        {% for related_slug in guide.related %}
+          {% set related = guides[related_slug] %}
+          <a href="/guides/{{ related_slug }}">{{ related.title }}</a>
+        {% endfor %}
+      </nav>
+    </div>
+
+    <div class="guide-rail-card guide-rail-note">
+      <p>ClientCellar provides planning guidance only. Confirm live stock, pricing, delivery and suitability with suppliers.</p>
+      <a href="/affiliate-disclosure">Affiliate disclosure</a>
+      <a href="/responsible-drinking">Responsible drinking guidance</a>
+    </div>
+  </aside>
+</section>
+
+<section class="guide-cta">
+  <div>
+    <h2>Turn this into a buying brief</h2>
+    <p>Use the free planner to turn your requirements into a practical gift plan. Upgrade only if you need supplier-ready copy, budget breakdowns and an internal approval summary.</p>
+  </div>
+  <div class="hero-actions compact-actions">
+    <a class="button primary" href="{{ guide.cta_url }}">{% if guide.cta_url == "/event-planner" %}Plan event wine{% else %}Plan corporate gifts{% endif %}</a>
+    <a class="button secondary" href="/guides">View all guides</a>
+  </div>
 </section>
 
 <section class="related-bottom">
