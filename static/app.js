@@ -431,21 +431,47 @@ function fallbackSupplierData(type) {
   ];
 }
 
+function supplierRecommendationsFromPlan(plan = {}) {
+  const candidates = [
+    plan.suppliers,
+    plan.supplier_recommendations,
+    plan.suggested_suppliers,
+    plan.supplier_shortlist,
+  ];
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate) && candidate.length) return candidate;
+  }
+  return [];
+}
+
+function supplierUrlHtml(supplier) {
+  const url = supplier.tracked_url || supplier.url || supplier.affiliate_url || supplier.website_url || "";
+  if (!url) {
+    return '<p><a class="button secondary" href="/suppliers">View supplier directory</a></p><p class="small-note">Use this as a supplier type rather than a direct supplier link.</p>';
+  }
+  const isExternal = /^https?:\/\//i.test(url);
+  const target = isExternal ? ' target="_blank"' : "";
+  const rel = isExternal ? ' rel="sponsored noopener"' : "";
+  return `<p><a class="button secondary" href="${escapeHtml(url)}"${target}${rel}>View supplier</a></p>`;
+}
+
 function renderSuppliers(suppliers = [], type = "gift") {
   const supplierList = Array.isArray(suppliers) && suppliers.length ? suppliers : fallbackSupplierData(type);
   return supplierList
     .map((supplier) => {
-      const link = supplier.tracked_url
-        ? `<p><a class="button secondary" href="${escapeHtml(supplier.tracked_url)}" target="_blank" rel="sponsored noopener">View supplier</a></p>`
-        : '<p><a class="button secondary" href="/suppliers">View supplier directory</a></p><p class="small-note">Use this as a supplier type rather than a direct supplier link.</p>';
+      const category = supplier.category || supplier.best_for || supplier.supplier_type || "Supplier route";
+      const fitReason = supplier.fit_reason || supplier.why || supplier.reason || "Potentially useful for this brief.";
+      const budgetNote = supplier.budget_note || supplier.budget_fit || supplier.price_note || "Confirm live pricing, delivery charges and availability directly.";
+      const bestFor = supplier.best_for && supplier.best_for !== category ? `<p><strong>Best for:</strong> ${escapeHtml(supplier.best_for)}</p>` : "";
       return `
         <article class="supplier-card">
           <h3>${escapeHtml(supplier.name)}</h3>
-          <p><strong>${escapeHtml(supplier.category)}</strong></p>
+          <p><strong>${escapeHtml(category)}</strong></p>
+          ${bestFor}
           ${supplier.relationship_label ? `<p><strong>${escapeHtml(supplier.relationship_label)}</strong></p>` : ""}
-          <p>${escapeHtml(supplier.why)}</p>
-          <p>${escapeHtml(supplier.budget_fit)}</p>
-          ${link}
+          <p>${escapeHtml(fitReason)}</p>
+          <p>${escapeHtml(budgetNote)}</p>
+          ${supplierUrlHtml(supplier)}
           <p class="small-note">${escapeHtml(supplier.disclosure_note || "Some supplier links may be affiliate or tracked links.")} <a href="/affiliate-disclosure">See Affiliate Disclosure.</a></p>
         </article>
       `;
@@ -702,7 +728,7 @@ function renderPlan(plan, type) {
         <h2>Suggested suppliers to check</h2>
         <p>These suppliers may fit your brief. Confirm live pricing, stock, delivery dates and suitability directly.</p>
         <div class="supplier-card-grid">
-          ${renderSuppliers(plan.supplier_shortlist || [], type)}
+          ${renderSuppliers(supplierRecommendationsFromPlan(plan), type)}
         </div>
       </div>
       ${eventExtras}

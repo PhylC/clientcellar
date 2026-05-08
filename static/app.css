@@ -1797,6 +1797,26 @@ textarea {
   font-weight: 700;
 }
 
+.footer-trust-block {
+  display: grid;
+  gap: 0.55rem;
+  border: 1px solid rgba(123, 23, 51, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.55);
+  padding: 0.8rem;
+}
+
+.footer-trust-block nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.7rem;
+}
+
+.footer-trust-block a {
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
 .footer-links-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

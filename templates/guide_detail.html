@@ -14,6 +14,10 @@
 <section class="trust-strip affiliate-guide-disclosure">
   {{ guide.affiliate_disclosure }}
 </section>
+{% elif guide.affiliate %}
+<section class="trust-strip affiliate-guide-disclosure">
+  Disclosure: ClientCellar may earn commission from some retailer or supplier links. Our guidance is written to help buyers choose suitable client gifts and event wine, not to favour any single retailer.
+</section>
 {% endif %}
 
 <section class="guide-toc">
@@ -73,7 +77,7 @@
 
     <section class="guide-cta">
       <h2>Turn this guide into a practical plan</h2>
-      <p>Answer a few questions and ClientCellar will turn the brief into a supplier-ready enquiry email and next-step checklist.</p>
+      <p>Answer a few questions and ClientCellar will turn the brief into a practical plan with supplier suggestions and next-step checklist.</p>
       <div class="hero-actions compact-actions">
         <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
         {% if guide.cta_url == "/gift-planner" %}
@@ -130,13 +134,23 @@
           <p>{{ faq.a }}</p>
         </div>
         {% endfor %}
+        {% if guide.faqs|length < 3 %}
+        <div>
+          <h3>Are prices and stock live?</h3>
+          <p>No. ClientCellar provides planning guidance only. Confirm current pricing, stock, delivery and suitability directly with suppliers.</p>
+        </div>
+        <div>
+          <h3>Should we include alcohol-free alternatives?</h3>
+          <p>Yes, where recipient suitability is uncertain or the gift is for a mixed workplace group. Alcohol is not suitable for every person or company policy.</p>
+        </div>
+        {% endif %}
       </div>
     </section>
     {% endif %}
 
     <section class="guide-cta">
       <h2>Turn this into a plan</h2>
-      <p>Use ClientCellar to create a practical supplier enquiry email, shortlist and checklist for your brief.</p>
+      <p>Use ClientCellar to create a practical shortlist and checklist for your brief. Upgrade only if you need supplier emails and approval notes.</p>
       <div class="hero-actions compact-actions">
         <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
         {% if guide.cta_url == "/gift-planner" %}

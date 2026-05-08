@@ -70,6 +70,7 @@ STATIC_ROUTES = [
     "/privacy-policy",
     "/affiliate-disclosure",
     "/editorial-policy",
+    "/supplier-partnerships",
     "/responsible-drinking",
     "/copyright",
     "/cookies",
@@ -82,6 +83,7 @@ STATIC_ROUTES = [
     "/corporate-christmas-wine-gifts",
     "/suppliers",
     "/suppliers/join",
+    "/network-readiness",
 ]
 
 
@@ -1728,6 +1730,9 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         "recommended_strategy": strategy,
         "recommended_gift_types": gift_types(req),
         "supplier_shortlist": shortlist,
+        "suppliers": shortlist,
+        "supplier_recommendations": shortlist,
+        "suggested_suppliers": shortlist,
         "what_to_avoid": avoid,
         "message_templates": templates_out,
         "supplier_enquiry_email": {"subject": subject, "body": body},
@@ -1848,6 +1853,9 @@ def make_event_plan(req: EventPlanRequest) -> dict:
         "recommended_format": format_copy,
         "event_structure": event_structure(req),
         "supplier_shortlist": shortlist,
+        "suppliers": shortlist,
+        "supplier_recommendations": shortlist,
+        "suggested_suppliers": shortlist,
         "what_to_avoid": avoid,
         "supplier_enquiry_email": {"subject": subject, "body": body},
         "internal_approval_summary": internal_approval_summary,
@@ -3867,7 +3875,7 @@ def index(request: Request):
         request,
         "index.html",
         "Corporate Wine Gifts and Tasting Events",
-        "Plan corporate wine gifts and tasting events with UK budget guidance, supplier options and ready-to-send enquiry emails.",
+        "Plan corporate wine gifts and tasting events with UK budget guidance, supplier suggestions and optional copy-ready business documents.",
         structured_data=[website_schema(request), web_app_schema(request)],
     )
 
@@ -4498,6 +4506,26 @@ def editorial_policy(request: Request):
         "editorial_policy.html",
         "Editorial Policy",
         "How ClientCellar writes practical UK client gifting guidance and distinguishes editorial recommendations from commercial placements.",
+    )
+
+
+@app.get("/supplier-partnerships", response_class=HTMLResponse)
+def supplier_partnerships(request: Request):
+    return render(
+        request,
+        "supplier_partnerships.html",
+        "Supplier Partnerships",
+        "Work with ClientCellar on UK corporate wine gifting, hamper, event wine and non-alcoholic gifting partnerships.",
+    )
+
+
+@app.get("/network-readiness", response_class=HTMLResponse)
+def network_readiness(request: Request):
+    return render(
+        request,
+        "network_readiness.html",
+        "ClientCellar Publisher Profile",
+        "Publisher profile for affiliate networks, suppliers and commercial partnership review teams.",
     )
 
 

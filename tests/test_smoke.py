@@ -194,6 +194,8 @@ def test_commercial_content_routes_load():
         "/privacy-policy",
         "/affiliate-disclosure",
         "/editorial-policy",
+        "/supplier-partnerships",
+        "/network-readiness",
         "/corporate-wine-gifts",
         "/corporate-wine-tasting-events",
         "/client-wine-gifts",
@@ -267,6 +269,8 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
     assert "/corporate-wine-gifts" in text
     assert "/privacy-policy" in text
     assert "/editorial-policy" in text
+    assert "/supplier-partnerships" in text
+    assert "/network-readiness" in text
     assert "/checkout/success" not in text
     assert "/billing/success" not in text
     assert "/admin" not in text
@@ -314,6 +318,9 @@ def test_gift_plan_endpoint():
     assert "supplier_shortlist" in data
     assert "supplier_category" in data
     assert data["supplier_shortlist"]
+    assert data["suppliers"] == data["supplier_shortlist"]
+    assert data["supplier_recommendations"] == data["supplier_shortlist"]
+    assert data["suggested_suppliers"] == data["supplier_shortlist"]
     assert data["supplier_shortlist"][0]["tracked_url"].startswith("/out/supplier/")
     assert "internal_approval_summary" in data
 
@@ -336,6 +343,9 @@ def test_event_plan_endpoint():
     assert "event_structure" in data
     assert "supplier_category" in data
     assert data["supplier_shortlist"]
+    assert data["suppliers"] == data["supplier_shortlist"]
+    assert data["supplier_recommendations"] == data["supplier_shortlist"]
+    assert data["suggested_suppliers"] == data["supplier_shortlist"]
     assert data["supplier_shortlist"][0]["tracked_url"].startswith("/out/supplier/")
     assert "internal_approval_summary" in data
 
