@@ -324,6 +324,25 @@ def test_supplier_page_has_trust_sections():
     assert "Champagne and sparkling wine retailers" in response.text
 
 
+def test_public_pages_use_clientcellar_business_emails():
+    pages = [
+        "/contact",
+        "/about",
+        "/supplier-partnerships",
+        "/editorial-policy",
+        "/network-readiness",
+    ]
+    combined = ""
+    for path in pages:
+        response = client.get(path)
+        assert response.status_code == 200
+        combined += response.text
+
+    assert "hello@clientcellar.co.uk" in combined
+    assert "partners@clientcellar.co.uk" in combined
+    assert "parters@clientcellar.co.uk" not in combined
+
+
 def test_account_routes_load():
     for path in ["/sign-in", "/login", "/account", "/logout"]:
         response = client.get(path)
