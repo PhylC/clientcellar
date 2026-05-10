@@ -1760,8 +1760,253 @@ def enrich_supplier_comparison_rows(rows: list[dict], pack_type: str = "gift") -
     for row in rows or []:
         if not isinstance(row, dict):
             row = {"supplier": str(row)}
-        enriched.append({**row, **supplier_contact_route(row, pack_type)})
+        merged = {**row, **supplier_contact_route(row, pack_type)}
+        merged.update(supplier_advisory_comparison_fields(merged, pack_type))
+        enriched.append(merged)
     return enriched
+
+
+def supplier_advisory_comparison_fields(row: dict, pack_type: str = "gift") -> dict:
+    supplier_name = str(row.get("supplier") or row.get("supplier_type") or row.get("name") or "Supplier route")
+    label = " ".join([supplier_name, str(row.get("category") or ""), str(row.get("best_for") or "")]).lower()
+
+    if pack_type == "event":
+        if "venue" in label or "caterer" in label:
+            profile = {
+                "best_for": "Events where the venue controls service, corkage or glassware",
+                "best_for_tags": ["Venue controlled", "Low admin"],
+                "typical_spend": "Indicative: strongest when venue packages are already within the event budget",
+                "minimum_order": "Usually tied to venue minimum spend or attendee count; get the service charge in writing",
+                "branding_personalisation": "Limited branding, but menu cards or welcome messaging may be possible",
+                "turnaround": "Start 3-4 weeks out so corkage, staffing and delivery rules are clear",
+                "multi_address_delivery": "Usually not relevant unless tasting packs are shipped before the event",
+                "ease_score": "7/10",
+                "hidden_watchouts": "Corkage, service charge and house wine quality can make cheap headline prices misleading",
+                "recommendation": "Use where operational control matters more than merchant choice.",
+            }
+        elif "non" in label or "alcohol-free" in label:
+            profile = {
+                "best_for": "Inclusive workplace events where not every attendee drinks alcohol",
+                "best_for_tags": ["Inclusive", "Workplace safe"],
+                "typical_spend": "Indicative: often useful around £15-£45 per attendee depending on format",
+                "minimum_order": "Ask whether cases, mixed packs or per-attendee kits are available",
+                "branding_personalisation": "Usually light personalisation only; packaging quality matters more than branding",
+                "turnaround": "Allow 1-2 weeks, longer for mixed packs or Christmas delivery",
+                "multi_address_delivery": "Ask whether individual home delivery is supported before choosing a virtual format",
+                "ease_score": "6/10",
+                "hidden_watchouts": "Some alcohol-free options feel like substitutes rather than a proper adult drinks experience",
+                "recommendation": "Keep as a parallel route so the event does not exclude non-drinkers.",
+            }
+        elif "retailer" in label or "supermarket" in label:
+            profile = {
+                "best_for": "Simple self-managed events with clear quantities and one delivery point",
+                "best_for_tags": ["Budget check", "Simple order"],
+                "typical_spend": "Indicative: often strongest around £12-£35 per bottle before service costs",
+                "minimum_order": "Check case availability rather than assuming bulk support",
+                "branding_personalisation": "Little corporate personalisation; buyer handles presentation and service",
+                "turnaround": "Allow 1-2 weeks and keep a substitution plan",
+                "multi_address_delivery": "Usually poor fit for many addresses; best for one venue or office delivery",
+                "ease_score": "6/10",
+                "hidden_watchouts": "Retail substitutions and delivery windows can undermine event control",
+                "recommendation": "Use as a benchmark or backup, not the lead route for a polished hosted event.",
+            }
+        else:
+            profile = {
+                "best_for": "Hosted tastings or larger event wine requirements where advice and logistics matter",
+                "best_for_tags": ["Event advice", "Larger quantities"],
+                "typical_spend": "Indicative: usually strongest around £45-£120 per attendee for hosted formats",
+                "minimum_order": "Ask for attendee minimums, host fee, delivery terms and cancellation rules",
+                "branding_personalisation": "Can support theme, run sheet or branded notes if requested early",
+                "turnaround": "Begin supplier contact 3-6 weeks before the event; longer for Christmas or custom packs",
+                "multi_address_delivery": "Ask for recipient data format and failed-delivery handling for virtual events",
+                "ease_score": "8/10",
+                "hidden_watchouts": "Host availability, delivery failures and unclear cancellation terms are the main risks",
+                "recommendation": "Use as the lead route when the event needs structure, hosting or delivery support.",
+            }
+    elif "fortnum" in label:
+        profile = {
+            "best_for": "Premium client tiers where presentation matters more than tight budget control",
+            "best_for_tags": ["VIP", "Premium hamper"],
+            "typical_spend": "Indicative: usually strongest around £75-£200+ per recipient",
+            "minimum_order": "May work for small counts, but ask how corporate orders and invoices are handled",
+            "branding_personalisation": "Presentation is strong; branded inserts or bespoke notes need early confirmation",
+            "turnaround": "Allow 2-4 weeks, longer for Christmas peaks or large address lists",
+            "multi_address_delivery": "Check whether bulk multi-address upload is practical before using for all recipients",
+            "ease_score": "6/10",
+            "hidden_watchouts": "Risk: premium packaging can push spend above policy limits once delivery and VAT are added",
+            "recommendation": "Use for VIP or senior client tiers, not necessarily the whole list.",
+        }
+    elif "m&s" in label or "marks" in label or "hamper" in label:
+        profile = {
+            "best_for": "Staff, mixed-recipient groups and standard clients where food variety is safer than one bottle",
+            "best_for_tags": ["Broad appeal", "Hamper fallback"],
+            "typical_spend": "Indicative: often useful around £30-£75 per recipient",
+            "minimum_order": "Check whether business quantities can be handled smoothly before relying on retail checkout",
+            "branding_personalisation": "Usually limited; prioritise gift message, dietary filters and alcohol contents",
+            "turnaround": "Allow 1-3 weeks; Christmas cut-offs can move quickly",
+            "multi_address_delivery": "Ask whether multiple addresses can be uploaded or whether orders must be placed manually",
+            "ease_score": "7/10",
+            "hidden_watchouts": "Risk: low-spend options may feel more retail than premium corporate gifting",
+            "recommendation": "Use as the safest fallback when recipient preferences are unknown.",
+        }
+    elif "majestic" in label or "corporate wine" in label or "corporate gifting" in label:
+        profile = {
+            "best_for": "25-250 recipient campaigns where reliable fulfilment matters more than boutique curation",
+            "best_for_tags": ["Standard clients", "Fulfilment"],
+            "typical_spend": "Indicative: usually strongest around £45-£120 per recipient",
+            "minimum_order": "Ask whether the planned quantity qualifies for corporate support, VAT invoice and order handling",
+            "branding_personalisation": "Ask whether branded gift note, message handling and multi-address upload are supported",
+            "turnaround": "Begin contact 2-3 weeks before dispatch; longer for Christmas or branded items",
+            "multi_address_delivery": "Good route to test, but confirm file format and failed-delivery process before payment",
+            "ease_score": "8/10",
+            "hidden_watchouts": "Substitutions can change the perceived quality if the exact bottle or case is unavailable",
+            "recommendation": "Use for the standard client tier; reserve independent or premium merchants for VIP recipients.",
+        }
+    elif "laithwaites" in label or "virgin" in label:
+        profile = {
+            "best_for": "Accessible wine gift cases where range and straightforward delivery are more important than bespoke advice",
+            "best_for_tags": ["Wine gifts", "Case gifting"],
+            "typical_spend": "Indicative: usually strongest around £35-£90 per recipient",
+            "minimum_order": "Ask whether corporate quantities get a clearer account route than consumer checkout",
+            "branding_personalisation": "Gift messages may be possible; branded inserts and proofing need confirmation",
+            "turnaround": "Allow 1-3 weeks and build in substitution approval time",
+            "multi_address_delivery": "Confirm whether address upload, tracking and exception handling are supported",
+            "ease_score": "7/10",
+            "hidden_watchouts": "Mixed cases can be efficient but may feel less tailored for senior relationships",
+            "recommendation": "Use as a practical wine-only comparison against Majestic or a hamper supplier.",
+        }
+    elif "berry" in label or "wine society" in label or "independent" in label or "merchant" in label:
+        profile = {
+            "best_for": "VIP clients, senior relationships and advice-led bottle choices where taste matters",
+            "best_for_tags": ["VIP", "Advice led"],
+            "typical_spend": "Indicative: usually strongest around £60-£200+ per recipient",
+            "minimum_order": "Often flexible, but ask how they handle corporate lists, invoices and repeat orders",
+            "branding_personalisation": "Presentation and bottle advice can be strong; admin tooling may be lighter",
+            "turnaround": "Allow 2-4 weeks if you need tailored recommendations or local delivery planning",
+            "multi_address_delivery": "May be limited; check whether they can deliver to many addresses before committing",
+            "ease_score": "5/10",
+            "hidden_watchouts": "The best advice-led option can become admin-heavy for large recipient lists",
+            "recommendation": "Reserve for VIP recipients or tricky briefs where a mainstream route feels too generic.",
+        }
+    elif "non" in label or "alcohol-free" in label:
+        profile = {
+            "best_for": "Recipients where alcohol suitability is uncertain or workplace policy is sensitive",
+            "best_for_tags": ["Inclusive", "Alcohol-free"],
+            "typical_spend": "Indicative: usually strongest around £20-£70 per recipient",
+            "minimum_order": "Ask whether corporate gift packaging and invoices are available",
+            "branding_personalisation": "Prioritise presentation quality and gift message over heavy branding",
+            "turnaround": "Allow 1-2 weeks, longer for Christmas or mixed alternative packs",
+            "multi_address_delivery": "Confirm whether individual delivery and tracking are supported",
+            "ease_score": "6/10",
+            "hidden_watchouts": "Some options may feel like compliance substitutes unless packaging is gift-worthy",
+            "recommendation": "Keep as a planned alternative, especially for unknown preferences or internal stakeholders.",
+        }
+    else:
+        profile = {
+            "best_for": "Indicative supplier route for comparing fit, admin effort and recipient suitability",
+            "best_for_tags": ["Indicative", "To validate"],
+            "typical_spend": row.get("budget_fit") or "Indicative: confirm realistic bands directly with suppliers",
+            "minimum_order": "Ask for minimum order quantity, VAT invoice route and corporate account requirements",
+            "branding_personalisation": "Confirm gift notes, branded inserts, proofing time and packaging options before approval",
+            "turnaround": "Begin supplier contact 2-3 weeks before dispatch; longer during Christmas peaks",
+            "multi_address_delivery": "Confirm address file format, tracking and failed-delivery handling before sharing data",
+            "ease_score": "6/10",
+            "hidden_watchouts": "The headline option may look suitable but fail on admin, substitutions or delivery control",
+            "recommendation": "Use as a comparison route until written supplier responses show the strongest fit.",
+        }
+
+    return {
+        "best_for": row.get("advisory_best_for") or row.get("best_for_advisory") or profile["best_for"],
+        "best_for_tags": row.get("best_for_tags") or profile["best_for_tags"],
+        "typical_spend": row.get("typical_spend") or profile["typical_spend"],
+        "minimum_order": row.get("minimum_order") or profile["minimum_order"],
+        "branding_personalisation": row.get("branding_personalisation") or profile["branding_personalisation"],
+        "turnaround": row.get("turnaround") or profile["turnaround"],
+        "multi_address_delivery": row.get("multi_address_delivery") or profile["multi_address_delivery"],
+        "ease_score": row.get("ease_score") or profile["ease_score"],
+        "hidden_watchouts": row.get("hidden_watchouts") or profile["hidden_watchouts"],
+        "recommendation": row.get("recommendation") or profile["recommendation"],
+    }
+
+
+def premium_executive_recommendation(pack_type: str = "gift", unit_budget: float = 0, count: int = 0) -> list[dict]:
+    if pack_type == "event":
+        return [
+            {"label": "Recommended route", "value": "Use a dedicated event wine supplier where hosting, delivery or attendee packs matter; use venue packages only where corkage or service rules make outside supply impractical."},
+            {"label": "Budget sweet spot", "value": "Indicative: £45-£120 per attendee for a credible hosted experience before venue/service variables."},
+            {"label": "Recipient strategy", "value": "Separate hosted attendees, alcohol-free attendees and any VIP/client-facing stakeholders before asking for quotes."},
+            {"label": "Timing", "value": "Begin supplier contact 3-6 weeks before the event; longer for Christmas, virtual packs or branded materials."},
+            {"label": "Main risk", "value": "Choosing a format before confirming venue rules, delivery responsibilities, alcohol-free options and cancellation terms."},
+        ]
+    budget_note = (
+        f"Indicative: the entered budget of {money(unit_budget)} is workable for mainstream gifting; ask for a stretch option if premium feel matters."
+        if unit_budget and unit_budget < 65
+        else "Indicative: £65-£95 per recipient is often the strongest range for a credible premium feel without overpaying."
+    )
+    return [
+        {"label": "Recommended route", "value": "Use a mainstream corporate supplier for standard recipients and a specialist or independent merchant for VIP clients."},
+        {"label": "Budget sweet spot", "value": budget_note},
+        {"label": "Recipient strategy", "value": "Split recipients into VIP, standard client and internal stakeholder tiers before sending enquiries."},
+        {"label": "Timing", "value": "Begin supplier contact 2-3 weeks before required dispatch; longer for Christmas or branded items."},
+        {"label": "Main risk", "value": "Choosing a supplier before confirming multi-address delivery, gift notes, VAT invoicing and substitutions."},
+    ]
+
+
+def premium_what_we_would_do(pack_type: str = "gift") -> list[str]:
+    if pack_type == "event":
+        return [
+            "Separate attendee groups into hosted guests, alcohol-free attendees and VIP/client-facing stakeholders.",
+            "Use a dedicated event supplier if hosting, pacing or tasting packs matter.",
+            "Use the venue or caterer route where corkage, service or licensing makes outside supply risky.",
+            "Keep a supermarket or retailer route only as a benchmark or operational fallback.",
+            "Confirm delivery ownership, cancellation rules, substitutions and alcohol-free handling before payment.",
+        ]
+    return [
+        "Split the recipient list into VIP, standard client and internal stakeholder tiers.",
+        "Use wine or premium drinks for known wine-friendly recipients.",
+        "Use hampers only where recipient preference is unknown.",
+        "Reserve boutique suppliers for senior/VIP relationships.",
+        "Confirm delivery file format, cut-off dates, substitutions and invoice handling before payment.",
+    ]
+
+
+def premium_recommended_shortlist(rows: list[dict], pack_type: str = "gift") -> list[dict]:
+    if not rows:
+        return []
+
+    def find_row(*terms: str) -> dict | None:
+        for row in rows:
+            label = " ".join([str(row.get("supplier") or ""), str(row.get("best_for") or ""), str(row.get("supplier_type") or "")]).lower()
+            if any(term in label for term in terms):
+                return row
+        return None
+
+    if pack_type == "event":
+        overall = find_row("event", "tasting", "majestic") or rows[0]
+        fallback = find_row("venue", "caterer", "retailer", "supermarket") or (rows[1] if len(rows) > 1 else rows[0])
+        vip = find_row("premium", "independent", "merchant", "specialist") or overall
+        return [
+            {"rank": "Best overall", "supplier": overall.get("supplier") or overall.get("supplier_type"), "reason": "Strongest route when the brief needs hosting, delivery control or advice rather than only bottles."},
+            {"rank": "Best fallback", "supplier": fallback.get("supplier") or fallback.get("supplier_type"), "reason": "Useful if venue rules, budget or timing make the lead route harder to execute."},
+            {"rank": "Best VIP option", "supplier": vip.get("supplier") or vip.get("supplier_type"), "reason": "Best reserved for senior attendees or client-facing moments where presentation matters most."},
+        ]
+    overall = find_row("majestic", "corporate", "laithwaites", "virgin") or rows[0]
+    fallback = find_row("hamper", "m&s", "fortnum", "john lewis") or (rows[1] if len(rows) > 1 else rows[0])
+    vip = find_row("fortnum", "berry", "wine society", "independent", "merchant") or overall
+    return [
+        {"rank": "Best overall", "supplier": overall.get("supplier") or overall.get("supplier_type"), "reason": "Most likely to balance recipient count, admin effort, VAT invoice needs and delivery control."},
+        {"rank": "Best fallback", "supplier": fallback.get("supplier") or fallback.get("supplier_type"), "reason": "Use when preferences are mixed or a food-and-drink gift feels safer than a single bottle."},
+        {"rank": "Best VIP option", "supplier": vip.get("supplier") or vip.get("supplier_type"), "reason": "Reserve for senior relationships where advice, presentation or perceived quality matters more than speed."},
+    ]
+
+
+def add_premium_advisory_sections(preview: dict, pack_type: str = "gift", unit_budget: float = 0, count: int = 0) -> dict:
+    rows = preview.get("supplier_comparison") or []
+    preview["supplier_comparison"] = enrich_supplier_comparison_rows(rows, pack_type)
+    preview.setdefault("supplier_executive_recommendation", premium_executive_recommendation(pack_type, unit_budget, count))
+    preview.setdefault("what_we_would_do", premium_what_we_would_do(pack_type))
+    preview.setdefault("recommended_shortlist", premium_recommended_shortlist(preview["supplier_comparison"], pack_type))
+    return preview
 
 
 def supplier_directory_card(
@@ -2531,14 +2776,14 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
             row = {
                 "supplier": supplier_type,
                 "supplier_type": supplier_type,
-                "product_package": supplier.get("category", "Package to be quoted"),
-                "unit_price": "Supplier to quote",
-                "delivery_cost": "Supplier to quote",
-                "personalisation": "Confirm messages, branding and proofing.",
-                "lead_time": "Confirm order cut-off and delivery lead time.",
+                "product_package": supplier.get("category", "Indicative package route"),
+                "unit_price": "Indicative: request written unit pricing with VAT treatment.",
+                "delivery_cost": "Indicative: ask for itemised delivery by address type.",
+                "personalisation": "Ask whether VAT invoice, branded gift note and multi-address upload are supported before committing.",
+                "lead_time": "Begin supplier contact 2-3 weeks before required dispatch; longer for Christmas or branded items.",
                 "pros": supplier.get("why", "Relevant to the current brief."),
                 "risks": "Confirm live pricing, availability, delivery, VAT, minimum orders and substitutions.",
-                "decision": "Compare once itemised quotes are received.",
+                "decision": "Use only if the written response proves admin, delivery and substitution handling are strong enough.",
                 "best_for": supplier.get("category", "supplier route"),
                 "budget_fit": budget_fit,
                 "strengths": supplier.get("why", "Relevant to the current brief."),
@@ -2551,14 +2796,14 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
             {
                 "supplier": "Supplier type to confirm",
                 "supplier_type": "Supplier type to confirm",
-                "product_package": "Package to be quoted",
-                "unit_price": "Supplier to quote",
-                "delivery_cost": "Supplier to quote",
-                "personalisation": "Confirm options and proofing.",
-                "lead_time": "Confirm directly.",
+                "product_package": "Indicative package route",
+                "unit_price": "Indicative: request written unit pricing with VAT treatment.",
+                "delivery_cost": "Indicative: ask for itemised delivery by address type.",
+                "personalisation": "Ask whether gift notes, branding and proofing can be handled inside the deadline.",
+                "lead_time": "Begin supplier contact 2-3 weeks before dispatch; longer in seasonal peaks.",
                 "pros": "Keeps supplier conversations structured.",
                 "risks": "No live pricing or availability is included.",
-                "decision": "Compare once written quotes are received.",
+                "decision": "Use only after the supplier confirms admin, delivery and substitution handling in writing.",
                 "best_for": "Initial market comparison",
                 "budget_fit": "Confirm directly with suppliers.",
                 "strengths": "Keeps supplier conversations structured.",
@@ -2732,8 +2977,7 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
             "disclaimer": DISCLAIMER,
         }
     preview = maybe_improve_plan(preview, "premium_pack")
-    preview["supplier_comparison"] = enrich_supplier_comparison_rows(preview.get("supplier_comparison", []), req.pack_type)
-    return preview
+    return add_premium_advisory_sections(preview, req.pack_type, unit_budget, count)
 
 
 def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | None = None) -> dict:
@@ -2795,14 +3039,14 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
             {
                 "supplier": route,
                 "supplier_type": route,
-                "product_package": "Package to be quoted",
-                "unit_price": "Supplier to quote",
-                "delivery_cost": "Supplier to quote",
-                "personalisation": "Confirm directly",
-                "lead_time": "Confirm directly",
+                "product_package": "Indicative package route",
+                "unit_price": "Indicative: request written unit pricing with VAT treatment.",
+                "delivery_cost": "Indicative: ask for itemised delivery by address type.",
+                "personalisation": "Ask whether gift notes, branding and proofing can be handled inside the deadline.",
+                "lead_time": "Begin supplier contact 2-3 weeks before dispatch; longer in seasonal peaks.",
                 "pros": "Structured corporate enquiry and supplier-ready quote comparison.",
                 "risks": "No live stock, price or availability is included.",
-                "decision": "Compare once itemised quotes are received.",
+                "decision": "Use only after the supplier confirms admin, delivery and substitution handling in writing.",
                 "best_for": "Primary buying route",
                 "budget_fit": "Confirm against agreed budget bands.",
                 "strengths": "Structured corporate enquiry and supplier-ready quote comparison.",
@@ -2813,10 +3057,10 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
                 "supplier": "Corporate hamper supplier",
                 "supplier_type": "Corporate hamper supplier",
                 "product_package": "Wine hamper or alternative hamper",
-                "unit_price": "Supplier to quote",
-                "delivery_cost": "Supplier to quote",
+                "unit_price": "Indicative: request written unit pricing with VAT treatment.",
+                "delivery_cost": "Indicative: ask for itemised delivery by address type.",
                 "personalisation": "Gift message and packaging options",
-                "lead_time": "Confirm directly",
+                "lead_time": "Begin supplier contact 2-3 weeks before dispatch; longer in seasonal peaks.",
                 "pros": "Can combine wine with food, packaging and gift messaging.",
                 "risks": "Check allergens, substitutions, breakage and delivery coverage.",
                 "decision": "Useful fallback if single-bottle gifting feels too narrow.",
@@ -2830,10 +3074,10 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
                 "supplier": "Wine retailer or supermarket",
                 "supplier_type": "Wine retailer or supermarket",
                 "product_package": "Retail wine gift route",
-                "unit_price": "Supplier to quote",
-                "delivery_cost": "Supplier to quote",
+                "unit_price": "Indicative: request written unit pricing with VAT treatment.",
+                "delivery_cost": "Indicative: ask for itemised delivery by address type.",
                 "personalisation": "Likely limited; confirm directly",
-                "lead_time": "Confirm directly",
+                "lead_time": "Begin supplier contact 1-3 weeks before dispatch and keep a backup option.",
                 "pros": "Transparent ranges and familiar fulfilment routes.",
                 "risks": "May offer less corporate support, personalisation or recipient-list handling.",
                 "decision": "Useful for simple orders or budget benchmarking.",
@@ -2891,8 +3135,7 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
         "print_note": "Print or save this page as a PDF for internal approval.",
         "disclaimer": DISCLAIMER,
     }
-    preview["supplier_comparison"] = enrich_supplier_comparison_rows(preview.get("supplier_comparison", []), pack_type)
-    return preview
+    return add_premium_advisory_sections(preview, pack_type)
 
 
 def normalise_premium_pack_view_preview(pack: dict, preview: dict | None) -> dict:
@@ -2901,7 +3144,7 @@ def normalise_premium_pack_view_preview(pack: dict, preview: dict | None) -> dic
     preview = dict(preview or {})
     if not preview:
         preview = make_fallback_premium_pack_preview(pack_type, pack)
-    preview["supplier_comparison"] = enrich_supplier_comparison_rows(preview.get("supplier_comparison", []), pack_type)
+    preview = add_premium_advisory_sections(preview, pack_type)
 
     sections = preview.get("sections") or preview.get("document_sections")
     document_sections = []

@@ -545,33 +545,105 @@ function contactRouteHtml(item = {}) {
   return `<span>Search/contact directly</span><br><span class="small-note">Search: ${escapeHtml(search)}</span>`;
 }
 
-function renderPremiumComparison(items) {
+function renderAdvisoryItems(items = []) {
+  if (!Array.isArray(items) || !items.length) return "";
+  return `
+    <div class="advisory-panel">
+      <h3>Executive recommendation</h3>
+      <dl class="advisory-list">
+        ${items.map((item) => `<div><dt>${escapeHtml(item.label || "")}</dt><dd>${escapeHtml(item.value || "")}</dd></div>`).join("")}
+      </dl>
+    </div>
+  `;
+}
+
+function renderWhatWeWouldDo(items = []) {
+  if (!Array.isArray(items) || !items.length) return "";
+  return `
+    <div class="advisory-panel">
+      <h3>What we would do</h3>
+      <ol>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>
+    </div>
+  `;
+}
+
+function supplierNameHtml(item = {}) {
+  return `<strong>${escapeHtml(item.supplier || item.supplier_type || "Supplier route")}</strong><div class="supplier-contact-inline">${contactRouteHtml(item)}</div>`;
+}
+
+function tagRowHtml(tags = []) {
+  if (!Array.isArray(tags) || !tags.length) return "";
+  return `<div class="tag-row">${tags.map((tag) => `<span class="route-tag">${escapeHtml(tag)}</span>`).join("")}</div>`;
+}
+
+function renderPremiumComparison(preview = {}) {
+  const items = preview.supplier_comparison || [];
   const rows = items
     .map(
       (item) => `
         <tr>
-          <td>${escapeHtml(item.supplier || item.supplier_type || "Supplier")}</td>
-          <td>${contactRouteHtml(item)}</td>
-          <td>${escapeHtml(item.product_package || item.best_for || item.fit || "To quote")}</td>
-          <td>${escapeHtml(item.unit_price || "To quote")}</td>
-          <td>${escapeHtml(item.delivery_cost || "To quote")}</td>
-          <td>${escapeHtml(item.personalisation || "Confirm")}</td>
-          <td>${escapeHtml(item.lead_time || "Confirm")}</td>
-          <td>${escapeHtml(item.pros || item.strengths || "")}</td>
-          <td>${escapeHtml(item.risks || item.watchouts || "")}</td>
-          <td>${escapeHtml(item.decision || "To decide")}</td>
+          <td>${supplierNameHtml(item)}</td>
+          <td>${tagRowHtml(item.best_for_tags)}${escapeHtml(item.best_for || "")}</td>
+          <td>${escapeHtml(item.typical_spend || "")}</td>
+          <td>${escapeHtml(item.minimum_order || "")}</td>
+          <td>${escapeHtml(item.branding_personalisation || "")}</td>
+          <td>${escapeHtml(item.turnaround || "")}</td>
+          <td>${escapeHtml(item.multi_address_delivery || "")}</td>
+          <td><span class="score-pill">${escapeHtml(item.ease_score || "6/10")}</span></td>
+          <td>${escapeHtml(item.hidden_watchouts || "")}</td>
+          <td>${escapeHtml(item.recommendation || "")}</td>
         </tr>
       `
     )
     .join("");
+  const cards = items
+    .map(
+      (item) => `
+        <article class="supplier-comparison-card">
+          <div class="comparison-card-header">
+            <h3>${escapeHtml(item.supplier || item.supplier_type || "Supplier route")}</h3>
+            <span class="score-pill">${escapeHtml(item.ease_score || "6/10")}</span>
+          </div>
+          ${tagRowHtml(item.best_for_tags)}
+          <p class="supplier-contact-inline">${contactRouteHtml(item)}</p>
+          <dl class="comparison-card-list">
+            <div><dt>Best for</dt><dd>${escapeHtml(item.best_for || "")}</dd></div>
+            <div><dt>Typical spend</dt><dd>${escapeHtml(item.typical_spend || "")}</dd></div>
+            <div><dt>Minimum order</dt><dd>${escapeHtml(item.minimum_order || "")}</dd></div>
+            <div><dt>Branding / personalisation</dt><dd>${escapeHtml(item.branding_personalisation || "")}</dd></div>
+            <div><dt>Turnaround</dt><dd>${escapeHtml(item.turnaround || "")}</dd></div>
+            <div><dt>Multi-address delivery</dt><dd>${escapeHtml(item.multi_address_delivery || "")}</dd></div>
+            <div><dt>Hidden watchouts</dt><dd>${escapeHtml(item.hidden_watchouts || "")}</dd></div>
+            <div><dt>Recommendation</dt><dd>${escapeHtml(item.recommendation || "")}</dd></div>
+          </dl>
+        </article>
+      `
+    )
+    .join("");
+  const shortlist = Array.isArray(preview.recommended_shortlist) && preview.recommended_shortlist.length
+    ? `
+      <div class="advisory-panel">
+        <h3>Recommended shortlist</h3>
+        <div class="shortlist-grid">
+          ${preview.recommended_shortlist
+            .map((item) => `<div><span class="route-tag">${escapeHtml(item.rank || "")}</span><h4>${escapeHtml(item.supplier || "")}</h4><p>${escapeHtml(item.reason || "")}</p></div>`)
+            .join("")}
+        </div>
+      </div>
+    `
+    : "";
   return `
-    <p class="small-note">Use the contact route to request itemised quotes. ClientCellar does not confirm supplier pricing, stock or delivery - use this table to compare responses once suppliers reply.</p>
-    <div class="table-scroll">
-      <table class="pack-table">
-        <thead><tr><th>Supplier</th><th>Contact route</th><th>Product / package</th><th>Unit price</th><th>Delivery cost</th><th>Personalisation</th><th>Lead time</th><th>Pros</th><th>Risks / watchouts</th><th>Decision</th></tr></thead>
+    ${renderAdvisoryItems(preview.supplier_executive_recommendation)}
+    ${renderWhatWeWouldDo(preview.what_we_would_do)}
+    <p class="small-note">Indicative planning guidance only. Supplier pricing, stock, availability, delivery and order terms must be confirmed directly.</p>
+    <div class="table-scroll supplier-comparison-desktop">
+      <table class="pack-table supplier-comparison-table">
+        <thead><tr><th>Supplier</th><th>Best for</th><th>Typical spend</th><th>Minimum order</th><th>Branding / personalisation</th><th>Turnaround</th><th>Multi-address delivery</th><th>Ease score</th><th>Hidden watchouts</th><th>Recommendation</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
+    <div class="supplier-comparison-cards">${cards}</div>
+    ${shortlist}
   `;
 }
 
@@ -637,7 +709,7 @@ function renderPremiumPreview(preview, type) {
       </section>
       <section class="result-block">
         <h3>3. Supplier quote comparison table</h3>
-        ${renderPremiumComparison(preview.supplier_comparison)}
+        ${renderPremiumComparison(preview)}
       </section>
       <section class="result-block">
         <h3>4. Budget breakdown</h3>

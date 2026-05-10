@@ -11,6 +11,114 @@
     {% endif %}
   {% endif %}
 {%- endmacro %}
+{% macro supplier_name_cell(comp) -%}
+  <strong>{{ comp.supplier or comp.supplier_type or "Supplier route" }}</strong>
+  <div class="supplier-contact-inline">{{ contact_route_cell(comp) }}</div>
+{%- endmacro %}
+{% macro advisory_supplier_comparison(preview) -%}
+  {% if preview.supplier_executive_recommendation %}
+  <div class="advisory-panel">
+    <h3>Executive recommendation</h3>
+    <dl class="advisory-list">
+      {% for item in preview.supplier_executive_recommendation %}
+      <div><dt>{{ item.label }}</dt><dd>{{ item.value }}</dd></div>
+      {% endfor %}
+    </dl>
+  </div>
+  {% endif %}
+  {% if preview.what_we_would_do %}
+  <div class="advisory-panel">
+    <h3>What we would do</h3>
+    <ol>
+      {% for item in preview.what_we_would_do %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ol>
+  </div>
+  {% endif %}
+  <p class="small-note">Indicative planning guidance only. Supplier pricing, stock, availability, delivery and order terms must be confirmed directly.</p>
+  <div class="table-scroll supplier-comparison-desktop">
+    <table class="budget-table pack-table supplier-comparison-table">
+      <thead>
+        <tr>
+          <th>Supplier</th>
+          <th>Best for</th>
+          <th>Typical spend</th>
+          <th>Minimum order</th>
+          <th>Branding / personalisation</th>
+          <th>Turnaround</th>
+          <th>Multi-address delivery</th>
+          <th>Ease score</th>
+          <th>Hidden watchouts</th>
+          <th>Recommendation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for comp in preview.supplier_comparison %}
+        <tr>
+          <td>{{ supplier_name_cell(comp) }}</td>
+          <td>
+            <div class="tag-row">
+              {% for tag in comp.best_for_tags or [] %}
+              <span class="route-tag">{{ tag }}</span>
+              {% endfor %}
+            </div>
+            {{ comp.best_for }}
+          </td>
+          <td>{{ comp.typical_spend }}</td>
+          <td>{{ comp.minimum_order }}</td>
+          <td>{{ comp.branding_personalisation }}</td>
+          <td>{{ comp.turnaround }}</td>
+          <td>{{ comp.multi_address_delivery }}</td>
+          <td><span class="score-pill">{{ comp.ease_score }}</span></td>
+          <td>{{ comp.hidden_watchouts }}</td>
+          <td>{{ comp.recommendation }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="supplier-comparison-cards">
+    {% for comp in preview.supplier_comparison %}
+    <article class="supplier-comparison-card">
+      <div class="comparison-card-header">
+        <h3>{{ comp.supplier or comp.supplier_type or "Supplier route" }}</h3>
+        <span class="score-pill">{{ comp.ease_score }}</span>
+      </div>
+      <div class="tag-row">
+        {% for tag in comp.best_for_tags or [] %}
+        <span class="route-tag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      <p class="supplier-contact-inline">{{ contact_route_cell(comp) }}</p>
+      <dl class="comparison-card-list">
+        <div><dt>Best for</dt><dd>{{ comp.best_for }}</dd></div>
+        <div><dt>Typical spend</dt><dd>{{ comp.typical_spend }}</dd></div>
+        <div><dt>Minimum order</dt><dd>{{ comp.minimum_order }}</dd></div>
+        <div><dt>Branding / personalisation</dt><dd>{{ comp.branding_personalisation }}</dd></div>
+        <div><dt>Turnaround</dt><dd>{{ comp.turnaround }}</dd></div>
+        <div><dt>Multi-address delivery</dt><dd>{{ comp.multi_address_delivery }}</dd></div>
+        <div><dt>Hidden watchouts</dt><dd>{{ comp.hidden_watchouts }}</dd></div>
+        <div><dt>Recommendation</dt><dd>{{ comp.recommendation }}</dd></div>
+      </dl>
+    </article>
+    {% endfor %}
+  </div>
+  {% if preview.recommended_shortlist %}
+  <div class="advisory-panel">
+    <h3>Recommended shortlist</h3>
+    <div class="shortlist-grid">
+      {% for item in preview.recommended_shortlist %}
+      <div>
+        <span class="route-tag">{{ item.rank }}</span>
+        <h4>{{ item.supplier }}</h4>
+        <p>{{ item.reason }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+{%- endmacro %}
 {% block content %}
 <section class="premium-pack-header">
   <div class="premium-pack-hero">
@@ -68,41 +176,7 @@
     </div>
     <pre id="enquiryEmail">{{ preview.supplier_enquiry_email.body }}</pre>
     {% elif section_key == "supplier quote comparison table" and preview.supplier_comparison %}
-    <p class="small-note">Use the contact route to request itemised quotes. ClientCellar does not confirm supplier pricing, stock or delivery - use this table to compare responses once suppliers reply.</p>
-    <div class="table-scroll">
-      <table class="budget-table pack-table">
-        <thead>
-          <tr>
-            <th>Supplier</th>
-            <th>Contact route</th>
-            <th>Product / package</th>
-            <th>Unit price</th>
-            <th>Delivery cost</th>
-            <th>Personalisation</th>
-            <th>Lead time</th>
-            <th>Pros</th>
-            <th>Risks / watchouts</th>
-            <th>Decision</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for comp in preview.supplier_comparison %}
-          <tr>
-            <td>{{ comp.supplier or comp.supplier_type or "Supplier" }}</td>
-            <td>{{ contact_route_cell(comp) }}</td>
-            <td>{{ comp.product_package or comp.best_for or comp.fit or "To quote" }}</td>
-            <td>{{ comp.unit_price or "To quote" }}</td>
-            <td>{{ comp.delivery_cost or "To quote" }}</td>
-            <td>{{ comp.personalisation or "Confirm" }}</td>
-            <td>{{ comp.lead_time or "Confirm" }}</td>
-            <td>{{ comp.pros or comp.strengths or "" }}</td>
-            <td>{{ comp.risks or comp.watchouts or "" }}</td>
-            <td>{{ comp.decision or "To decide" }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    {{ advisory_supplier_comparison(preview) }}
     {% else %}
     {% if section.content %}
     <p>{{ section.content }}</p>
@@ -191,25 +265,7 @@
   {% if preview.supplier_comparison %}
   <section class="pack-section">
     <h2>5. Supplier Comparison Matrix</h2>
-    <p class="small-note">Use the contact route to request itemised quotes. ClientCellar does not confirm supplier pricing, stock or delivery - use this table to compare responses once suppliers reply.</p>
-    <div class="table-scroll">
-      <table class="budget-table pack-table">
-        <thead><tr><th>Supplier type</th><th>Contact route</th><th>Best for</th><th>Budget fit</th><th>Strengths</th><th>Watchouts</th><th>Questions to ask</th></tr></thead>
-        <tbody>
-          {% for comp in preview.supplier_comparison %}
-          <tr>
-            <td>{{ comp.supplier_type or comp.supplier }}</td>
-            <td>{{ contact_route_cell(comp) }}</td>
-            <td>{{ comp.best_for or comp.fit }}</td>
-            <td>{{ comp.budget_fit }}</td>
-            <td>{{ comp.strengths or (comp.pros | join("; ")) }}</td>
-            <td>{{ comp.watchouts }}</td>
-            <td>{{ comp.questions_to_ask }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    {{ advisory_supplier_comparison(preview) }}
   </section>
   {% endif %}
 
