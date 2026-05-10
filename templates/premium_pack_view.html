@@ -1,4 +1,16 @@
 {% extends "base.html" %}
+{% macro contact_route_cell(comp) -%}
+  {% if comp.mailto_url %}
+    <a href="{{ comp.mailto_url }}">Email supplier</a>
+  {% elif comp.contact_url %}
+    <a href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer">{{ comp.contact_label or "Contact supplier" }}</a>
+  {% else %}
+    <span>Search/contact directly</span>
+    {% if comp.search_suggestion %}
+    <br><span class="small-note">Search: {{ comp.search_suggestion }}</span>
+    {% endif %}
+  {% endif %}
+{%- endmacro %}
 {% block content %}
 <section class="premium-pack-header">
   <div class="premium-pack-hero">
@@ -56,11 +68,13 @@
     </div>
     <pre id="enquiryEmail">{{ preview.supplier_enquiry_email.body }}</pre>
     {% elif section_key == "supplier quote comparison table" and preview.supplier_comparison %}
+    <p class="small-note">Use the contact route to request itemised quotes. ClientCellar does not confirm supplier pricing, stock or delivery - use this table to compare responses once suppliers reply.</p>
     <div class="table-scroll">
       <table class="budget-table pack-table">
         <thead>
           <tr>
             <th>Supplier</th>
+            <th>Contact route</th>
             <th>Product / package</th>
             <th>Unit price</th>
             <th>Delivery cost</th>
@@ -75,6 +89,7 @@
           {% for comp in preview.supplier_comparison %}
           <tr>
             <td>{{ comp.supplier or comp.supplier_type or "Supplier" }}</td>
+            <td>{{ contact_route_cell(comp) }}</td>
             <td>{{ comp.product_package or comp.best_for or comp.fit or "To quote" }}</td>
             <td>{{ comp.unit_price or "To quote" }}</td>
             <td>{{ comp.delivery_cost or "To quote" }}</td>
@@ -176,13 +191,15 @@
   {% if preview.supplier_comparison %}
   <section class="pack-section">
     <h2>5. Supplier Comparison Matrix</h2>
+    <p class="small-note">Use the contact route to request itemised quotes. ClientCellar does not confirm supplier pricing, stock or delivery - use this table to compare responses once suppliers reply.</p>
     <div class="table-scroll">
       <table class="budget-table pack-table">
-        <thead><tr><th>Supplier type</th><th>Best for</th><th>Budget fit</th><th>Strengths</th><th>Watchouts</th><th>Questions to ask</th></tr></thead>
+        <thead><tr><th>Supplier type</th><th>Contact route</th><th>Best for</th><th>Budget fit</th><th>Strengths</th><th>Watchouts</th><th>Questions to ask</th></tr></thead>
         <tbody>
           {% for comp in preview.supplier_comparison %}
           <tr>
             <td>{{ comp.supplier_type or comp.supplier }}</td>
+            <td>{{ contact_route_cell(comp) }}</td>
             <td>{{ comp.best_for or comp.fit }}</td>
             <td>{{ comp.budget_fit }}</td>
             <td>{{ comp.strengths or (comp.pros | join("; ")) }}</td>

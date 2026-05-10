@@ -1399,6 +1399,11 @@ def apply_central_supplier_entries() -> None:
                 "website_url": entry.get("url"),
                 "enquiry_url": entry.get("url"),
                 "affiliate_url": entry.get("affiliateUrl"),
+                "contact_url": entry.get("contactUrl"),
+                "contact_email": entry.get("contactEmail"),
+                "contact_label": entry.get("contactLabel"),
+                "contact_type": entry.get("contactType"),
+                "search_suggestion": entry.get("searchSuggestion"),
                 "url_purpose": entry.get("urlPurpose"),
                 "url_checked_date": entry.get("checkedDate"),
                 "url_type": "normal" if entry.get("url") else "search_guidance",
@@ -1458,6 +1463,11 @@ def normalise_suppliers() -> None:
                 "useCases": supplier.get("use_cases") or supplier.get("best_for", []),
                 "isAffiliate": is_affiliate,
                 "affiliateUrl": supplier.get("affiliate_url"),
+                "contactUrl": supplier.get("contact_url"),
+                "contactEmail": supplier.get("contact_email"),
+                "contactLabel": supplier.get("contact_label"),
+                "contactType": supplier.get("contact_type") or ("supplier_page" if supplier.get("contact_url") else "search_suggestion"),
+                "searchSuggestion": supplier.get("search_suggestion"),
             }
         )
 
@@ -1632,6 +1642,125 @@ def is_real_supplier(supplier: dict) -> bool:
 
 def supplier_by_id(supplier_id: str) -> dict | None:
     return next((supplier for supplier in SUPPLIERS if supplier["id"] == supplier_id and supplier.get("active", True)), None)
+
+
+def supplier_by_name(name: str | None) -> dict | None:
+    if not name:
+        return None
+    target = slugify(str(name))
+    for supplier in SUPPLIERS:
+        values = {
+            slugify(str(supplier.get("name", ""))),
+            slugify(str(supplier.get("id", ""))),
+            slugify(str(supplier.get("supplier_id", ""))),
+            slugify(str(supplier.get("tracking_slug", ""))),
+        }
+        if target in values:
+            return supplier
+    for supplier in SUPPLIERS:
+        supplier_slug = slugify(str(supplier.get("name", "")))
+        if supplier_slug and (supplier_slug in target or target in supplier_slug):
+            return supplier
+    return None
+
+
+def contact_label_for_type(contact_type: str | None) -> str:
+    return {
+        "email": "Email supplier",
+        "contact_form": "Contact form",
+        "corporate_page": "Corporate gifting",
+        "supplier_page": "Supplier page",
+        "search_suggestion": "Search/contact directly",
+    }.get(contact_type or "", "Contact supplier")
+
+
+def supplier_contact_search_suggestion(row_or_supplier: dict | None, pack_type: str = "gift") -> str:
+    label = " ".join(
+        str(value)
+        for value in [
+            (row_or_supplier or {}).get("supplier"),
+            (row_or_supplier or {}).get("supplier_type"),
+            (row_or_supplier or {}).get("name"),
+            (row_or_supplier or {}).get("category"),
+        ]
+        if value
+    ).lower()
+    if "local independent wine merchant" in label or "independent merchant" in label:
+        return "independent wine merchant near me"
+    if "english sparkling" in label:
+        return "English sparkling wine producer corporate gifts"
+    if "venue" in label or "caterer" in label:
+        return "Ask your venue or caterer for wine package and corkage details"
+    if "hamper" in label:
+        return "corporate hamper supplier UK"
+    if "supermarket" in label or "wine retailer" in label:
+        return "wine gifts corporate delivery UK"
+    if pack_type == "event":
+        return "corporate wine tasting supplier UK"
+    return "corporate wine gift supplier UK"
+
+
+def supplier_contact_mailto(email: str, pack_type: str = "gift") -> str:
+    subject = "Event wine enquiry" if pack_type == "event" else "Corporate gifting enquiry"
+    requirement = "corporate wine event requirement" if pack_type == "event" else "corporate gifting requirement"
+    body = (
+        "Hello,\n\n"
+        f"I am looking for help with a {requirement}.\n\n"
+        "Please could you confirm:\n"
+        "- suitable product/package options\n"
+        "- unit pricing\n"
+        "- delivery costs and timings\n"
+        "- gift message or personalisation options\n"
+        "- VAT invoice availability\n"
+        "- substitutions if items are unavailable\n\n"
+        "Thank you."
+    )
+    return f"mailto:{email}?{urllib.parse.urlencode({'subject': subject, 'body': body})}"
+
+
+def supplier_contact_route(row_or_supplier: dict | None, pack_type: str = "gift") -> dict:
+    row_or_supplier = row_or_supplier or {}
+    supplier_key = row_or_supplier.get("supplier_id") or row_or_supplier.get("id")
+    supplier = supplier_by_id(str(supplier_key)) if supplier_key else None
+    supplier = supplier or supplier_by_name(row_or_supplier.get("supplier") or row_or_supplier.get("supplier_type") or row_or_supplier.get("name"))
+    source = {**(supplier or {}), **row_or_supplier}
+    contact_email = source.get("contact_email") or source.get("contactEmail")
+    contact_url = source.get("contact_url") or source.get("contactUrl")
+    contact_type = source.get("contact_type") or source.get("contactType")
+    if contact_url and not contact_type:
+        contact_type = "supplier_page"
+    if not contact_url and not contact_email:
+        contact_type = "search_suggestion"
+    contact_label = source.get("contact_label") or source.get("contactLabel") or contact_label_for_type(contact_type)
+    search_suggestion = (
+        source.get("search_suggestion")
+        or source.get("searchSuggestion")
+        or supplier_contact_search_suggestion(source, pack_type)
+    )
+    mailto_url = supplier_contact_mailto(contact_email, pack_type) if contact_email else None
+    return {
+        "contact_email": contact_email,
+        "contactEmail": contact_email,
+        "contact_url": contact_url,
+        "contactUrl": contact_url,
+        "contact_label": contact_label,
+        "contactLabel": contact_label,
+        "contact_type": contact_type,
+        "contactType": contact_type,
+        "search_suggestion": search_suggestion,
+        "searchSuggestion": search_suggestion,
+        "mailto_url": mailto_url,
+        "mailtoUrl": mailto_url,
+    }
+
+
+def enrich_supplier_comparison_rows(rows: list[dict], pack_type: str = "gift") -> list[dict]:
+    enriched = []
+    for row in rows or []:
+        if not isinstance(row, dict):
+            row = {"supplier": str(row)}
+        enriched.append({**row, **supplier_contact_route(row, pack_type)})
+    return enriched
 
 
 def supplier_directory_card(
@@ -1963,6 +2092,7 @@ def build_supplier_shortlist(items: list[dict], why_prefix: str, budget: float) 
     for supplier in items[:5]:
         shortlist.append(
             {
+                "supplier_id": supplier["id"],
                 "name": supplier["name"],
                 "category": readable(supplier["category"]),
                 "why": f"{why_prefix} {supplier['notes']}",
@@ -1977,7 +2107,22 @@ def build_supplier_shortlist(items: list[dict], why_prefix: str, budget: float) 
                 "url_checked_date": supplier.get("url_checked_date"),
                 "url_type": supplier.get("url_type"),
                 "link_label": supplier_link_label(supplier),
-                "search_suggestion": (
+                "contact_url": supplier.get("contact_url"),
+                "contactUrl": supplier.get("contact_url"),
+                "contact_email": supplier.get("contact_email"),
+                "contactEmail": supplier.get("contact_email"),
+                "contact_label": supplier.get("contact_label") or contact_label_for_type(supplier.get("contact_type")),
+                "contactLabel": supplier.get("contact_label") or contact_label_for_type(supplier.get("contact_type")),
+                "contact_type": supplier.get("contact_type"),
+                "contactType": supplier.get("contact_type"),
+                "search_suggestion": supplier.get("search_suggestion")
+                or (
+                    "independent wine merchant near your town or city"
+                    if supplier["id"] in {"local-independent-wine-merchant", "independent-merchant"}
+                    else f"{readable(supplier['category'])} UK"
+                ),
+                "searchSuggestion": supplier.get("search_suggestion")
+                or (
                     "independent wine merchant near your town or city"
                     if supplier["id"] in {"local-independent-wine-merchant", "independent-merchant"}
                     else f"{readable(supplier['category'])} UK"
@@ -2382,26 +2527,26 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
         for supplier in supplier_shortlist[:5]:
             supplier_type = supplier.get("name", "Supplier type")
             budget_fit = supplier.get("budget_fit", "Confirm current pricing directly.")
-            rows.append(
-                {
-                    "supplier": supplier_type,
-                    "supplier_type": supplier_type,
-                    "product_package": supplier.get("category", "Package to be quoted"),
-                    "unit_price": "Supplier to quote",
-                    "delivery_cost": "Supplier to quote",
-                    "personalisation": "Confirm messages, branding and proofing.",
-                    "lead_time": "Confirm order cut-off and delivery lead time.",
-                    "pros": supplier.get("why", "Relevant to the current brief."),
-                    "risks": "Confirm live pricing, availability, delivery, VAT, minimum orders and substitutions.",
-                    "decision": "Compare once itemised quotes are received.",
-                    "best_for": supplier.get("category", "supplier route"),
-                    "budget_fit": budget_fit,
-                    "strengths": supplier.get("why", "Relevant to the current brief."),
-                    "watchouts": "Confirm live pricing, availability, delivery, VAT, minimum orders and substitutions.",
-                    "questions_to_ask": "Can you meet the count, deadline, delivery coverage and data requirements for this brief?",
-                }
-            )
-        return rows or [
+            row = {
+                "supplier": supplier_type,
+                "supplier_type": supplier_type,
+                "product_package": supplier.get("category", "Package to be quoted"),
+                "unit_price": "Supplier to quote",
+                "delivery_cost": "Supplier to quote",
+                "personalisation": "Confirm messages, branding and proofing.",
+                "lead_time": "Confirm order cut-off and delivery lead time.",
+                "pros": supplier.get("why", "Relevant to the current brief."),
+                "risks": "Confirm live pricing, availability, delivery, VAT, minimum orders and substitutions.",
+                "decision": "Compare once itemised quotes are received.",
+                "best_for": supplier.get("category", "supplier route"),
+                "budget_fit": budget_fit,
+                "strengths": supplier.get("why", "Relevant to the current brief."),
+                "watchouts": "Confirm live pricing, availability, delivery, VAT, minimum orders and substitutions.",
+                "questions_to_ask": "Can you meet the count, deadline, delivery coverage and data requirements for this brief?",
+            }
+            row.update(supplier_contact_route(supplier, req.pack_type))
+            rows.append(row)
+        fallback_rows = [
             {
                 "supplier": "Supplier type to confirm",
                 "supplier_type": "Supplier type to confirm",
@@ -2420,6 +2565,7 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
                 "questions_to_ask": "Can you provide a written quote with inclusions, exclusions and lead times?",
             }
         ]
+        return rows or enrich_supplier_comparison_rows(fallback_rows, req.pack_type)
 
     supplier_questions = [
         "Can you handle this recipient or attendee count?",
@@ -2584,7 +2730,9 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
             "print_note": "Use the print/save, copy and download actions on this page for internal approval records.",
             "disclaimer": DISCLAIMER,
         }
-    return maybe_improve_plan(preview, "premium_pack")
+    preview = maybe_improve_plan(preview, "premium_pack")
+    preview["supplier_comparison"] = enrich_supplier_comparison_rows(preview.get("supplier_comparison", []), req.pack_type)
+    return preview
 
 
 def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | None = None) -> dict:
@@ -2614,7 +2762,7 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
         "Some planning details were not available, so this pack has been prepared as a supplier-ready starting point. "
         "Confirm live pricing, stock, delivery and suitability directly with suppliers."
     )
-    return {
+    preview = {
         "pack_name": "ClientCellar Premium Brief Pack",
         "pack_type": pack_type,
         "fallback_note": fallback_note,
@@ -2742,6 +2890,8 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
         "print_note": "Print or save this page as a PDF for internal approval.",
         "disclaimer": DISCLAIMER,
     }
+    preview["supplier_comparison"] = enrich_supplier_comparison_rows(preview.get("supplier_comparison", []), pack_type)
+    return preview
 
 
 def normalise_premium_pack_view_preview(pack: dict, preview: dict | None) -> dict:
@@ -2750,6 +2900,7 @@ def normalise_premium_pack_view_preview(pack: dict, preview: dict | None) -> dic
     preview = dict(preview or {})
     if not preview:
         preview = make_fallback_premium_pack_preview(pack_type, pack)
+    preview["supplier_comparison"] = enrich_supplier_comparison_rows(preview.get("supplier_comparison", []), pack_type)
 
     sections = preview.get("sections") or preview.get("document_sections")
     document_sections = []

@@ -526,12 +526,32 @@ function renderBudgetRows(rows) {
   `;
 }
 
+function contactRouteHtml(item = {}) {
+  const mailtoUrl = item.mailto_url || item.mailtoUrl || "";
+  if (mailtoUrl) {
+    return `<a href="${escapeHtml(mailtoUrl)}">Email supplier</a>`;
+  }
+  const contactUrl = item.contact_url || item.contactUrl || "";
+  if (contactUrl) {
+    const typeLabels = {
+      contact_form: "Contact form",
+      corporate_page: "Corporate gifting",
+      supplier_page: "Supplier page",
+    };
+    const label = item.contact_label || item.contactLabel || typeLabels[item.contact_type || item.contactType] || "Contact supplier";
+    return `<a href="${escapeHtml(contactUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
+  }
+  const search = item.search_suggestion || item.searchSuggestion || "corporate wine gift supplier UK";
+  return `<span>Search/contact directly</span><br><span class="small-note">Search: ${escapeHtml(search)}</span>`;
+}
+
 function renderPremiumComparison(items) {
   const rows = items
     .map(
       (item) => `
         <tr>
           <td>${escapeHtml(item.supplier || item.supplier_type || "Supplier")}</td>
+          <td>${contactRouteHtml(item)}</td>
           <td>${escapeHtml(item.product_package || item.best_for || item.fit || "To quote")}</td>
           <td>${escapeHtml(item.unit_price || "To quote")}</td>
           <td>${escapeHtml(item.delivery_cost || "To quote")}</td>
@@ -545,9 +565,10 @@ function renderPremiumComparison(items) {
     )
     .join("");
   return `
+    <p class="small-note">Use the contact route to request itemised quotes. ClientCellar does not confirm supplier pricing, stock or delivery - use this table to compare responses once suppliers reply.</p>
     <div class="table-scroll">
       <table class="pack-table">
-        <thead><tr><th>Supplier</th><th>Product / package</th><th>Unit price</th><th>Delivery cost</th><th>Personalisation</th><th>Lead time</th><th>Pros</th><th>Risks / watchouts</th><th>Decision</th></tr></thead>
+        <thead><tr><th>Supplier</th><th>Contact route</th><th>Product / package</th><th>Unit price</th><th>Delivery cost</th><th>Personalisation</th><th>Lead time</th><th>Pros</th><th>Risks / watchouts</th><th>Decision</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
