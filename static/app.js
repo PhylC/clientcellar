@@ -457,13 +457,17 @@ function supplierUrlHtml(supplier) {
   return `<p><a class="button secondary" href="${escapeHtml(url)}"${target}${rel}>${escapeHtml(label)}</a></p>`;
 }
 
-function renderSupplierRouteCards(routes = []) {
-  if (!Array.isArray(routes) || !routes.length) return "";
-  const rows = routes.map((route) => supplierRouteComparisonRow(route));
+function renderSupplierRouteCards(routes = [], type = "gift") {
+  if ((!Array.isArray(routes) || !routes.length) && type !== "gift") return "";
+  const routeList = Array.isArray(routes) ? routes : [];
+  const rows = type === "gift"
+    ? giftSupplierDiscoveryRows(routeList)
+    : routeList.map((route) => supplierRouteComparisonRow(route));
+  const lastColumn = type === "gift" ? "Compare options" : "Check before using";
   return `
     <div class="table-scroll free-route-table-wrap">
       <table class="free-route-table">
-        <thead><tr><th>Route</th><th>Best for</th><th>Example suppliers</th><th>Check before using</th></tr></thead>
+        <thead><tr><th>Route</th><th>Best for</th><th>Example suppliers</th><th>${lastColumn}</th></tr></thead>
         <tbody>
           ${rows
             .map(
@@ -472,7 +476,7 @@ function renderSupplierRouteCards(routes = []) {
                   <td><strong>${escapeHtml(row.route)}</strong></td>
                   <td>${escapeHtml(row.bestFor)}</td>
                   <td>${escapeHtml(row.examples)}</td>
-                  <td>${escapeHtml(row.whatToCheck)}</td>
+                  <td>${type === "gift" ? row.compareOptions : escapeHtml(row.whatToCheck)}</td>
                 </tr>
               `
             )
@@ -489,22 +493,83 @@ function renderSupplierRouteCards(routes = []) {
               <dl>
                 <div><dt>Best for</dt><dd>${escapeHtml(row.bestFor)}</dd></div>
                 <div><dt>Example suppliers</dt><dd>${escapeHtml(row.examples)}</dd></div>
-                <div><dt>Check before using</dt><dd>${escapeHtml(row.whatToCheck)}</dd></div>
+                <div><dt>${lastColumn}</dt><dd>${type === "gift" ? row.compareOptions : escapeHtml(row.whatToCheck)}</dd></div>
               </dl>
             </article>
           `
         )
         .join("")}
     </div>
-    <div class="free-route-actions">
-      <a class="button secondary small" href="/suppliers">View supplier directory</a>
-    </div>
     <div class="free-route-upgrade">
-      <h3>Want the full supplier matrix?</h3>
-      <p>Premium includes shortlist, spend ranges, ease scores, hidden watchouts and downloadable CSV.</p>
-      <a class="button secondary small" href="/example-premium-brief-pack">View example Premium Brief Pack</a>
+      <h3>Need help choosing the best route?</h3>
+      <p>Premium gives you a ranked shortlist, indicative spend ranges, ease scores, hidden watchouts and a downloadable supplier matrix.</p>
+      <a class="button secondary small" href="/example-premium-brief-pack">See premium example</a>
     </div>
   `;
+}
+
+function giftSupplierDiscoveryRows(routes = []) {
+  const routeList = Array.isArray(routes) ? routes : [];
+  const findRoute = (patterns) => routeList.find((route) => {
+    const routeName = `${route.route_name || route.route || ""}`.toLowerCase();
+    const suppliers = Array.isArray(route.example_suppliers)
+      ? route.example_suppliers.map((supplier) => `${supplier.name || ""} ${supplier.id || ""}`.toLowerCase()).join(" ")
+      : "";
+    return patterns.some((pattern) => routeName.includes(pattern) || suppliers.includes(pattern));
+  }) || {};
+  return [
+    {
+      route: "Corporate wine gifting",
+      bestFor: "Client lists, repeat orders or wine-friendly recipients",
+      examples: "Majestic, Laithwaites, Virgin Wines",
+      compareOptions: routeCompareLink(findRoute(["corporate wine", "majestic"]), "Compare wine gifting", "/suppliers"),
+    },
+    {
+      route: "Hampers",
+      bestFor: "Mixed tastes or unknown preferences",
+      examples: "M&S, John Lewis, Fortnum & Mason",
+      compareOptions: routeCompareLink(findRoute(["hamper", "marks-spencer", "john lewis", "fortnum"]), "Compare hampers", "/suppliers"),
+    },
+    {
+      route: "Premium retailer",
+      bestFor: "Safer mainstream gifting with broad appeal",
+      examples: "Fortnum & Mason, Selfridges, Harvey Nichols",
+      compareOptions: supplierCompareLink(routeList, ["fortnum"], "Compare premium retailers", "/suppliers"),
+    },
+    {
+      route: "Local wine merchant",
+      bestFor: "VIP clients, smaller lists or more personal recommendations",
+      examples: "Independent wine merchants near the buyer",
+      compareOptions: routeCompareLink(findRoute(["local independent", "independent wine merchant"]), "Find local route", "/suppliers"),
+    },
+  ];
+}
+
+function supplierCompareLink(routes = [], patterns = [], label = "Compare options", fallback = "/suppliers") {
+  const supplier = routes
+    .flatMap((route) => Array.isArray(route.example_suppliers) ? route.example_suppliers : [])
+    .find((candidate) => {
+      const haystack = `${candidate.name || ""} ${candidate.id || ""}`.toLowerCase();
+      return patterns.some((pattern) => haystack.includes(pattern));
+    });
+  if (!supplier) return routeCompareLink({}, label, fallback);
+  return routeCompareLink({ example_suppliers: [supplier], is_affiliate: supplier.is_affiliate }, label, fallback);
+}
+
+function routeCompareLink(route = {}, label = "Compare options", fallback = "/suppliers") {
+  const supplierWithLink = Array.isArray(route.example_suppliers)
+    ? route.example_suppliers.find((supplier) => supplier.tracked_url || supplier.url || supplier.website_url || supplier.affiliate_url)
+    : null;
+  const url = route.tracked_url
+    || supplierWithLink?.tracked_url
+    || supplierWithLink?.url
+    || supplierWithLink?.website_url
+    || supplierWithLink?.affiliate_url
+    || fallback;
+  const isExternal = /^https?:\/\//i.test(url);
+  const target = isExternal ? ' target="_blank"' : "";
+  const rel = isExternal ? ` rel="${route.is_affiliate || supplierWithLink?.is_affiliate ? "sponsored " : ""}noopener noreferrer"` : "";
+  return `<a class="button secondary small free-route-button" href="${escapeHtml(url)}"${target}${rel}>${escapeHtml(label)}</a>`;
 }
 
 function supplierRouteComparisonRow(route = {}) {
@@ -552,6 +617,7 @@ function supplierRouteComparisonRow(route = {}) {
     bestFor: defaults.bestFor,
     examples: examples.length ? examples.join(", ") : "Supplier type to search",
     whatToCheck: defaults.whatToCheck,
+    compareOptions: routeCompareLink(route, "Compare options", "/suppliers"),
   };
 }
 
@@ -982,9 +1048,9 @@ function renderPlan(plan, type) {
         ${list(plan.budget_guidance || [])}
       </div>
       <div class="result-block">
-        <h2>Supplier routes to check</h2>
-        ${renderSupplierRouteCards(plan.supplier_route_cards)}
-        ${!plan.supplier_route_cards?.length ? list(routeList) : ""}
+        <h2>${type === "gift" ? "Supplier routes to compare" : "Supplier routes to check"}</h2>
+        ${renderSupplierRouteCards(plan.supplier_route_cards, type)}
+        ${type !== "gift" && !plan.supplier_route_cards?.length ? list(routeList) : ""}
         <p class="small-note">${escapeHtml(plan.supplier_links_note || "Supplier links are not required to use this plan. You can use the supplier route guidance to contact retailers or merchants directly.")}</p>
       </div>
       <div class="result-block">

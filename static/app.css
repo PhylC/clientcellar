@@ -1579,22 +1579,22 @@ textarea {
 
 .free-route-table th:nth-child(1),
 .free-route-table td:nth-child(1) {
-  width: 24%;
+  width: 22%;
 }
 
 .free-route-table th:nth-child(2),
 .free-route-table td:nth-child(2) {
-  width: 24%;
+  width: 31%;
 }
 
 .free-route-table th:nth-child(3),
 .free-route-table td:nth-child(3) {
-  width: 26%;
+  width: 29%;
 }
 
 .free-route-table th:nth-child(4),
 .free-route-table td:nth-child(4) {
-  width: 26%;
+  width: 18%;
 }
 
 .free-route-table tr:last-child td {
@@ -1645,11 +1645,13 @@ textarea {
   margin: 0.15rem 0 0;
 }
 
-.free-route-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-top: 0.75rem;
+.free-route-button {
+  min-height: 1.9rem;
+  padding: 0.4rem 0.55rem;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
 }
 
 .free-route-upgrade {
