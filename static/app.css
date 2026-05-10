@@ -1492,10 +1492,6 @@ textarea {
   padding-left: 1.2rem;
 }
 
-.supplier-suggestions > p {
-  color: var(--muted);
-}
-
 .supplier-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1561,8 +1557,9 @@ textarea {
 
 .free-route-table {
   width: 100%;
-  min-width: 720px;
+  min-width: 0;
   border-collapse: collapse;
+  table-layout: fixed;
   font-size: 0.9rem;
 }
 
@@ -1572,11 +1569,32 @@ textarea {
   padding: 0.7rem;
   text-align: left;
   vertical-align: top;
+  overflow-wrap: anywhere;
 }
 
 .free-route-table th {
   background: #f5eee6;
   color: var(--burgundy);
+}
+
+.free-route-table th:nth-child(1),
+.free-route-table td:nth-child(1) {
+  width: 24%;
+}
+
+.free-route-table th:nth-child(2),
+.free-route-table td:nth-child(2) {
+  width: 24%;
+}
+
+.free-route-table th:nth-child(3),
+.free-route-table td:nth-child(3) {
+  width: 26%;
+}
+
+.free-route-table th:nth-child(4),
+.free-route-table td:nth-child(4) {
+  width: 26%;
 }
 
 .free-route-table tr:last-child td {
@@ -1627,11 +1645,18 @@ textarea {
   margin: 0.15rem 0 0;
 }
 
+.free-route-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
 .free-route-upgrade {
   display: grid;
   gap: 0.45rem;
-  margin-top: 0.9rem;
-  padding-top: 0.8rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
   border-top: 1px solid var(--line);
 }
 
