@@ -522,19 +522,35 @@ function giftSupplierDiscoveryRows(routes = []) {
       route: "Corporate wine gifting",
       bestFor: "Client lists, repeat orders or wine-friendly recipients",
       examples: "Majestic, Laithwaites, Virgin Wines",
-      compareOptions: routeCompareLink(findRoute(["corporate wine", "majestic"]), "Compare wine gifting", "/suppliers"),
+      compareOptions: routeCompareLink(
+        findRoute(["corporate wine", "majestic"]),
+        "Compare wine gifting",
+        "/suppliers",
+        "https://www.majestic.co.uk/services/corporate-gifting"
+      ),
     },
     {
       route: "Hampers",
       bestFor: "Mixed tastes or unknown preferences",
       examples: "M&S, John Lewis, Fortnum & Mason",
-      compareOptions: routeCompareLink(findRoute(["hamper", "marks-spencer", "john lewis", "fortnum"]), "Compare hampers", "/suppliers"),
+      compareOptions: routeCompareLink(
+        findRoute(["hamper", "marks-spencer", "john lewis", "fortnum"]),
+        "Compare hampers",
+        "/suppliers",
+        "https://www.marksandspencer.com/l/gifts/food-and-drink-gifts/hampers"
+      ),
     },
     {
       route: "Premium retailer",
       bestFor: "Safer mainstream gifting with broad appeal",
       examples: "Fortnum & Mason, Selfridges, Harvey Nichols",
-      compareOptions: supplierCompareLink(routeList, ["fortnum"], "Compare premium retailers", "/suppliers"),
+      compareOptions: supplierCompareLink(
+        routeList,
+        ["fortnum"],
+        "Compare premium retailers",
+        "/suppliers",
+        "https://www.fortnumandmason.com/hampers"
+      ),
     },
     {
       route: "Local wine merchant",
@@ -545,27 +561,34 @@ function giftSupplierDiscoveryRows(routes = []) {
   ];
 }
 
-function supplierCompareLink(routes = [], patterns = [], label = "Compare options", fallback = "/suppliers") {
+function supplierCompareLink(routes = [], patterns = [], label = "Compare options", fallback = "/suppliers", directFallback = "") {
   const supplier = routes
     .flatMap((route) => Array.isArray(route.example_suppliers) ? route.example_suppliers : [])
     .find((candidate) => {
       const haystack = `${candidate.name || ""} ${candidate.id || ""}`.toLowerCase();
       return patterns.some((pattern) => haystack.includes(pattern));
     });
-  if (!supplier) return routeCompareLink({}, label, fallback);
-  return routeCompareLink({ example_suppliers: [supplier], is_affiliate: supplier.is_affiliate }, label, fallback);
+  if (!supplier) return routeCompareLink({}, label, fallback, directFallback);
+  return routeCompareLink({ example_suppliers: [supplier], is_affiliate: supplier.is_affiliate }, label, fallback, directFallback);
 }
 
-function routeCompareLink(route = {}, label = "Compare options", fallback = "/suppliers") {
+function routeCompareLink(route = {}, label = "Compare options", fallback = "/suppliers", directFallback = "") {
   const supplierWithLink = Array.isArray(route.example_suppliers)
     ? route.example_suppliers.find((supplier) => supplier.tracked_url || supplier.url || supplier.website_url || supplier.affiliate_url)
     : null;
-  const url = route.tracked_url
+  const trackedUrl = route.tracked_url
     || supplierWithLink?.tracked_url
-    || supplierWithLink?.url
-    || supplierWithLink?.website_url
     || supplierWithLink?.affiliate_url
-    || fallback;
+    || route.affiliate_url
+    || route.affiliateUrl
+    || "";
+  const directUrl = supplierWithLink?.url
+    || supplierWithLink?.website_url
+    || route.url
+    || route.website_url
+    || directFallback
+    || "";
+  const url = trackedUrl || directUrl || fallback;
   const isExternal = /^https?:\/\//i.test(url);
   const target = isExternal ? ' target="_blank"' : "";
   const rel = isExternal ? ` rel="${route.is_affiliate || supplierWithLink?.is_affiliate ? "sponsored " : ""}noopener noreferrer"` : "";
