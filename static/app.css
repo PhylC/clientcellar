@@ -1266,7 +1266,7 @@ textarea {
 }
 
 .supplier-comparison-table {
-  min-width: 1280px;
+  min-width: 760px;
 }
 
 .pack-table th,
@@ -1376,6 +1376,14 @@ textarea {
   padding: 0.35rem 0.6rem;
   background: var(--burgundy);
   color: white;
+}
+
+.matrix-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0.75rem 0;
 }
 
 .supplier-comparison-cards {

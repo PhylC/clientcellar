@@ -576,6 +576,54 @@ function tagRowHtml(tags = []) {
   return `<div class="tag-row">${tags.map((tag) => `<span class="route-tag">${escapeHtml(tag)}</span>`).join("")}</div>`;
 }
 
+const supplierMatrixHeaders = [
+  "Supplier",
+  "Best for",
+  "Typical spend",
+  "Minimum order",
+  "Branding / personalisation",
+  "Turnaround",
+  "Multi-address delivery",
+  "Contact route",
+  "Ease score",
+  "Hidden watchouts",
+  "Recommendation",
+  "Extra notes",
+];
+
+function plainContactRoute(item = {}) {
+  if (item.contact_email || item.contactEmail) return `Email supplier: ${item.contact_email || item.contactEmail}`;
+  if (item.contact_url || item.contactUrl) {
+    const label = item.contact_label || item.contactLabel || "Contact supplier";
+    return `${label}: ${item.contact_url || item.contactUrl}`;
+  }
+  if (item.search_suggestion || item.searchSuggestion) return `Search/contact directly: ${item.search_suggestion || item.searchSuggestion}`;
+  return "Search/contact directly";
+}
+
+function supplierMatrixCsv(items = []) {
+  const rows = [supplierMatrixHeaders];
+  items.forEach((item) => {
+    rows.push([
+      item.supplier || item.supplier_type || "Supplier route",
+      item.best_for || "",
+      item.typical_spend || "",
+      item.minimum_order || "",
+      item.branding_personalisation || "",
+      item.turnaround || "",
+      item.multi_address_delivery || "",
+      plainContactRoute(item),
+      item.ease_score || "",
+      item.hidden_watchouts || "",
+      item.recommendation || "",
+      item.extra_notes || item.questions_to_ask || item.watchouts || "",
+    ]);
+  });
+  return rows
+    .map((row) => row.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+}
+
 function renderPremiumComparison(preview = {}) {
   const items = preview.supplier_comparison || [];
   const rows = items
@@ -585,10 +633,6 @@ function renderPremiumComparison(preview = {}) {
           <td>${supplierNameHtml(item)}</td>
           <td>${tagRowHtml(item.best_for_tags)}${escapeHtml(item.best_for || "")}</td>
           <td>${escapeHtml(item.typical_spend || "")}</td>
-          <td>${escapeHtml(item.minimum_order || "")}</td>
-          <td>${escapeHtml(item.branding_personalisation || "")}</td>
-          <td>${escapeHtml(item.turnaround || "")}</td>
-          <td>${escapeHtml(item.multi_address_delivery || "")}</td>
           <td><span class="score-pill">${escapeHtml(item.ease_score || "6/10")}</span></td>
           <td>${escapeHtml(item.hidden_watchouts || "")}</td>
           <td>${escapeHtml(item.recommendation || "")}</td>
@@ -609,11 +653,7 @@ function renderPremiumComparison(preview = {}) {
           <dl class="comparison-card-list">
             <div><dt>Best for</dt><dd>${escapeHtml(item.best_for || "")}</dd></div>
             <div><dt>Typical spend</dt><dd>${escapeHtml(item.typical_spend || "")}</dd></div>
-            <div><dt>Minimum order</dt><dd>${escapeHtml(item.minimum_order || "")}</dd></div>
-            <div><dt>Branding / personalisation</dt><dd>${escapeHtml(item.branding_personalisation || "")}</dd></div>
-            <div><dt>Turnaround</dt><dd>${escapeHtml(item.turnaround || "")}</dd></div>
-            <div><dt>Multi-address delivery</dt><dd>${escapeHtml(item.multi_address_delivery || "")}</dd></div>
-            <div><dt>Hidden watchouts</dt><dd>${escapeHtml(item.hidden_watchouts || "")}</dd></div>
+            <div><dt>Key watchout</dt><dd>${escapeHtml(item.hidden_watchouts || "")}</dd></div>
             <div><dt>Recommendation</dt><dd>${escapeHtml(item.recommendation || "")}</dd></div>
           </dl>
         </article>
@@ -636,9 +676,13 @@ function renderPremiumComparison(preview = {}) {
     ${renderAdvisoryItems(preview.supplier_executive_recommendation)}
     ${renderWhatWeWouldDo(preview.what_we_would_do)}
     <p class="small-note">Indicative planning guidance only. Supplier pricing, stock, availability, delivery and order terms must be confirmed directly.</p>
+    <div class="matrix-action-row">
+      <button class="button secondary small" type="button" data-download-supplier-matrix>Download full supplier matrix</button>
+      <script type="application/json" data-supplier-matrix-data>${JSON.stringify(items).replace(/</g, "\\u003c")}</script>
+    </div>
     <div class="table-scroll supplier-comparison-desktop">
       <table class="pack-table supplier-comparison-table">
-        <thead><tr><th>Supplier</th><th>Best for</th><th>Typical spend</th><th>Minimum order</th><th>Branding / personalisation</th><th>Turnaround</th><th>Multi-address delivery</th><th>Ease score</th><th>Hidden watchouts</th><th>Recommendation</th></tr></thead>
+        <thead><tr><th>Supplier</th><th>Best for</th><th>Typical spend</th><th>Ease</th><th>Key watchout</th><th>Recommendation</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
@@ -1102,16 +1146,30 @@ function copyText(text, button) {
   });
 }
 
-function downloadCsv(text) {
+function downloadCsv(text, filename = csvFilename) {
   const blob = new Blob([`${text}\n`], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = csvFilename;
+  anchor.download = filename;
   document.body.append(anchor);
   anchor.click();
   anchor.remove();
   URL.revokeObjectURL(url);
+}
+
+function downloadSupplierMatrix(button) {
+  const root = button.closest(".premium-doc") || document;
+  const dataNode = root.querySelector("[data-supplier-matrix-data]");
+  if (!dataNode) return;
+  let items = [];
+  try {
+    items = JSON.parse(dataNode.textContent || "[]");
+  } catch (error) {
+    items = [];
+  }
+  if (!Array.isArray(items) || !items.length) return;
+  downloadCsv(supplierMatrixCsv(items), "clientcellar-supplier-matrix.csv");
 }
 
 async function recordPackDownload(packToken) {
@@ -1423,6 +1481,9 @@ function bindResultActions() {
     if (button.matches("[data-download-preview-csv]")) {
       const preview = button.closest(".premium-preview");
       if (preview) downloadCsv(preview.querySelector("[data-preview-csv]").textContent);
+    }
+    if (button.matches("[data-download-supplier-matrix]")) {
+      downloadSupplierMatrix(button);
     }
     if (button.matches("[data-pack-checkout]")) {
       createCheckoutSession(button.dataset.packType || "gift", button);
