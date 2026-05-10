@@ -796,9 +796,9 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.laithwaites.co.uk/wine-gifts",
+        "website_url": "https://www.laithwaites.co.uk/gifts/wine-gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.laithwaites.co.uk/wine-gifts",
+        "enquiry_url": "https://www.laithwaites.co.uk/gifts/wine-gifts",
         "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -822,9 +822,9 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.virginwines.co.uk/wine-gifts",
+        "website_url": "https://www.virginwines.co.uk/gifts/wine-gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.virginwines.co.uk/wine-gifts",
+        "enquiry_url": "https://www.virginwines.co.uk/gifts/wine-gifts",
         "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -848,9 +848,9 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK"],
-        "website_url": "https://www.thewinesociety.com/gifts",
+        "website_url": "https://www.thewinesociety.com/buy/gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.thewinesociety.com/gifts",
+        "enquiry_url": "https://www.thewinesociety.com/buy/gifts",
         "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -874,10 +874,10 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK", "London", "International"],
-        "website_url": "https://www.bbr.com/gifts",
+        "website_url": "https://www.bbr.com/wines",
         "affiliate_url": None,
-        "enquiry_url": "https://www.bbr.com/gifts",
-        "url_purpose": "Gifts page",
+        "enquiry_url": "https://www.bbr.com/wines",
+        "url_purpose": "Fine wines range page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
         "notes": "Better suited to higher-budget or more formal gifting.",
@@ -934,6 +934,7 @@ SUPPLIERS = [
         "url_type": "normal",
         "notes": "Retailer hamper route for polished food and drink gifts.",
         "best_for": ["stylish hampers", "client gifts", "premium employee gifts"],
+        "active": False,
     },
     {
         "id": "selfridges-hampers",
@@ -959,6 +960,7 @@ SUPPLIERS = [
         "url_type": "normal",
         "notes": "Department store gifting option; check corporate ordering and lead times.",
         "best_for": ["premium hampers", "recognisable retailer gifts"],
+        "active": False,
     },
     {
         "id": "marks-spencer-corporate",
@@ -976,14 +978,14 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.marksandspencer.com/l/hampers",
+        "website_url": "https://www.marksandspencer.com/l/gifts/food-and-drink-gifts/hampers",
         "affiliate_url": None,
-        "enquiry_url": "https://www.marksandspencer.com/l/hampers",
-        "url_purpose": "Hampers page",
+        "enquiry_url": "https://www.marksandspencer.com/l/gifts/food-and-drink-gifts/hampers",
+        "url_purpose": "Food and drink hampers page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
-        "notes": "Useful for accessible corporate gifting and staff gifts.",
-        "best_for": ["mainstream food and drink hampers"],
+        "notes": "Useful for straightforward hamper gifting; check delivery, alcohol contents and dietary options before ordering.",
+        "best_for": ["accessible food and drink hampers", "staff gifts", "mainstream client gifting"],
         "use_cases": ["hampers", "staff gifts"],
     },
     {
@@ -1002,9 +1004,9 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.waitrosecellar.com/gifts",
+        "website_url": "https://www.waitrosecellar.com/shop/gifts/wine-gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.waitrosecellar.com/gifts",
+        "enquiry_url": "https://www.waitrosecellar.com/shop/gifts/wine-gifts",
         "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -1028,9 +1030,9 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.johnlewis.com/browse/gifts/gift-food-alcohol/hampers/_/N-7d8p",
+        "website_url": "https://www.johnlewis.com/browse/gifts/gift-food-alcohol/hampers/_/N-2q3pZ1z0vwzu",
         "affiliate_url": None,
-        "enquiry_url": "https://www.johnlewis.com/browse/gifts/gift-food-alcohol/hampers/_/N-7d8p",
+        "enquiry_url": "https://www.johnlewis.com/browse/gifts/gift-food-alcohol/hampers/_/N-2q3pZ1z0vwzu",
         "url_purpose": "Hampers category",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -1713,6 +1715,7 @@ def supplier_route_card(route: str, why: str, supplier_ids: list[str], ask: str,
         "tracked_url": primary.get("tracked_url") if primary else None,
         "link_label": primary.get("link_label") if primary else "Visit supplier",
         "is_affiliate": primary.get("is_affiliate", False) if primary else False,
+        "search_suggestion": f"{route.lower()} UK",
     }
 
 
@@ -1787,6 +1790,7 @@ def event_supplier_route_cards(req: EventPlanRequest) -> list[dict]:
             "tracked_url": None,
             "link_label": "Search locally",
             "is_affiliate": False,
+            "search_suggestion": "venue wine package or caterer wine package near your venue",
         },
         supplier_route_card(
             "Supermarket/wine retailer",
@@ -1833,12 +1837,13 @@ def supplier_directory_sections() -> list[dict]:
                 "category": supplier_category_label(supplier),
                 "best_for": ", ".join(supplier.get("best_for", [])),
                 "notes": supplier.get("notes", ""),
+                "what_to_check": "Check delivery dates, gift messages, alcohol contents, dietary options, substitutions and VAT invoices.",
                 "visit_url": supplier_button_url(supplier, "/suppliers"),
                 "relationship_label": supplier["commercial_relationship_label"],
                 "is_affiliate": supplier.get("is_affiliate", False),
                 "link_label": supplier_link_label(supplier),
                 "url_purpose": supplier.get("url_purpose"),
-                "search_guidance": supplier.get("notes") if not is_real_supplier(supplier) else None,
+                "search_guidance": "independent wine merchant near your town or city" if supplier["id"] == "local-independent-wine-merchant" else "corporate hamper supplier UK",
             })
         sections.append({"title": title, "cards": cards})
     return sections
@@ -1972,6 +1977,11 @@ def build_supplier_shortlist(items: list[dict], why_prefix: str, budget: float) 
                 "url_checked_date": supplier.get("url_checked_date"),
                 "url_type": supplier.get("url_type"),
                 "link_label": supplier_link_label(supplier),
+                "search_suggestion": (
+                    "independent wine merchant near your town or city"
+                    if supplier["id"] in {"local-independent-wine-merchant", "independent-merchant"}
+                    else f"{readable(supplier['category'])} UK"
+                ),
             }
         )
     return shortlist
@@ -2027,7 +2037,8 @@ def maybe_improve_plan(plan: dict, plan_type: str) -> dict:
 def make_gift_plan(req: GiftPlanRequest) -> dict:
     total = req.recipient_count * req.budget_per_recipient
     label = budget_label(req.budget_per_recipient)
-    ranked = sorted(SUPPLIERS, key=lambda supplier: rank_gift_supplier(supplier, req), reverse=True)
+    active_suppliers = [supplier for supplier in SUPPLIERS if supplier.get("active", True)]
+    ranked = sorted(active_suppliers, key=lambda supplier: rank_gift_supplier(supplier, req), reverse=True)
     shortlist = build_supplier_shortlist(ranked, "Good fit for this brief.", req.budget_per_recipient)
 
     strategy = {
@@ -2197,7 +2208,8 @@ def event_structure(req: EventPlanRequest) -> list[str]:
 def make_event_plan(req: EventPlanRequest) -> dict:
     total = req.attendee_count * req.budget_per_person
     label = budget_label(req.budget_per_person, "attendee")
-    ranked = sorted(SUPPLIERS, key=lambda supplier: rank_event_supplier(supplier, req), reverse=True)
+    active_suppliers = [supplier for supplier in SUPPLIERS if supplier.get("active", True)]
+    ranked = sorted(active_suppliers, key=lambda supplier: rank_event_supplier(supplier, req), reverse=True)
     shortlist = build_supplier_shortlist(
         [supplier for supplier in ranked if rank_event_supplier(supplier, req) >= 0],
         "Relevant for event planning.",
@@ -2205,7 +2217,7 @@ def make_event_plan(req: EventPlanRequest) -> dict:
     )
     if not shortlist:
         shortlist = build_supplier_shortlist(
-            [supplier for supplier in SUPPLIERS if supplier["event_available"]],
+            [supplier for supplier in active_suppliers if supplier["event_available"]],
             "Potential event route.",
             req.budget_per_person,
         )
@@ -3724,9 +3736,9 @@ DEFAULT_MERCHANT_LINKS = [
     },
     {
         "name": "Berry Bros. & Rudd",
-        "url": "https://www.bbr.com/gifts",
-        "note": "Gifts page worth considering for premium client gifts, Champagne and fine wine.",
-        "url_purpose": "Gifts page",
+        "url": "https://www.bbr.com/wines",
+        "note": "Fine wines range worth considering for premium client gifts, Champagne and formal gifting.",
+        "url_purpose": "Fine wines range page",
         "url_checked_date": "2026-05-10",
         "is_affiliate": False,
     },

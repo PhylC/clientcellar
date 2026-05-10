@@ -447,7 +447,8 @@ function supplierRecommendationsFromPlan(plan = {}) {
 function supplierUrlHtml(supplier) {
   const url = supplier.tracked_url || supplier.url || supplier.website_url || supplier.affiliate_url || "";
   if (!url) {
-    return '<p class="small-note"><strong>Search locally:</strong> use the supplier route name plus your town, city or deadline. No dead supplier button is shown.</p>';
+    const search = supplier.search_suggestion || supplier.searchSuggestion || "corporate hamper supplier UK";
+    return `<p class="small-note"><strong>Search suggestion:</strong> ${escapeHtml(search)}</p>`;
   }
   const isExternal = /^https?:\/\//i.test(url);
   const target = isExternal ? ' target="_blank"' : "";
@@ -467,7 +468,7 @@ function renderSupplierRouteCards(routes = []) {
             : route.examples || [];
           const primary = route.tracked_url
             ? `<p><a class="button secondary" href="${escapeHtml(route.tracked_url)}" rel="${route.is_affiliate ? "sponsored " : ""}noopener">${escapeHtml(route.link_label || "Visit supplier")}</a></p>`
-            : '<p class="small-note"><strong>Search locally:</strong> use this route with your location, venue or required delivery date.</p>';
+            : `<p class="small-note"><strong>Search suggestion:</strong> ${escapeHtml(route.search_suggestion || "No direct link available yet - use this as a supplier type to search for.")}</p>`;
           return `
             <article class="supplier-card">
               <h3>${escapeHtml(route.route_name || route.route || "Supplier route")}</h3>

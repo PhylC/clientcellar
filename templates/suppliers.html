@@ -54,12 +54,13 @@
       <p><strong>Category:</strong> {{ card.category }}</p>
       <p><strong>Best for:</strong> {{ card.best_for }}</p>
       <p><strong>Notes:</strong> {{ card.notes }}</p>
+      <p><strong>What to check:</strong> {{ card.what_to_check }}</p>
       <p class="small-note">Use normal supplier links where available; some may become affiliate or tracked links later. Confirm stock, pricing, availability and delivery directly.</p>
       <div class="button-row">
         {% if card.visit_url %}
         <a class="button secondary small" href="{{ card.visit_url }}" target="_blank" rel="{% if card.is_affiliate %}sponsored {% endif %}noopener">{{ card.link_label }}</a>
         {% else %}
-        <span class="small-note"><strong>Search locally:</strong> {{ card.search_guidance }}</span>
+        <span class="small-note"><strong>Search suggestion:</strong> {{ card.search_guidance }}</span>
         {% endif %}
       </div>
     </article>
