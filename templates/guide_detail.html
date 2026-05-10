@@ -94,16 +94,18 @@
 
     {% if guide.merchant_links %}
     <section id="supplier-links">
-      <h2>Supplier links to consider</h2>
-      <p>These are ordinary merchant references for research. Supplier links are not required to use this guide, and a link does not mean ClientCellar has a confirmed partnership with that supplier.</p>
+      <h2>Supplier links to consider: supplier routes to check</h2>
+      <p>Use these as practical routes, then ask each supplier about stock, delivery date, VAT invoices, substitutions and whether the option fits your recipient or event policy. These ordinary merchant references do not mean ClientCellar has a confirmed partnership with that supplier.</p>
       <div class="card-grid three">
         {% for merchant in guide.merchant_links %}
         <article class="mini-card">
           <h3><a href="{{ merchant.url }}" target="_blank" rel="{% if merchant.is_affiliate %}sponsored {% endif %}nofollow noopener">{{ merchant.name }}</a></h3>
           <p>{{ merchant.note }}</p>
+          <p class="small-note">Ask about {{ merchant.url_purpose | lower }}, delivery cut-offs and substitutions before ordering.</p>
         </article>
         {% endfor %}
       </div>
+      <p><a class="text-link" href="/suppliers">See more supplier routes</a></p>
     </section>
     {% endif %}
 

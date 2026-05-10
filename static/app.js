@@ -447,13 +447,40 @@ function supplierRecommendationsFromPlan(plan = {}) {
 function supplierUrlHtml(supplier) {
   const url = supplier.tracked_url || supplier.url || supplier.website_url || supplier.affiliate_url || "";
   if (!url) {
-    return '<p><a class="button secondary" href="/suppliers">View supplier directory</a></p><p class="small-note">Use this as a supplier type rather than a direct supplier link.</p>';
+    return '<p class="small-note"><strong>Search locally:</strong> use the supplier route name plus your town, city or deadline. No dead supplier button is shown.</p>';
   }
   const isExternal = /^https?:\/\//i.test(url);
   const target = isExternal ? ' target="_blank"' : "";
   const rel = isExternal ? ` rel="${supplier.is_affiliate ? "sponsored " : ""}noopener"` : "";
   const label = supplier.link_label || (supplier.is_affiliate ? "Visit supplier" : "Visit supplier");
   return `<p><a class="button secondary" href="${escapeHtml(url)}"${target}${rel}>${escapeHtml(label)}</a></p>`;
+}
+
+function renderSupplierRouteCards(routes = []) {
+  if (!Array.isArray(routes) || !routes.length) return "";
+  return `
+    <div class="supplier-card-grid">
+      ${routes
+        .map((route) => {
+          const examples = Array.isArray(route.example_suppliers) && route.example_suppliers.length
+            ? route.example_suppliers.map((supplier) => supplier.name).filter(Boolean)
+            : route.examples || [];
+          const primary = route.tracked_url
+            ? `<p><a class="button secondary" href="${escapeHtml(route.tracked_url)}" rel="${route.is_affiliate ? "sponsored " : ""}noopener">${escapeHtml(route.link_label || "Visit supplier")}</a></p>`
+            : '<p class="small-note"><strong>Search locally:</strong> use this route with your location, venue or required delivery date.</p>';
+          return `
+            <article class="supplier-card">
+              <h3>${escapeHtml(route.route_name || route.route || "Supplier route")}</h3>
+              <p>${escapeHtml(route.why_it_fits || route.why || "Useful route to check for this brief.")}</p>
+              ${examples.length ? `<p><strong>Example suppliers to check:</strong> ${escapeHtml(examples.join(", "))}</p>` : ""}
+              <p><strong>What to ask before ordering:</strong> ${escapeHtml(route.what_to_ask || route.ask || "Confirm stock, delivery, VAT and suitability directly.")}</p>
+              ${primary}
+            </article>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
 }
 
 function renderSuppliers(suppliers = [], type = "gift") {
@@ -747,11 +774,12 @@ function renderPlan(plan, type) {
       </div>
       <div class="result-block">
         <h2>Supplier routes to check</h2>
-        ${list(routeList)}
+        ${renderSupplierRouteCards(plan.supplier_route_cards)}
+        ${!plan.supplier_route_cards?.length ? list(routeList) : ""}
         <p class="small-note">${escapeHtml(plan.supplier_links_note || "Supplier links are not required to use this plan. You can use the supplier route guidance to contact retailers or merchants directly.")}</p>
       </div>
       <div class="result-block supplier-suggestions">
-        <h2>Retailers and suppliers to check</h2>
+        <h2>Additional supplier examples</h2>
         <p>These are starting points or supplier types, not confirmed quotes or official recommendations. Confirm live pricing, stock, delivery dates and suitability directly.</p>
         <div class="supplier-card-grid">
           ${renderSuppliers(supplierRecommendationsFromPlan(plan), type)}
@@ -790,7 +818,7 @@ function renderPlan(plan, type) {
           <summary>Other next steps</summary>
           <div class="button-row">
             <a class="button secondary small" href="/contact?interest=${type === "gift" ? "gift-planning" : "event-planning"}">Send enquiry / request help</a>
-            <a class="button secondary small" href="/suppliers">${type === "gift" ? "View supplier directory" : "View tasting suppliers"}</a>
+            <a class="button secondary small" href="/suppliers">See more supplier routes</a>
           </div>
         </details>
         <div data-premium-preview></div>

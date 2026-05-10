@@ -21,6 +21,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from data.suppliers import SUPPLIER_ENTRIES
+
 load_dotenv()
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO").upper())
 logger = logging.getLogger("clientcellar")
@@ -774,8 +776,9 @@ SUPPLIERS = [
         "url_purpose": "Corporate gifting page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
-        "notes": "Well-known UK wine merchant suitable for practical bottle and case options.",
-        "best_for": ["staff gifts", "mixed cases", "budget guidance", "larger UK orders"],
+        "notes": "Useful starting point for corporate wine gifts and larger orders.",
+        "best_for": ["business wine gifts", "case gifting", "broad UK coverage", "possible event wine conversations"],
+        "use_cases": ["client wine gifts", "event wine", "larger orders"],
     },
     {
         "id": "laithwaites",
@@ -793,14 +796,15 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.laithwaites.co.uk/gifts/corporate-wine-gifts",
+        "website_url": "https://www.laithwaites.co.uk/wine-gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.laithwaites.co.uk/gifts/corporate-wine-gifts",
-        "url_purpose": "Corporate wine gifts page",
+        "enquiry_url": "https://www.laithwaites.co.uk/wine-gifts",
+        "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
-        "notes": "Established mail-order wine merchant; confirm corporate options directly.",
-        "best_for": ["mixed cases", "staff gifts", "client-safe classics"],
+        "notes": "Useful for wine gift browsing and mixed cases.",
+        "best_for": ["wine gift cases", "mixed wine gifts", "gift delivery"],
+        "use_cases": ["client wine gifts", "mixed cases"],
     },
     {
         "id": "virgin-wines",
@@ -818,14 +822,15 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.virginwines.co.uk/corporate-gifts",
+        "website_url": "https://www.virginwines.co.uk/wine-gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.virginwines.co.uk/corporate-gifts",
-        "url_purpose": "Corporate gifts and wine services page",
+        "enquiry_url": "https://www.virginwines.co.uk/wine-gifts",
+        "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
-        "notes": "Online wine merchant; useful for cases and gift-led selections.",
-        "best_for": ["employee gifts", "virtual tasting packs", "mixed cases"],
+        "notes": "Useful for straightforward consumer-style gifting.",
+        "best_for": ["accessible wine gifts", "mixed cases"],
+        "use_cases": ["client wine gifts", "staff gifts"],
     },
     {
         "id": "wine-society",
@@ -843,14 +848,15 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK"],
-        "website_url": "https://www.thewinesociety.com/buy/gifts",
+        "website_url": "https://www.thewinesociety.com/gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.thewinesociety.com/buy/gifts",
+        "enquiry_url": "https://www.thewinesociety.com/gifts",
         "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
-        "notes": "Member-owned wine merchant; confirm membership and corporate order details.",
-        "best_for": ["quality-led gifts", "classic styles", "tastings"],
+        "notes": "Membership model may apply; buyer should check suitability.",
+        "best_for": ["quality-focused wine gifts", "thoughtful bottle choices"],
+        "use_cases": ["client wine gifts", "premium gifts"],
     },
     {
         "id": "berry-bros-rudd",
@@ -868,14 +874,15 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK", "London", "International"],
-        "website_url": "https://www.bbr.com/wines",
+        "website_url": "https://www.bbr.com/gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.bbr.com/wines",
-        "url_purpose": "Fine wines range page",
+        "enquiry_url": "https://www.bbr.com/gifts",
+        "url_purpose": "Gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
-        "notes": "Fine wine merchant with corporate gifting and event routes to confirm.",
-        "best_for": ["premium clients", "fine wine", "private tastings"],
+        "notes": "Better suited to higher-budget or more formal gifting.",
+        "best_for": ["premium client gifts", "fine wine", "Champagne and luxury gifting"],
+        "use_cases": ["premium client gifts", "fine wine gifts"],
     },
     {
         "id": "fortnum-mason",
@@ -893,14 +900,15 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK", "International"],
-        "website_url": "https://www.fortnumandmason.com/corporate-gifting",
+        "website_url": "https://www.fortnumandmason.com/hampers",
         "affiliate_url": None,
-        "enquiry_url": "https://www.fortnumandmason.com/corporate-gifting",
-        "url_purpose": "Corporate gifting page",
+        "enquiry_url": "https://www.fortnumandmason.com/hampers",
+        "url_purpose": "Hampers page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
-        "notes": "Premium hamper and gifting option; confirm alcohol delivery rules by destination.",
-        "best_for": ["premium hampers", "board-level gifts", "branded corporate gifting"],
+        "notes": "Suitable for higher-value gifting where presentation matters.",
+        "best_for": ["premium hampers", "luxury client gifts", "formal gifting"],
+        "use_cases": ["hampers", "premium client gifts"],
     },
     {
         "id": "harvey-nichols-hampers",
@@ -954,8 +962,8 @@ SUPPLIERS = [
     },
     {
         "id": "marks-spencer-corporate",
-        "name": "M&S food and drink gifts",
-        "category": "corporate_gifting",
+        "name": "M&S Hampers",
+        "category": "hamper_company",
         "typical_budget_min": 15,
         "typical_budget_max": 150,
         "bulk_orders": True,
@@ -968,14 +976,15 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.marksandspencer.com/l/gifts/food-and-drink-gifts",
+        "website_url": "https://www.marksandspencer.com/l/hampers",
         "affiliate_url": None,
-        "enquiry_url": "https://www.marksandspencer.com/l/gifts/food-and-drink-gifts",
-        "url_purpose": "Food and drink gifts page",
+        "enquiry_url": "https://www.marksandspencer.com/l/hampers",
+        "url_purpose": "Hampers page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
-        "notes": "Accessible UK retailer for practical staff gifts and food or drink gift options.",
-        "best_for": ["budget staff gifts", "broad appeal", "simple logistics"],
+        "notes": "Useful for accessible corporate gifting and staff gifts.",
+        "best_for": ["mainstream food and drink hampers"],
+        "use_cases": ["hampers", "staff gifts"],
     },
     {
         "id": "waitrose-cellar",
@@ -993,14 +1002,119 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.waitrosecellar.com/shop/gifts/wine-gifts",
+        "website_url": "https://www.waitrosecellar.com/gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.waitrosecellar.com/shop/gifts/wine-gifts",
+        "enquiry_url": "https://www.waitrosecellar.com/gifts",
         "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
-        "notes": "Practical consumer wine route; confirm suitability for bulk corporate ordering.",
-        "best_for": ["low-risk bottle ideas", "small orders", "classic styles"],
+        "notes": "Useful for straightforward wine gifting.",
+        "best_for": ["mainstream wine gifts", "Champagne"],
+        "use_cases": ["wine gifts", "simple event wine"],
+    },
+    {
+        "id": "john-lewis-hampers",
+        "name": "John Lewis Hampers",
+        "category": "hamper_company",
+        "typical_budget_min": 25,
+        "typical_budget_max": 250,
+        "bulk_orders": True,
+        "corporate_gifting": True,
+        "personalisation": False,
+        "branding": False,
+        "uk_delivery": True,
+        "international_delivery": False,
+        "event_available": False,
+        "virtual_event_available": False,
+        "in_person_event_available": False,
+        "regions": ["UK"],
+        "website_url": "https://www.johnlewis.com/browse/gifts/gift-food-alcohol/hampers/_/N-7d8p",
+        "affiliate_url": None,
+        "enquiry_url": "https://www.johnlewis.com/browse/gifts/gift-food-alcohol/hampers/_/N-7d8p",
+        "url_purpose": "Hampers category",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
+        "notes": "Useful for general gifting and non-specialist buyers.",
+        "best_for": ["food and drink hampers", "broad gifting"],
+        "use_cases": ["hampers", "staff gifts", "mixed recipients"],
+    },
+    {
+        "id": "local-independent-wine-merchant",
+        "name": "Local independent wine merchant",
+        "category": "wine_merchant",
+        "typical_budget_min": 15,
+        "typical_budget_max": 250,
+        "bulk_orders": True,
+        "corporate_gifting": True,
+        "personalisation": True,
+        "branding": False,
+        "uk_delivery": True,
+        "international_delivery": False,
+        "event_available": True,
+        "virtual_event_available": False,
+        "in_person_event_available": True,
+        "regions": ["UK", "Local"],
+        "website_url": None,
+        "affiliate_url": None,
+        "enquiry_url": None,
+        "url_purpose": "Search locally",
+        "url_checked_date": "2026-05-10",
+        "url_type": "search_guidance",
+        "notes": "Search for \"independent wine merchant near me\" plus your town/city. Useful when you need practical advice and delivery support.",
+        "best_for": ["event wine advice", "flexible case orders", "local delivery"],
+        "use_cases": ["event wine", "local delivery", "advice-led gifts"],
+    },
+    {
+        "id": "noughty-thomson-scott",
+        "name": "Noughty / Thomson & Scott",
+        "category": "non_alcoholic",
+        "typical_budget_min": 10,
+        "typical_budget_max": 80,
+        "bulk_orders": True,
+        "corporate_gifting": True,
+        "personalisation": False,
+        "branding": False,
+        "uk_delivery": True,
+        "international_delivery": True,
+        "event_available": True,
+        "virtual_event_available": True,
+        "in_person_event_available": True,
+        "regions": ["UK", "International"],
+        "website_url": "https://noughtyaf.com/",
+        "affiliate_url": None,
+        "enquiry_url": "https://noughtyaf.com/",
+        "url_purpose": "Non-alcoholic sparkling wine",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
+        "notes": "Useful where alcohol may not be suitable.",
+        "best_for": ["alcohol-free sparkling gifts", "inclusive events"],
+        "use_cases": ["non-alcoholic gifts", "inclusive events"],
+    },
+    {
+        "id": "dry-drinker",
+        "name": "Dry Drinker",
+        "category": "non_alcoholic",
+        "typical_budget_min": 10,
+        "typical_budget_max": 100,
+        "bulk_orders": True,
+        "corporate_gifting": True,
+        "personalisation": False,
+        "branding": False,
+        "uk_delivery": True,
+        "international_delivery": False,
+        "event_available": True,
+        "virtual_event_available": True,
+        "in_person_event_available": True,
+        "regions": ["UK"],
+        "website_url": "https://drydrinker.com/",
+        "affiliate_url": None,
+        "enquiry_url": "https://drydrinker.com/",
+        "url_purpose": "Alcohol-free drinks retailer",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
+        "notes": "Useful for workplace-safe or inclusive gifting.",
+        "best_for": ["alcohol-free beer", "wine and spirits alternatives"],
+        "use_cases": ["non-alcoholic gifts", "inclusive events", "workplace-safe gifting"],
     },
     {
         "id": "english-sparkling-producers",
@@ -1252,6 +1366,49 @@ def slugify(value: str) -> str:
     return slug or "supplier"
 
 
+def apply_central_supplier_entries() -> None:
+    """Merge the central supplier data file into the richer planner model."""
+    suppliers_by_id = {supplier["id"]: supplier for supplier in SUPPLIERS}
+    for entry in SUPPLIER_ENTRIES:
+        supplier = suppliers_by_id.get(entry["id"])
+        if not supplier:
+            supplier = {
+                "id": entry["id"],
+                "typical_budget_min": 10,
+                "typical_budget_max": 250,
+                "bulk_orders": True,
+                "corporate_gifting": True,
+                "personalisation": False,
+                "branding": False,
+                "uk_delivery": "UK" in entry.get("regions", []),
+                "international_delivery": "International" in entry.get("regions", []),
+                "event_available": "event wine" in entry.get("useCases", []) or "inclusive events" in entry.get("useCases", []),
+                "virtual_event_available": "inclusive events" in entry.get("useCases", []),
+                "in_person_event_available": "event wine" in entry.get("useCases", []),
+            }
+            SUPPLIERS.append(supplier)
+            suppliers_by_id[entry["id"]] = supplier
+
+        best_for = [item.strip() for item in str(entry.get("bestFor", "")).split(",") if item.strip()]
+        supplier.update(
+            {
+                "name": entry["name"],
+                "category": entry["category"],
+                "website_url": entry.get("url"),
+                "enquiry_url": entry.get("url"),
+                "affiliate_url": entry.get("affiliateUrl"),
+                "url_purpose": entry.get("urlPurpose"),
+                "url_checked_date": entry.get("checkedDate"),
+                "url_type": "normal" if entry.get("url") else "search_guidance",
+                "notes": entry.get("notes", ""),
+                "regions": entry.get("regions", supplier.get("regions", [])),
+                "best_for": best_for or supplier.get("best_for", []),
+                "use_cases": entry.get("useCases", supplier.get("use_cases", [])),
+                "commercial_relationship": "affiliate" if entry.get("isAffiliate") else "none",
+            }
+        )
+
+
 def normalise_suppliers() -> None:
     seen: set[str] = set()
     for supplier in SUPPLIERS:
@@ -1293,10 +1450,17 @@ def normalise_suppliers() -> None:
                 "url_checked_date": supplier.get("url_checked_date"),
                 "url_type": supplier.get("url_type") or ("affiliate" if is_affiliate else "normal"),
                 "active": supplier.get("active", True),
+                "url": supplier.get("website_url") or supplier.get("enquiry_url"),
+                "urlPurpose": supplier.get("url_purpose") or "Supplier page",
+                "checkedDate": supplier.get("url_checked_date") or "2026-05-10",
+                "useCases": supplier.get("use_cases") or supplier.get("best_for", []),
+                "isAffiliate": is_affiliate,
+                "affiliateUrl": supplier.get("affiliate_url"),
             }
         )
 
 
+apply_central_supplier_entries()
 normalise_suppliers()
 
 
@@ -1436,6 +1600,20 @@ def readable(value: str) -> str:
     return value.replace("_", " ")
 
 
+def supplier_category_label(supplier: dict) -> str:
+    return {
+        "wine_merchant": "Wine merchants",
+        "hamper_company": "Hampers and corporate gifting",
+        "corporate_gifting": "Hampers and corporate gifting",
+        "wine_tasting": "Event wine and larger orders",
+        "virtual_tasting": "Event wine and larger orders",
+        "experience_provider": "Event wine and larger orders",
+        "english_sparkling": "Wine merchants",
+        "champagne_sparkling": "Wine merchants",
+        "non_alcoholic": "Non-alcoholic options",
+    }.get(supplier.get("category"), readable(supplier.get("category", "supplier route")).title())
+
+
 def supplier_url(supplier: dict) -> str | None:
     return supplier.get("enquiry_url") or supplier.get("website_url")
 
@@ -1493,51 +1671,177 @@ def supplier_link_label(supplier: dict) -> str:
     return "Visit supplier"
 
 
-def supplier_directory_sections() -> list[dict]:
-    return [
+def supplier_button_url(supplier: dict, source_page: str) -> str | None:
+    if not supplier or not is_real_supplier(supplier):
+        return None
+    return f"/out/supplier/{supplier['tracking_slug']}?source_page={urllib.parse.quote(source_page, safe='/')}"
+
+
+def supplier_route_example(supplier_id: str, source_page: str) -> dict:
+    supplier = supplier_by_id(supplier_id)
+    if not supplier:
+        return {}
+    return {
+        "id": supplier["id"],
+        "name": supplier["name"],
+        "category": supplier_category_label(supplier),
+        "best_for": ", ".join(supplier.get("best_for", [])),
+        "notes": supplier.get("notes", ""),
+        "url": supplier_url(supplier),
+        "tracked_url": supplier_button_url(supplier, source_page),
+        "is_affiliate": supplier.get("is_affiliate", False),
+        "link_label": supplier_link_label(supplier),
+        "url_purpose": supplier.get("url_purpose"),
+        "url_checked_date": supplier.get("url_checked_date"),
+        "disclosure_note": supplier.get("disclosure_note"),
+    }
+
+
+def supplier_route_card(route: str, why: str, supplier_ids: list[str], ask: str, source_page: str) -> dict:
+    examples = [supplier_route_example(supplier_id, source_page) for supplier_id in supplier_ids]
+    examples = [example for example in examples if example]
+    primary = next((example for example in examples if example.get("tracked_url")), None)
+    return {
+        "route": route,
+        "route_name": route,
+        "why": why,
+        "why_it_fits": why,
+        "examples": [example["name"] for example in examples],
+        "example_suppliers": examples,
+        "ask": ask,
+        "what_to_ask": ask,
+        "tracked_url": primary.get("tracked_url") if primary else None,
+        "link_label": primary.get("link_label") if primary else "Visit supplier",
+        "is_affiliate": primary.get("is_affiliate", False) if primary else False,
+    }
+
+
+def gift_supplier_route_cards(req: GiftPlanRequest) -> list[dict]:
+    preference_text = f"{req.known_preferences or ''} {req.avoid or ''}".lower()
+    routes: list[dict] = []
+    if req.budget_per_recipient >= 75 or req.tone in {"premium", "impressive"} or req.gift_style == "sparkling":
+        routes.append(supplier_route_card(
+            "Premium wine merchant",
+            "Better for formal client gifts, Champagne, fine wine or presentation-led gifting.",
+            ["berry-bros-rudd", "fortnum-mason", "wine-society"],
+            "Can they handle gift messaging, delivery timing, VAT invoice and multiple addresses?",
+            "/gift-planner",
+        ))
+    routes.append(supplier_route_card(
+        "Corporate wine gifting supplier",
+        "Good for case gifting, repeated orders and practical delivery.",
+        ["majestic", "laithwaites", "virgin-wines"],
+        "Can they support bulk orders, gift notes, delivery tracking and substitutions?",
+        "/gift-planner",
+    ))
+    if req.gift_style in {"wine_hamper", "not_sure"} or req.recipient_type in {"employees", "mixed"}:
+        routes.append(supplier_route_card(
+            "Hamper supplier",
+            "Food-and-drink hampers can suit mixed preferences better than single bottles.",
+            ["marks-spencer-corporate", "john-lewis-hampers", "fortnum-mason"],
+            "Are alcohol-free or dietary options available?",
+            "/gift-planner",
+        ))
+    if req.recipient_type in {"employees", "mixed"} or "alcohol" in preference_text or "non-alcohol" in preference_text:
+        routes.append(supplier_route_card(
+            "Non-alcoholic gifting supplier",
+            "Safer for mixed workplace groups or uncertain recipient preferences.",
+            ["noughty-thomson-scott", "dry-drinker"],
+            "Are the products suitable for gifting and available for delivery by the required date?",
+            "/gift-planner",
+        ))
+    routes.append(supplier_route_card(
+        "Mainstream wine gifts",
+        "Useful for simple smaller orders, recognisable ranges and straightforward browsing.",
+        ["waitrose-cellar", "laithwaites", "virgin-wines"],
+        "Can they provide VAT invoices, gift messages, delivery cut-offs and substitution rules?",
+        "/gift-planner",
+    ))
+    unique = []
+    seen = set()
+    for route in routes:
+        if route["route"] not in seen:
+            unique.append(route)
+            seen.add(route["route"])
+    return unique[:5]
+
+
+def event_supplier_route_cards(req: EventPlanRequest) -> list[dict]:
+    routes = [
+        supplier_route_card(
+            "Event wine supplier / wine merchant",
+            "Best for larger quantities, delivery planning and advice.",
+            ["majestic", "local-independent-wine-merchant"],
+            "Ask about delivery windows, substitutions, chilling, glassware, returns and corkage.",
+            "/event-planner",
+        ),
         {
-            "title": "Corporate wine gift suppliers",
-            "cards": [
-                supplier_directory_card("Premium wine merchant", "Client thank-yous, partner gifts and mixed-case orders", "Corporate wine gifts for clients or staff", "Often suitable from £25-£150 per recipient; confirm VAT and delivery.", "Ask about corporate ordering, recipient CSV format, gift notes and alcohol-free alternatives.", supplier_by_id("majestic")),
-                supplier_directory_card("Independent wine shop", "Smaller runs, local delivery and more personal recommendations", "Regional gifting or tailored bottle selection", "Useful when quality matters more than scale; confirm minimum order and delivery area.", "Good for careful shortlist building, but availability can change quickly."),
-            ],
+            "route": "Venue/caterer wine package",
+            "route_name": "Venue/caterer wine package",
+            "why": "Best where the venue controls corkage or service.",
+            "why_it_fits": "Best where the venue controls corkage or service.",
+            "examples": ["Your venue", "Your caterer"],
+            "example_suppliers": [],
+            "ask": "Ask about corkage, minimum spend, house wine quality and service charges.",
+            "what_to_ask": "Ask about corkage, minimum spend, house wine quality and service charges.",
+            "tracked_url": None,
+            "link_label": "Search locally",
+            "is_affiliate": False,
         },
-        {
-            "title": "Wine tasting event suppliers",
-            "cards": [
-                supplier_directory_card("Event tasting host", "Team socials, client entertainment and hosted learning sessions", "In-person corporate tasting event", "Plan from around £60 per head for many hosted formats; venue and food can change the cost.", "Confirm host availability, timings, glassware, licensing, food, water and alcohol-free options.", supplier_by_id("berry-bros-rudd")),
-                supplier_directory_card("Wine tasting event provider", "Structured team-building or hospitality events", "Corporate wine tasting event", "Budget depends on host, wine quality, venue and attendee count.", "Ask for a run sheet, cancellation terms, accessibility notes and substitution policy."),
-            ],
-        },
-        {
-            "title": "Champagne and premium gift suppliers",
-            "cards": [
-                supplier_directory_card("Champagne gift specialist", "Board gifts, VIP clients and high-value account thank-yous", "Premium wine or sparkling gift", "Often best from £75+ per recipient, before delivery and presentation extras.", "Confirm packaging, vintage/substitution policy and whether Champagne alternatives are appropriate.", supplier_by_id("berry-bros-rudd")),
-                supplier_directory_card("Premium department store gift desk", "Polished hampers, presentation-led gifting and executive gifts", "Premium client gift or hamper", "Useful from around £50-£250+, depending on hamper and delivery.", "Ask about business ordering, personalisation, alcohol-free substitutions and bulk delivery.", supplier_by_id("fortnum-mason")),
-            ],
-        },
-        {
-            "title": "Corporate hamper suppliers",
-            "cards": [
-                supplier_directory_card("Corporate hamper supplier", "Staff gifts, client Christmas gifts and mixed-preference groups", "Wine hamper or food-and-drink gift", "Can work from £40+ per recipient; delivery, packaging and personalisation may add cost.", "Check alcohol-free routes, dietary options, branding, delivery slots and failed-delivery handling.", supplier_by_id("marks-spencer-corporate")),
-                supplier_directory_card("Premium hamper supplier", "Higher-touch gifting where presentation matters", "Client hamper or festive gift", "Budget varies widely; confirm VAT, delivery and substitution policy directly.", "Useful when a bottle alone feels too narrow or recipient preferences are mixed.", supplier_by_id("harvey-nichols-hampers")),
-            ],
-        },
-        {
-            "title": "Virtual wine tasting suppliers",
-            "cards": [
-                supplier_directory_card("Virtual tasting provider", "Remote teams, hybrid clients and distributed offices", "Virtual corporate tasting", "Often priced per attendee with pack delivery as a major cost driver.", "Ask about pack delivery lead times, address collection, host format and alcohol-free options.", supplier_by_id("virgin-wines")),
-                supplier_directory_card("Virtual tasting host", "Beginner-friendly online sessions with delivered packs", "Remote team event", "Compare wine pack, delivery, host fee and platform requirements separately.", "Confirm delivery exceptions and what happens if packs arrive late."),
-            ],
-        },
-        {
-            "title": "UK-wide delivery suppliers",
-            "cards": [
-                supplier_directory_card("UK-wide wine merchant", "Multi-location staff gifts and client lists", "UK-wide corporate gift delivery", "Works best when recipient data is clean and lead times are realistic.", "Confirm postcode coverage, age verification, failed delivery handling and cut-off dates.", supplier_by_id("laithwaites")),
-                supplier_directory_card("Corporate fulfilment supplier", "Larger recipient lists and operationally complex gifting", "Bulk gift fulfilment", "Budget depends on storage, packing, delivery and substitutions.", "Ask about CSV format, fulfilment SLAs, VAT, delivery reporting and customer support process."),
-            ],
-        },
+        supplier_route_card(
+            "Supermarket/wine retailer",
+            "Best for simple self-managed events with clear quantities.",
+            ["waitrose-cellar", "majestic", "marks-spencer-corporate"],
+            "Ask about delivery timing, substitutions and case availability.",
+            "/event-planner",
+        ),
+        supplier_route_card(
+            "Non-alcoholic drinks supplier",
+            "Best for inclusive workplace events.",
+            ["dry-drinker", "noughty-thomson-scott"],
+            "Ask about alcohol-free sparkling, beers and adult soft drink alternatives.",
+            "/event-planner",
+        ),
     ]
+    if req.format in {"virtual", "hybrid"}:
+        routes.append(supplier_route_card(
+            "Virtual tasting pack route",
+            "Useful when attendees need packs delivered before a remote or hybrid session.",
+            ["virgin-wines", "laithwaites", "dry-drinker"],
+            "Ask about attendee address handling, delivery lead times, late packs and alcohol-free alternatives.",
+            "/event-planner",
+        ))
+    return routes[:5]
+
+
+def supplier_directory_sections() -> list[dict]:
+    section_ids = {
+        "Wine merchants": ["majestic", "laithwaites", "wine-society", "berry-bros-rudd", "virgin-wines"],
+        "Hampers and corporate gifting": ["fortnum-mason", "marks-spencer-corporate", "waitrose-cellar", "john-lewis-hampers"],
+        "Event wine and larger orders": ["majestic", "local-independent-wine-merchant"],
+        "Non-alcoholic options": ["noughty-thomson-scott", "dry-drinker"],
+    }
+    sections = []
+    for title, ids in section_ids.items():
+        cards = []
+        for supplier_id in ids:
+            supplier = supplier_by_id(supplier_id)
+            if not supplier:
+                continue
+            cards.append({
+                "name": supplier["name"],
+                "category": supplier_category_label(supplier),
+                "best_for": ", ".join(supplier.get("best_for", [])),
+                "notes": supplier.get("notes", ""),
+                "visit_url": supplier_button_url(supplier, "/suppliers"),
+                "relationship_label": supplier["commercial_relationship_label"],
+                "is_affiliate": supplier.get("is_affiliate", False),
+                "link_label": supplier_link_label(supplier),
+                "url_purpose": supplier.get("url_purpose"),
+                "search_guidance": supplier.get("notes") if not is_real_supplier(supplier) else None,
+            })
+        sections.append({"title": title, "cards": cards})
+    return sections
 
 
 def supplier_by_tracking_slug(tracking_slug: str) -> dict | None:
@@ -1781,11 +2085,13 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         supplier_routes.append("Non-alcoholic gifting supplier")
     supplier_routes = list(dict.fromkeys(supplier_routes))
     supplier_questions = [
-        "Can you provide an itemised quote including VAT, delivery, fulfilment and any personalisation costs?",
-        "What are the minimum order quantity, lead time and final recipient data deadline?",
-        "How do substitutions work if an item sells out before dispatch?",
-        "Can you support alcohol-free alternatives for recipients who need them?",
-        "What recipient CSV format, gift message format and delivery reporting can you provide?",
+        "Can you deliver to one address or multiple addresses?",
+        "Can you include gift messages?",
+        "Can you provide VAT invoices?",
+        "What happens if a product is out of stock?",
+        "What is the cut-off date for delivery?",
+        "Are non-alcoholic or dietary alternatives available?",
+        "Do you support bulk or corporate orders?",
     ]
     if req.branding_needed:
         supplier_questions.append("What artwork format, proofing timeline and branding minimums apply?")
@@ -1833,6 +2139,7 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         "budget_guidance": budget_guidance,
         "supplier_category": supplier_category,
         "supplier_routes_to_check": supplier_routes,
+        "supplier_route_cards": gift_supplier_route_cards(req),
         "recommended_strategy": strategy,
         "recommended_gift_types": gift_types(req),
         "supplier_shortlist": shortlist,
@@ -1972,11 +2279,13 @@ def make_event_plan(req: EventPlanRequest) -> dict:
         supplier_routes.append("Virtual tasting pack provider")
     supplier_routes = list(dict.fromkeys(supplier_routes))
     supplier_questions = [
-        "Can you provide an itemised quote including VAT, host fee, wine, delivery, glassware, food and any venue charges?",
-        "What attendee numbers, dates and locations can you support?",
-        "What alcohol-free alternatives, dietary options and accessibility considerations can you include?",
-        "Who handles delivery, glassware, corkage, service and clean-up if the event is in person?",
-        "What cancellation terms, substitution policy and final numbers deadline apply?",
+        "Can you supply the required quantities by the event date?",
+        "Do you offer sale-or-return?",
+        "Can you deliver to the venue?",
+        "Can you advise on red/white/sparkling mix?",
+        "Are glassware, chilling or service included?",
+        "Does the venue charge corkage?",
+        "What substitutions may be made?",
     ]
     risks_and_checks = avoid + [
         "Quantities are planning estimates; confirm final numbers with the venue, caterer or supplier.",
@@ -2008,6 +2317,7 @@ def make_event_plan(req: EventPlanRequest) -> dict:
         "budget_guidance": budget_guidance,
         "supplier_category": supplier_category,
         "supplier_routes_to_check": supplier_routes,
+        "supplier_route_cards": event_supplier_route_cards(req),
         "recommended_format": format_copy,
         "event_structure": event_structure(req),
         "supplier_shortlist": shortlist,
@@ -3414,17 +3724,17 @@ DEFAULT_MERCHANT_LINKS = [
     },
     {
         "name": "Berry Bros. & Rudd",
-        "url": "https://www.bbr.com/wines",
-        "note": "Fine wine range worth considering for premium client gifts.",
-        "url_purpose": "Fine wines range page",
+        "url": "https://www.bbr.com/gifts",
+        "note": "Gifts page worth considering for premium client gifts, Champagne and fine wine.",
+        "url_purpose": "Gifts page",
         "url_checked_date": "2026-05-10",
         "is_affiliate": False,
     },
     {
         "name": "Fortnum & Mason",
-        "url": "https://www.fortnumandmason.com/corporate-gifting",
-        "note": "Corporate gifting page for presentation-led hampers and food gifting options.",
-        "url_purpose": "Corporate gifting page",
+        "url": "https://www.fortnumandmason.com/hampers",
+        "note": "Hampers page for presentation-led premium food and drink gifting.",
+        "url_purpose": "Hampers page",
         "url_checked_date": "2026-05-10",
         "is_affiliate": False,
     },
