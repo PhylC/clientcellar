@@ -2,6 +2,7 @@ import csv
 import io
 import json
 import logging
+import math
 import os
 import re
 import sqlite3
@@ -72,6 +73,7 @@ SITEMAP_STATIC_ROUTES = [
     "/affiliate-disclosure",
     "/editorial-policy",
     "/supplier-partnerships",
+    "/supplier-application",
     "/responsible-drinking",
     "/copyright",
     "/cookies",
@@ -708,6 +710,11 @@ def fetch_supplier_applications(limit: int | None = None) -> list[sqlite3.Row]:
 
 def save_supplier_application(application: "SupplierApplicationRequest") -> int:
     init_leads_db()
+    affiliate_note = (
+        "Affiliate/tracked links available: "
+        f"{readable(application.affiliate_links_available)}"
+    )
+    message = "\n\n".join(part for part in [application.message, affiliate_note] if part)
     with get_db_connection() as connection:
         cursor = connection.execute(
             """
@@ -736,7 +743,7 @@ def save_supplier_application(application: "SupplierApplicationRequest") -> int:
                 application.personalisation,
                 application.typical_budget_min,
                 application.typical_budget_max,
-                application.message,
+                message,
                 application.consent_to_contact,
             ),
         )
@@ -1229,14 +1236,17 @@ def normalise_suppliers() -> None:
 
         relationship = supplier.get("commercial_relationship", "none")
         label = {
-            "none": "Listed supplier",
+            "none": "Supplier to check",
             "affiliate": "Affiliate link",
             "referral": "Referral relationship",
             "sponsored": "Sponsored placement",
             "supplier_partner": "Supplier partner",
-        }.get(relationship, "Listed supplier")
+        }.get(relationship, "Supplier to check")
+        is_affiliate = bool(supplier.get("affiliate_url") and relationship == "affiliate")
         disclosure = supplier.get("disclosure_note") or (
-            "Listed for planning guidance. No endorsement is implied. Confirm pricing, availability, delivery and suitability directly."
+            "Affiliate or tracked supplier link where available. Confirm pricing, availability, delivery and suitability directly."
+            if is_affiliate
+            else "Normal supplier reference for planning. No affiliate relationship or endorsement is implied."
         )
 
         supplier.update(
@@ -1247,6 +1257,8 @@ def normalise_suppliers() -> None:
                 "commercial_relationship": relationship,
                 "commercial_relationship_label": label,
                 "disclosure_note": disclosure,
+                "is_affiliate": is_affiliate,
+                "disclosure_label": "Affiliate link" if is_affiliate else "Normal supplier link",
                 "active": supplier.get("active", True),
             }
         )
@@ -1371,6 +1383,7 @@ class SupplierApplicationRequest(BaseModel):
     personalisation: bool = False
     typical_budget_min: float | None = Field(default=None, gt=0, le=100000)
     typical_budget_max: float | None = Field(default=None, gt=0, le=100000)
+    affiliate_links_available: Literal["yes", "no", "not_sure"] = "not_sure"
     message: str | None = Field(default=None, max_length=3000)
     consent_to_contact: bool
 
@@ -1395,7 +1408,9 @@ def supplier_url(supplier: dict) -> str | None:
 
 
 def supplier_destination_url(supplier: dict) -> str | None:
-    return supplier.get("affiliate_url") or supplier.get("enquiry_url") or supplier.get("website_url")
+    if supplier.get("is_affiliate") and supplier.get("affiliate_url"):
+        return supplier.get("affiliate_url")
+    return supplier.get("enquiry_url") or supplier.get("website_url")
 
 
 def is_real_supplier(supplier: dict) -> bool:
@@ -1423,6 +1438,7 @@ def supplier_directory_card(
         "prepare_url": "/event-planner" if "tasting" in use_case.lower() or "event" in use_case.lower() else "/gift-planner",
         "visit_url": f"/out/supplier/{supplier['tracking_slug']}?source_page=/suppliers" if supplier and is_real_supplier(supplier) else None,
         "relationship_label": supplier["commercial_relationship_label"] if supplier else "Supplier type",
+        "is_affiliate": supplier.get("is_affiliate", False) if supplier else False,
     }
 
 
@@ -1594,6 +1610,7 @@ def build_supplier_shortlist(items: list[dict], why_prefix: str, budget: float) 
                 "url": supplier_url(supplier),
                 "tracked_url": f"/out/supplier/{supplier['tracking_slug']}" if is_real_supplier(supplier) else None,
                 "affiliate_url": supplier["affiliate_url"],
+                "is_affiliate": supplier.get("is_affiliate", False),
                 "relationship_label": supplier["commercial_relationship_label"],
                 "disclosure_note": supplier["disclosure_note"],
             }
@@ -1696,6 +1713,38 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
     )
 
     supplier_category = supplier_category_for_gift(req)
+    supplier_routes = [
+        supplier_category,
+        "Independent wine merchant",
+        "Corporate gifting supplier" if req.recipient_count >= 20 or req.branding_needed else "Wine merchant or retailer",
+        "Hamper supplier" if req.gift_style in {"wine_hamper", "not_sure"} else "Supermarket or wine retailer",
+    ]
+    if req.gift_style == "sparkling" or req.budget_per_recipient >= 75:
+        supplier_routes.append("Champagne/sparkling wine specialist")
+    preference_text = f"{req.known_preferences or ''} {req.avoid or ''}".lower()
+    if req.recipient_type in {"employees", "mixed"} or "alcohol" in preference_text or "non-alcohol" in preference_text:
+        supplier_routes.append("Non-alcoholic gifting supplier")
+    supplier_routes = list(dict.fromkeys(supplier_routes))
+    supplier_questions = [
+        "Can you provide an itemised quote including VAT, delivery, fulfilment and any personalisation costs?",
+        "What are the minimum order quantity, lead time and final recipient data deadline?",
+        "How do substitutions work if an item sells out before dispatch?",
+        "Can you support alcohol-free alternatives for recipients who need them?",
+        "What recipient CSV format, gift message format and delivery reporting can you provide?",
+    ]
+    if req.branding_needed:
+        supplier_questions.append("What artwork format, proofing timeline and branding minimums apply?")
+    if req.international_needed:
+        supplier_questions.append("Which countries can you deliver alcohol to, and what customs or age-verification rules apply?")
+    recipient_occasion_fit = [
+        f"{readable(req.recipient_type).title()} gifts should be broad-appeal, policy-aware and easy to fulfil at this volume.",
+        f"For {req.occasion}, prioritise presentation, delivery certainty and an inclusive route over niche wine choices.",
+    ]
+    risks_and_checks = avoid + [
+        "Confirm live stock, pricing, VAT, delivery coverage and cut-off dates directly with suppliers.",
+        "Check company gifting policy, bribery limits, alcohol suitability and recipient preferences before ordering.",
+        "Keep a written record of quote assumptions, substitutions, delivery terms and approval notes.",
+    ]
     budget_guidance = [
         f"Planning budget: {money(req.budget_per_recipient)} per recipient, around {money(total)} total before supplier-confirmed extras.",
         "This should cover the gift item or pack direction, but VAT, delivery, fulfilment, gift notes, branding and substitutions need confirming directly.",
@@ -1724,14 +1773,21 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         "summary": f"Plan {req.recipient_count} {readable(req.recipient_type)} gifts for {req.occasion} at around {money(req.budget_per_recipient)} each.",
         "estimated_total_budget": f"{money(total)} before confirmed delivery, VAT, packaging or fulfilment extras.",
         "recommended_direction": strategy,
+        "recipient_occasion_fit": recipient_occasion_fit,
+        "suggested_gift_direction": strategy,
         "budget_guidance": budget_guidance,
         "supplier_category": supplier_category,
+        "supplier_routes_to_check": supplier_routes,
         "recommended_strategy": strategy,
         "recommended_gift_types": gift_types(req),
         "supplier_shortlist": shortlist,
         "suppliers": shortlist,
         "supplier_recommendations": shortlist,
         "suggested_suppliers": shortlist,
+        "questions_to_ask_suppliers": supplier_questions,
+        "supplier_questions": supplier_questions,
+        "risks_and_checks": risks_and_checks,
+        "supplier_links_note": "Supplier links are not required to use this plan. You can use the supplier route guidance to contact retailers or merchants directly.",
         "what_to_avoid": avoid,
         "message_templates": templates_out,
         "supplier_enquiry_email": {"subject": subject, "body": body},
@@ -1830,6 +1886,48 @@ def make_event_plan(req: EventPlanRequest) -> dict:
         "and beginner-friendly, with alcohol-free alternatives available. Full details will follow once the supplier and date are confirmed."
     )
     supplier_category = supplier_category_for_event(req)
+    bottles_estimate = max(1, math.ceil(req.attendee_count * 0.45))
+    serving_assumptions = [
+        "Use this as an early planning estimate, not a confirmed order quantity.",
+        "A hosted tasting often works from roughly two to three modest pours per attendee, adjusted by format, food and duration.",
+        "Confirm final quantities with the venue, caterer or event wine supplier before booking.",
+    ]
+    wine_quantity_estimate = [
+        f"Initial bottle estimate: around {bottles_estimate} standard 75cl bottles for {req.attendee_count} attendees, before supplier or venue adjustment.",
+        "Virtual tasting packs may be priced per attendee rather than by bottle count.",
+        "For in-person events, confirm glassware, service pace, corkage, venue restrictions and alcohol-free alternatives.",
+    ]
+    if req.food_pairing_needed:
+        wine_mix = "A structured three-wine mix with food pairing notes and alcohol-free alternatives."
+    elif req.event_type == "client_entertainment" or req.tone == "client_safe":
+        wine_mix = "A polished, low-risk mix such as sparkling arrival, approachable white and approachable red, with modest pours."
+    elif req.budget_per_person < 25:
+        wine_mix = "Two accessible wines or one wine plus an alcohol-free alternative, keeping delivery and hosting cost under control."
+    else:
+        wine_mix = "A balanced tasting mix across sparkling, white and red or a themed three-wine flight."
+    supplier_routes = [
+        supplier_category,
+        "Event wine supplier",
+        "Wine merchant events team",
+        "Corporate gifting supplier" if req.format in {"virtual", "hybrid"} else "Local wine merchant",
+    ]
+    if req.food_pairing_needed:
+        supplier_routes.append("Venue or caterer-supported wine supplier")
+    if req.format in {"virtual", "hybrid"}:
+        supplier_routes.append("Virtual tasting pack provider")
+    supplier_routes = list(dict.fromkeys(supplier_routes))
+    supplier_questions = [
+        "Can you provide an itemised quote including VAT, host fee, wine, delivery, glassware, food and any venue charges?",
+        "What attendee numbers, dates and locations can you support?",
+        "What alcohol-free alternatives, dietary options and accessibility considerations can you include?",
+        "Who handles delivery, glassware, corkage, service and clean-up if the event is in person?",
+        "What cancellation terms, substitution policy and final numbers deadline apply?",
+    ]
+    risks_and_checks = avoid + [
+        "Quantities are planning estimates; confirm final numbers with the venue, caterer or supplier.",
+        "Confirm stock, pricing, glassware, delivery, licensing, corkage, food pairing and venue rules before booking.",
+        "Keep responsible drinking expectations, finish time and transport considerations clear in the invite.",
+    ]
     budget_guidance = [
         f"Planning budget: {money(req.budget_per_person)} per attendee, around {money(total)} total before supplier-confirmed extras.",
         "This should cover the broad event format, but VAT, host fee, delivery, venue, glassware, food, corkage and minimum spend need confirming directly.",
@@ -1847,14 +1945,24 @@ def make_event_plan(req: EventPlanRequest) -> dict:
         "summary": f"Plan for {req.attendee_count} attendees at around {money(req.budget_per_person)} per person.",
         "estimated_total_budget": f"{money(total)} before confirmed VAT, delivery, venue, service or food costs.",
         "recommended_direction": format_copy,
+        "event_summary": f"{readable(req.event_type).title()} for {req.attendee_count} attendees, planned at around {money(req.budget_per_person)} per person.",
+        "guest_count_and_serving_assumptions": serving_assumptions,
+        "serving_assumptions": serving_assumptions,
+        "wine_quantity_estimate": wine_quantity_estimate,
+        "recommended_wine_mix": wine_mix,
         "budget_guidance": budget_guidance,
         "supplier_category": supplier_category,
+        "supplier_routes_to_check": supplier_routes,
         "recommended_format": format_copy,
         "event_structure": event_structure(req),
         "supplier_shortlist": shortlist,
         "suppliers": shortlist,
         "supplier_recommendations": shortlist,
         "suggested_suppliers": shortlist,
+        "questions_to_ask_event_wine_suppliers": supplier_questions,
+        "supplier_questions": supplier_questions,
+        "risks_and_checks": risks_and_checks,
+        "supplier_links_note": "Supplier links are not required to use this plan. You can use the supplier route guidance to contact retailers, merchants or event suppliers directly.",
         "what_to_avoid": avoid,
         "supplier_enquiry_email": {"subject": subject, "body": body},
         "internal_approval_summary": internal_approval_summary,
@@ -4239,6 +4347,11 @@ def suppliers_join(request: Request):
     )
 
 
+@app.get("/supplier-application", response_class=HTMLResponse)
+def supplier_application(request: Request):
+    return suppliers_join(request)
+
+
 @app.get("/suppliers/{tracking_slug}", response_class=HTMLResponse)
 def supplier_detail(request: Request, tracking_slug: str):
     supplier = supplier_by_tracking_slug(tracking_slug)
@@ -4494,7 +4607,7 @@ def privacy_policy(request: Request):
         request,
         "privacy.html",
         "Privacy Policy",
-        "Plain-English privacy policy for ClientCellar, a UK affiliate and corporate gifting planning website.",
+        "Plain-English privacy policy for ClientCellar, a UK corporate gifting and event wine planning website.",
     )
 
 
@@ -4529,7 +4642,7 @@ def network_readiness(request: Request):
         request,
         "network_readiness.html",
         "ClientCellar Publisher Profile",
-        "Publisher profile for affiliate networks, suppliers and commercial partnership review teams.",
+        "Publisher profile for suppliers and commercial partnership review teams.",
     )
 
 

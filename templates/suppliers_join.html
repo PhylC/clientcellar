@@ -3,7 +3,7 @@
 <section class="page-intro">
   <p class="eyebrow">Suppliers</p>
   <h1>Work with ClientCellar</h1>
-  <p>We’re building the directory and supplier referral process for corporate wine gifts, hampers and tasting events.</p>
+  <p>Share your details for the ClientCellar supplier directory and planning resource for corporate wine gifts, hampers and tasting events.</p>
 </section>
 
 <section class="contact-layout supplier-join-layout">
@@ -12,8 +12,8 @@
     <p>Wine merchants, hamper suppliers, sparkling wine specialists, corporate gifting providers and tasting hosts that can support business customers.</p>
     <h2>What corporate buyers ask for</h2>
     <p>Clear budget bands, bulk ordering, reliable delivery, personalisation, alcohol-free options, VAT clarity and supplier-ready enquiry responses.</p>
-    <h2>How listings and referrals may work</h2>
-    <p>Listings may include editorial references, affiliate links, referral arrangements, sponsored placements or supplier partner placements. We’re building the directory and supplier referral process, so no lead volume is promised.</p>
+    <h2>How listings may work</h2>
+    <p>Listings may include editorial references, normal supplier links, tracked links, referral arrangements, sponsored placements or supplier partner placements. We do not promise lead volume.</p>
     <h2>Disclosure and trust</h2>
     <p>Commercial relationships should be disclosed clearly. Recommendations should be based on fit, not commission, and supplier details must be confirmed directly.</p>
   </div>
@@ -49,6 +49,13 @@
     <label>Regions covered
       <input name="regions_covered" placeholder="e.g. UK-wide, London, remote" required>
     </label>
+    <label>Affiliate/tracked links available?
+      <select name="affiliate_links_available">
+        <option value="not_sure">Not sure</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </label>
     <div class="checks">
       <label><input type="checkbox" name="corporate_gifting"> Corporate gifting</label>
       <label><input type="checkbox" name="wine_tasting_events"> Wine tasting events</label>
@@ -72,6 +79,7 @@
       <span>I agree that ClientCellar can contact me about this supplier enquiry.</span>
     </label>
     <button class="button primary full" type="submit">Send supplier application</button>
+    <p class="small-note">If the form does not send, email <a href="mailto:partners@clientcellar.co.uk">partners@clientcellar.co.uk</a> with these details.</p>
     <p id="supplier-application-status" class="form-status" role="status"></p>
   </form>
 </section>

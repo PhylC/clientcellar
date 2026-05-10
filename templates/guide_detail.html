@@ -9,7 +9,7 @@
   </div>
   <p>{{ guide.intro }}</p>
   <p class="guide-disclosure-line">
-    Disclosure: Some links may earn commission. Our guidance is written to help buyers choose suitable client gifts and event wine, not to favour any single retailer.
+    Disclosure: Some links may earn commission where available. These guides work as planning advice whether or not a supplier link is tracked.
   </p>
   <div class="hero-actions">
     <a class="button primary" href="{{ guide.cta_url }}">{% if guide.cta_url == "/event-planner" %}Plan event wine{% else %}Plan corporate gifts{% endif %}</a>
@@ -95,11 +95,11 @@
     {% if guide.merchant_links %}
     <section id="supplier-links">
       <h2>Supplier links to consider</h2>
-      <p>These are ordinary merchant references for research. A link does not mean ClientCellar has a confirmed partnership with that supplier.</p>
+      <p>These are ordinary merchant references for research. Supplier links are not required to use this guide, and a link does not mean ClientCellar has a confirmed partnership with that supplier.</p>
       <div class="card-grid three">
         {% for merchant in guide.merchant_links %}
         <article class="mini-card">
-          <h3><a href="{{ merchant.url }}" target="_blank" rel="nofollow sponsored noopener">{{ merchant.name }}</a></h3>
+          <h3><a href="{{ merchant.url }}" target="_blank" rel="nofollow noopener">{{ merchant.name }}</a></h3>
           <p>{{ merchant.note }}</p>
         </article>
         {% endfor %}

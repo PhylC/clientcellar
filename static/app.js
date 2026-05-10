@@ -445,14 +445,14 @@ function supplierRecommendationsFromPlan(plan = {}) {
 }
 
 function supplierUrlHtml(supplier) {
-  const url = supplier.tracked_url || supplier.url || supplier.affiliate_url || supplier.website_url || "";
+  const url = supplier.tracked_url || supplier.url || supplier.website_url || supplier.affiliate_url || "";
   if (!url) {
     return '<p><a class="button secondary" href="/suppliers">View supplier directory</a></p><p class="small-note">Use this as a supplier type rather than a direct supplier link.</p>';
   }
   const isExternal = /^https?:\/\//i.test(url);
   const target = isExternal ? ' target="_blank"' : "";
-  const rel = isExternal ? ' rel="sponsored noopener"' : "";
-  return `<p><a class="button secondary" href="${escapeHtml(url)}"${target}${rel}>View supplier</a></p>`;
+  const rel = isExternal ? ` rel="${supplier.is_affiliate ? "sponsored " : ""}noopener"` : "";
+  return `<p><a class="button secondary" href="${escapeHtml(url)}"${target}${rel}>View supplier to check</a></p>`;
 }
 
 function renderSuppliers(suppliers = [], type = "gift") {
@@ -472,7 +472,7 @@ function renderSuppliers(suppliers = [], type = "gift") {
           <p>${escapeHtml(fitReason)}</p>
           <p>${escapeHtml(budgetNote)}</p>
           ${supplierUrlHtml(supplier)}
-          <p class="small-note">${escapeHtml(supplier.disclosure_note || "Some supplier links may be affiliate or tracked links.")} <a href="/affiliate-disclosure">See Affiliate Disclosure.</a></p>
+          <p class="small-note">${escapeHtml(supplier.disclosure_note || "Use this as a supplier route to check. Some supplier links may be affiliate or tracked links where available.")} <a href="/affiliate-disclosure">See Affiliate Disclosure.</a></p>
         </article>
       `;
     })
@@ -652,7 +652,7 @@ function renderPremiumPreview(preview, type) {
       <section class="result-block disclaimer-block">
         <h3>Disclaimer</h3>
         <p>${escapeHtml(preview.disclaimer)}</p>
-        <p class="small-note">Some supplier links may be affiliate or tracked links. Confirm availability, pricing and delivery directly. <a href="/affiliate-disclosure">Affiliate Disclosure</a>.</p>
+        <p class="small-note">Some supplier links may be affiliate or tracked links where available. Confirm availability, pricing and delivery directly. <a href="/affiliate-disclosure">Affiliate Disclosure</a>.</p>
       </section>
       ${renderLeadForm("premium_pack", "premium-pack-preview", type)}
     </div>
@@ -692,18 +692,39 @@ function renderLeadForm(interestedIn, sourcePage, contextType = "") {
 }
 
 function renderPlan(plan, type) {
+  const routeList = plan.supplier_routes_to_check || [plan.supplier_category].filter(Boolean);
+  const questions =
+    plan.questions_to_ask_suppliers ||
+    plan.questions_to_ask_event_wine_suppliers ||
+    plan.supplier_questions ||
+    [];
+  const risks = plan.risks_and_checks || plan.what_to_avoid || [];
   const eventExtras =
     type === "event"
       ? `
         <div class="result-block">
-          <h2>Event structure direction</h2>
-          ${list(plan.event_structure)}
+          <h2>Guest count and serving assumptions</h2>
+          ${list(plan.guest_count_and_serving_assumptions || plan.serving_assumptions || [])}
+        </div>
+        <div class="result-block">
+          <h2>Wine quantity estimate</h2>
+          ${list(plan.wine_quantity_estimate || [])}
+        </div>
+        <div class="result-block">
+          <h2>Recommended wine mix</h2>
+          <p>${escapeHtml(plan.recommended_wine_mix || plan.recommended_direction || plan.recommended_format || "")}</p>
+          ${list(plan.event_structure || [])}
         </div>
       `
       : `
         <div class="result-block">
-          <h2>Recommended gift types</h2>
-          ${list(plan.recommended_gift_types)}
+          <h2>Recipient and occasion fit</h2>
+          ${list(plan.recipient_occasion_fit || [])}
+        </div>
+        <div class="result-block">
+          <h2>Suggested gift direction</h2>
+          <p>${escapeHtml(plan.suggested_gift_direction || plan.recommended_direction || plan.recommended_strategy || "")}</p>
+          ${list(plan.recommended_gift_types || [])}
         </div>
       `;
 
@@ -714,45 +735,52 @@ function renderPlan(plan, type) {
       <p class="result-meta">${escapeHtml(plan.summary)}</p>
       <p class="small-note">This is planning guidance, not a confirmed quote. Check stock, pricing, delivery, age restrictions and suitability directly with your chosen supplier.</p>
       <div class="result-block">
-        <h2>1. Recommended direction</h2>
-        <p>${escapeHtml(plan.recommended_direction || plan.recommended_strategy || plan.recommended_format)}</p>
+        <h2>${type === "event" ? "Event summary" : "Summary"}</h2>
+        <p>${escapeHtml(plan.event_summary || plan.summary || "")}</p>
       </div>
+      ${eventExtras}
       <div class="result-block">
-        <h2>2. Budget guidance</h2>
+        <h2>Budget estimate</h2>
         <p><strong>Estimated budget:</strong> ${escapeHtml(plan.estimated_total_budget)}</p>
         ${list(plan.budget_guidance || [])}
       </div>
       <div class="result-block">
-        <h2>3. Supplier category to approach</h2>
-        <p>${escapeHtml(plan.supplier_category || "Corporate wine supplier")}</p>
+        <h2>Supplier routes to check</h2>
+        ${list(routeList)}
+        <p class="small-note">${escapeHtml(plan.supplier_links_note || "Supplier links are not required to use this plan. You can use the supplier route guidance to contact retailers or merchants directly.")}</p>
       </div>
       <div class="result-block supplier-suggestions">
-        <h2>Suggested suppliers to check</h2>
-        <p>These suppliers may fit your brief. Confirm live pricing, stock, delivery dates and suitability directly.</p>
+        <h2>Retailers and suppliers to check</h2>
+        <p>These are starting points or supplier types, not confirmed quotes or official recommendations. Confirm live pricing, stock, delivery dates and suitability directly.</p>
         <div class="supplier-card-grid">
           ${renderSuppliers(supplierRecommendationsFromPlan(plan), type)}
         </div>
       </div>
-      ${eventExtras}
       <div class="result-block">
-        <h2>4. Suitability notes</h2>
-        ${list(plan.what_to_avoid)}
+        <h2>Questions to ask ${type === "event" ? "event wine suppliers" : "suppliers"}</h2>
+        ${list(questions)}
       </div>
       <div class="result-block">
-        <h2>5. Simple next steps</h2>
-        ${list((plan.next_steps || []).slice(0, 4))}
+        <h2>Risks and checks</h2>
+        ${list(risks)}
+      </div>
+      <div class="result-block">
+        <h2>Next steps</h2>
+        ${list(plan.next_steps || [])}
       </div>
       <div class="premium-cta-card">
         <p class="eyebrow">Premium Brief Pack</p>
         <h2>Want the documents to actually send?</h2>
-        <p>Your free plan gives you supplier suggestions and direction. Premium creates the working pack: supplier enquiry email, quote comparison table, budget breakdown, approval summary and risk checklist.</p>
+        <p>Your free plan gives you a useful planning route. Premium creates the working pack: supplier-ready buying brief, copy-and-send supplier enquiry email, budget and quantity breakdown, internal approval summary and next steps checklist.</p>
         <ul class="feature-list">
+          <li>Supplier-ready buying brief</li>
           <li>Copy-ready supplier email</li>
-          <li>Quote comparison table</li>
+          <li>Supplier shortlist guidance</li>
           <li>Internal approval summary</li>
-          <li>Budget breakdown</li>
+          <li>Budget and quantity breakdown</li>
           <li>Saved download link</li>
         </ul>
+        <p class="small-note">Supplier-ready means formatted for enquiry and approval; it does not mean supplier availability, pricing or quotes have been confirmed.</p>
         <div class="result-actions">
           <button class="button primary" type="button" data-pack-checkout data-pack-type="${type}">Upgrade this plan to Premium Brief Pack</button>
           <a class="button secondary" href="${type === "gift" ? "/gift-planner" : "/event-planner"}">Continue with free plan</a>
@@ -1348,19 +1376,26 @@ function bindSupplierApplicationForm() {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const status = document.getElementById("supplier-application-status");
+    const payload = formToJson(form);
+    const mailBody = encodeURIComponent(
+      Object.entries(payload)
+        .map(([key, value]) => `${key}: ${value === true ? "yes" : value === false ? "no" : value || ""}`)
+        .join("\n")
+    );
+    const mailto = `mailto:partners@clientcellar.co.uk?subject=${encodeURIComponent("Supplier application")}&body=${mailBody}`;
     status.textContent = "Sending...";
     try {
       const response = await fetch("/api/supplier-application", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formToJson(form)),
+        body: JSON.stringify(payload),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(errorMessageFromResponse(data));
       status.textContent = data.message || "Thanks — your supplier application has been saved.";
       form.reset();
     } catch (error) {
-      status.textContent = error.message || "Sorry, your supplier application could not be saved.";
+      status.innerHTML = `Sorry, your supplier application could not be saved here. <a href="${mailto}">Email partners@clientcellar.co.uk with these details</a>.`;
     }
   });
 }

@@ -12,7 +12,7 @@
 </section>
 
 <section class="trust-strip">
-  Some supplier links may be affiliate or tracked links. Planning guidance only: ClientCellar does not sell alcohol directly. Confirm stock, pricing, age restrictions and delivery with the supplier. <a href="/affiliate-disclosure">Read the affiliate disclosure</a>.
+  Some supplier links may be affiliate or tracked links where available. ClientCellar works as a planning resource even where no affiliate link is available. Planning guidance only: confirm stock, pricing, age restrictions and delivery with the supplier. <a href="/affiliate-disclosure">Read the affiliate disclosure</a>.
 </section>
 
 <section class="section">
@@ -30,13 +30,13 @@
     <p>Use these categories to decide which kind of supplier is most likely to fit your brief before you request quotes.</p>
   </div>
   <div class="card-grid three">
-    <article class="card mini-card"><h3>Wine merchants</h3><p>Good for bottle-led gifts, mixed cases, classic styles and advice-led recommendations.</p></article>
-    <article class="card mini-card"><h3>Corporate gifting suppliers</h3><p>Useful for larger recipient lists, message inserts, fulfilment support and delivery reporting.</p></article>
-    <article class="card mini-card"><h3>Hamper suppliers</h3><p>Helpful where presentation, food pairings and alcohol-free alternatives matter.</p></article>
-    <article class="card mini-card"><h3>Event wine suppliers</h3><p>Suitable for hosted tastings, client entertainment, team events and virtual tasting packs.</p></article>
-    <article class="card mini-card"><h3>Champagne and sparkling wine retailers</h3><p>Worth considering for premium client gifts, celebrations and polished thank-you gestures.</p></article>
-    <article class="card mini-card"><h3>Supermarkets and mainstream retailers</h3><p>Useful for accessible products and simple buying, but confirm bulk ordering and delivery limits.</p></article>
-    <article class="card mini-card"><h3>Non-alcoholic gifting options</h3><p>Important for inclusive staff gifts, mixed recipient groups and policy-sensitive briefs.</p></article>
+    <article class="card mini-card"><h3>Wine merchants</h3><p><strong>Best for:</strong> bottle-led gifts, mixed cases and advice-led recommendations.</p><p><strong>What to check:</strong> business accounts, delivery, substitutions and volume pricing.</p><p><strong>Search terms:</strong> corporate wine merchant UK, business wine gifts.</p><p><strong>When to avoid:</strong> if you need complex multi-address fulfilment and reporting.</p></article>
+    <article class="card mini-card"><h3>Corporate gifting suppliers</h3><p><strong>Best for:</strong> larger recipient lists, inserts, fulfilment support and delivery reporting.</p><p><strong>What to check:</strong> minimum order quantities, CSV format, branding proofs and delivery cut-offs.</p><p><strong>Search terms:</strong> corporate wine gifts UK, business gift fulfilment.</p><p><strong>When to avoid:</strong> if you only need a small, advice-led bottle purchase.</p></article>
+    <article class="card mini-card"><h3>Hamper suppliers</h3><p><strong>Best for:</strong> presentation, food pairings and mixed-recipient gift routes.</p><p><strong>What to check:</strong> contents, substitutions, allergens, alcohol-free alternatives and packaging.</p><p><strong>Search terms:</strong> wine hampers corporate gifts UK, business hamper supplier.</p><p><strong>When to avoid:</strong> if the budget is tight and delivery costs would dominate.</p></article>
+    <article class="card mini-card"><h3>Event wine suppliers</h3><p><strong>Best for:</strong> hosted tastings, client entertainment, team events and virtual packs.</p><p><strong>What to check:</strong> host availability, glassware, delivery, venue rules, corkage and cancellation terms.</p><p><strong>Search terms:</strong> corporate wine tasting UK, virtual wine tasting company.</p><p><strong>When to avoid:</strong> if the event needs full catering or venue management beyond wine.</p></article>
+    <article class="card mini-card"><h3>Champagne and sparkling wine retailers</h3><p><strong>Best for:</strong> premium client gifts, celebrations and polished thank-you gestures.</p><p><strong>What to check:</strong> vintage, presentation boxes, bulk pricing, engraving and delivery dates.</p><p><strong>Search terms:</strong> corporate Champagne gifts UK, sparkling wine gifts business.</p><p><strong>When to avoid:</strong> if recipient preferences or policies make alcohol risky.</p></article>
+    <article class="card mini-card"><h3>Supermarkets and mainstream retailers</h3><p><strong>Best for:</strong> accessible products, simple buying and smaller internal gifts.</p><p><strong>What to check:</strong> bulk order limits, delivery coverage, invoices and substitutions.</p><p><strong>Search terms:</strong> bulk wine delivery UK, supermarket wine cases.</p><p><strong>When to avoid:</strong> if you need tailored gift messaging or recipient-level fulfilment.</p></article>
+    <article class="card mini-card"><h3>Non-alcoholic gifting suppliers</h3><p><strong>Best for:</strong> inclusive staff gifts, mixed groups and policy-sensitive briefs.</p><p><strong>What to check:</strong> ingredients, allergens, presentation, delivery and whether options feel equal-value.</p><p><strong>Search terms:</strong> non alcoholic corporate gifts UK, alcohol free hamper supplier.</p><p><strong>When to avoid:</strong> never as a fallback; use it deliberately when suitability matters.</p></article>
   </div>
 </section>
 
@@ -55,11 +55,13 @@
       <p><strong>Typical use case:</strong> {{ card.use_case }}</p>
       <p><strong>Budget fit:</strong> {{ card.budget_fit }}</p>
       <p><strong>Notes:</strong> {{ card.notes }}</p>
-      <p class="small-note">Some links may be affiliate or partner links. Confirm pricing, availability and delivery directly.</p>
+      <p class="small-note">Use normal supplier links where available; some may become affiliate or tracked links later. Confirm pricing, availability and delivery directly.</p>
       <div class="button-row">
         <a class="button primary small" href="{{ card.prepare_url }}">Prepare enquiry</a>
         {% if card.visit_url %}
-        <a class="button secondary small" href="{{ card.visit_url }}" target="_blank" rel="sponsored noopener">View supplier</a>
+        <a class="button secondary small" href="{{ card.visit_url }}" target="_blank" rel="{% if card.is_affiliate %}sponsored {% endif %}noopener">View supplier to check</a>
+        {% else %}
+        <span class="small-note">No direct supplier link for this route yet; use the planner output or search terms to contact suppliers directly.</span>
         {% endif %}
       </div>
     </article>
@@ -77,7 +79,7 @@
     </article>
     <article class="card">
       <h2>Supplier disclosure</h2>
-      <p>Some supplier links may be affiliate, partner or tracked links. Commercial relationships do not guarantee positive placement, and sponsored placements will be clearly labelled if introduced later.</p>
+      <p>Some supplier links may be affiliate, partner or tracked links where available. Commercial relationships do not guarantee positive placement, and sponsored placements will be clearly labelled if introduced later.</p>
       <p><a class="button secondary" href="/affiliate-disclosure">Read the affiliate disclosure</a></p>
     </article>
   </div>
@@ -94,16 +96,28 @@
   </div>
 </section>
 
+<section class="section">
+  <div class="card">
+    <h2>Example supplier enquiry questions</h2>
+    <ul class="feature-list">
+      <li>Can you provide an itemised quote including VAT, delivery, fulfilment and any personalisation costs?</li>
+      <li>What minimum order quantity, lead time and recipient data format do you require?</li>
+      <li>How do you handle substitutions, failed delivery, age verification and alcohol-free alternatives?</li>
+      <li>For events, can you confirm host availability, glassware, corkage, venue requirements and cancellation terms?</li>
+    </ul>
+  </div>
+</section>
+
 <section class="cta-panel">
   <div>
     <p class="eyebrow">Supplier partnerships</p>
     <h2>Want to be listed?</h2>
-    <p>Wine merchants, hamper providers, gifting companies and event wine suppliers can contact us about listings, affiliate relationships or future commercial options.</p>
+    <p>Wine merchants, hamper providers, gifting companies and event wine suppliers can contact us about listings, editorial references, future tracked links or other clearly disclosed commercial options.</p>
   </div>
   <div class="hero-actions">
     <a class="button primary" href="/gift-planner">Plan corporate gifts</a>
     <a class="button secondary" href="/event-planner">Plan a wine tasting event</a>
-    <a class="text-link" href="/supplier-partnerships">Supplier partnerships</a>
+    <a class="text-link" href="/supplier-application">Supplier application</a>
   </div>
 </section>
 {% endblock %}
