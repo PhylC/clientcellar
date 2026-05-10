@@ -67,6 +67,7 @@ SITEMAP_STATIC_ROUTES = [
     "/guides",
     "/suppliers",
     "/pricing",
+    "/example-premium-brief-pack",
     "/faq",
     "/about",
     "/contact",
@@ -4553,6 +4554,17 @@ def pricing(request: Request):
         "pricing.html",
         "Pricing",
         "Compare the free ClientCellar planner with the £29.99 Premium Brief Pack.",
+        structured_data=[premium_pack_product_schema(request)],
+    )
+
+
+@app.get("/example-premium-brief-pack", response_class=HTMLResponse)
+def example_premium_brief_pack(request: Request):
+    return render(
+        request,
+        "example_premium_brief_pack.html",
+        "Example Premium Brief Pack",
+        "See an example ClientCellar Premium Brief Pack with supplier-ready buying brief, enquiry email, budget breakdown, supplier quote comparison table and internal approval summary.",
         structured_data=[premium_pack_product_schema(request)],
     )
 
