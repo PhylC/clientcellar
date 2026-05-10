@@ -59,7 +59,7 @@
       <div class="button-row">
         <a class="button primary small" href="{{ card.prepare_url }}">Prepare enquiry</a>
         {% if card.visit_url %}
-        <a class="button secondary small" href="{{ card.visit_url }}" target="_blank" rel="{% if card.is_affiliate %}sponsored {% endif %}noopener">View supplier to check</a>
+        <a class="button secondary small" href="{{ card.visit_url }}" target="_blank" rel="{% if card.is_affiliate %}sponsored {% endif %}noopener">{{ card.link_label }}</a>
         {% else %}
         <span class="small-note">No direct supplier link for this route yet; use the planner output or search terms to contact suppliers directly.</span>
         {% endif %}

@@ -768,9 +768,12 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK"],
-        "website_url": "https://www.majestic.co.uk/",
+        "website_url": "https://www.majestic.co.uk/services/corporate-gifting",
         "affiliate_url": None,
-        "enquiry_url": "https://www.majestic.co.uk/services/corporate",
+        "enquiry_url": "https://www.majestic.co.uk/services/corporate-gifting",
+        "url_purpose": "Corporate gifting page",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
         "notes": "Well-known UK wine merchant suitable for practical bottle and case options.",
         "best_for": ["staff gifts", "mixed cases", "budget guidance", "larger UK orders"],
     },
@@ -790,9 +793,12 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.laithwaites.co.uk/",
+        "website_url": "https://www.laithwaites.co.uk/gifts/corporate-wine-gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.laithwaites.co.uk/",
+        "enquiry_url": "https://www.laithwaites.co.uk/gifts/corporate-wine-gifts",
+        "url_purpose": "Corporate wine gifts page",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
         "notes": "Established mail-order wine merchant; confirm corporate options directly.",
         "best_for": ["mixed cases", "staff gifts", "client-safe classics"],
     },
@@ -812,9 +818,12 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.virginwines.co.uk/",
+        "website_url": "https://www.virginwines.co.uk/corporate-gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.virginwines.co.uk/",
+        "enquiry_url": "https://www.virginwines.co.uk/corporate-gifts",
+        "url_purpose": "Corporate gifts and wine services page",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
         "notes": "Online wine merchant; useful for cases and gift-led selections.",
         "best_for": ["employee gifts", "virtual tasting packs", "mixed cases"],
     },
@@ -834,9 +843,12 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK"],
-        "website_url": "https://www.thewinesociety.com/",
+        "website_url": "https://www.thewinesociety.com/buy/gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.thewinesociety.com/",
+        "enquiry_url": "https://www.thewinesociety.com/buy/gifts",
+        "url_purpose": "Wine gifts page",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
         "notes": "Member-owned wine merchant; confirm membership and corporate order details.",
         "best_for": ["quality-led gifts", "classic styles", "tastings"],
     },
@@ -856,9 +868,12 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK", "London", "International"],
-        "website_url": "https://www.bbr.com/",
+        "website_url": "https://www.bbr.com/wines",
         "affiliate_url": None,
-        "enquiry_url": "https://www.bbr.com/corporate",
+        "enquiry_url": "https://www.bbr.com/wines",
+        "url_purpose": "Fine wines range page",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
         "notes": "Fine wine merchant with corporate gifting and event routes to confirm.",
         "best_for": ["premium clients", "fine wine", "private tastings"],
     },
@@ -878,9 +893,12 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK", "International"],
-        "website_url": "https://www.fortnumandmason.com/",
+        "website_url": "https://www.fortnumandmason.com/corporate-gifting",
         "affiliate_url": None,
         "enquiry_url": "https://www.fortnumandmason.com/corporate-gifting",
+        "url_purpose": "Corporate gifting page",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
         "notes": "Premium hamper and gifting option; confirm alcohol delivery rules by destination.",
         "best_for": ["premium hampers", "board-level gifts", "branded corporate gifting"],
     },
@@ -900,9 +918,12 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.harveynichols.com/",
+        "website_url": "https://www.harveynichols.com/info/help/services/corporate-gifts/",
         "affiliate_url": None,
-        "enquiry_url": "https://www.harveynichols.com/",
+        "enquiry_url": "https://www.harveynichols.com/info/help/services/corporate-gifts/",
+        "url_purpose": "Corporate gifts service page",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
         "notes": "Retailer hamper route for polished food and drink gifts.",
         "best_for": ["stylish hampers", "client gifts", "premium employee gifts"],
     },
@@ -922,15 +943,18 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.selfridges.com/",
+        "website_url": "https://www.selfridges.com/GB/en/cat/gifts/wine-food-gifts/foodhall/hampers/",
         "affiliate_url": None,
-        "enquiry_url": "https://www.selfridges.com/",
+        "enquiry_url": "https://www.selfridges.com/GB/en/cat/gifts/wine-food-gifts/foodhall/hampers/",
+        "url_purpose": "Wine and food hampers page",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
         "notes": "Department store gifting option; check corporate ordering and lead times.",
         "best_for": ["premium hampers", "recognisable retailer gifts"],
     },
     {
         "id": "marks-spencer-corporate",
-        "name": "M&S corporate gifts",
+        "name": "M&S food and drink gifts",
         "category": "corporate_gifting",
         "typical_budget_min": 15,
         "typical_budget_max": 150,
@@ -944,10 +968,13 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.marksandspencer.com/",
+        "website_url": "https://www.marksandspencer.com/l/gifts/food-and-drink-gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.marksandspencer.com/corporate-gifts",
-        "notes": "Accessible UK retailer for practical staff and corporate gifts.",
+        "enquiry_url": "https://www.marksandspencer.com/l/gifts/food-and-drink-gifts",
+        "url_purpose": "Food and drink gifts page",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
+        "notes": "Accessible UK retailer for practical staff gifts and food or drink gift options.",
         "best_for": ["budget staff gifts", "broad appeal", "simple logistics"],
     },
     {
@@ -966,9 +993,12 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.waitrosecellar.com/",
+        "website_url": "https://www.waitrosecellar.com/shop/gifts/wine-gifts",
         "affiliate_url": None,
-        "enquiry_url": "https://www.waitrosecellar.com/",
+        "enquiry_url": "https://www.waitrosecellar.com/shop/gifts/wine-gifts",
+        "url_purpose": "Wine gifts page",
+        "url_checked_date": "2026-05-10",
+        "url_type": "normal",
         "notes": "Practical consumer wine route; confirm suitability for bulk corporate ordering.",
         "best_for": ["low-risk bottle ideas", "small orders", "classic styles"],
     },
@@ -1259,6 +1289,9 @@ def normalise_suppliers() -> None:
                 "disclosure_note": disclosure,
                 "is_affiliate": is_affiliate,
                 "disclosure_label": "Affiliate link" if is_affiliate else "Normal supplier link",
+                "url_purpose": supplier.get("url_purpose") or "Supplier page",
+                "url_checked_date": supplier.get("url_checked_date"),
+                "url_type": supplier.get("url_type") or ("affiliate" if is_affiliate else "normal"),
                 "active": supplier.get("active", True),
             }
         )
@@ -1439,7 +1472,25 @@ def supplier_directory_card(
         "visit_url": f"/out/supplier/{supplier['tracking_slug']}?source_page=/suppliers" if supplier and is_real_supplier(supplier) else None,
         "relationship_label": supplier["commercial_relationship_label"] if supplier else "Supplier type",
         "is_affiliate": supplier.get("is_affiliate", False) if supplier else False,
+        "link_label": supplier_link_label(supplier) if supplier else "View supplier guidance",
     }
+
+
+def supplier_link_label(supplier: dict) -> str:
+    purpose = (supplier.get("url_purpose") or "").lower()
+    if "corporate" in purpose:
+        return "Check corporate gifting options"
+    if "food and drink" in purpose:
+        return "View food and drink gifts"
+    if "fine wines" in purpose:
+        return "View fine wines"
+    if "hamper" in purpose:
+        return "View hamper options"
+    if "wine gifts" in purpose or "gifts" in purpose:
+        return "View wine gifts"
+    if "event" in purpose:
+        return "Check event wine support"
+    return "Visit supplier"
 
 
 def supplier_directory_sections() -> list[dict]:
@@ -1613,6 +1664,10 @@ def build_supplier_shortlist(items: list[dict], why_prefix: str, budget: float) 
                 "is_affiliate": supplier.get("is_affiliate", False),
                 "relationship_label": supplier["commercial_relationship_label"],
                 "disclosure_note": supplier["disclosure_note"],
+                "url_purpose": supplier.get("url_purpose"),
+                "url_checked_date": supplier.get("url_checked_date"),
+                "url_type": supplier.get("url_type"),
+                "link_label": supplier_link_label(supplier),
             }
         )
     return shortlist
@@ -3349,9 +3404,30 @@ PUBLISHER_DISCLOSURE = (
 )
 
 DEFAULT_MERCHANT_LINKS = [
-    {"name": "Majestic Wine", "url": "https://www.majestic.co.uk/", "note": "Broad UK wine merchant with gifting and mixed-case routes."},
-    {"name": "Berry Bros. & Rudd", "url": "https://www.bbr.com/", "note": "Fine wine merchant worth considering for premium client gifts."},
-    {"name": "Fortnum & Mason", "url": "https://www.fortnumandmason.com/", "note": "Presentation-led hampers and food gifting options."},
+    {
+        "name": "Majestic Wine",
+        "url": "https://www.majestic.co.uk/services/corporate-gifting",
+        "note": "Corporate gifting page for client and staff wine gift enquiries.",
+        "url_purpose": "Corporate gifting page",
+        "url_checked_date": "2026-05-10",
+        "is_affiliate": False,
+    },
+    {
+        "name": "Berry Bros. & Rudd",
+        "url": "https://www.bbr.com/wines",
+        "note": "Fine wine range worth considering for premium client gifts.",
+        "url_purpose": "Fine wines range page",
+        "url_checked_date": "2026-05-10",
+        "is_affiliate": False,
+    },
+    {
+        "name": "Fortnum & Mason",
+        "url": "https://www.fortnumandmason.com/corporate-gifting",
+        "note": "Corporate gifting page for presentation-led hampers and food gifting options.",
+        "url_purpose": "Corporate gifting page",
+        "url_checked_date": "2026-05-10",
+        "is_affiliate": False,
+    },
 ]
 
 

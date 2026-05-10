@@ -452,7 +452,8 @@ function supplierUrlHtml(supplier) {
   const isExternal = /^https?:\/\//i.test(url);
   const target = isExternal ? ' target="_blank"' : "";
   const rel = isExternal ? ` rel="${supplier.is_affiliate ? "sponsored " : ""}noopener"` : "";
-  return `<p><a class="button secondary" href="${escapeHtml(url)}"${target}${rel}>View supplier to check</a></p>`;
+  const label = supplier.link_label || (supplier.is_affiliate ? "Visit supplier" : "Visit supplier");
+  return `<p><a class="button secondary" href="${escapeHtml(url)}"${target}${rel}>${escapeHtml(label)}</a></p>`;
 }
 
 function renderSuppliers(suppliers = [], type = "gift") {

@@ -99,7 +99,7 @@
       <div class="card-grid three">
         {% for merchant in guide.merchant_links %}
         <article class="mini-card">
-          <h3><a href="{{ merchant.url }}" target="_blank" rel="nofollow noopener">{{ merchant.name }}</a></h3>
+          <h3><a href="{{ merchant.url }}" target="_blank" rel="{% if merchant.is_affiliate %}sponsored {% endif %}nofollow noopener">{{ merchant.name }}</a></h3>
           <p>{{ merchant.note }}</p>
         </article>
         {% endfor %}
