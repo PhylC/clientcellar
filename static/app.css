@@ -1552,6 +1552,94 @@ textarea {
   color: var(--muted);
 }
 
+.free-route-table-wrap {
+  margin-top: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+}
+
+.free-route-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.free-route-table th,
+.free-route-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.7rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.free-route-table th {
+  background: #f5eee6;
+  color: var(--burgundy);
+}
+
+.free-route-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.free-route-table a,
+.free-route-card a {
+  color: var(--burgundy);
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.free-route-cards {
+  display: none;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.free-route-card {
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.free-route-card h3 {
+  margin: 0 0 0.55rem;
+  font-size: 1rem;
+}
+
+.free-route-card dl {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.free-route-card dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.free-route-card dd {
+  margin: 0.15rem 0 0;
+}
+
+.free-route-upgrade {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--line);
+}
+
+.free-route-upgrade h3,
+.free-route-upgrade p {
+  margin: 0;
+}
+
 .email-preview,
 .invite-preview {
   white-space: pre-wrap;
@@ -2377,6 +2465,14 @@ textarea {
 }
 
 @media (max-width: 900px) {
+  .free-route-table-wrap {
+    display: none;
+  }
+
+  .free-route-cards {
+    display: grid;
+  }
+
   .supplier-comparison-desktop {
     display: none;
   }

@@ -459,29 +459,102 @@ function supplierUrlHtml(supplier) {
 
 function renderSupplierRouteCards(routes = []) {
   if (!Array.isArray(routes) || !routes.length) return "";
+  const rows = routes.map((route) => supplierRouteComparisonRow(route));
   return `
-    <div class="supplier-card-grid">
-      ${routes
-        .map((route) => {
-          const examples = Array.isArray(route.example_suppliers) && route.example_suppliers.length
-            ? route.example_suppliers.map((supplier) => supplier.name).filter(Boolean)
-            : route.examples || [];
-          const primary = route.tracked_url
-            ? `<p><a class="button secondary" href="${escapeHtml(route.tracked_url)}" rel="${route.is_affiliate ? "sponsored " : ""}noopener">${escapeHtml(route.link_label || "Visit supplier")}</a></p>`
-            : `<p class="small-note"><strong>Search suggestion:</strong> ${escapeHtml(route.search_suggestion || "No direct link available yet - use this as a supplier type to search for.")}</p>`;
-          return `
-            <article class="supplier-card">
-              <h3>${escapeHtml(route.route_name || route.route || "Supplier route")}</h3>
-              <p>${escapeHtml(route.why_it_fits || route.why || "Useful route to check for this brief.")}</p>
-              ${examples.length ? `<p><strong>Example suppliers to check:</strong> ${escapeHtml(examples.join(", "))}</p>` : ""}
-              <p><strong>What to ask before ordering:</strong> ${escapeHtml(route.what_to_ask || route.ask || "Confirm stock, delivery, VAT and suitability directly.")}</p>
-              ${primary}
+    <div class="table-scroll free-route-table-wrap">
+      <table class="free-route-table">
+        <thead><tr><th>Route</th><th>Best for</th><th>Example suppliers</th><th>What to check</th><th>Next step</th></tr></thead>
+        <tbody>
+          ${rows
+            .map(
+              (row) => `
+                <tr>
+                  <td><strong>${escapeHtml(row.route)}</strong></td>
+                  <td>${escapeHtml(row.bestFor)}</td>
+                  <td>${escapeHtml(row.examples)}</td>
+                  <td>${escapeHtml(row.whatToCheck)}</td>
+                  <td>${row.nextStep}</td>
+                </tr>
+              `
+            )
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+    <div class="free-route-cards">
+      ${rows
+        .map(
+          (row) => `
+            <article class="free-route-card">
+              <h3>${escapeHtml(row.route)}</h3>
+              <dl>
+                <div><dt>Best for</dt><dd>${escapeHtml(row.bestFor)}</dd></div>
+                <div><dt>Example suppliers</dt><dd>${escapeHtml(row.examples)}</dd></div>
+                <div><dt>What to check</dt><dd>${escapeHtml(row.whatToCheck)}</dd></div>
+                <div><dt>Next step</dt><dd>${row.nextStep}</dd></div>
+              </dl>
             </article>
-          `;
-        })
+          `
+        )
         .join("")}
     </div>
+    <div class="free-route-upgrade">
+      <h3>Want the full supplier matrix?</h3>
+      <p>Premium adds a recommended shortlist, typical spend ranges, ease scores, hidden watchouts, CSV download and a clearer final recommendation.</p>
+      <a class="button secondary small" href="/example-premium-brief-pack">View example Premium Brief Pack</a>
+    </div>
   `;
+}
+
+function supplierRouteComparisonRow(route = {}) {
+  const routeName = route.route_name || route.route || "Supplier route";
+  const examples = Array.isArray(route.example_suppliers) && route.example_suppliers.length
+    ? route.example_suppliers.map((supplier) => supplier.name).filter(Boolean)
+    : route.examples || [];
+  const lower = routeName.toLowerCase();
+  const defaults = {
+    bestFor: route.why_it_fits || route.why || "Useful route to check for this brief.",
+    whatToCheck: route.what_to_ask || route.ask || "Stock, delivery, VAT and suitability",
+    nextStepLabel: route.link_label || "Visit supplier",
+  };
+  if (lower.includes("corporate wine")) {
+    defaults.bestFor = "Reliable wine gifting for client lists or repeat orders";
+    defaults.whatToCheck = "Bulk order support, gift notes, delivery tracking, substitutions";
+    defaults.nextStepLabel = "Compare corporate gifting options";
+  } else if (lower.includes("hamper")) {
+    defaults.bestFor = "Mixed recipient preferences or when wine tastes are unknown";
+    defaults.whatToCheck = "Alcohol-free options, dietary filters, delivery dates";
+    defaults.nextStepLabel = "View food and drink gifts";
+    examples.splice(0, examples.length, "M&S", "John Lewis", "Fortnum & Mason");
+  } else if (lower.includes("local independent")) {
+    defaults.bestFor = "Smaller lists, VIP clients or more personal recommendations";
+    defaults.whatToCheck = "Delivery coverage, invoice support, gift wrapping";
+    defaults.nextStepLabel = "Search local suppliers";
+    examples.splice(0, examples.length, "Local merchant or regional wine shop");
+  } else if (lower.includes("supermarket") || lower.includes("mainstream")) {
+    defaults.bestFor = "Lower-budget or faster-turnaround gifting";
+    defaults.whatToCheck = "Stock availability, delivery slots, substitutions";
+    defaults.nextStepLabel = "Check mainstream options";
+    examples.splice(0, examples.length, "Waitrose", "Tesco", "M&S");
+  } else if (lower.includes("non-alcohol")) {
+    defaults.bestFor = "Mixed groups or uncertain alcohol suitability";
+    defaults.whatToCheck = "Gift presentation, delivery dates, alcohol-free range";
+    defaults.nextStepLabel = "Check alcohol-free options";
+  } else if (lower.includes("premium")) {
+    defaults.bestFor = "Senior clients or more formal gifting";
+    defaults.whatToCheck = "Presentation, bottle suitability, delivery timing";
+    defaults.nextStepLabel = "Check premium options";
+  }
+  const nextStep = route.tracked_url
+    ? `<a href="${escapeHtml(route.tracked_url)}" rel="${route.is_affiliate ? "sponsored " : ""}noopener">${escapeHtml(defaults.nextStepLabel)}</a>`
+    : `<span class="small-note">${escapeHtml(route.search_suggestion || defaults.nextStepLabel)}</span>`;
+  return {
+    route: routeName,
+    bestFor: defaults.bestFor,
+    examples: examples.length ? examples.join(", ") : "Supplier type to search",
+    whatToCheck: defaults.whatToCheck,
+    nextStep,
+  };
 }
 
 function renderSuppliers(suppliers = [], type = "gift") {

@@ -2129,10 +2129,17 @@ def gift_supplier_route_cards(req: GiftPlanRequest) -> list[dict]:
             "/gift-planner",
         ))
     routes.append(supplier_route_card(
-        "Mainstream wine gifts",
-        "Useful for simple smaller orders, recognisable ranges and straightforward browsing.",
+        "Local independent wine merchant",
+        "Good for smaller lists, VIP clients or more personal recommendations.",
+        ["local-independent-wine-merchant"],
+        "Check delivery coverage, invoice support and gift wrapping.",
+        "/gift-planner",
+    ))
+    routes.append(supplier_route_card(
+        "Supermarket / mainstream retailer",
+        "Good for lower-budget or faster-turnaround gifting.",
         ["waitrose-cellar", "laithwaites", "virgin-wines"],
-        "Can they provide VAT invoices, gift messages, delivery cut-offs and substitution rules?",
+        "Check stock availability, delivery slots and substitutions.",
         "/gift-planner",
     ))
     unique = []
@@ -2141,7 +2148,7 @@ def gift_supplier_route_cards(req: GiftPlanRequest) -> list[dict]:
         if route["route"] not in seen:
             unique.append(route)
             seen.add(route["route"])
-    return unique[:5]
+    return unique[:6]
 
 
 def event_supplier_route_cards(req: EventPlanRequest) -> list[dict]:
