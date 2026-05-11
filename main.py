@@ -49,6 +49,9 @@ DISCLAIMER = (
     "Alcohol gifting, licensing, customs and delivery rules should be confirmed "
     "directly with the supplier."
 )
+CANONICAL_ORIGIN = "https://www.cv-optimiser.com"
+CANONICAL_HOST = "www.cv-optimiser.com"
+ROOT_DOMAIN = "cv-optimiser.com"
 
 app = FastAPI(title=PRODUCT_NAME)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
@@ -89,6 +92,36 @@ SITEMAP_STATIC_ROUTES = [
     "/corporate-christmas-wine-gifts",
 ]
 SITEMAP_EXCLUDED_GUIDE_SLUGS = {"corporate-champagne-gifts"}
+
+
+def canonical_path(path: str) -> str:
+    clean_path = urllib.parse.urlsplit(path or "/").path or "/"
+    if not clean_path.startswith("/"):
+        clean_path = f"/{clean_path}"
+    if clean_path != "/":
+        clean_path = clean_path.rstrip("/")
+    return clean_path or "/"
+
+
+def canonical_url_for_path(path: str = "/") -> str:
+    return f"{CANONICAL_ORIGIN}{canonical_path(path)}"
+
+
+def is_render_host(host: str) -> bool:
+    return host.endswith(".onrender.com") or host.endswith(".render.com")
+
+
+@app.middleware("http")
+async def canonical_redirect_middleware(request: Request, call_next):
+    host = request.headers.get("host", "").split(":", 1)[0].lower()
+    path = request.url.path
+    clean_path = canonical_path(path)
+    should_redirect_host = host == ROOT_DOMAIN or is_render_host(host)
+    should_redirect_path = path != clean_path
+    if should_redirect_host or should_redirect_path:
+        query = f"?{request.url.query}" if request.url.query else ""
+        return RedirectResponse(f"{CANONICAL_ORIGIN}{clean_path}{query}", status_code=301)
+    return await call_next(request)
 
 
 def payments_enabled() -> bool:
@@ -4575,13 +4608,11 @@ SEO_PAGES = {
 
 
 def public_site_url(request: Request) -> str:
-    return (os.getenv("APP_BASE_URL") or str(request.base_url)).rstrip("/")
+    return CANONICAL_ORIGIN
 
 
 def absolute_url(request: Request, path: str) -> str:
-    if not path.startswith("/"):
-        path = f"/{path}"
-    return f"{public_site_url(request)}{path}"
+    return canonical_url_for_path(path)
 
 
 def organisation_schema(request: Request) -> dict:
@@ -4679,7 +4710,7 @@ def faq_schema(questions: list[dict]) -> dict:
 
 
 def render_template(request: Request, template_name: str, status_code: int = 200, **context) -> HTMLResponse:
-    canonical_url = context.get("canonical_url") or absolute_url(request, request.url.path)
+    page_canonical_url = canonical_url_for_path(context.get("canonical_url") or request.url.path)
     title = context.get("title") or "ClientCellar"
     description = context.get("description") or DEFAULT_META_DESCRIPTION
     page_title = context.get("page_title") or (DEFAULT_PAGE_TITLE if title == "ClientCellar" else f"{title} | {PRODUCT_NAME}")
@@ -4693,7 +4724,7 @@ def render_template(request: Request, template_name: str, status_code: int = 200
     context.setdefault("og_type", context.get("og_type") or "website")
     context.setdefault("product", PRODUCT_NAME)
     context.setdefault("payments_enabled", payments_enabled())
-    context.setdefault("canonical_url", canonical_url)
+    context.setdefault("canonical_url", page_canonical_url)
     context.setdefault("structured_data", structured_data)
     context.setdefault("noindex", context.get("noindex") or request.url.path.startswith("/admin"))
 
@@ -4712,7 +4743,7 @@ def render_template(request: Request, template_name: str, status_code: int = 200
             "primary_label": "Return home",
             "primary_href": "/",
             "structured_data": structured_data,
-            "canonical_url": canonical_url,
+            "canonical_url": page_canonical_url,
             "noindex": True,
             **context,
         }
@@ -4740,7 +4771,7 @@ def render_template(request: Request, template_name: str, status_code: int = 200
             "og_type": "website",
             "product": PRODUCT_NAME,
             "payments_enabled": payments_enabled(),
-            "canonical_url": canonical_url,
+            "canonical_url": page_canonical_url,
             "structured_data": [organisation_schema(request)],
             "noindex": True,
             "eyebrow": "Error",
@@ -5474,7 +5505,6 @@ def cookies(request: Request):
 
 @app.get("/sitemap.xml")
 def sitemap(request: Request):
-    base_url = (os.getenv("APP_BASE_URL") or "https://clientcellar.co.uk").rstrip("/")
     guide_urls = [f"/guides/{slug}" for slug in GUIDES if slug not in SITEMAP_EXCLUDED_GUIDE_SLUGS]
     urls = list(dict.fromkeys(SITEMAP_STATIC_ROUTES + guide_urls))
     lastmod = date.today().isoformat()
@@ -5482,7 +5512,7 @@ def sitemap(request: Request):
         [
             '<?xml version="1.0" encoding="UTF-8"?>',
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-            *[f"  <url><loc>{base_url}{path}</loc><lastmod>{lastmod}</lastmod></url>" for path in urls],
+            *[f"  <url><loc>{canonical_url_for_path(path)}</loc><lastmod>{lastmod}</lastmod></url>" for path in urls],
             "</urlset>",
         ]
     )
@@ -5491,7 +5521,7 @@ def sitemap(request: Request):
 
 @app.get("/robots.txt")
 def robots(request: Request):
-    return Response(content="User-agent: *\nAllow: /\n\nSitemap: https://clientcellar.co.uk/sitemap.xml\n", media_type="text/plain")
+    return Response(content=f"User-agent: *\nAllow: /\n\nSitemap: {CANONICAL_ORIGIN}/sitemap.xml\n", media_type="text/plain")
 
 
 @app.get("/api/health")

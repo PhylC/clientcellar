@@ -270,16 +270,17 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
     text = response.text
     assert text.startswith('<?xml version="1.0" encoding="UTF-8"?>')
     assert "<lastmod>" in text
-    assert "https://clientcellar.co.uk/" in text
-    assert "https://clientcellar.co.uk/gift-planner" in text
-    assert "https://clientcellar.co.uk/event-planner" in text
-    assert "https://clientcellar.co.uk/guides" in text
-    assert "https://clientcellar.co.uk/suppliers" in text
-    assert "https://clientcellar.co.uk/pricing" in text
-    assert "https://clientcellar.co.uk/faq" in text
-    assert "https://clientcellar.co.uk/about" in text
-    assert "https://clientcellar.co.uk/contact" in text
-    assert "https://clientcellar.co.uk/terms" in text
+    assert "https://www.cv-optimiser.com/" in text
+    assert "https://www.cv-optimiser.com/gift-planner" in text
+    assert "https://www.cv-optimiser.com/event-planner" in text
+    assert "https://www.cv-optimiser.com/guides" in text
+    assert "https://www.cv-optimiser.com/suppliers" in text
+    assert "https://www.cv-optimiser.com/pricing" in text
+    assert "https://www.cv-optimiser.com/faq" in text
+    assert "https://www.cv-optimiser.com/about" in text
+    assert "https://www.cv-optimiser.com/contact" in text
+    assert "https://www.cv-optimiser.com/terms" in text
+    assert "clientcellar.co.uk" not in text
     assert "/guides/corporate-wine-gifts-under-50" in text
     assert "/guides/best-client-wine-gifts" in text
     assert "/guides/non-alcoholic-client-gifts" in text
@@ -301,7 +302,29 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
 def test_robots_points_to_canonical_sitemap():
     response = client.get("/robots.txt")
     assert response.status_code == 200
-    assert response.text == "User-agent: *\nAllow: /\n\nSitemap: https://clientcellar.co.uk/sitemap.xml\n"
+    assert response.text == "User-agent: *\nAllow: /\n\nSitemap: https://www.cv-optimiser.com/sitemap.xml\n"
+
+
+def test_public_pages_self_canonicalise_to_www_cv_optimiser_without_query_or_trailing_slash():
+    response = client.get("/gift-planner?utm_source=test")
+    assert response.status_code == 200
+    assert response.text.count('rel="canonical"') == 1
+    assert '<link rel="canonical" href="https://www.cv-optimiser.com/gift-planner" />' in response.text
+    assert "utm_source" not in response.text
+
+
+def test_root_host_render_host_and_trailing_slash_redirect_to_canonical_domain():
+    root_response = client.get("https://cv-optimiser.com/gift-planner", follow_redirects=False)
+    assert root_response.status_code == 301
+    assert root_response.headers["location"] == "https://www.cv-optimiser.com/gift-planner"
+
+    render_response = client.get("https://clientcellar.onrender.com/guides?x=1", follow_redirects=False)
+    assert render_response.status_code == 301
+    assert render_response.headers["location"] == "https://www.cv-optimiser.com/guides?x=1"
+
+    slash_response = client.get("/gift-planner/", follow_redirects=False)
+    assert slash_response.status_code == 301
+    assert slash_response.headers["location"] == "https://www.cv-optimiser.com/gift-planner"
 
 
 def test_legacy_champagne_guide_redirects_to_canonical_url():
