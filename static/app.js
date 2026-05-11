@@ -452,7 +452,7 @@ function supplierUrlHtml(supplier) {
   }
   const isExternal = /^https?:\/\//i.test(url);
   const target = isExternal ? ' target="_blank"' : "";
-  const rel = isExternal ? ` rel="${supplier.is_affiliate ? "sponsored " : ""}noopener"` : "";
+  const rel = isExternal ? ' rel="noopener noreferrer sponsored"' : "";
   const label = supplier.link_label || (supplier.is_affiliate ? "Visit supplier" : "Visit supplier");
   return `<p><a class="button secondary" href="${escapeHtml(url)}"${target}${rel}>${escapeHtml(label)}</a></p>`;
 }
@@ -526,7 +526,7 @@ function giftSupplierDiscoveryRows(routes = []) {
         findRoute(["corporate wine", "majestic"]),
         "Compare wine gifting",
         "/suppliers",
-        "https://www.majestic.co.uk/services/corporate-gifting"
+        supplierLinkUrl("majestic")
       ),
     },
     {
@@ -537,7 +537,7 @@ function giftSupplierDiscoveryRows(routes = []) {
         findRoute(["hamper", "marks-spencer", "john lewis", "fortnum"]),
         "Compare hampers",
         "/suppliers",
-        "https://www.marksandspencer.com/l/gifts/food-and-drink-gifts/hampers"
+        supplierLinkUrl("marks-spencer-corporate")
       ),
     },
     {
@@ -549,7 +549,7 @@ function giftSupplierDiscoveryRows(routes = []) {
         ["fortnum"],
         "Compare premium retailers",
         "/suppliers",
-        "https://www.fortnumandmason.com/hampers"
+        supplierLinkUrl("fortnum-mason")
       ),
     },
     {
@@ -559,6 +559,10 @@ function giftSupplierDiscoveryRows(routes = []) {
       compareOptions: routeCompareLink(findRoute(["local independent", "independent wine merchant"]), "Find local route", "/suppliers"),
     },
   ];
+}
+
+function supplierLinkUrl(supplierId) {
+  return window.CLIENTCELLAR_SUPPLIER_LINKS?.[supplierId] || "";
 }
 
 function supplierCompareLink(routes = [], patterns = [], label = "Compare options", fallback = "/suppliers", directFallback = "") {
@@ -591,7 +595,7 @@ function routeCompareLink(route = {}, label = "Compare options", fallback = "/su
   const url = trackedUrl || directUrl || fallback;
   const isExternal = /^https?:\/\//i.test(url);
   const target = isExternal ? ' target="_blank"' : "";
-  const rel = isExternal ? ` rel="${route.is_affiliate || supplierWithLink?.is_affiliate ? "sponsored " : ""}noopener noreferrer"` : "";
+  const rel = isExternal ? ' rel="noopener noreferrer sponsored"' : "";
   return `<a class="button secondary small free-route-button" href="${escapeHtml(url)}"${target}${rel}>${escapeHtml(label)}</a>`;
 }
 
@@ -699,7 +703,7 @@ function contactRouteHtml(item = {}) {
       supplier_page: "Supplier page",
     };
     const label = item.contact_label || item.contactLabel || typeLabels[item.contact_type || item.contactType] || "Contact supplier";
-    return `<a href="${escapeHtml(contactUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
+    return `<a href="${escapeHtml(contactUrl)}" target="_blank" rel="noopener noreferrer sponsored">${escapeHtml(label)}</a>`;
   }
   const search = item.search_suggestion || item.searchSuggestion || "corporate wine gift supplier UK";
   return `<span>Search/contact directly</span><br><span class="small-note">Search: ${escapeHtml(search)}</span>`;

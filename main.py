@@ -21,6 +21,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from data.supplier_links import (
+    SUPPLIER_LINK_CONFIG,
+    get_supplier_link,
+    supplier_affiliate_url as configured_supplier_affiliate_url,
+    supplier_url as configured_supplier_url,
+)
 from data.suppliers import SUPPLIER_ENTRIES
 
 load_dotenv()
@@ -807,9 +813,9 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK"],
-        "website_url": "https://www.majestic.co.uk/services/corporate-gifting",
-        "affiliate_url": None,
-        "enquiry_url": "https://www.majestic.co.uk/services/corporate-gifting",
+        "website_url": configured_supplier_url("majestic"),
+        "affiliate_url": configured_supplier_affiliate_url("majestic"),
+        "enquiry_url": configured_supplier_url("majestic"),
         "url_purpose": "Corporate gifting page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -833,9 +839,9 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.laithwaites.co.uk/gifts/wine-gifts",
-        "affiliate_url": None,
-        "enquiry_url": "https://www.laithwaites.co.uk/gifts/wine-gifts",
+        "website_url": configured_supplier_url("laithwaites"),
+        "affiliate_url": configured_supplier_affiliate_url("laithwaites"),
+        "enquiry_url": configured_supplier_url("laithwaites"),
         "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -859,9 +865,9 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.virginwines.co.uk/gifts/wine-gifts",
-        "affiliate_url": None,
-        "enquiry_url": "https://www.virginwines.co.uk/gifts/wine-gifts",
+        "website_url": configured_supplier_url("virgin-wines"),
+        "affiliate_url": configured_supplier_affiliate_url("virgin-wines"),
+        "enquiry_url": configured_supplier_url("virgin-wines"),
         "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -885,9 +891,9 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK"],
-        "website_url": "https://www.thewinesociety.com/buy/gifts",
-        "affiliate_url": None,
-        "enquiry_url": "https://www.thewinesociety.com/buy/gifts",
+        "website_url": configured_supplier_url("wine-society"),
+        "affiliate_url": configured_supplier_affiliate_url("wine-society"),
+        "enquiry_url": configured_supplier_url("wine-society"),
         "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -911,9 +917,9 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK", "London", "International"],
-        "website_url": "https://www.bbr.com/wines",
-        "affiliate_url": None,
-        "enquiry_url": "https://www.bbr.com/wines",
+        "website_url": configured_supplier_url("berry-bros-rudd"),
+        "affiliate_url": configured_supplier_affiliate_url("berry-bros-rudd"),
+        "enquiry_url": configured_supplier_url("berry-bros-rudd"),
         "url_purpose": "Fine wines range page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -937,9 +943,9 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK", "International"],
-        "website_url": "https://www.fortnumandmason.com/hampers",
-        "affiliate_url": None,
-        "enquiry_url": "https://www.fortnumandmason.com/hampers",
+        "website_url": configured_supplier_url("fortnum-mason"),
+        "affiliate_url": configured_supplier_affiliate_url("fortnum-mason"),
+        "enquiry_url": configured_supplier_url("fortnum-mason"),
         "url_purpose": "Hampers page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -963,9 +969,9 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.harveynichols.com/info/help/services/corporate-gifts/",
-        "affiliate_url": None,
-        "enquiry_url": "https://www.harveynichols.com/info/help/services/corporate-gifts/",
+        "website_url": configured_supplier_url("harvey-nichols-hampers"),
+        "affiliate_url": configured_supplier_affiliate_url("harvey-nichols-hampers"),
+        "enquiry_url": configured_supplier_url("harvey-nichols-hampers"),
         "url_purpose": "Corporate gifts service page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -989,9 +995,9 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.selfridges.com/GB/en/cat/gifts/wine-food-gifts/foodhall/hampers/",
-        "affiliate_url": None,
-        "enquiry_url": "https://www.selfridges.com/GB/en/cat/gifts/wine-food-gifts/foodhall/hampers/",
+        "website_url": configured_supplier_url("selfridges-hampers"),
+        "affiliate_url": configured_supplier_affiliate_url("selfridges-hampers"),
+        "enquiry_url": configured_supplier_url("selfridges-hampers"),
         "url_purpose": "Wine and food hampers page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -1015,9 +1021,9 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.marksandspencer.com/l/gifts/food-and-drink-gifts/hampers",
-        "affiliate_url": None,
-        "enquiry_url": "https://www.marksandspencer.com/l/gifts/food-and-drink-gifts/hampers",
+        "website_url": configured_supplier_url("marks-spencer-corporate"),
+        "affiliate_url": configured_supplier_affiliate_url("marks-spencer-corporate"),
+        "enquiry_url": configured_supplier_url("marks-spencer-corporate"),
         "url_purpose": "Food and drink hampers page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -1041,9 +1047,9 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.waitrosecellar.com/shop/gifts/wine-gifts",
-        "affiliate_url": None,
-        "enquiry_url": "https://www.waitrosecellar.com/shop/gifts/wine-gifts",
+        "website_url": configured_supplier_url("waitrose-cellar"),
+        "affiliate_url": configured_supplier_affiliate_url("waitrose-cellar"),
+        "enquiry_url": configured_supplier_url("waitrose-cellar"),
         "url_purpose": "Wine gifts page",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -1067,9 +1073,9 @@ SUPPLIERS = [
         "virtual_event_available": False,
         "in_person_event_available": False,
         "regions": ["UK"],
-        "website_url": "https://www.johnlewis.com/browse/gifts/gift-food-alcohol/hampers/_/N-2q3pZ1z0vwzu",
-        "affiliate_url": None,
-        "enquiry_url": "https://www.johnlewis.com/browse/gifts/gift-food-alcohol/hampers/_/N-2q3pZ1z0vwzu",
+        "website_url": configured_supplier_url("john-lewis-hampers"),
+        "affiliate_url": configured_supplier_affiliate_url("john-lewis-hampers"),
+        "enquiry_url": configured_supplier_url("john-lewis-hampers"),
         "url_purpose": "Hampers category",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -1119,9 +1125,9 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK", "International"],
-        "website_url": "https://noughtyaf.com/",
-        "affiliate_url": None,
-        "enquiry_url": "https://noughtyaf.com/",
+        "website_url": configured_supplier_url("noughty-thomson-scott"),
+        "affiliate_url": configured_supplier_affiliate_url("noughty-thomson-scott"),
+        "enquiry_url": configured_supplier_url("noughty-thomson-scott"),
         "url_purpose": "Non-alcoholic sparkling wine",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -1145,9 +1151,9 @@ SUPPLIERS = [
         "virtual_event_available": True,
         "in_person_event_available": True,
         "regions": ["UK"],
-        "website_url": "https://drydrinker.com/",
-        "affiliate_url": None,
-        "enquiry_url": "https://drydrinker.com/",
+        "website_url": configured_supplier_url("dry-drinker"),
+        "affiliate_url": configured_supplier_affiliate_url("dry-drinker"),
+        "enquiry_url": configured_supplier_url("dry-drinker"),
         "url_purpose": "Alcohol-free drinks retailer",
         "url_checked_date": "2026-05-10",
         "url_type": "normal",
@@ -1409,6 +1415,11 @@ def apply_central_supplier_entries() -> None:
     """Merge the central supplier data file into the richer planner model."""
     suppliers_by_id = {supplier["id"]: supplier for supplier in SUPPLIERS}
     for entry in SUPPLIER_ENTRIES:
+        link_config = get_supplier_link(entry["id"])
+        configured_url = link_config.url if link_config else entry.get("url")
+        canonical_url = link_config.canonical_base_url if link_config else entry.get("url")
+        affiliate_url = link_config.affiliate_url if link_config else entry.get("affiliateUrl")
+        configured_active = link_config.active if link_config else entry.get("active", True)
         supplier = suppliers_by_id.get(entry["id"])
         if not supplier:
             supplier = {
@@ -1433,10 +1444,10 @@ def apply_central_supplier_entries() -> None:
             {
                 "name": entry["name"],
                 "category": entry["category"],
-                "website_url": entry.get("url"),
-                "enquiry_url": entry.get("url"),
-                "affiliate_url": entry.get("affiliateUrl"),
-                "contact_url": entry.get("contactUrl"),
+                "website_url": canonical_url,
+                "enquiry_url": configured_url,
+                "affiliate_url": affiliate_url,
+                "contact_url": configured_url or entry.get("contactUrl"),
                 "contact_email": entry.get("contactEmail"),
                 "contact_label": entry.get("contactLabel"),
                 "contact_type": entry.get("contactType"),
@@ -1448,7 +1459,26 @@ def apply_central_supplier_entries() -> None:
                 "regions": entry.get("regions", supplier.get("regions", [])),
                 "best_for": best_for or supplier.get("best_for", []),
                 "use_cases": entry.get("useCases", supplier.get("use_cases", [])),
-                "commercial_relationship": "affiliate" if entry.get("isAffiliate") else "none",
+                "commercial_relationship": "affiliate" if affiliate_url else "none",
+                "active": configured_active,
+            }
+        )
+
+
+def apply_supplier_link_config() -> None:
+    for supplier in SUPPLIERS:
+        link_config = get_supplier_link(supplier.get("id", ""))
+        if not link_config:
+            continue
+        supplier.update(
+            {
+                "website_url": link_config.canonical_base_url,
+                "enquiry_url": link_config.url,
+                "affiliate_url": link_config.affiliate_url,
+                "contact_url": link_config.url or supplier.get("contact_url"),
+                "commercial_relationship": "affiliate" if link_config.affiliate_url else supplier.get("commercial_relationship", "none"),
+                "active": supplier.get("active", link_config.active) and link_config.active,
+                "link_category_tags": list(link_config.category_tags),
             }
         )
 
@@ -1510,6 +1540,7 @@ def normalise_suppliers() -> None:
 
 
 apply_central_supplier_entries()
+apply_supplier_link_config()
 normalise_suppliers()
 
 
@@ -1665,6 +1696,11 @@ def supplier_category_label(supplier: dict) -> str:
 
 def supplier_url(supplier: dict) -> str | None:
     return supplier.get("enquiry_url") or supplier.get("website_url")
+
+
+def supplier_public_url(supplier_id: str) -> str | None:
+    link_config = get_supplier_link(supplier_id)
+    return link_config.url if link_config else None
 
 
 def supplier_destination_url(supplier: dict) -> str | None:
@@ -4166,27 +4202,27 @@ PUBLISHER_DISCLOSURE = (
 DEFAULT_MERCHANT_LINKS = [
     {
         "name": "Majestic Wine",
-        "url": "https://www.majestic.co.uk/services/corporate-gifting",
+        "url": configured_supplier_url("majestic"),
         "note": "Corporate gifting page for client and staff wine gift enquiries.",
         "url_purpose": "Corporate gifting page",
         "url_checked_date": "2026-05-10",
-        "is_affiliate": False,
+        "is_affiliate": bool(configured_supplier_affiliate_url("majestic")),
     },
     {
         "name": "Berry Bros. & Rudd",
-        "url": "https://www.bbr.com/wines",
+        "url": configured_supplier_url("berry-bros-rudd"),
         "note": "Fine wines range worth considering for premium client gifts, Champagne and formal gifting.",
         "url_purpose": "Fine wines range page",
         "url_checked_date": "2026-05-10",
-        "is_affiliate": False,
+        "is_affiliate": bool(configured_supplier_affiliate_url("berry-bros-rudd")),
     },
     {
         "name": "Fortnum & Mason",
-        "url": "https://www.fortnumandmason.com/hampers",
+        "url": configured_supplier_url("fortnum-mason"),
         "note": "Hampers page for presentation-led premium food and drink gifting.",
         "url_purpose": "Hampers page",
         "url_checked_date": "2026-05-10",
-        "is_affiliate": False,
+        "is_affiliate": bool(configured_supplier_affiliate_url("fortnum-mason")),
     },
 ]
 
@@ -4728,6 +4764,10 @@ def render_template(request: Request, template_name: str, status_code: int = 200
     context.setdefault("product", PRODUCT_NAME)
     context.setdefault("payments_enabled", payments_enabled())
     context.setdefault("canonical_url", page_canonical_url)
+    context.setdefault(
+        "supplier_link_config",
+        {supplier_id: link.url for supplier_id, link in SUPPLIER_LINK_CONFIG.items() if link.active and link.url},
+    )
     context.setdefault("structured_data", structured_data)
     context.setdefault("noindex", context.get("noindex") or request.url.path.startswith("/admin"))
 
@@ -4844,12 +4884,19 @@ def pricing(request: Request):
 
 @app.get("/example-premium-brief-pack", response_class=HTMLResponse)
 def example_premium_brief_pack(request: Request):
+    example_supplier_links = {
+        "majestic": supplier_public_url("majestic"),
+        "marks_spencer": supplier_public_url("marks-spencer-corporate"),
+        "fortnum_mason": supplier_public_url("fortnum-mason"),
+        "laithwaites": supplier_public_url("laithwaites"),
+    }
     return render(
         request,
         "example_premium_brief_pack.html",
         "Example Premium Brief Pack",
         "See an example ClientCellar Premium Brief Pack with supplier-ready buying brief, enquiry email, budget breakdown, supplier quote comparison table and internal approval summary.",
         structured_data=[premium_pack_product_schema(request)],
+        example_supplier_links=example_supplier_links,
     )
 
 

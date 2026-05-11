@@ -15,6 +15,7 @@
   {% for schema in structured_data %}
   <script type="application/ld+json">{{ schema | tojson }}</script>
   {% endfor %}
+  <script>window.CLIENTCELLAR_SUPPLIER_LINKS = {{ supplier_link_config | tojson }};</script>
 </head>
 <body>
   <header class="site-header">

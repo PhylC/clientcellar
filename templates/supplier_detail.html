@@ -6,7 +6,7 @@
   <p>{{ supplier.description }}</p>
   <div class="hero-actions">
     {% if real_supplier %}
-      <a class="button primary" href="/out/supplier/{{ supplier.tracking_slug }}?source_page=/suppliers/{{ supplier.tracking_slug }}" target="_blank" rel="{% if supplier.is_affiliate %}sponsored {% endif %}noopener">Make enquiry</a>
+      <a class="button primary" href="/out/supplier/{{ supplier.tracking_slug }}?source_page=/suppliers/{{ supplier.tracking_slug }}" target="_blank" rel="noopener noreferrer sponsored">Make enquiry</a>
     {% else %}
       <a class="button primary" href="/gift-planner">Use planner</a>
       <a class="button secondary" href="/contact?interest=supplier-type">Contact us</a>

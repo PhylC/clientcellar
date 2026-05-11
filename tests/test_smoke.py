@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import main
+from data.supplier_links import getSupplierLink, validate_supplier_links
 from main import app
 
 
@@ -304,6 +305,26 @@ def test_robots_points_to_canonical_sitemap():
     response = client.get("/robots.txt")
     assert response.status_code == 200
     assert response.text == "User-agent: *\nAllow: /\n\nSitemap: https://clientcellar.co.uk/sitemap.xml\n"
+
+
+def test_supplier_link_config_covers_major_visible_suppliers():
+    assert validate_supplier_links() == []
+    for supplier_id in [
+        "virgin-wines",
+        "marks-spencer-corporate",
+        "fortnum-mason",
+        "john-lewis-hampers",
+        "selfridges-hampers",
+        "harrods-hampers",
+        "majestic",
+        "laithwaites",
+        "hotel-chocolat",
+        "amazon",
+    ]:
+        link = getSupplierLink(supplier_id)
+        assert link is not None
+        assert link.canonical_base_url.startswith("https://")
+        assert link.url is None or link.url.startswith("https://")
 
 
 def test_public_pages_self_canonicalise_to_clientcellar_without_query_or_trailing_slash():

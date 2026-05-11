@@ -3,7 +3,7 @@
   {% if comp.mailto_url %}
     <a href="{{ comp.mailto_url }}">Email supplier</a>
   {% elif comp.contact_url %}
-    <a href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer">{{ comp.contact_label or "Contact supplier" }}</a>
+    <a href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ comp.contact_label or "Contact supplier" }}</a>
   {% else %}
     <span>Search/contact directly</span>
     {% if comp.search_suggestion %}

@@ -99,7 +99,13 @@
       <div class="card-grid three">
         {% for merchant in guide.merchant_links %}
         <article class="mini-card">
-          <h3><a href="{{ merchant.url }}" target="_blank" rel="{% if merchant.is_affiliate %}sponsored {% endif %}nofollow noopener">{{ merchant.name }}</a></h3>
+          <h3>
+            {% if merchant.url %}
+            <a href="{{ merchant.url }}" target="_blank" rel="noopener noreferrer sponsored">{{ merchant.name }}</a>
+            {% else %}
+            {{ merchant.name }}
+            {% endif %}
+          </h3>
           <p>{{ merchant.note }}</p>
           <p class="small-note">Ask about {{ merchant.url_purpose | lower }}, delivery cut-offs and substitutions before ordering.</p>
         </article>
