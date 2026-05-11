@@ -1597,31 +1597,6 @@ textarea {
   width: 18%;
 }
 
-.gift-recommendation-table th:nth-child(1),
-.gift-recommendation-table td:nth-child(1) {
-  width: 16%;
-}
-
-.gift-recommendation-table th:nth-child(2),
-.gift-recommendation-table td:nth-child(2) {
-  width: 19%;
-}
-
-.gift-recommendation-table th:nth-child(3),
-.gift-recommendation-table td:nth-child(3) {
-  width: 15%;
-}
-
-.gift-recommendation-table th:nth-child(4),
-.gift-recommendation-table td:nth-child(4) {
-  width: 27%;
-}
-
-.gift-recommendation-table th:nth-child(5),
-.gift-recommendation-table td:nth-child(5) {
-  width: 23%;
-}
-
 .free-route-table tr:last-child td {
   border-bottom: 0;
 }
@@ -1638,54 +1613,6 @@ textarea {
   display: none;
   gap: 0.75rem;
   margin-top: 0.75rem;
-}
-
-.gift-route-list {
-  display: none;
-  gap: 0.55rem;
-  margin-top: 0.7rem;
-}
-
-.gift-route-item {
-  padding: 0.7rem 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.gift-route-item:first-child {
-  padding-top: 0;
-}
-
-.gift-route-item:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-.gift-route-item h3 {
-  margin: 0 0 0.25rem;
-  color: var(--burgundy);
-  font-size: 1rem;
-}
-
-.gift-route-item p {
-  margin: 0.22rem 0;
-  color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.35;
-}
-
-.gift-route-item p strong {
-  color: var(--ink);
-}
-
-.gift-route-item .route-first-choice {
-  display: inline-block;
-  margin: 0 0 0.2rem;
-  padding: 0.18rem 0.45rem;
-  border-radius: 999px;
-  background: #f5eee6;
-  color: var(--burgundy);
-  font-size: 0.78rem;
-  font-weight: 900;
 }
 
 .free-route-card {
@@ -1733,22 +1660,93 @@ textarea {
   gap: 0.4rem;
 }
 
-.gift-route-item .supplier-link-pills {
+.gift-recommendation-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+}
+
+.gift-recommendation-row {
+  display: grid;
+  grid-template-columns: minmax(8.5rem, 0.85fr) minmax(0, 1.55fr) minmax(10rem, 0.8fr);
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.gift-route-heading h3 {
+  margin: 0 0 0.28rem;
+  color: var(--burgundy);
+  font-size: 1rem;
+}
+
+.gift-route-heading p,
+.gift-route-detail p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.gift-route-detail {
+  display: grid;
+  gap: 0.34rem;
+}
+
+.gift-route-detail strong {
+  color: var(--ink);
+}
+
+.route-first-choice {
+  color: var(--burgundy) !important;
+  font-size: 0.82rem !important;
+  font-weight: 900;
+}
+
+.gift-route-actions {
+  display: grid;
+  justify-items: start;
+  gap: 0.45rem;
+}
+
+.gift-primary-supplier-link {
+  width: 100%;
+  min-height: 2rem;
+  padding: 0.45rem 0.65rem;
+  text-align: center;
+}
+
+.supplier-alternatives {
+  width: 100%;
+}
+
+.supplier-alternatives summary {
+  cursor: pointer;
+  color: var(--burgundy);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.supplier-alternatives .supplier-link-pills {
   gap: 0.35rem;
   margin-top: 0.45rem;
 }
 
-.free-route-table a.supplier-pill-link,
-.free-route-card a.supplier-pill-link,
-.gift-route-item a.supplier-pill-link {
-  text-decoration: none;
-}
-
-.gift-route-item .supplier-pill-link {
+.supplier-alternatives .supplier-pill-link {
   min-height: 1.65rem;
   padding: 0.28rem 0.48rem;
   border-radius: 999px;
   font-size: 0.78rem;
+  text-decoration: none;
+}
+
+.free-route-table a.supplier-pill-link,
+.free-route-card a.supplier-pill-link,
+.supplier-alternatives a.supplier-pill-link {
+  text-decoration: none;
 }
 
 .supplier-search-suggestion {
@@ -1760,12 +1758,6 @@ textarea {
   color: var(--ink);
   font-size: 0.86rem;
   font-weight: 800;
-}
-
-.gift-route-item .supplier-search-suggestion {
-  margin-top: 0.4rem;
-  padding: 0.28rem 0.48rem;
-  font-size: 0.78rem;
 }
 
 .free-route-note {
@@ -2618,8 +2610,37 @@ textarea {
     display: grid;
   }
 
-  .gift-route-list {
-    display: grid;
+  .gift-recommendation-list {
+    gap: 0.55rem;
+  }
+
+  .gift-recommendation-row {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+    align-items: start;
+    padding: 0.72rem;
+  }
+
+  .gift-route-heading h3 {
+    margin-bottom: 0.18rem;
+  }
+
+  .gift-route-heading p,
+  .gift-route-detail p {
+    font-size: 0.88rem;
+  }
+
+  .gift-route-actions {
+    gap: 0.4rem;
+    width: 100%;
+  }
+
+  .gift-primary-supplier-link {
+    width: auto;
+    min-height: 1.78rem;
+    padding: 0.33rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
   }
 
   .supplier-comparison-desktop {

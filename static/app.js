@@ -463,42 +463,29 @@ function renderSupplierRouteCards(routes = [], type = "gift") {
   if (type === "gift") {
     const rows = giftSupplierDiscoveryRows(routeList);
     return `
-      <div class="table-scroll free-route-table-wrap">
-        <table class="free-route-table gift-recommendation-table">
-          <thead><tr><th>Route</th><th>Best when</th><th>Recommended first choice</th><th>Why</th><th>Supplier links</th></tr></thead>
-          <tbody>
-            ${rows
-              .map(
-                (row) => `
-                  <tr>
-                    <td><strong>${escapeHtml(row.route)}</strong></td>
-                    <td>${escapeHtml(row.bestWhen)}</td>
-                    <td><strong>${escapeHtml(row.firstChoice)}</strong></td>
-                    <td>${escapeHtml(row.why)}</td>
-                    <td>${row.supplierLinks}</td>
-                  </tr>
-                `
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>
-      <div class="gift-route-list">
+      <div class="gift-recommendation-list">
         ${rows
           .map(
             (row) => `
-              <article class="gift-route-item">
-                <h3>${escapeHtml(row.route)}</h3>
-                <p class="route-first-choice">First choice: ${escapeHtml(row.firstChoice)}</p>
-                <p><strong>Best when:</strong> ${escapeHtml(row.bestWhen)}.</p>
-                <p><strong>Why:</strong> ${escapeHtml(row.whyShort || row.why)}</p>
-                ${row.supplierLinks}
+              <article class="gift-recommendation-row">
+                <div class="gift-route-heading">
+                  <h3>${escapeHtml(row.route)}</h3>
+                  <p>${escapeHtml(row.bestWhen)}.</p>
+                </div>
+                <div class="gift-route-detail">
+                  <p class="route-first-choice">First choice: ${escapeHtml(row.firstChoice)}</p>
+                  <p><strong>Why:</strong> ${escapeHtml(row.why)}</p>
+                </div>
+                <div class="gift-route-actions">
+                  ${row.primaryLink}
+                  ${row.alternativeLinks}
+                </div>
               </article>
             `
           )
           .join("")}
       </div>
-      <p class="small-note free-route-note">We suggest a first-choice route to save time, but include alternatives where budget, brand fit or recipient preferences may point elsewhere.</p>
+      <p class="small-note free-route-note">We recommend a first-choice supplier to save time, with alternatives where budget, brand fit or recipient preference points elsewhere.</p>
       <div class="free-route-upgrade">
         <h3>Need help choosing the best route?</h3>
         <p>Premium gives you a ranked shortlist, indicative spend ranges, ease scores, hidden watchouts and a downloadable supplier matrix.</p>
@@ -557,34 +544,31 @@ function giftSupplierDiscoveryRows(routes = []) {
       route: "Corporate wine gifting",
       bestWhen: "Client lists, repeat orders or wine-friendly recipients",
       firstChoice: "Majestic",
-      why: "Best practical option for larger wine orders, recognisable range and business-friendly buying.",
-      whyShort: "Practical for larger wine orders with a recognisable range.",
-      supplierLinks: supplierButtonGroup([
-        { id: "majestic", label: "Majestic" },
+      why: "Best practical option for repeat business gifting and scalable wine orders.",
+      primaryLink: supplierPrimaryLink("majestic", "View Majestic"),
+      alternativeLinks: supplierAlternatives([
         { id: "laithwaites", label: "Laithwaites" },
         { id: "virgin-wines", label: "Virgin Wines" },
       ]),
     },
     {
       route: "Hampers",
-      bestWhen: "Mixed tastes or unknown preferences",
+      bestWhen: "Mixed tastes, unknown preferences or safer mainstream gifting",
       firstChoice: "M&S",
       why: "Safest mainstream choice for mixed tastes, simple gifting and broad recipient appeal.",
-      whyShort: "Simple, mainstream gifting with broad recipient appeal.",
-      supplierLinks: supplierButtonGroup([
-        { id: "marks-spencer-corporate", label: "M&S" },
+      primaryLink: supplierPrimaryLink("marks-spencer-corporate", "View M&S"),
+      alternativeLinks: supplierAlternatives([
         { id: "john-lewis-hampers", label: "John Lewis" },
         { id: "fortnum-mason", label: "Fortnum & Mason" },
       ]),
     },
     {
       route: "Premium retailer",
-      bestWhen: "Presentation and perceived value matter more than price",
+      bestWhen: "Presentation, brand signal and perceived value matter more than price",
       firstChoice: "Fortnum & Mason",
-      why: "Strongest premium signal when presentation and perceived value matter more than price.",
-      whyShort: "Strong premium signal when presentation matters.",
-      supplierLinks: supplierButtonGroup([
-        { id: "fortnum-mason", label: "Fortnum & Mason" },
+      why: "Strongest premium signal when the gift needs to feel polished, traditional and high value.",
+      primaryLink: supplierPrimaryLink("fortnum-mason", "View Fortnum & Mason"),
+      alternativeLinks: supplierAlternatives([
         { id: "selfridges-hampers", label: "Selfridges" },
         { id: "harvey-nichols-hampers", label: "Harvey Nichols" },
       ]),
@@ -593,9 +577,9 @@ function giftSupplierDiscoveryRows(routes = []) {
       route: "Local wine merchant",
       bestWhen: "VIP clients, smaller lists or more personal recommendations",
       firstChoice: "Local merchant",
-      why: "Best for VIP clients where advice, personalisation or regional relevance matters.",
-      whyShort: "Advice-led route for more personal or regional gifts.",
-      supplierLinks: `<span class="supplier-search-suggestion">Search: independent wine merchant near me</span>`,
+      why: "Best when advice, personalisation or regional relevance matters.",
+      primaryLink: `<span class="supplier-search-suggestion">Find local merchant: independent wine merchant near me</span>`,
+      alternativeLinks: "",
     },
   ];
 }
@@ -616,6 +600,23 @@ function supplierButtonGroup(suppliers = []) {
     return `<a class="button secondary small free-route-button supplier-pill-link" href="/suppliers">View supplier directory</a>`;
   }
   return `<div class="supplier-link-pills">${links.join("")}</div>`;
+}
+
+function supplierPrimaryLink(supplierId, label) {
+  const url = supplierLinkUrl(supplierId);
+  if (!url) return "";
+  return `<a class="button primary small gift-primary-supplier-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer sponsored">${escapeHtml(label)}</a>`;
+}
+
+function supplierAlternatives(suppliers = []) {
+  const links = supplierButtonGroup(suppliers);
+  if (!links || links.includes("View supplier directory")) return "";
+  return `
+    <details class="supplier-alternatives">
+      <summary>Compare alternatives</summary>
+      ${links}
+    </details>
+  `;
 }
 
 function supplierCompareLink(routes = [], patterns = [], label = "Compare options", fallback = "/suppliers", directFallback = "") {
@@ -1128,7 +1129,7 @@ function renderPlan(plan, type) {
         ${list(plan.budget_guidance || [])}
       </div>
       <div class="result-block">
-        <h2>${type === "gift" ? "Recommended supplier route" : "Supplier routes to check"}</h2>
+        <h2>${type === "gift" ? "Recommended supplier routes" : "Supplier routes to check"}</h2>
         ${renderSupplierRouteCards(plan.supplier_route_cards, type)}
         ${type !== "gift" && !plan.supplier_route_cards?.length ? list(routeList) : ""}
         <p class="small-note">${escapeHtml(plan.supplier_links_note || "Supplier links are not required to use this plan. You can use the supplier route guidance to contact retailers or merchants directly.")}</p>
