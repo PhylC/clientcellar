@@ -2095,12 +2095,107 @@ def premium_recommended_shortlist(rows: list[dict], pack_type: str = "gift") -> 
     ]
 
 
+def normalise_supplier_label(value: str | None) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", (value or "").lower()).strip()
+
+
+def comparison_supplier_name(row: dict) -> str:
+    return str(row.get("supplier") or row.get("supplier_type") or row.get("name") or "Supplier route")
+
+
+def find_comparison_row(rows: list[dict], supplier_name: str | None) -> dict:
+    target = normalise_supplier_label(supplier_name)
+    if not target:
+        return {}
+    for row in rows:
+        label = normalise_supplier_label(comparison_supplier_name(row))
+        if label == target or target in label or label in target:
+            return row
+    return {}
+
+
+def premium_recommendation_summary(rows: list[dict], shortlist: list[dict], pack_type: str = "gift") -> list[dict]:
+    if not rows:
+        return []
+    shortlist = shortlist or premium_recommended_shortlist(rows, pack_type)
+    summary_by_supplier: dict[str, dict] = {}
+    for item in shortlist[:3]:
+        supplier_name = item.get("supplier") or "Supplier route"
+        row = find_comparison_row(rows, supplier_name)
+        row = row or next((candidate for candidate in rows if normalise_supplier_label(comparison_supplier_name(candidate)) == normalise_supplier_label(supplier_name)), {})
+        display_name = comparison_supplier_name(row) if row else str(supplier_name)
+        key = normalise_supplier_label(display_name)
+        if key not in summary_by_supplier:
+            contact = supplier_contact_route(row or {"supplier": display_name}, pack_type)
+            summary_by_supplier[key] = {
+                "supplier": display_name,
+                "roles": [],
+                "reasons": [],
+                "contact_url": contact.get("contact_url"),
+                "contactUrl": contact.get("contact_url"),
+                "contact_label": contact.get("contact_label") or f"View {display_name}",
+                "contactLabel": contact.get("contact_label") or f"View {display_name}",
+                "mailto_url": contact.get("mailto_url"),
+                "mailtoUrl": contact.get("mailto_url"),
+                "search_suggestion": contact.get("search_suggestion"),
+                "searchSuggestion": contact.get("search_suggestion"),
+            }
+        summary = summary_by_supplier[key]
+        role = item.get("rank") or "Recommended"
+        if role not in summary["roles"]:
+            summary["roles"].append(role)
+        reason = item.get("reason")
+        if reason and reason not in summary["reasons"]:
+            summary["reasons"].append(reason)
+
+    merged = []
+    for summary in summary_by_supplier.values():
+        roles = summary.get("roles") or ["Recommended"]
+        reasons = summary.get("reasons") or ["Strongest fit based on supplier route, admin effort and recipient suitability."]
+        if len(roles) > 1:
+            role_text = " and ".join(roles)
+            summary["merged_role_label"] = role_text
+            summary["reason"] = f"{summary['supplier']} covers {role_text.lower()} for this brief. {reasons[0]}"
+        else:
+            summary["merged_role_label"] = roles[0]
+            summary["reason"] = reasons[0]
+        merged.append(summary)
+    return merged
+
+
+def premium_recommendation_rationale(summary: list[dict], rows: list[dict], pack_type: str = "gift") -> list[str]:
+    if not summary:
+        return []
+    if pack_type == "event":
+        return [
+            "The lead route is chosen for delivery control, hosting support and fewer operational surprises.",
+            "Fallback routes stay visible in case venue rules, timing or attendee suitability change the buying path.",
+            "The VIP route is separated so premium spend is reserved for moments where it changes the outcome.",
+        ]
+    lead = summary[0].get("supplier", "the lead supplier")
+    return [
+        f"{lead} is the clearest starting point because it best balances supplier practicality, budget fit and recipient suitability.",
+        "Fallback and VIP routes are separated so mixed preferences and senior relationships are handled deliberately.",
+        "The comparison still keeps alternatives available, but the first action is clear rather than turning the pack into a directory.",
+    ]
+
+
 def add_premium_advisory_sections(preview: dict, pack_type: str = "gift", unit_budget: float = 0, count: int = 0) -> dict:
     rows = preview.get("supplier_comparison") or []
     preview["supplier_comparison"] = enrich_supplier_comparison_rows(rows, pack_type)
     preview.setdefault("supplier_executive_recommendation", premium_executive_recommendation(pack_type, unit_budget, count))
     preview.setdefault("what_we_would_do", premium_what_we_would_do(pack_type))
     preview.setdefault("recommended_shortlist", premium_recommended_shortlist(preview["supplier_comparison"], pack_type))
+    preview["recommendation_summary"] = premium_recommendation_summary(
+        preview["supplier_comparison"],
+        preview.get("recommended_shortlist") or [],
+        pack_type,
+    )
+    preview["recommendation_rationale"] = premium_recommendation_rationale(
+        preview.get("recommendation_summary") or [],
+        preview["supplier_comparison"],
+        pack_type,
+    )
     return preview
 
 
@@ -3139,7 +3234,8 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
         },
         "supplier_comparison": [
             {
-                "supplier": route,
+                "supplier_id": "majestic",
+                "supplier": "Majestic",
                 "supplier_type": route,
                 "product_package": "Indicative package route",
                 "unit_price": "Indicative: request written unit pricing with VAT treatment.",
@@ -3156,37 +3252,39 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
                 "questions_to_ask": "Can you meet the quantity, deadline, delivery/location and alcohol-free requirements?",
             },
             {
-                "supplier": "Corporate hamper supplier",
-                "supplier_type": "Corporate hamper supplier",
-                "product_package": "Wine hamper or alternative hamper",
+                "supplier_id": None if is_event else "marks-spencer-corporate",
+                "supplier": "Venue/caterer wine package" if is_event else "M&S Hampers",
+                "supplier_type": "Venue/caterer wine package" if is_event else "Corporate hamper supplier",
+                "product_package": "Venue wine package" if is_event else "Wine hamper or alternative hamper",
                 "unit_price": "Indicative: request written unit pricing with VAT treatment.",
                 "delivery_cost": "Indicative: ask for itemised delivery by address type.",
-                "personalisation": "Gift message and packaging options",
+                "personalisation": "Service notes and menu details" if is_event else "Gift message and packaging options",
                 "lead_time": "Begin supplier contact 2-3 weeks before dispatch; longer in seasonal peaks.",
-                "pros": "Can combine wine with food, packaging and gift messaging.",
-                "risks": "Check allergens, substitutions, breakage and delivery coverage.",
-                "decision": "Useful fallback if single-bottle gifting feels too narrow.",
-                "best_for": "Reducing taste risk and improving presentation",
-                "budget_fit": "Useful when one bottle may feel too narrow.",
-                "strengths": "Can combine wine with food, packaging and gift messaging.",
-                "watchouts": "Check allergens, substitutions, breakage and delivery coverage.",
-                "questions_to_ask": "Can you provide alcohol-free or food-only alternatives for unsuitable recipients?",
+                "pros": "Keeps service, corkage and venue rules in one place." if is_event else "Can combine wine with food, packaging and gift messaging.",
+                "risks": "Check corkage, service charges and house wine quality." if is_event else "Check allergens, substitutions, breakage and delivery coverage.",
+                "decision": "Useful fallback if venue rules make outside supply hard." if is_event else "Useful fallback if single-bottle gifting feels too narrow.",
+                "best_for": "Venue-controlled events and low-admin service" if is_event else "Reducing taste risk and improving presentation",
+                "budget_fit": "Useful when corkage or service control matters." if is_event else "Useful when one bottle may feel too narrow.",
+                "strengths": "Keeps service, corkage and venue rules in one place." if is_event else "Can combine wine with food, packaging and gift messaging.",
+                "watchouts": "Check corkage, service charges and house wine quality." if is_event else "Check allergens, substitutions, breakage and delivery coverage.",
+                "questions_to_ask": "Can you confirm corkage, service charge, house wine quality and alcohol-free options?" if is_event else "Can you provide alcohol-free or food-only alternatives for unsuitable recipients?",
             },
             {
-                "supplier": "Wine retailer or supermarket",
-                "supplier_type": "Wine retailer or supermarket",
-                "product_package": "Retail wine gift route",
+                "supplier_id": "local-independent-wine-merchant",
+                "supplier": "Local independent wine merchant",
+                "supplier_type": "Local independent wine merchant",
+                "product_package": "Merchant-led wine gift route",
                 "unit_price": "Indicative: request written unit pricing with VAT treatment.",
                 "delivery_cost": "Indicative: ask for itemised delivery by address type.",
                 "personalisation": "Likely limited; confirm directly",
                 "lead_time": "Begin supplier contact 1-3 weeks before dispatch and keep a backup option.",
-                "pros": "Transparent ranges and familiar fulfilment routes.",
-                "risks": "May offer less corporate support, personalisation or recipient-list handling.",
-                "decision": "Useful for simple orders or budget benchmarking.",
-                "best_for": "Simple orders and clear price points",
-                "budget_fit": "Often useful for early comparison.",
-                "strengths": "Transparent ranges and familiar fulfilment routes.",
-                "watchouts": "May offer less corporate support, personalisation or recipient-list handling.",
+                "pros": "Advice-led recommendations and more personal bottle selection.",
+                "risks": "May have lighter multi-address delivery and corporate admin tooling.",
+                "decision": "Best reserved for VIP or advice-led recipients.",
+                "best_for": "VIP recipients and more personal recommendations",
+                "budget_fit": "Often useful for higher-touch comparison.",
+                "strengths": "Advice-led recommendations and more personal bottle selection.",
+                "watchouts": "May have lighter multi-address delivery and corporate admin tooling.",
                 "questions_to_ask": "Can you support business orders, VAT receipts, multiple addresses and message inserts?",
             },
         ],

@@ -763,6 +763,57 @@ function contactRouteHtml(item = {}) {
   return `<span>Search/contact directly</span><br><span class="small-note">Search: ${escapeHtml(search)}</span>`;
 }
 
+function contactRouteButtonHtml(item = {}, label = "View supplier", className = "button primary small") {
+  const mailtoUrl = item.mailto_url || item.mailtoUrl || "";
+  if (mailtoUrl) return `<a class="${className}" href="${escapeHtml(mailtoUrl)}">${escapeHtml(label)}</a>`;
+  const contactUrl = item.contact_url || item.contactUrl || "";
+  if (contactUrl) {
+    return `<a class="${className}" href="${escapeHtml(contactUrl)}" target="_blank" rel="noopener noreferrer sponsored">${escapeHtml(label)}</a>`;
+  }
+  const search = item.search_suggestion || item.searchSuggestion || "";
+  if (search) return `<span class="supplier-search-suggestion">Search: ${escapeHtml(search)}</span>`;
+  return "";
+}
+
+function renderPremiumRecommendationSummary(preview = {}) {
+  const items = Array.isArray(preview.recommendation_summary) ? preview.recommendation_summary : [];
+  if (!items.length) return "";
+  const lead = items[0];
+  const rationale = Array.isArray(preview.recommendation_rationale) ? preview.recommendation_rationale.slice(0, 3) : [];
+  return `
+    <section class="pack-section premium-recommendation-summary">
+      <div class="section-title-row">
+        <div>
+          <p class="eyebrow">Your recommendation</p>
+          <h2>Your recommendation</h2>
+        </div>
+        <div class="recommendation-cta-row">
+          ${contactRouteButtonHtml(lead, "View recommended supplier", "button primary small")}
+          <a class="button secondary small" href="#supplier-comparison-details">Compare alternatives</a>
+        </div>
+      </div>
+      <div class="recommendation-summary-grid">
+        ${items
+          .map((item) => `
+            <article class="recommendation-summary-card">
+              <span class="route-tag">${escapeHtml(item.merged_role_label || "Recommended")}</span>
+              <h3>${escapeHtml(item.supplier || "Supplier route")}</h3>
+              <p>${escapeHtml(item.reason || "")}</p>
+              ${contactRouteButtonHtml(item, item.contact_label || item.contactLabel || "View supplier", "button secondary small supplier-summary-link")}
+            </article>
+          `)
+          .join("")}
+      </div>
+      ${rationale.length ? `
+        <div class="why-recommendation">
+          <h3>Why this recommendation?</h3>
+          <ul>${rationale.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+        </div>
+      ` : ""}
+    </section>
+  `;
+}
+
 function renderAdvisoryItems(items = []) {
   if (!Array.isArray(items) || !items.length) return "";
   return `
@@ -861,36 +912,25 @@ function renderPremiumComparison(preview = {}) {
   const cards = items
     .map(
       (item) => `
-        <article class="supplier-comparison-card">
-          <div class="comparison-card-header">
-            <h3>${escapeHtml(item.supplier || item.supplier_type || "Supplier route")}</h3>
+        <article class="supplier-compact-row">
+          <div class="supplier-compact-head">
+            <div>
+              <h3>${escapeHtml(item.supplier || item.supplier_type || "Supplier route")}</h3>
+              ${contactRouteButtonHtml(item, item.contact_label || item.contactLabel || "View supplier", "button primary small supplier-compact-link")}
+            </div>
             <span class="score-pill">${escapeHtml(item.ease_score || "6/10")}</span>
           </div>
           ${tagRowHtml(item.best_for_tags)}
-          <p class="supplier-contact-inline">${contactRouteHtml(item)}</p>
-          <dl class="comparison-card-list">
-            <div><dt>Best for</dt><dd>${escapeHtml(item.best_for || "")}</dd></div>
-            <div><dt>Typical spend</dt><dd>${escapeHtml(item.typical_spend || "")}</dd></div>
-            <div><dt>Key watchout</dt><dd>${escapeHtml(item.hidden_watchouts || "")}</dd></div>
-            <div><dt>Recommendation</dt><dd>${escapeHtml(item.recommendation || "")}</dd></div>
-          </dl>
+          <p><strong>Best for:</strong> ${escapeHtml(item.best_for || "")}</p>
+          <p><strong>Spend:</strong> ${escapeHtml(item.typical_spend || "")}</p>
+          <p><strong>Watchout:</strong> ${escapeHtml(item.hidden_watchouts || "")}</p>
+          <p><strong>Recommendation:</strong> ${escapeHtml(item.recommendation || "")}</p>
         </article>
       `
     )
     .join("");
-  const shortlist = Array.isArray(preview.recommended_shortlist) && preview.recommended_shortlist.length
-    ? `
-      <div class="advisory-panel">
-        <h3>Recommended shortlist</h3>
-        <div class="shortlist-grid">
-          ${preview.recommended_shortlist
-            .map((item) => `<div><span class="route-tag">${escapeHtml(item.rank || "")}</span><h4>${escapeHtml(item.supplier || "")}</h4><p>${escapeHtml(item.reason || "")}</p></div>`)
-            .join("")}
-        </div>
-      </div>
-    `
-    : "";
   return `
+    ${renderPremiumRecommendationSummary(preview)}
     ${renderAdvisoryItems(preview.supplier_executive_recommendation)}
     ${renderWhatWeWouldDo(preview.what_we_would_do)}
     <p class="small-note">Indicative planning guidance only. Supplier pricing, stock, availability, delivery and order terms must be confirmed directly.</p>
@@ -898,6 +938,7 @@ function renderPremiumComparison(preview = {}) {
       <button class="button secondary small" type="button" data-download-supplier-matrix>Download full supplier matrix</button>
       <script type="application/json" data-supplier-matrix-data>${JSON.stringify(items).replace(/</g, "\\u003c")}</script>
     </div>
+    <h3 id="supplier-comparison-details">Detailed supplier notes</h3>
     <div class="table-scroll supplier-comparison-desktop">
       <table class="pack-table supplier-comparison-table">
         <thead><tr><th>Supplier</th><th>Best for</th><th>Typical spend</th><th>Ease</th><th>Key watchout</th><th>Recommendation</th></tr></thead>
@@ -905,7 +946,6 @@ function renderPremiumComparison(preview = {}) {
       </table>
     </div>
     <div class="supplier-comparison-cards">${cards}</div>
-    ${shortlist}
   `;
 }
 

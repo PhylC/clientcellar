@@ -11,11 +11,58 @@
     {% endif %}
   {% endif %}
 {%- endmacro %}
+{% macro contact_route_button(comp, label="View supplier", class_name="button primary small") -%}
+  {% if comp.mailto_url %}
+    <a class="{{ class_name }}" href="{{ comp.mailto_url }}">{{ label }}</a>
+  {% elif comp.contact_url %}
+    <a class="{{ class_name }}" href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ label }}</a>
+  {% elif comp.search_suggestion %}
+    <span class="supplier-search-suggestion">Search: {{ comp.search_suggestion }}</span>
+  {% endif %}
+{%- endmacro %}
 {% macro supplier_name_cell(comp) -%}
   <strong>{{ comp.supplier or comp.supplier_type or "Supplier route" }}</strong>
   <div class="supplier-contact-inline">{{ contact_route_cell(comp) }}</div>
 {%- endmacro %}
+{% macro premium_recommendation_summary(preview) -%}
+  {% if preview.recommendation_summary %}
+  <section class="pack-section premium-recommendation-summary">
+    <div class="section-title-row">
+      <div>
+        <p class="eyebrow">Your recommendation</p>
+        <h2>Your recommendation</h2>
+      </div>
+      <div class="recommendation-cta-row">
+        {% set lead = preview.recommendation_summary[0] %}
+        {{ contact_route_button(lead, "View recommended supplier", "button primary small") }}
+        <a class="button secondary small" href="#supplier-comparison-details">Compare alternatives</a>
+      </div>
+    </div>
+    <div class="recommendation-summary-grid">
+      {% for item in preview.recommendation_summary %}
+      <article class="recommendation-summary-card">
+        <span class="route-tag">{{ item.merged_role_label }}</span>
+        <h3>{{ item.supplier }}</h3>
+        <p>{{ item.reason }}</p>
+        {{ contact_route_button(item, item.contact_label or "View supplier", "button secondary small supplier-summary-link") }}
+      </article>
+      {% endfor %}
+    </div>
+    {% if preview.recommendation_rationale %}
+    <div class="why-recommendation">
+      <h3>Why this recommendation?</h3>
+      <ul>
+        {% for item in preview.recommendation_rationale[:3] %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+{%- endmacro %}
 {% macro advisory_supplier_comparison(preview) -%}
+  <div id="supplier-comparison-details"></div>
   {% if preview.supplier_executive_recommendation %}
   <div class="advisory-panel">
     <h3>Executive recommendation</h3>
@@ -40,6 +87,7 @@
   <div class="matrix-action-row">
     <button class="button secondary small" type="button" data-download-supplier-matrix>Download full supplier matrix</button>
   </div>
+  <h3>Detailed supplier notes</h3>
   <div class="table-scroll supplier-comparison-desktop">
     <table class="budget-table pack-table supplier-comparison-table">
       <thead>
@@ -75,9 +123,12 @@
   </div>
   <div class="supplier-comparison-cards">
     {% for comp in preview.supplier_comparison %}
-    <article class="supplier-comparison-card">
-      <div class="comparison-card-header">
-        <h3>{{ comp.supplier or comp.supplier_type or "Supplier route" }}</h3>
+    <article class="supplier-compact-row">
+      <div class="supplier-compact-head">
+        <div>
+          <h3>{{ comp.supplier or comp.supplier_type or "Supplier route" }}</h3>
+          {{ contact_route_button(comp, comp.contact_label or "View supplier", "button primary small supplier-compact-link") }}
+        </div>
         <span class="score-pill">{{ comp.ease_score }}</span>
       </div>
       <div class="tag-row">
@@ -85,30 +136,13 @@
         <span class="route-tag">{{ tag }}</span>
         {% endfor %}
       </div>
-      <p class="supplier-contact-inline">{{ contact_route_cell(comp) }}</p>
-      <dl class="comparison-card-list">
-        <div><dt>Best for</dt><dd>{{ comp.best_for }}</dd></div>
-        <div><dt>Typical spend</dt><dd>{{ comp.typical_spend }}</dd></div>
-        <div><dt>Key watchout</dt><dd>{{ comp.hidden_watchouts }}</dd></div>
-        <div><dt>Recommendation</dt><dd>{{ comp.recommendation }}</dd></div>
-      </dl>
+      <p><strong>Best for:</strong> {{ comp.best_for }}</p>
+      <p><strong>Spend:</strong> {{ comp.typical_spend }}</p>
+      <p><strong>Watchout:</strong> {{ comp.hidden_watchouts }}</p>
+      <p><strong>Recommendation:</strong> {{ comp.recommendation }}</p>
     </article>
     {% endfor %}
   </div>
-  {% if preview.recommended_shortlist %}
-  <div class="advisory-panel">
-    <h3>Recommended shortlist</h3>
-    <div class="shortlist-grid">
-      {% for item in preview.recommended_shortlist %}
-      <div>
-        <span class="route-tag">{{ item.rank }}</span>
-        <h4>{{ item.supplier }}</h4>
-        <p>{{ item.reason }}</p>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
 {%- endmacro %}
 {% block content %}
 <section class="premium-pack-header">
@@ -151,6 +185,8 @@
       </div>
     </dl>
   </header>
+
+  {{ premium_recommendation_summary(preview) }}
 
   {% if preview.document_sections %}
   {% if preview.fallback_note %}

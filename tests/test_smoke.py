@@ -97,6 +97,9 @@ def test_paid_premium_pack_view_renders_fallback_content(tmp_path, monkeypatch):
     assert "Executive summary" in response.text
     assert "Supplier enquiry email" in response.text
     assert "Supplier quote comparison table" in response.text
+    assert "Your recommendation" in response.text
+    assert "Why this recommendation?" in response.text
+    assert "Detailed supplier notes" in response.text
     assert "Internal approval summary" in response.text
     assert "Some planning details were not available" in response.text
     assert "Saved pack" in response.text
