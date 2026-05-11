@@ -49,9 +49,9 @@ DISCLAIMER = (
     "Alcohol gifting, licensing, customs and delivery rules should be confirmed "
     "directly with the supplier."
 )
-CANONICAL_ORIGIN = "https://www.cv-optimiser.com"
-CANONICAL_HOST = "www.cv-optimiser.com"
-ROOT_DOMAIN = "cv-optimiser.com"
+CANONICAL_ORIGIN = "https://clientcellar.co.uk"
+CANONICAL_HOST = "clientcellar.co.uk"
+WWW_HOST = "www.clientcellar.co.uk"
 
 app = FastAPI(title=PRODUCT_NAME)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
@@ -114,11 +114,14 @@ def is_render_host(host: str) -> bool:
 @app.middleware("http")
 async def canonical_redirect_middleware(request: Request, call_next):
     host = request.headers.get("host", "").split(":", 1)[0].lower()
+    forwarded_proto = request.headers.get("x-forwarded-proto", "").split(",", 1)[0].strip().lower()
+    scheme = forwarded_proto or request.url.scheme
     path = request.url.path
     clean_path = canonical_path(path)
-    should_redirect_host = host == ROOT_DOMAIN or is_render_host(host)
+    should_redirect_host = host == WWW_HOST or is_render_host(host)
+    should_redirect_scheme = host in {CANONICAL_HOST, WWW_HOST} and scheme == "http"
     should_redirect_path = path != clean_path
-    if should_redirect_host or should_redirect_path:
+    if should_redirect_host or should_redirect_scheme or should_redirect_path:
         query = f"?{request.url.query}" if request.url.query else ""
         return RedirectResponse(f"{CANONICAL_ORIGIN}{clean_path}{query}", status_code=301)
     return await call_next(request)
