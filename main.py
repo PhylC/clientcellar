@@ -27,6 +27,11 @@ from data.supplier_links import (
     supplier_affiliate_url as configured_supplier_affiliate_url,
     supplier_url as configured_supplier_url,
 )
+from data.gift_recommendations import (
+    gift_recommendation_routes,
+    gift_recommendation_shortlist,
+    gift_supplier_comparison_rows,
+)
 from data.suppliers import SUPPLIER_ENTRIES
 
 load_dotenv()
@@ -2068,6 +2073,8 @@ def premium_what_we_would_do(pack_type: str = "gift") -> list[str]:
 def premium_recommended_shortlist(rows: list[dict], pack_type: str = "gift") -> list[dict]:
     if not rows:
         return []
+    if pack_type == "gift":
+        return gift_recommendation_shortlist()
 
     def find_row(*terms: str) -> dict | None:
         for row in rows:
@@ -2119,7 +2126,7 @@ def premium_recommendation_summary(rows: list[dict], shortlist: list[dict], pack
         return []
     shortlist = shortlist or premium_recommended_shortlist(rows, pack_type)
     summary_by_supplier: dict[str, dict] = {}
-    for item in shortlist[:3]:
+    for item in shortlist:
         supplier_name = item.get("supplier") or "Supplier route"
         row = find_comparison_row(rows, supplier_name)
         row = row or next((candidate for candidate in rows if normalise_supplier_label(comparison_supplier_name(candidate)) == normalise_supplier_label(supplier_name)), {})
@@ -2133,8 +2140,8 @@ def premium_recommendation_summary(rows: list[dict], shortlist: list[dict], pack
                 "reasons": [],
                 "contact_url": contact.get("contact_url"),
                 "contactUrl": contact.get("contact_url"),
-                "contact_label": contact.get("contact_label") or f"View {display_name}",
-                "contactLabel": contact.get("contact_label") or f"View {display_name}",
+                "contact_label": f"View {display_name}" if "local independent" not in normalise_supplier_label(display_name) else "Find local merchant",
+                "contactLabel": f"View {display_name}" if "local independent" not in normalise_supplier_label(display_name) else "Find local merchant",
                 "mailto_url": contact.get("mailto_url"),
                 "mailtoUrl": contact.get("mailto_url"),
                 "search_suggestion": contact.get("search_suggestion"),
@@ -2966,6 +2973,8 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
         }.get(style, "Low-risk wine hamper, sparkling or mixed red/white gift")
 
     def supplier_matrix() -> list[dict]:
+        if is_gift:
+            return gift_supplier_comparison_rows()
         rows = []
         for supplier in supplier_shortlist[:5]:
             supplier_type = supplier.get("name", "Supplier type")
@@ -3335,6 +3344,8 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
         "print_note": "Print or save this page as a PDF for internal approval.",
         "disclaimer": DISCLAIMER,
     }
+    if not is_event:
+        preview["supplier_comparison"] = gift_supplier_comparison_rows()
     return add_premium_advisory_sections(preview, pack_type)
 
 
@@ -4889,6 +4900,7 @@ def render_template(request: Request, template_name: str, status_code: int = 200
         "supplier_link_config",
         {supplier_id: link.url for supplier_id, link in SUPPLIER_LINK_CONFIG.items() if link.active and link.url},
     )
+    context.setdefault("gift_recommendation_routes", gift_recommendation_routes())
     context.setdefault("structured_data", structured_data)
     context.setdefault("noindex", context.get("noindex") or request.url.path.startswith("/admin"))
 
@@ -5011,6 +5023,16 @@ def example_premium_brief_pack(request: Request):
         "fortnum_mason": supplier_public_url("fortnum-mason"),
         "laithwaites": supplier_public_url("laithwaites"),
     }
+    example_preview = add_premium_advisory_sections(
+        {
+            "pack_type": "gift",
+            "supplier_comparison": gift_supplier_comparison_rows(),
+            "recommended_shortlist": gift_recommendation_shortlist(),
+        },
+        "gift",
+        45,
+        25,
+    )
     return render(
         request,
         "example_premium_brief_pack.html",
@@ -5018,6 +5040,7 @@ def example_premium_brief_pack(request: Request):
         "See an example ClientCellar Premium Brief Pack with supplier-ready buying brief, enquiry email, budget breakdown, supplier quote comparison table and internal approval summary.",
         structured_data=[premium_pack_product_schema(request)],
         example_supplier_links=example_supplier_links,
+        example_preview=example_preview,
     )
 
 

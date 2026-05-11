@@ -1,4 +1,119 @@
 {% extends "base.html" %}
+{% macro contact_route_button(comp, label="View supplier", class_name="button primary small") -%}
+  {% if comp.mailto_url %}
+    <a class="{{ class_name }}" href="{{ comp.mailto_url }}">{{ label }}</a>
+  {% elif comp.contact_url %}
+    <a class="{{ class_name }}" href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ label }}</a>
+  {% elif comp.search_suggestion %}
+    <span class="supplier-search-suggestion">Search: {{ comp.search_suggestion }}</span>
+  {% endif %}
+{%- endmacro %}
+{% macro premium_recommendation_summary(preview) -%}
+  {% if preview.recommendation_summary %}
+  <section class="pack-section premium-recommendation-summary">
+    <div class="section-title-row">
+      <div>
+        <p class="eyebrow">Your recommendation</p>
+        <h2>Your recommendation</h2>
+      </div>
+      <div class="recommendation-cta-row">
+        {% set lead = preview.recommendation_summary[0] %}
+        {{ contact_route_button(lead, "View recommended supplier", "button primary small") }}
+        <a class="button secondary small" href="#supplier-comparison-details">Compare alternatives</a>
+      </div>
+    </div>
+    <div class="recommendation-summary-layout">
+      {% set lead = preview.recommendation_summary[0] %}
+      <article class="recommendation-summary-card recommendation-summary-lead">
+        <span class="route-tag">{{ lead.merged_role_label }}</span>
+        <h3>{{ lead.supplier }}</h3>
+        <p>{{ lead.reason }}</p>
+        {{ contact_route_button(lead, lead.contact_label or "View supplier", "button primary small supplier-summary-primary") }}
+      </article>
+      <div class="recommendation-alternative-list">
+        {% for item in preview.recommendation_summary[1:] %}
+        <article class="recommendation-alternative-row">
+          <div>
+            <span class="route-tag">{{ item.merged_role_label }}</span>
+            <h3>{{ item.supplier }}</h3>
+            <p>{{ item.reason }}</p>
+          </div>
+          {{ contact_route_button(item, item.contact_label or "View supplier", "button secondary small supplier-summary-link") }}
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+    {% if preview.recommendation_rationale %}
+    <div class="why-recommendation">
+      <h3>Why this recommendation?</h3>
+      <ul>
+        {% for item in preview.recommendation_rationale[:3] %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+{%- endmacro %}
+{% macro supplier_name_cell(comp) -%}
+  <strong>{{ comp.supplier or comp.supplier_type or "Supplier route" }}</strong>
+  <div class="supplier-table-action">{{ contact_route_button(comp, comp.contact_label or "View supplier", "button primary small supplier-table-link") }}</div>
+{%- endmacro %}
+{% macro advisory_supplier_comparison(preview) -%}
+  <div id="supplier-comparison-details"></div>
+  <p class="small-note">Indicative planning guidance only. Supplier pricing, stock, availability, delivery and order terms must be confirmed directly.</p>
+  <div class="matrix-action-row">
+    <button class="button secondary small" type="button" data-download-supplier-matrix>Download full supplier matrix</button>
+    <script type="application/json" data-supplier-matrix-data>{{ preview.supplier_comparison | tojson }}</script>
+  </div>
+  <h3>Detailed supplier notes</h3>
+  <p class="small-note">Use the supplier buttons below to open the most relevant buying page for each route.</p>
+  <div class="table-scroll supplier-comparison-desktop">
+    <table class="budget-table pack-table supplier-comparison-table">
+      <thead>
+        <tr>
+          <th>Supplier</th>
+          <th>Best for</th>
+          <th>Typical spend</th>
+          <th>Ease</th>
+          <th>Key watchout</th>
+          <th>Recommendation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for comp in preview.supplier_comparison %}
+        <tr>
+          <td>{{ supplier_name_cell(comp) }}</td>
+          <td><div class="tag-row">{% for tag in comp.best_for_tags or [] %}<span class="route-tag">{{ tag }}</span>{% endfor %}</div>{{ comp.best_for }}</td>
+          <td>{{ comp.typical_spend }}</td>
+          <td><span class="score-pill">{{ comp.ease_score }}</span></td>
+          <td>{{ comp.hidden_watchouts }}</td>
+          <td>{{ comp.recommendation }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="supplier-comparison-cards">
+    {% for comp in preview.supplier_comparison %}
+    <article class="supplier-compact-row">
+      <div class="supplier-compact-head">
+        <div>
+          <h3>{{ comp.supplier or comp.supplier_type or "Supplier route" }}</h3>
+          {{ contact_route_button(comp, comp.contact_label or "View supplier", "button primary small supplier-compact-link") }}
+        </div>
+        <span class="score-pill">{{ comp.ease_score }}</span>
+      </div>
+      <div class="tag-row">{% for tag in comp.best_for_tags or [] %}<span class="route-tag">{{ tag }}</span>{% endfor %}</div>
+      <p><strong>Best for:</strong> {{ comp.best_for }}</p>
+      <p><strong>Spend:</strong> {{ comp.typical_spend }}</p>
+      <p><strong>Watchout:</strong> {{ comp.hidden_watchouts }}</p>
+      <p><strong>Recommendation:</strong> {{ comp.recommendation }}</p>
+    </article>
+    {% endfor %}
+  </div>
+{%- endmacro %}
 {% block content %}
 <section class="premium-pack-header">
   <div class="premium-pack-hero">
@@ -30,6 +145,8 @@
     <p><strong>Example only.</strong> This page demonstrates the paid format. It is not a real customer brief, does not contain confirmed supplier quotes and does not imply any supplier partnership.</p>
   </section>
 
+  {{ premium_recommendation_summary(example_preview) }}
+
   <section class="pack-section">
     <h2>A. Executive Summary</h2>
     <p>This example brief is for Christmas thank-you gifts for 25 client recipients at a planning budget of £45 each. The recommended direction is to compare a corporate wine gifting supplier, a hamper supplier and a premium or local wine merchant, while keeping a non-alcoholic route available for recipients where alcohol may be unsuitable.</p>
@@ -39,24 +156,15 @@
   <section class="pack-section">
     <h2>B. Recommended Buying Route</h2>
     <div class="supplier-card-grid">
+      {% for route in gift_recommendation_routes %}
       <article class="supplier-card">
-        <h3>Corporate wine gifting supplier</h3>
-        <p><strong>Best for:</strong> Broad client gifting, case gifting and practical delivery.</p>
-        <p><strong>Example suppliers to check:</strong> Majestic, Laithwaites, Virgin Wines.</p>
-        <p><strong>What to ask:</strong> Bulk order support, delivery timing, gift notes, VAT invoice and substitutions.</p>
+        <span class="route-tag">{{ route.rank }}</span>
+        <h3>{{ route.route }}</h3>
+        <p><strong>First choice:</strong> {{ route.supplier }}</p>
+        <p><strong>Best when:</strong> {{ route.best_when }}.</p>
+        <p><strong>Why:</strong> {{ route.why }}</p>
       </article>
-      <article class="supplier-card">
-        <h3>Hamper supplier</h3>
-        <p><strong>Best for:</strong> Mixed-recipient groups and safer broad-appeal gifts.</p>
-        <p><strong>Example suppliers to check:</strong> M&S Food & Drink Gifts, Fortnum & Mason, John Lewis Hampers.</p>
-        <p><strong>What to ask:</strong> Dietary options, alcohol-free versions, delivery dates, gift messages and VAT invoice.</p>
-      </article>
-      <article class="supplier-card">
-        <h3>Premium wine merchant</h3>
-        <p><strong>Best for:</strong> Higher-value clients or more formal gifts.</p>
-        <p><strong>Example suppliers to check:</strong> Berry Bros. & Rudd, The Wine Society, Fortnum & Mason.</p>
-        <p><strong>What to ask:</strong> Presentation, bottle suitability, corporate order support and delivery timing.</p>
-      </article>
+      {% endfor %}
     </div>
   </section>
 
@@ -81,158 +189,7 @@
 
   <section class="pack-section">
     <h2>D. Supplier Quote Comparison Table</h2>
-    <div class="advisory-panel">
-      <h3>Executive recommendation</h3>
-      <dl class="advisory-list">
-        <div><dt>Recommended route</dt><dd>Use a mainstream corporate supplier for standard recipients and a specialist or independent merchant for VIP clients.</dd></div>
-        <div><dt>Budget sweet spot</dt><dd>Indicative: £65-£95 per recipient is often the strongest range for a credible premium feel without overpaying; at £45, focus on reliable mainstream options and careful presentation.</dd></div>
-        <div><dt>Recipient strategy</dt><dd>Split recipients into VIP, standard client and internal stakeholder tiers before sending enquiries.</dd></div>
-        <div><dt>Timing</dt><dd>Begin supplier contact 2-3 weeks before required dispatch; longer for Christmas or branded items.</dd></div>
-        <div><dt>Main risk</dt><dd>Choosing a supplier before confirming multi-address delivery, gift notes, VAT invoicing and substitutions.</dd></div>
-      </dl>
-    </div>
-    <div class="advisory-panel">
-      <h3>What we would do</h3>
-      <ol>
-        <li>Split the recipient list into VIP, standard client and internal stakeholder tiers.</li>
-        <li>Use wine or premium drinks for known wine-friendly recipients.</li>
-        <li>Use hampers only where recipient preference is unknown.</li>
-        <li>Reserve boutique suppliers for senior/VIP relationships.</li>
-        <li>Confirm delivery file format, cut-off dates, substitutions and invoice handling before payment.</li>
-      </ol>
-    </div>
-    <p class="small-note">Indicative planning guidance only. Supplier pricing, stock, availability, delivery and order terms must be confirmed directly.</p>
-    <div class="matrix-action-row">
-      <button class="button secondary small" type="button" data-download-supplier-matrix>Download full supplier matrix</button>
-      <script type="application/json" data-supplier-matrix-data>[
-        {"supplier":"Majestic Corporate","best_for":"25-250 recipient campaigns where reliable fulfilment matters more than boutique curation.","typical_spend":"Indicative: usually strongest around £45-£120 per recipient.","minimum_order":"Ask whether the planned quantity qualifies for corporate support, VAT invoice and order handling.","branding_personalisation":"Ask whether branded gift note, message handling and multi-address upload are supported.","turnaround":"Begin contact 2-3 weeks before dispatch; longer for Christmas or branded items.","multi_address_delivery":"Good route to test, but confirm file format and failed-delivery process before payment.","contact_url":{{ example_supplier_links.majestic | tojson }},"contact_label":"Corporate gifting page","ease_score":"8/10","hidden_watchouts":"Substitutions can change perceived quality if the exact bottle or case is unavailable.","recommendation":"Use for the standard client tier; reserve independent merchant for VIP recipients.","extra_notes":"Ask whether VAT invoice, branded gift note and multi-address upload are supported before committing."},
-        {"supplier":"M&S Food & Drink Gifts","best_for":"Staff, mixed-recipient groups and standard clients where food variety is safer than one bottle.","typical_spend":"Indicative: often useful around £30-£75 per recipient.","minimum_order":"Check whether business quantities can be handled smoothly before relying on retail checkout.","branding_personalisation":"Usually limited; prioritise gift message, dietary filters and alcohol contents.","turnaround":"Allow 1-3 weeks; Christmas cut-offs can move quickly.","multi_address_delivery":"Ask whether multiple addresses can be uploaded or whether orders must be placed manually.","contact_url":{{ example_supplier_links.marks_spencer | tojson }},"contact_label":"View hampers","ease_score":"7/10","hidden_watchouts":"Risk: low-spend options may feel more retail than premium corporate gifting.","recommendation":"Use as the safest fallback when recipient preferences are unknown.","extra_notes":"Check alcohol contents, dietary options, VAT invoice and delivery cut-off dates."},
-        {"supplier":"Fortnum & Mason","best_for":"Premium client tiers where presentation matters more than tight budget control.","typical_spend":"Indicative: usually strongest around £75-£200+ per recipient.","minimum_order":"May work for small counts, but ask how corporate orders and invoices are handled.","branding_personalisation":"Presentation is strong; branded inserts or bespoke notes need early confirmation.","turnaround":"Allow 2-4 weeks, longer for Christmas peaks or large address lists.","multi_address_delivery":"Check whether bulk multi-address upload is practical before using for all recipients.","contact_url":{{ example_supplier_links.fortnum_mason | tojson }},"contact_label":"View hampers","ease_score":"6/10","hidden_watchouts":"Premium packaging can push spend above policy limits once delivery and VAT are added.","recommendation":"Use for VIP or senior client tiers, not necessarily the whole list.","extra_notes":"Best where presentation is worth the additional admin and budget."},
-        {"supplier":"Laithwaites","best_for":"Accessible wine gift cases where range and straightforward delivery are more important than bespoke advice.","typical_spend":"Indicative: usually strongest around £35-£90 per recipient.","minimum_order":"Ask whether corporate quantities get a clearer account route than consumer checkout.","branding_personalisation":"Gift messages may be possible; branded inserts and proofing need confirmation.","turnaround":"Allow 1-3 weeks and build in substitution approval time.","multi_address_delivery":"Confirm whether address upload, tracking and exception handling are supported.","contact_url":{{ example_supplier_links.laithwaites | tojson }},"contact_label":"View wine gifts","ease_score":"7/10","hidden_watchouts":"Mixed cases can be efficient but may feel less tailored for senior relationships.","recommendation":"Use as a practical wine-only comparison against Majestic or a hamper supplier.","extra_notes":"Useful benchmark against other mainstream wine gift routes."},
-        {"supplier":"Local independent wine merchant","best_for":"VIP clients, senior relationships and advice-led bottle choices where taste matters.","typical_spend":"Indicative: usually strongest around £60-£200+ per recipient.","minimum_order":"Often flexible, but ask how they handle corporate lists, invoices and repeat orders.","branding_personalisation":"Presentation and bottle advice can be strong; admin tooling may be lighter.","turnaround":"Allow 2-4 weeks if you need tailored recommendations or local delivery planning.","multi_address_delivery":"May be limited; check whether they can deliver to many addresses before committing.","search_suggestion":"independent wine merchant near me","ease_score":"5/10","hidden_watchouts":"The best advice-led option can become admin-heavy for large recipient lists.","recommendation":"Reserve for VIP recipients or tricky briefs where a mainstream route feels too generic.","extra_notes":"Search locally and ask directly about delivery radius, gift notes and invoices."}
-      ]</script>
-    </div>
-    <div class="table-scroll supplier-comparison-desktop">
-      <table class="budget-table pack-table supplier-comparison-table">
-        <thead>
-          <tr>
-            <th>Supplier</th>
-            <th>Best for</th>
-            <th>Typical spend</th>
-            <th>Ease</th>
-            <th>Key watchout</th>
-            <th>Recommendation</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Majestic Corporate</strong><div class="supplier-contact-inline"><a href="{{ example_supplier_links.majestic }}" target="_blank" rel="noopener noreferrer sponsored">Corporate gifting page</a></div></td>
-            <td><div class="tag-row"><span class="route-tag">Standard clients</span><span class="route-tag">Fulfilment</span></div>25-250 recipient campaigns where reliable fulfilment matters more than boutique curation.</td>
-            <td>Indicative: usually strongest around £45-£120 per recipient.</td>
-            <td><span class="score-pill">8/10</span></td>
-            <td>Substitutions can change perceived quality if the exact bottle or case is unavailable.</td>
-            <td>Use for the standard client tier; reserve independent merchant for VIP recipients.</td>
-          </tr>
-          <tr>
-            <td><strong>M&S Food & Drink Gifts</strong><div class="supplier-contact-inline"><a href="{{ example_supplier_links.marks_spencer }}" target="_blank" rel="noopener noreferrer sponsored">View hampers</a></div></td>
-            <td><div class="tag-row"><span class="route-tag">Broad appeal</span><span class="route-tag">Hamper fallback</span></div>Staff, mixed-recipient groups and standard clients where food variety is safer than one bottle.</td>
-            <td>Indicative: often useful around £30-£75 per recipient.</td>
-            <td><span class="score-pill">7/10</span></td>
-            <td>Risk: low-spend options may feel more retail than premium corporate gifting.</td>
-            <td>Use as the safest fallback when recipient preferences are unknown.</td>
-          </tr>
-          <tr>
-            <td><strong>Fortnum & Mason</strong><div class="supplier-contact-inline"><a href="{{ example_supplier_links.fortnum_mason }}" target="_blank" rel="noopener noreferrer sponsored">View hampers</a></div></td>
-            <td><div class="tag-row"><span class="route-tag">VIP</span><span class="route-tag">Premium hamper</span></div>Premium client tiers where presentation matters more than tight budget control.</td>
-            <td>Indicative: usually strongest around £75-£200+ per recipient.</td>
-            <td><span class="score-pill">6/10</span></td>
-            <td>Premium packaging can push spend above policy limits once delivery and VAT are added.</td>
-            <td>Use for VIP or senior client tiers, not necessarily the whole list.</td>
-          </tr>
-          <tr>
-            <td><strong>Laithwaites</strong><div class="supplier-contact-inline"><a href="{{ example_supplier_links.laithwaites }}" target="_blank" rel="noopener noreferrer sponsored">View wine gifts</a></div></td>
-            <td><div class="tag-row"><span class="route-tag">Wine gifts</span><span class="route-tag">Case gifting</span></div>Accessible wine gift cases where range and straightforward delivery are more important than bespoke advice.</td>
-            <td>Indicative: usually strongest around £35-£90 per recipient.</td>
-            <td><span class="score-pill">7/10</span></td>
-            <td>Mixed cases can be efficient but may feel less tailored for senior relationships.</td>
-            <td>Use as a practical wine-only comparison against Majestic or a hamper supplier.</td>
-          </tr>
-          <tr>
-            <td><strong>Local independent wine merchant</strong><div class="supplier-contact-inline">Search/contact directly<br><span class="small-note">Search: independent wine merchant near me</span></div></td>
-            <td><div class="tag-row"><span class="route-tag">VIP</span><span class="route-tag">Advice led</span></div>VIP clients, senior relationships and advice-led bottle choices where taste matters.</td>
-            <td>Indicative: usually strongest around £60-£200+ per recipient.</td>
-            <td><span class="score-pill">5/10</span></td>
-            <td>The best advice-led option can become admin-heavy for large recipient lists.</td>
-            <td>Reserve for VIP recipients or tricky briefs where a mainstream route feels too generic.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="supplier-comparison-cards">
-      <article class="supplier-comparison-card">
-        <div class="comparison-card-header"><h3>Majestic Corporate</h3><span class="score-pill">8/10</span></div>
-        <div class="tag-row"><span class="route-tag">Standard clients</span><span class="route-tag">Fulfilment</span></div>
-        <p class="supplier-contact-inline"><a href="{{ example_supplier_links.majestic }}" target="_blank" rel="noopener noreferrer sponsored">Corporate gifting page</a></p>
-        <dl class="comparison-card-list">
-          <div><dt>Best for</dt><dd>25-250 recipient campaigns where reliable fulfilment matters more than boutique curation.</dd></div>
-          <div><dt>Typical spend</dt><dd>Indicative: usually strongest around £45-£120 per recipient.</dd></div>
-          <div><dt>Key watchout</dt><dd>Substitutions can change perceived quality if the exact bottle or case is unavailable.</dd></div>
-          <div><dt>Recommendation</dt><dd>Use for the standard client tier; reserve independent merchant for VIP recipients.</dd></div>
-        </dl>
-      </article>
-      <article class="supplier-comparison-card">
-        <div class="comparison-card-header"><h3>M&S Food & Drink Gifts</h3><span class="score-pill">7/10</span></div>
-        <div class="tag-row"><span class="route-tag">Broad appeal</span><span class="route-tag">Hamper fallback</span></div>
-        <p class="supplier-contact-inline"><a href="{{ example_supplier_links.marks_spencer }}" target="_blank" rel="noopener noreferrer sponsored">View hampers</a></p>
-        <dl class="comparison-card-list">
-          <div><dt>Best for</dt><dd>Staff, mixed-recipient groups and standard clients where food variety is safer than one bottle.</dd></div>
-          <div><dt>Typical spend</dt><dd>Indicative: often useful around £30-£75 per recipient.</dd></div>
-          <div><dt>Key watchout</dt><dd>Risk: low-spend options may feel more retail than premium corporate gifting.</dd></div>
-          <div><dt>Recommendation</dt><dd>Use as the safest fallback when recipient preferences are unknown.</dd></div>
-        </dl>
-      </article>
-      <article class="supplier-comparison-card">
-        <div class="comparison-card-header"><h3>Fortnum & Mason</h3><span class="score-pill">6/10</span></div>
-        <div class="tag-row"><span class="route-tag">VIP</span><span class="route-tag">Premium hamper</span></div>
-        <p class="supplier-contact-inline"><a href="{{ example_supplier_links.fortnum_mason }}" target="_blank" rel="noopener noreferrer sponsored">View hampers</a></p>
-        <dl class="comparison-card-list">
-          <div><dt>Best for</dt><dd>Premium client tiers where presentation matters more than tight budget control.</dd></div>
-          <div><dt>Typical spend</dt><dd>Indicative: usually strongest around £75-£200+ per recipient.</dd></div>
-          <div><dt>Key watchout</dt><dd>Premium packaging can push spend above policy limits once delivery and VAT are added.</dd></div>
-          <div><dt>Recommendation</dt><dd>Use for VIP or senior client tiers, not necessarily the whole list.</dd></div>
-        </dl>
-      </article>
-      <article class="supplier-comparison-card">
-        <div class="comparison-card-header"><h3>Laithwaites</h3><span class="score-pill">7/10</span></div>
-        <div class="tag-row"><span class="route-tag">Wine gifts</span><span class="route-tag">Case gifting</span></div>
-        <p class="supplier-contact-inline"><a href="{{ example_supplier_links.laithwaites }}" target="_blank" rel="noopener noreferrer sponsored">View wine gifts</a></p>
-        <dl class="comparison-card-list">
-          <div><dt>Best for</dt><dd>Accessible wine gift cases where range and straightforward delivery are more important than bespoke advice.</dd></div>
-          <div><dt>Typical spend</dt><dd>Indicative: usually strongest around £35-£90 per recipient.</dd></div>
-          <div><dt>Key watchout</dt><dd>Mixed cases can be efficient but may feel less tailored for senior relationships.</dd></div>
-          <div><dt>Recommendation</dt><dd>Use as a practical wine-only comparison against Majestic or a hamper supplier.</dd></div>
-        </dl>
-      </article>
-      <article class="supplier-comparison-card">
-        <div class="comparison-card-header"><h3>Local independent wine merchant</h3><span class="score-pill">5/10</span></div>
-        <div class="tag-row"><span class="route-tag">VIP</span><span class="route-tag">Advice led</span></div>
-        <p class="supplier-contact-inline">Search/contact directly<br><span class="small-note">Search: independent wine merchant near me</span></p>
-        <dl class="comparison-card-list">
-          <div><dt>Best for</dt><dd>VIP clients, senior relationships and advice-led bottle choices where taste matters.</dd></div>
-          <div><dt>Typical spend</dt><dd>Indicative: usually strongest around £60-£200+ per recipient.</dd></div>
-          <div><dt>Key watchout</dt><dd>The best advice-led option can become admin-heavy for large recipient lists.</dd></div>
-          <div><dt>Recommendation</dt><dd>Reserve for VIP recipients or tricky briefs where a mainstream route feels too generic.</dd></div>
-        </dl>
-      </article>
-    </div>
-    <div class="advisory-panel">
-      <h3>Recommended shortlist</h3>
-      <div class="shortlist-grid">
-        <div><span class="route-tag">Best overall</span><h4>Majestic Corporate</h4><p>Most likely to balance 25-recipient scale, VAT invoice needs, delivery control and a credible wine gift route at the sample budget.</p></div>
-        <div><span class="route-tag">Best fallback</span><h4>M&S Food & Drink Gifts</h4><p>Use if wine preferences are unknown or a mainstream hamper feels safer than a single-bottle gift.</p></div>
-        <div><span class="route-tag">Best VIP option</span><h4>Local independent wine merchant</h4><p>Reserve for senior relationships where advice, presentation and bottle choice matter more than admin speed.</p></div>
-      </div>
-    </div>
+    {{ advisory_supplier_comparison(example_preview) }}
   </section>
 
   <section class="pack-section">

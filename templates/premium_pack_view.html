@@ -38,15 +38,26 @@
         <a class="button secondary small" href="#supplier-comparison-details">Compare alternatives</a>
       </div>
     </div>
-    <div class="recommendation-summary-grid">
-      {% for item in preview.recommendation_summary %}
-      <article class="recommendation-summary-card">
-        <span class="route-tag">{{ item.merged_role_label }}</span>
-        <h3>{{ item.supplier }}</h3>
-        <p>{{ item.reason }}</p>
-        {{ contact_route_button(item, item.contact_label or "View supplier", "button secondary small supplier-summary-link") }}
+    <div class="recommendation-summary-layout">
+      {% set lead = preview.recommendation_summary[0] %}
+      <article class="recommendation-summary-card recommendation-summary-lead">
+        <span class="route-tag">{{ lead.merged_role_label }}</span>
+        <h3>{{ lead.supplier }}</h3>
+        <p>{{ lead.reason }}</p>
+        {{ contact_route_button(lead, lead.contact_label or "View supplier", "button primary small supplier-summary-primary") }}
       </article>
-      {% endfor %}
+      <div class="recommendation-alternative-list">
+        {% for item in preview.recommendation_summary[1:] %}
+        <article class="recommendation-alternative-row">
+          <div>
+            <span class="route-tag">{{ item.merged_role_label }}</span>
+            <h3>{{ item.supplier }}</h3>
+            <p>{{ item.reason }}</p>
+          </div>
+          {{ contact_route_button(item, item.contact_label or "View supplier", "button secondary small supplier-summary-link") }}
+        </article>
+        {% endfor %}
+      </div>
     </div>
     {% if preview.recommendation_rationale %}
     <div class="why-recommendation">

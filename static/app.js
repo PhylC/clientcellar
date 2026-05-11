@@ -539,49 +539,24 @@ function renderSupplierRouteCards(routes = [], type = "gift") {
 }
 
 function giftSupplierDiscoveryRows(routes = []) {
-  return [
-    {
-      route: "Corporate wine gifting",
-      bestWhen: "Client lists, repeat orders or wine-friendly recipients",
-      firstChoice: "Majestic",
-      why: "Best practical option for repeat business gifting and scalable wine orders.",
-      primaryLink: supplierPrimaryLink("majestic", "View Majestic"),
-      alternativeLinks: supplierAlternatives([
-        { id: "laithwaites", label: "Laithwaites" },
-        { id: "virgin-wines", label: "Virgin Wines" },
-      ]),
-    },
-    {
-      route: "Hampers",
-      bestWhen: "Mixed tastes, unknown preferences or safer mainstream gifting",
-      firstChoice: "M&S",
-      why: "Safest mainstream choice for mixed tastes, simple gifting and broad recipient appeal.",
-      primaryLink: supplierPrimaryLink("marks-spencer-corporate", "View M&S"),
-      alternativeLinks: supplierAlternatives([
-        { id: "john-lewis-hampers", label: "John Lewis" },
-        { id: "fortnum-mason", label: "Fortnum & Mason" },
-      ]),
-    },
-    {
-      route: "Premium retailer",
-      bestWhen: "Presentation, brand signal and perceived value matter more than price",
-      firstChoice: "Fortnum & Mason",
-      why: "Strongest premium signal when the gift needs to feel polished, traditional and high value.",
-      primaryLink: supplierPrimaryLink("fortnum-mason", "View Fortnum & Mason"),
-      alternativeLinks: supplierAlternatives([
-        { id: "selfridges-hampers", label: "Selfridges" },
-        { id: "harvey-nichols-hampers", label: "Harvey Nichols" },
-      ]),
-    },
-    {
-      route: "Local wine merchant",
-      bestWhen: "VIP clients, smaller lists or more personal recommendations",
-      firstChoice: "Local merchant",
-      why: "Best when advice, personalisation or regional relevance matters.",
-      primaryLink: `<span class="supplier-search-suggestion">Find local merchant: independent wine merchant near me</span>`,
-      alternativeLinks: "",
-    },
-  ];
+  const sharedRoutes = Array.isArray(window.CLIENTCELLAR_GIFT_RECOMMENDATIONS)
+    ? window.CLIENTCELLAR_GIFT_RECOMMENDATIONS
+    : [];
+  return sharedRoutes.map((route) => ({
+    route: route.route || "Supplier route",
+    bestWhen: route.best_when || route.bestWhen || "",
+    firstChoice: route.supplier || "Supplier",
+    why: route.why || "",
+    primaryLink: route.supplier_id === "local-independent-wine-merchant"
+      ? `<span class="supplier-search-suggestion">${escapeHtml(route.cta_label || "Find local merchant")}: ${escapeHtml(route.search_suggestion || "independent wine merchant near me")}</span>`
+      : supplierPrimaryLink(route.supplier_id, route.cta_label || `View ${route.supplier || "supplier"}`),
+    alternativeLinks: supplierAlternatives(
+      (Array.isArray(route.alternatives) ? route.alternatives : []).map((supplier) => ({
+        id: supplier.id,
+        label: supplier.label,
+      }))
+    ),
+  }));
 }
 
 function supplierLinkUrl(supplierId) {
@@ -779,6 +754,7 @@ function renderPremiumRecommendationSummary(preview = {}) {
   const items = Array.isArray(preview.recommendation_summary) ? preview.recommendation_summary : [];
   if (!items.length) return "";
   const lead = items[0];
+  const alternatives = items.slice(1);
   const rationale = Array.isArray(preview.recommendation_rationale) ? preview.recommendation_rationale.slice(0, 3) : [];
   return `
     <section class="pack-section premium-recommendation-summary">
@@ -792,17 +768,27 @@ function renderPremiumRecommendationSummary(preview = {}) {
           <a class="button secondary small" href="#supplier-comparison-details">Compare alternatives</a>
         </div>
       </div>
-      <div class="recommendation-summary-grid">
-        ${items
+      <div class="recommendation-summary-layout">
+        <article class="recommendation-summary-card recommendation-summary-lead">
+          <span class="route-tag">${escapeHtml(lead.merged_role_label || "Best overall")}</span>
+          <h3>${escapeHtml(lead.supplier || "Supplier route")}</h3>
+          <p>${escapeHtml(lead.reason || "")}</p>
+          ${contactRouteButtonHtml(lead, lead.contact_label || lead.contactLabel || "View supplier", "button primary small supplier-summary-primary")}
+        </article>
+        <div class="recommendation-alternative-list">
+        ${alternatives
           .map((item) => `
-            <article class="recommendation-summary-card">
+            <article class="recommendation-alternative-row">
+              <div>
               <span class="route-tag">${escapeHtml(item.merged_role_label || "Recommended")}</span>
               <h3>${escapeHtml(item.supplier || "Supplier route")}</h3>
               <p>${escapeHtml(item.reason || "")}</p>
+              </div>
               ${contactRouteButtonHtml(item, item.contact_label || item.contactLabel || "View supplier", "button secondary small supplier-summary-link")}
             </article>
           `)
           .join("")}
+        </div>
       </div>
       ${rationale.length ? `
         <div class="why-recommendation">
