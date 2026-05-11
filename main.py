@@ -113,14 +113,37 @@ def canonical_url_for_path(path: str = "/") -> str:
     return f"{CANONICAL_ORIGIN}{canonical_path(path)}"
 
 
+def first_header_value(value: str | None) -> str:
+    return (value or "").split(",", 1)[0].strip()
+
+
+def normalise_host(value: str | None) -> str:
+    host = first_header_value(value).lower()
+    if not host:
+        return ""
+    return host.split(":", 1)[0]
+
+
+def forwarded_header_parts(value: str | None) -> dict[str, str]:
+    parts: dict[str, str] = {}
+    for item in first_header_value(value).split(";"):
+        if "=" not in item:
+            continue
+        key, raw_value = item.split("=", 1)
+        parts[key.strip().lower()] = raw_value.strip().strip('"')
+    return parts
+
+
 def is_render_host(host: str) -> bool:
     return host.endswith(".onrender.com") or host.endswith(".render.com")
 
 
 @app.middleware("http")
 async def canonical_redirect_middleware(request: Request, call_next):
-    host = request.headers.get("host", "").split(":", 1)[0].lower()
-    forwarded_proto = request.headers.get("x-forwarded-proto", "").split(",", 1)[0].strip().lower()
+    forwarded_parts = forwarded_header_parts(request.headers.get("forwarded"))
+    forwarded_host = normalise_host(forwarded_parts.get("host") or request.headers.get("x-forwarded-host"))
+    host = forwarded_host or normalise_host(request.headers.get("host"))
+    forwarded_proto = first_header_value(forwarded_parts.get("proto") or request.headers.get("x-forwarded-proto")).lower()
     scheme = forwarded_proto or request.url.scheme
     path = request.url.path
     clean_path = canonical_path(path)

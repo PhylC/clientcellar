@@ -336,6 +336,18 @@ def test_public_pages_self_canonicalise_to_clientcellar_without_query_or_trailin
 
 
 def test_http_www_render_host_and_trailing_slash_redirect_to_canonical_domain_once():
+    root_http_response = client.get("http://clientcellar.co.uk", follow_redirects=False)
+    assert root_http_response.status_code == 301
+    assert root_http_response.headers["location"] == "https://clientcellar.co.uk/"
+
+    root_https_www_response = client.get("https://www.clientcellar.co.uk", follow_redirects=False)
+    assert root_https_www_response.status_code == 301
+    assert root_https_www_response.headers["location"] == "https://clientcellar.co.uk/"
+
+    root_http_www_response = client.get("http://www.clientcellar.co.uk", follow_redirects=False)
+    assert root_http_www_response.status_code == 301
+    assert root_http_www_response.headers["location"] == "https://clientcellar.co.uk/"
+
     http_response = client.get("http://clientcellar.co.uk/gift-planner", follow_redirects=False)
     assert http_response.status_code == 301
     assert http_response.headers["location"] == "https://clientcellar.co.uk/gift-planner"
@@ -358,6 +370,24 @@ def test_http_www_render_host_and_trailing_slash_redirect_to_canonical_domain_on
 
     canonical_response = client.get("https://clientcellar.co.uk/gift-planner", follow_redirects=False)
     assert canonical_response.status_code == 200
+
+
+def test_proxy_headers_redirect_www_http_to_canonical_in_one_hop():
+    response = client.get(
+        "http://internal-render-host/gift-planner/?utm_source=test",
+        headers={"x-forwarded-host": "www.clientcellar.co.uk", "x-forwarded-proto": "http"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 301
+    assert response.headers["location"] == "https://clientcellar.co.uk/gift-planner?utm_source=test"
+
+    forwarded_response = client.get(
+        "http://internal-render-host/pricing/",
+        headers={"forwarded": 'for=203.0.113.1;proto=http;host="www.clientcellar.co.uk"'},
+        follow_redirects=False,
+    )
+    assert forwarded_response.status_code == 301
+    assert forwarded_response.headers["location"] == "https://clientcellar.co.uk/pricing"
 
 
 def test_legacy_champagne_guide_redirects_to_canonical_url():
