@@ -483,18 +483,16 @@ function renderSupplierRouteCards(routes = [], type = "gift") {
           </tbody>
         </table>
       </div>
-      <div class="free-route-cards">
+      <div class="gift-route-list">
         ${rows
           .map(
             (row) => `
-              <article class="free-route-card">
+              <article class="gift-route-item">
                 <h3>${escapeHtml(row.route)}</h3>
-                <dl>
-                  <div><dt>Best when</dt><dd>${escapeHtml(row.bestWhen)}</dd></div>
-                  <div><dt>Recommended first choice</dt><dd>${escapeHtml(row.firstChoice)}</dd></div>
-                  <div><dt>Why</dt><dd>${escapeHtml(row.why)}</dd></div>
-                  <div><dt>Supplier links</dt><dd>${row.supplierLinks}</dd></div>
-                </dl>
+                <p class="route-first-choice">First choice: ${escapeHtml(row.firstChoice)}</p>
+                <p><strong>Best when:</strong> ${escapeHtml(row.bestWhen)}.</p>
+                <p><strong>Why:</strong> ${escapeHtml(row.whyShort || row.why)}</p>
+                ${row.supplierLinks}
               </article>
             `
           )
@@ -560,6 +558,7 @@ function giftSupplierDiscoveryRows(routes = []) {
       bestWhen: "Client lists, repeat orders or wine-friendly recipients",
       firstChoice: "Majestic",
       why: "Best practical option for larger wine orders, recognisable range and business-friendly buying.",
+      whyShort: "Practical for larger wine orders with a recognisable range.",
       supplierLinks: supplierButtonGroup([
         { id: "majestic", label: "Majestic" },
         { id: "laithwaites", label: "Laithwaites" },
@@ -571,6 +570,7 @@ function giftSupplierDiscoveryRows(routes = []) {
       bestWhen: "Mixed tastes or unknown preferences",
       firstChoice: "M&S",
       why: "Safest mainstream choice for mixed tastes, simple gifting and broad recipient appeal.",
+      whyShort: "Simple, mainstream gifting with broad recipient appeal.",
       supplierLinks: supplierButtonGroup([
         { id: "marks-spencer-corporate", label: "M&S" },
         { id: "john-lewis-hampers", label: "John Lewis" },
@@ -582,6 +582,7 @@ function giftSupplierDiscoveryRows(routes = []) {
       bestWhen: "Presentation and perceived value matter more than price",
       firstChoice: "Fortnum & Mason",
       why: "Strongest premium signal when presentation and perceived value matter more than price.",
+      whyShort: "Strong premium signal when presentation matters.",
       supplierLinks: supplierButtonGroup([
         { id: "fortnum-mason", label: "Fortnum & Mason" },
         { id: "selfridges-hampers", label: "Selfridges" },
@@ -593,6 +594,7 @@ function giftSupplierDiscoveryRows(routes = []) {
       bestWhen: "VIP clients, smaller lists or more personal recommendations",
       firstChoice: "Local merchant",
       why: "Best for VIP clients where advice, personalisation or regional relevance matters.",
+      whyShort: "Advice-led route for more personal or regional gifts.",
       supplierLinks: `<span class="supplier-search-suggestion">Search: independent wine merchant near me</span>`,
     },
   ];

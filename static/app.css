@@ -1640,6 +1640,54 @@ textarea {
   margin-top: 0.75rem;
 }
 
+.gift-route-list {
+  display: none;
+  gap: 0.55rem;
+  margin-top: 0.7rem;
+}
+
+.gift-route-item {
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.gift-route-item:first-child {
+  padding-top: 0;
+}
+
+.gift-route-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.gift-route-item h3 {
+  margin: 0 0 0.25rem;
+  color: var(--burgundy);
+  font-size: 1rem;
+}
+
+.gift-route-item p {
+  margin: 0.22rem 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.gift-route-item p strong {
+  color: var(--ink);
+}
+
+.gift-route-item .route-first-choice {
+  display: inline-block;
+  margin: 0 0 0.2rem;
+  padding: 0.18rem 0.45rem;
+  border-radius: 999px;
+  background: #f5eee6;
+  color: var(--burgundy);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
 .free-route-card {
   padding: 0.85rem;
   border: 1px solid var(--line);
@@ -1685,9 +1733,22 @@ textarea {
   gap: 0.4rem;
 }
 
+.gift-route-item .supplier-link-pills {
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+}
+
 .free-route-table a.supplier-pill-link,
-.free-route-card a.supplier-pill-link {
+.free-route-card a.supplier-pill-link,
+.gift-route-item a.supplier-pill-link {
   text-decoration: none;
+}
+
+.gift-route-item .supplier-pill-link {
+  min-height: 1.65rem;
+  padding: 0.28rem 0.48rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
 }
 
 .supplier-search-suggestion {
@@ -1699,6 +1760,12 @@ textarea {
   color: var(--ink);
   font-size: 0.86rem;
   font-weight: 800;
+}
+
+.gift-route-item .supplier-search-suggestion {
+  margin-top: 0.4rem;
+  padding: 0.28rem 0.48rem;
+  font-size: 0.78rem;
 }
 
 .free-route-note {
@@ -2548,6 +2615,10 @@ textarea {
   }
 
   .free-route-cards {
+    display: grid;
+  }
+
+  .gift-route-list {
     display: grid;
   }
 
