@@ -22,7 +22,7 @@
 {%- endmacro %}
 {% macro supplier_name_cell(comp) -%}
   <strong>{{ comp.supplier or comp.supplier_type or "Supplier route" }}</strong>
-  <div class="supplier-contact-inline">{{ contact_route_cell(comp) }}</div>
+  <div class="supplier-table-action">{{ contact_route_button(comp, comp.contact_label or "View supplier", "button primary small supplier-table-link") }}</div>
 {%- endmacro %}
 {% macro premium_recommendation_summary(preview) -%}
   {% if preview.recommendation_summary %}
@@ -88,6 +88,7 @@
     <button class="button secondary small" type="button" data-download-supplier-matrix>Download full supplier matrix</button>
   </div>
   <h3>Detailed supplier notes</h3>
+  <p class="small-note">Use the supplier buttons below to open the most relevant buying page for each route.</p>
   <div class="table-scroll supplier-comparison-desktop">
     <table class="budget-table pack-table supplier-comparison-table">
       <thead>

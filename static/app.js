@@ -837,7 +837,8 @@ function renderWhatWeWouldDo(items = []) {
 }
 
 function supplierNameHtml(item = {}) {
-  return `<strong>${escapeHtml(item.supplier || item.supplier_type || "Supplier route")}</strong><div class="supplier-contact-inline">${contactRouteHtml(item)}</div>`;
+  const label = item.contact_label || item.contactLabel || "View supplier";
+  return `<strong>${escapeHtml(item.supplier || item.supplier_type || "Supplier route")}</strong><div class="supplier-table-action">${contactRouteButtonHtml(item, label, "button primary small supplier-table-link")}</div>`;
 }
 
 function tagRowHtml(tags = []) {
@@ -939,6 +940,7 @@ function renderPremiumComparison(preview = {}) {
       <script type="application/json" data-supplier-matrix-data>${JSON.stringify(items).replace(/</g, "\\u003c")}</script>
     </div>
     <h3 id="supplier-comparison-details">Detailed supplier notes</h3>
+    <p class="small-note">Use the supplier buttons below to open the most relevant buying page for each route.</p>
     <div class="table-scroll supplier-comparison-desktop">
       <table class="pack-table supplier-comparison-table">
         <thead><tr><th>Supplier</th><th>Best for</th><th>Typical spend</th><th>Ease</th><th>Key watchout</th><th>Recommendation</th></tr></thead>

@@ -1346,6 +1346,32 @@ textarea {
   text-underline-offset: 0.18em;
 }
 
+.supplier-table-action {
+  margin-top: 0.45rem;
+}
+
+.supplier-table-link,
+.supplier-summary-link,
+.supplier-compact-link {
+  border-color: var(--burgundy);
+  background: var(--burgundy);
+  color: white !important;
+  text-decoration: none !important;
+}
+
+.supplier-table-link:hover,
+.supplier-summary-link:hover,
+.supplier-compact-link:hover {
+  filter: brightness(0.95);
+}
+
+.supplier-table-link {
+  min-height: 1.8rem;
+  padding: 0.36rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
 .tag-row {
   display: flex;
   flex-wrap: wrap;
