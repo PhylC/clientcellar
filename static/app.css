@@ -1597,6 +1597,31 @@ textarea {
   width: 18%;
 }
 
+.gift-recommendation-table th:nth-child(1),
+.gift-recommendation-table td:nth-child(1) {
+  width: 16%;
+}
+
+.gift-recommendation-table th:nth-child(2),
+.gift-recommendation-table td:nth-child(2) {
+  width: 19%;
+}
+
+.gift-recommendation-table th:nth-child(3),
+.gift-recommendation-table td:nth-child(3) {
+  width: 15%;
+}
+
+.gift-recommendation-table th:nth-child(4),
+.gift-recommendation-table td:nth-child(4) {
+  width: 27%;
+}
+
+.gift-recommendation-table th:nth-child(5),
+.gift-recommendation-table td:nth-child(5) {
+  width: 23%;
+}
+
 .free-route-table tr:last-child td {
   border-bottom: 0;
 }
@@ -1652,6 +1677,32 @@ textarea {
   text-align: center;
   text-decoration: none;
   white-space: normal;
+}
+
+.supplier-link-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.free-route-table a.supplier-pill-link,
+.free-route-card a.supplier-pill-link {
+  text-decoration: none;
+}
+
+.supplier-search-suggestion {
+  display: inline-block;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff8ef;
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.free-route-note {
+  margin: 0.7rem 0 0;
 }
 
 .free-route-upgrade {

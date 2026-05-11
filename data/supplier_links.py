@@ -130,7 +130,6 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         affiliate_url=None,
         fallback_url="https://www.harveynichols.com/c/food-and-wine/foodmarket/hampers",
         category_tags=("hampers", "premium-gifts"),
-        active=False,
     ),
     "hotel-chocolat": SupplierLink(
         id="hotel-chocolat",
