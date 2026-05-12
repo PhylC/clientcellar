@@ -12,7 +12,7 @@ GIFT_SUPPLIER_RECOMMENDATIONS: list[dict] = [
         "supplier_id": "majestic",
         "supplier": "Majestic",
         "cta_label": "View Majestic",
-        "contact_label": "View corporate gifting",
+        "contact_label": "View Majestic",
         "why": "Best practical option for repeat business gifting and scalable wine orders.",
         "short_reason": "Best starting point for a 25-recipient client list because it balances wine choice, fulfilment practicality and business-friendly buying.",
         "alternatives": [
@@ -81,12 +81,12 @@ GIFT_SUPPLIER_RECOMMENDATIONS: list[dict] = [
         "supplier_id": "laithwaites",
         "supplier": "Laithwaites",
         "cta_label": "View Laithwaites",
-        "contact_label": "View wine gifts",
+        "contact_label": "View Laithwaites",
         "why": "Useful wine-only benchmark with accessible gift cases and straightforward browsing.",
         "short_reason": "Use as the practical wine-only comparison if hampers are too broad or Majestic is not the preferred fit.",
         "alternatives": [
             {"id": "virgin-wines", "label": "Virgin Wines"},
-            {"id": "wine-society", "label": "The Wine Society"},
+            {"id": "waitrose-cellar", "label": "Waitrose Cellar"},
         ],
         "best_for": "Accessible wine gift cases where range and straightforward delivery are more important than bespoke advice.",
         "best_for_tags": ["Wine gifts", "Case gifting"],

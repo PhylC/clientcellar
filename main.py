@@ -2230,8 +2230,12 @@ def supplier_directory_card(
 
 def supplier_link_label(supplier: dict) -> str:
     purpose = (supplier.get("url_purpose") or "").lower()
-    if "corporate" in purpose:
-        return "Check corporate gifting options"
+    if "event" in purpose or "commercial" in purpose or "partnership" in purpose:
+        return "Check event support"
+    if "corporate wine gifts" in purpose:
+        return "View corporate wine gifts"
+    if "corporate gifts" in purpose or "corporate gifting" in purpose:
+        return "View corporate gifts"
     if "food and drink" in purpose:
         return "View food and drink gifts"
     if "fine wines" in purpose:
@@ -2296,9 +2300,9 @@ def gift_supplier_route_cards(req: GiftPlanRequest) -> list[dict]:
     routes: list[dict] = []
     if req.budget_per_recipient >= 75 or req.tone in {"premium", "impressive"} or req.gift_style == "sparkling":
         routes.append(supplier_route_card(
-            "Premium wine merchant",
-            "Better for formal client gifts, Champagne, fine wine or presentation-led gifting.",
-            ["berry-bros-rudd", "fortnum-mason", "wine-society"],
+            "Premium retailer",
+            "Better for formal client gifts, Champagne, premium presentation or higher perceived value.",
+            ["fortnum-mason", "waitrose-cellar", "majestic"],
             "Can they handle gift messaging, delivery timing, VAT invoice and multiple addresses?",
             "/gift-planner",
         ))
@@ -2351,38 +2355,38 @@ def gift_supplier_route_cards(req: GiftPlanRequest) -> list[dict]:
 def event_supplier_route_cards(req: EventPlanRequest) -> list[dict]:
     routes = [
         supplier_route_card(
-            "Event wine supplier / wine merchant",
-            "Best for larger quantities, delivery planning and advice.",
-            ["majestic", "local-independent-wine-merchant"],
-            "Ask about delivery windows, substitutions, chilling, glassware, returns and corkage.",
-            "/event-planner",
-        ),
-        {
-            "route": "Venue/caterer wine package",
-            "route_name": "Venue/caterer wine package",
-            "why": "Best where the venue controls corkage or service.",
-            "why_it_fits": "Best where the venue controls corkage or service.",
-            "examples": ["Your venue", "Your caterer"],
-            "example_suppliers": [],
-            "ask": "Ask about corkage, minimum spend, house wine quality and service charges.",
-            "what_to_ask": "Ask about corkage, minimum spend, house wine quality and service charges.",
-            "tracked_url": None,
-            "link_label": "Search locally",
-            "is_affiliate": False,
-            "search_suggestion": "venue wine package or caterer wine package near your venue",
-        },
-        supplier_route_card(
-            "Supermarket/wine retailer",
-            "Best for simple self-managed events with clear quantities.",
-            ["waitrose-cellar", "majestic", "marks-spencer-corporate"],
-            "Ask about delivery timing, substitutions and case availability.",
+            "Majestic Commercial",
+            "Best for larger events, office celebrations and business orders where range, quantity and delivery planning matter.",
+            ["majestic-commercial"],
+            "Ask about delivery windows, quantities, substitutions, chilling, glassware, returns and event support.",
             "/event-planner",
         ),
         supplier_route_card(
-            "Non-alcoholic drinks supplier",
-            "Best for inclusive workplace events.",
-            ["dry-drinker", "noughty-thomson-scott"],
-            "Ask about alcohol-free sparkling, beers and adult soft drink alternatives.",
+            "Majestic Corporate Gifts",
+            "Best for client gifting, staff rewards and straightforward corporate wine options.",
+            ["majestic"],
+            "Ask about bulk order support, gift notes, VAT invoices, delivery tracking and substitutions.",
+            "/event-planner",
+        ),
+        supplier_route_card(
+            "Virgin Wines Corporate",
+            "Best for approachable corporate gifting, staff rewards, branded gifts and mixed-case options.",
+            ["virgin-wines"],
+            "Ask about branded gifts, mixed-case support, staff reward options, delivery timing and substitutions.",
+            "/event-planner",
+        ),
+        supplier_route_card(
+            "Laithwaites Corporate Wine Gifts",
+            "Best for established corporate wine gifts, premium presentation and bulk gifting support.",
+            ["laithwaites"],
+            "Ask about corporate order handling, premium presentation, VAT invoices, lead times and bulk gifting support.",
+            "/event-planner",
+        ),
+        supplier_route_card(
+            "Waitrose Cellar",
+            "Best for recognised UK retail wine gifts and mainstream premium options.",
+            ["waitrose-cellar"],
+            "Ask about delivery timing, substitutions, case availability, gift options and VAT invoice availability.",
             "/event-planner",
         ),
     ]
@@ -2390,18 +2394,73 @@ def event_supplier_route_cards(req: EventPlanRequest) -> list[dict]:
         routes.append(supplier_route_card(
             "Virtual tasting pack route",
             "Useful when attendees need packs delivered before a remote or hybrid session.",
-            ["virgin-wines", "laithwaites", "dry-drinker"],
+            ["virgin-wines", "laithwaites"],
             "Ask about attendee address handling, delivery lead times, late packs and alcohol-free alternatives.",
             "/event-planner",
         ))
     return routes[:5]
 
 
+def event_supplier_comparison_rows() -> list[dict]:
+    return [
+        {
+            "supplier_id": "majestic-commercial",
+            "supplier": "Majestic Commercial",
+            "supplier_type": "Event wine and commercial order support",
+            "best_for": "Larger events, office celebrations and business orders where range, quantity and delivery planning matter.",
+            "budget_fit": "Indicative: useful when fulfilment confidence and operational support matter more than the lowest bottle price.",
+            "strengths": "Strong first route for event wine quantities, office celebrations and corporate event conversations.",
+            "watchouts": "Ask about delivery windows, substitutions, chilling, glassware, returns and whether event support fits the format.",
+            "questions_to_ask": "Can you support the attendee count, event date, delivery window, substitutions and any glassware or chilling needs?",
+        },
+        {
+            "supplier_id": "majestic",
+            "supplier": "Majestic Corporate Gifts",
+            "supplier_type": "Corporate wine gifting",
+            "best_for": "Client gifting, staff rewards and straightforward corporate wine options.",
+            "budget_fit": "Indicative: strong benchmark for mainstream corporate wine gifting and repeat business orders.",
+            "strengths": "Good practical comparison route for business wine gifts and staff reward orders.",
+            "watchouts": "Confirm gift notes, VAT invoices, multi-address handling, delivery tracking and substitutions.",
+            "questions_to_ask": "Can you support gift messages, VAT invoices, bulk order handling and delivery tracking for this brief?",
+        },
+        {
+            "supplier_id": "virgin-wines",
+            "supplier": "Virgin Wines Corporate",
+            "supplier_type": "Corporate gifts and mixed cases",
+            "best_for": "Approachable corporate gifting, staff rewards, branded gifts and mixed-case options.",
+            "budget_fit": "Indicative: useful where a friendly corporate gift route is more important than boutique curation.",
+            "strengths": "Good alternative for mixed-case corporate gifts and staff reward options.",
+            "watchouts": "Confirm branding, substitutions, delivery timing and whether options feel appropriate for the audience.",
+            "questions_to_ask": "Can you provide corporate gift options, delivery timing, substitution rules and branded gift support?",
+        },
+        {
+            "supplier_id": "laithwaites",
+            "supplier": "Laithwaites Corporate Wine Gifts",
+            "supplier_type": "Corporate wine gifts",
+            "best_for": "Established corporate wine gifts, premium presentation and bulk gifting support.",
+            "budget_fit": "Indicative: useful where presentation and corporate order support are important.",
+            "strengths": "Strong polished wine-gift comparison route for corporate buyers.",
+            "watchouts": "Confirm minimum order quantities, presentation options, VAT invoice support and seasonal cut-offs.",
+            "questions_to_ask": "Can you support bulk gifting, premium presentation, VAT invoices, delivery timing and substitutions?",
+        },
+        {
+            "supplier_id": "waitrose-cellar",
+            "supplier": "Waitrose Cellar",
+            "supplier_type": "Recognised UK retail wine gifts",
+            "best_for": "Recognised UK retail wine gifts and mainstream premium options.",
+            "budget_fit": "Indicative: useful as a mainstream retail benchmark for simple self-managed buying.",
+            "strengths": "Good reference point for recognisable wine gifts and straightforward UK retail options.",
+            "watchouts": "Confirm case availability, substitutions, delivery timing and whether retail checkout supports the required order size.",
+            "questions_to_ask": "Can you support the quantity, delivery timing, substitutions and VAT invoice needs for this order?",
+        },
+    ]
+
+
 def supplier_directory_sections() -> list[dict]:
     section_ids = {
-        "Wine merchants": ["majestic", "laithwaites", "wine-society", "berry-bros-rudd", "virgin-wines"],
+        "Wine merchants": ["majestic", "laithwaites", "virgin-wines", "waitrose-cellar"],
         "Hampers and corporate gifting": ["fortnum-mason", "marks-spencer-corporate", "waitrose-cellar", "john-lewis-hampers"],
-        "Event wine and larger orders": ["majestic", "local-independent-wine-merchant"],
+        "Event wine and larger orders": ["majestic-commercial", "majestic", "virgin-wines", "laithwaites", "waitrose-cellar"],
         "Non-alcoholic options": ["noughty-thomson-scott", "dry-drinker"],
     }
     sections = []
@@ -2539,7 +2598,9 @@ def gift_types(req: GiftPlanRequest) -> list[str]:
 
 def build_supplier_shortlist(items: list[dict], why_prefix: str, budget: float) -> list[dict]:
     shortlist = []
-    for supplier in items[:5]:
+    for supplier in items:
+        if not is_real_supplier(supplier):
+            continue
         shortlist.append(
             {
                 "supplier_id": supplier["id"],
@@ -2579,6 +2640,8 @@ def build_supplier_shortlist(items: list[dict], why_prefix: str, budget: float) 
                 ),
             }
         )
+        if len(shortlist) >= 5:
+            break
     return shortlist
 
 
@@ -2975,49 +3038,7 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
     def supplier_matrix() -> list[dict]:
         if is_gift:
             return gift_supplier_comparison_rows()
-        rows = []
-        for supplier in supplier_shortlist[:5]:
-            supplier_type = supplier.get("name", "Supplier type")
-            budget_fit = supplier.get("budget_fit", "Confirm current pricing directly.")
-            row = {
-                "supplier": supplier_type,
-                "supplier_type": supplier_type,
-                "product_package": supplier.get("category", "Indicative package route"),
-                "unit_price": "Indicative: request written unit pricing with VAT treatment.",
-                "delivery_cost": "Indicative: ask for itemised delivery by address type.",
-                "personalisation": "Ask whether VAT invoice, branded gift note and multi-address upload are supported before committing.",
-                "lead_time": "Begin supplier contact 2-3 weeks before required dispatch; longer for Christmas or branded items.",
-                "pros": supplier.get("why", "Relevant to the current brief."),
-                "risks": "Confirm live pricing, availability, delivery, VAT, minimum orders and substitutions.",
-                "decision": "Use only if the written response proves admin, delivery and substitution handling are strong enough.",
-                "best_for": supplier.get("category", "supplier route"),
-                "budget_fit": budget_fit,
-                "strengths": supplier.get("why", "Relevant to the current brief."),
-                "watchouts": "Confirm live pricing, availability, delivery, VAT, minimum orders and substitutions.",
-                "questions_to_ask": "Can you meet the count, deadline, delivery coverage and data requirements for this brief?",
-            }
-            row.update(supplier_contact_route(supplier, req.pack_type))
-            rows.append(row)
-        fallback_rows = [
-            {
-                "supplier": "Supplier type to confirm",
-                "supplier_type": "Supplier type to confirm",
-                "product_package": "Indicative package route",
-                "unit_price": "Indicative: request written unit pricing with VAT treatment.",
-                "delivery_cost": "Indicative: ask for itemised delivery by address type.",
-                "personalisation": "Ask whether gift notes, branding and proofing can be handled inside the deadline.",
-                "lead_time": "Begin supplier contact 2-3 weeks before dispatch; longer in seasonal peaks.",
-                "pros": "Keeps supplier conversations structured.",
-                "risks": "No live pricing or availability is included.",
-                "decision": "Use only after the supplier confirms admin, delivery and substitution handling in writing.",
-                "best_for": "Initial market comparison",
-                "budget_fit": "Confirm directly with suppliers.",
-                "strengths": "Keeps supplier conversations structured.",
-                "watchouts": "No live pricing or availability is included.",
-                "questions_to_ask": "Can you provide a written quote with inclusions, exclusions and lead times?",
-            }
-        ]
-        return rows or enrich_supplier_comparison_rows(fallback_rows, req.pack_type)
+        return event_supplier_comparison_rows()
 
     supplier_questions = [
         "Can you handle this recipient or attendee count?",
@@ -3243,8 +3264,8 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
         },
         "supplier_comparison": [
             {
-                "supplier_id": "majestic",
-                "supplier": "Majestic",
+                "supplier_id": "majestic-commercial" if is_event else "majestic",
+                "supplier": "Majestic Commercial" if is_event else "Majestic Corporate Gifts",
                 "supplier_type": route,
                 "product_package": "Indicative package route",
                 "unit_price": "Indicative: request written unit pricing with VAT treatment.",
@@ -3261,40 +3282,40 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
                 "questions_to_ask": "Can you meet the quantity, deadline, delivery/location and alcohol-free requirements?",
             },
             {
-                "supplier_id": None if is_event else "marks-spencer-corporate",
-                "supplier": "Venue/caterer wine package" if is_event else "M&S Hampers",
-                "supplier_type": "Venue/caterer wine package" if is_event else "Corporate hamper supplier",
-                "product_package": "Venue wine package" if is_event else "Wine hamper or alternative hamper",
+                "supplier_id": "virgin-wines" if is_event else "marks-spencer-corporate",
+                "supplier": "Virgin Wines Corporate" if is_event else "M&S Hampers",
+                "supplier_type": "Corporate wine gifts and staff rewards" if is_event else "Corporate hamper supplier",
+                "product_package": "Corporate gifts or mixed-case route" if is_event else "Wine hamper or alternative hamper",
                 "unit_price": "Indicative: request written unit pricing with VAT treatment.",
                 "delivery_cost": "Indicative: ask for itemised delivery by address type.",
-                "personalisation": "Service notes and menu details" if is_event else "Gift message and packaging options",
+                "personalisation": "Ask about branded gifts, message options and packaging" if is_event else "Gift message and packaging options",
                 "lead_time": "Begin supplier contact 2-3 weeks before dispatch; longer in seasonal peaks.",
-                "pros": "Keeps service, corkage and venue rules in one place." if is_event else "Can combine wine with food, packaging and gift messaging.",
-                "risks": "Check corkage, service charges and house wine quality." if is_event else "Check allergens, substitutions, breakage and delivery coverage.",
-                "decision": "Useful fallback if venue rules make outside supply hard." if is_event else "Useful fallback if single-bottle gifting feels too narrow.",
-                "best_for": "Venue-controlled events and low-admin service" if is_event else "Reducing taste risk and improving presentation",
-                "budget_fit": "Useful when corkage or service control matters." if is_event else "Useful when one bottle may feel too narrow.",
-                "strengths": "Keeps service, corkage and venue rules in one place." if is_event else "Can combine wine with food, packaging and gift messaging.",
-                "watchouts": "Check corkage, service charges and house wine quality." if is_event else "Check allergens, substitutions, breakage and delivery coverage.",
-                "questions_to_ask": "Can you confirm corkage, service charge, house wine quality and alcohol-free options?" if is_event else "Can you provide alcohol-free or food-only alternatives for unsuitable recipients?",
+                "pros": "Approachable corporate gifting route for staff rewards, branded gifts and mixed-case options." if is_event else "Can combine wine with food, packaging and gift messaging.",
+                "risks": "Confirm delivery timing, substitutions, branding options and whether the format fits the event use case." if is_event else "Check allergens, substitutions, breakage and delivery coverage.",
+                "decision": "Use as a practical alternative to benchmark corporate gift and event-adjacent options." if is_event else "Useful fallback if single-bottle gifting feels too narrow.",
+                "best_for": "Staff rewards, approachable corporate gifts and mixed-case options" if is_event else "Reducing taste risk and improving presentation",
+                "budget_fit": "Good mainstream corporate comparison route." if is_event else "Useful when one bottle may feel too narrow.",
+                "strengths": "Approachable corporate gifting route for staff rewards, branded gifts and mixed-case options." if is_event else "Can combine wine with food, packaging and gift messaging.",
+                "watchouts": "Confirm delivery timing, substitutions, branding options and whether the format fits the event use case." if is_event else "Check allergens, substitutions, breakage and delivery coverage.",
+                "questions_to_ask": "Can you support the required quantity, timing, gift format, delivery needs and alcohol-free alternatives?" if is_event else "Can you provide alcohol-free or food-only alternatives for unsuitable recipients?",
             },
             {
-                "supplier_id": "local-independent-wine-merchant",
-                "supplier": "Local independent wine merchant",
-                "supplier_type": "Local independent wine merchant",
-                "product_package": "Merchant-led wine gift route",
+                "supplier_id": "laithwaites" if is_event else "local-independent-wine-merchant",
+                "supplier": "Laithwaites Corporate Wine Gifts" if is_event else "Local independent wine merchant",
+                "supplier_type": "Corporate wine gifts" if is_event else "Local independent wine merchant",
+                "product_package": "Corporate wine gift route" if is_event else "Merchant-led wine gift route",
                 "unit_price": "Indicative: request written unit pricing with VAT treatment.",
                 "delivery_cost": "Indicative: ask for itemised delivery by address type.",
-                "personalisation": "Likely limited; confirm directly",
+                "personalisation": "Ask about presentation, gift notes and corporate order support" if is_event else "Likely limited; confirm directly",
                 "lead_time": "Begin supplier contact 1-3 weeks before dispatch and keep a backup option.",
-                "pros": "Advice-led recommendations and more personal bottle selection.",
-                "risks": "May have lighter multi-address delivery and corporate admin tooling.",
-                "decision": "Best reserved for VIP or advice-led recipients.",
-                "best_for": "VIP recipients and more personal recommendations",
-                "budget_fit": "Often useful for higher-touch comparison.",
-                "strengths": "Advice-led recommendations and more personal bottle selection.",
-                "watchouts": "May have lighter multi-address delivery and corporate admin tooling.",
-                "questions_to_ask": "Can you support business orders, VAT receipts, multiple addresses and message inserts?",
+                "pros": "Established corporate wine gifting route with presentation-led options." if is_event else "Advice-led recommendations and more personal bottle selection.",
+                "risks": "Confirm bulk handling, substitutions, delivery cut-offs and VAT invoice support." if is_event else "May have lighter multi-address delivery and corporate admin tooling.",
+                "decision": "Use as a polished wine-gift comparison route for corporate buyers." if is_event else "Best reserved for VIP or advice-led recipients.",
+                "best_for": "Established corporate wine gifts and premium presentation" if is_event else "VIP recipients and more personal recommendations",
+                "budget_fit": "Useful when presentation and corporate support matter." if is_event else "Often useful for higher-touch comparison.",
+                "strengths": "Established corporate wine gifting route with presentation-led options." if is_event else "Advice-led recommendations and more personal bottle selection.",
+                "watchouts": "Confirm bulk handling, substitutions, delivery cut-offs and VAT invoice support." if is_event else "May have lighter multi-address delivery and corporate admin tooling.",
+                "questions_to_ask": "Can you support business quantities, VAT invoices, delivery timing, gift messages and substitutions?" if is_event else "Can you support business orders, VAT receipts, multiple addresses and message inserts?",
             },
         ],
         "supplier_enquiry_email": {"subject": email_subject, "body": email_body},
@@ -3344,7 +3365,9 @@ def make_fallback_premium_pack_preview(pack_type: str = "gift", pack: dict | Non
         "print_note": "Print or save this page as a PDF for internal approval.",
         "disclaimer": DISCLAIMER,
     }
-    if not is_event:
+    if is_event:
+        preview["supplier_comparison"] = event_supplier_comparison_rows()
+    else:
         preview["supplier_comparison"] = gift_supplier_comparison_rows()
     return add_premium_advisory_sections(preview, pack_type)
 
@@ -4326,9 +4349,9 @@ GUIDES.update(
 
 
 PUBLISHER_DISCLOSURE = (
-    "ClientCellar may earn a commission if you buy through links on this page. "
-    "Our recommendations are written to help buyers choose suitable client gifts, "
-    "not to favour any one retailer."
+    "ClientCellar recommendations are editorially selected. Some links may become affiliate or partner links in future, "
+    "which means ClientCellar may earn a commission if you choose to buy through them. "
+    "Our aim is to keep recommendations useful, relevant and transparent."
 )
 
 DEFAULT_MERCHANT_LINKS = [
@@ -4341,12 +4364,12 @@ DEFAULT_MERCHANT_LINKS = [
         "is_affiliate": bool(configured_supplier_affiliate_url("majestic")),
     },
     {
-        "name": "Berry Bros. & Rudd",
-        "url": configured_supplier_url("berry-bros-rudd"),
-        "note": "Fine wines range worth considering for premium client gifts, Champagne and formal gifting.",
-        "url_purpose": "Fine wines range page",
+        "name": "Laithwaites Corporate Wine Gifts",
+        "url": configured_supplier_url("laithwaites"),
+        "note": "Corporate wine gifts page for established business gifting, presentation and bulk enquiries.",
+        "url_purpose": "Corporate wine gifts page",
         "url_checked_date": "2026-05-10",
-        "is_affiliate": bool(configured_supplier_affiliate_url("berry-bros-rudd")),
+        "is_affiliate": bool(configured_supplier_affiliate_url("laithwaites")),
     },
     {
         "name": "Fortnum & Mason",

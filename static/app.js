@@ -572,7 +572,7 @@ function supplierButtonGroup(suppliers = []) {
     })
     .filter(Boolean);
   if (!links.length) {
-    return `<a class="button secondary small free-route-button supplier-pill-link" href="/suppliers">View supplier directory</a>`;
+    return "";
   }
   return `<div class="supplier-link-pills">${links.join("")}</div>`;
 }
@@ -585,7 +585,7 @@ function supplierPrimaryLink(supplierId, label) {
 
 function supplierAlternatives(suppliers = []) {
   const links = supplierButtonGroup(suppliers);
-  if (!links || links.includes("View supplier directory")) return "";
+  if (!links) return "";
   return `
     <details class="supplier-alternatives">
       <summary>Compare alternatives</summary>
@@ -1805,7 +1805,7 @@ function bindSupplierApplicationForm() {
         .map(([key, value]) => `${key}: ${value === true ? "yes" : value === false ? "no" : value || ""}`)
         .join("\n")
     );
-    const mailto = `mailto:partners@clientcellar.co.uk?subject=${encodeURIComponent("Supplier application")}&body=${mailBody}`;
+    const mailto = `mailto:hello@clientcellar.co.uk?subject=${encodeURIComponent("Supplier application")}&body=${mailBody}`;
     status.textContent = "Sending...";
     try {
       const response = await fetch("/api/supplier-application", {
@@ -1818,7 +1818,7 @@ function bindSupplierApplicationForm() {
       status.textContent = data.message || "Thanks — your supplier application has been saved.";
       form.reset();
     } catch (error) {
-      status.innerHTML = `Sorry, your supplier application could not be saved here. <a href="${mailto}">Email partners@clientcellar.co.uk with these details</a>.`;
+      status.innerHTML = `Sorry, your supplier application could not be saved here. <a href="${mailto}">Email hello@clientcellar.co.uk with these details</a>.`;
     }
   });
 }

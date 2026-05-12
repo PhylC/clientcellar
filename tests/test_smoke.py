@@ -410,7 +410,7 @@ def test_homepage_has_structured_data_and_conversion_links():
     assert response.status_code == 200
     assert 'application/ld+json' in response.text
     assert "Free plan first. Upgrade only if you need copy-ready business documents." in response.text
-    assert "ClientCellar provides planning guidance and supplier direction only" in response.text
+    assert "ClientCellar recommendations are editorially selected" in response.text
     assert "Plan corporate gifts" in response.text
     assert "Plan a tasting event" in response.text
 
@@ -418,7 +418,7 @@ def test_homepage_has_structured_data_and_conversion_links():
 def test_supplier_page_has_trust_sections():
     response = client.get("/suppliers")
     assert response.status_code == 200
-    assert "Some supplier links may be affiliate or tracked links" in response.text
+    assert "Some supplier links may become affiliate" in response.text
     assert "Supplier categories" in response.text
     assert "Important checks before ordering" in response.text
     assert "Champagne and sparkling wine retailers" in response.text
@@ -439,7 +439,8 @@ def test_public_pages_use_clientcellar_business_emails():
         combined += response.text
 
     assert "hello@clientcellar.co.uk" in combined
-    assert "partners@clientcellar.co.uk" in combined
+    legacy_partnership_address = "partners" + "@clientcellar.co.uk"
+    assert legacy_partnership_address not in combined
     assert "parters@clientcellar.co.uk" not in combined
 
 
