@@ -9,9 +9,9 @@ import sqlite3
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -82,6 +82,7 @@ SITEMAP_STATIC_ROUTES = [
     "/suppliers",
     "/pricing",
     "/example-premium-brief-pack",
+    "/example-premium-event-pack",
     "/faq",
     "/about",
     "/contact",
@@ -338,6 +339,131 @@ def stripe_obj_get(obj, key, default=None):
     if isinstance(obj, dict):
         return obj.get(key, default)
     return getattr(obj, key, default)
+
+
+def safe_analytics_text(value: Any, limit: int = 500) -> str | None:
+    if value is None:
+        return None
+    text = str(value).replace("\x00", "").strip()
+    if not text:
+        return None
+    return text[:limit]
+
+
+def safe_analytics_path(value: Any) -> str | None:
+    text = safe_analytics_text(value, 300)
+    if not text:
+        return None
+    parsed = urllib.parse.urlsplit(text)
+    if parsed.scheme or parsed.netloc:
+        path = parsed.path or "/"
+    else:
+        path = text.split("?", 1)[0].split("#", 1)[0] or "/"
+    if not path.startswith("/"):
+        path = f"/{path}"
+    return path[:300]
+
+
+def safe_analytics_metadata(metadata: dict[str, Any] | None, client_timestamp: str | None = None) -> dict:
+    safe: dict[str, Any] = {}
+    if isinstance(metadata, dict):
+        for key, value in metadata.items():
+            if key not in ANALYTICS_METADATA_ALLOWLIST:
+                continue
+            if isinstance(value, bool) or value is None:
+                safe[key] = value
+            elif isinstance(value, (int, float)):
+                safe[key] = value
+            else:
+                safe[key] = safe_analytics_text(value, 500)
+    if client_timestamp:
+        safe["client_timestamp"] = safe_analytics_text(client_timestamp, 80)
+    return safe
+
+
+def analytics_device_type(user_agent: str | None = None) -> str | None:
+    user_agent = (user_agent or "").lower()
+    if "mobile" in user_agent or "iphone" in user_agent or "android" in user_agent:
+        return "mobile"
+    if "ipad" in user_agent or "tablet" in user_agent:
+        return "tablet"
+    if user_agent:
+        return "desktop"
+    return None
+
+
+def build_analytics_payload(
+    event_name: str,
+    request: Request | None = None,
+    *,
+    page_path: str | None = None,
+    referrer: str | None = None,
+    device_type: str | None = None,
+    viewport_width: int | None = None,
+    session_id: str | None = None,
+    report_type: str | None = None,
+    supplier_name: str | None = None,
+    supplier_url: str | None = None,
+    checkout_session_id: str | None = None,
+    metadata: dict[str, Any] | None = None,
+    timestamp: str | None = None,
+) -> dict | None:
+    if event_name not in ANALYTICS_EVENT_ALLOWLIST:
+        return None
+    user_agent = request.headers.get("user-agent") if request else None
+    request_path = request.url.path if request else None
+    return {
+        "event_name": event_name,
+        "session_id": safe_analytics_text(session_id, 120),
+        "page_path": safe_analytics_path(page_path or request_path),
+        "referrer": safe_analytics_text(referrer or (request.headers.get("referer") if request else None), 500),
+        "device_type": safe_analytics_text(device_type or analytics_device_type(user_agent), 40),
+        "viewport_width": viewport_width if isinstance(viewport_width, int) and 0 <= viewport_width <= 10000 else None,
+        "user_agent": safe_analytics_text(user_agent, 500),
+        "report_type": safe_analytics_text(report_type, 20),
+        "supplier_name": safe_analytics_text(supplier_name, 160),
+        "supplier_url": safe_analytics_text(supplier_url, 800),
+        "checkout_session_id": safe_analytics_text(checkout_session_id, 240),
+        "metadata": safe_analytics_metadata(metadata, timestamp),
+    }
+
+
+def store_analytics_event(payload: dict | None) -> bool:
+    if not payload:
+        return False
+    settings = supabase_settings()
+    if not settings["service_configured"]:
+        return False
+    try:
+        admin = get_supabase_admin()
+        if admin is not None:
+            admin.table("analytics_events").insert(payload).execute()
+            return True
+    except Exception as error:
+        print("Supabase analytics insert failed; trying REST fallback:", str(error))
+    try:
+        _supabase_json_request(
+            f"{settings['url']}/rest/v1/analytics_events",
+            method="POST",
+            headers={
+                "apikey": settings["service_role_key"],
+                "Authorization": f"Bearer {settings['service_role_key']}",
+                "Prefer": "return=minimal",
+            },
+            payload=payload,
+            timeout=4,
+        )
+        return True
+    except Exception as error:
+        print("Supabase analytics REST insert failed:", str(error))
+        return False
+
+
+def track_server_event(event_name: str, request: Request | None = None, **kwargs) -> None:
+    try:
+        store_analytics_event(build_analytics_payload(event_name, request, **kwargs))
+    except Exception as error:
+        print("Analytics tracking failed:", str(error))
 
 
 def get_db_connection() -> sqlite3.Connection:
@@ -1622,6 +1748,65 @@ class PremiumPackPreviewRequest(BaseModel):
     planner_output: dict
 
 
+ANALYTICS_EVENT_ALLOWLIST = {
+    "page_view",
+    "nav_click",
+    "contact_click",
+    "supplier_click",
+    "gift_planner_started",
+    "gift_free_report_generated",
+    "gift_supplier_clicked",
+    "gift_upgrade_clicked",
+    "gift_checkout_started",
+    "gift_premium_viewed",
+    "event_planner_started",
+    "event_free_report_generated",
+    "event_supplier_clicked",
+    "event_upgrade_clicked",
+    "event_checkout_started",
+    "event_premium_viewed",
+    "example_gift_premium_viewed",
+    "example_event_premium_viewed",
+    "example_upgrade_clicked",
+    "checkout_session_created",
+    "checkout_success_page_viewed",
+    "stripe_webhook_completed",
+    "premium_access_granted",
+    "premium_access_failed",
+}
+
+ANALYTICS_METADATA_ALLOWLIST = {
+    "link_text",
+    "link_url",
+    "source",
+    "source_page",
+    "status",
+    "error",
+    "pack_token",
+    "payment_status",
+    "stripe_event_type",
+    "payment_verified",
+    "is_example",
+    "client_timestamp",
+}
+
+
+class AnalyticsEventRequest(BaseModel):
+    event_name: str = Field(min_length=1, max_length=80)
+    page_path: str | None = Field(default=None, max_length=300)
+    referrer: str | None = Field(default=None, max_length=500)
+    device_type: str | None = Field(default=None, max_length=40)
+    viewport_width: int | None = Field(default=None, ge=0, le=10000)
+    user_agent: str | None = Field(default=None, max_length=500)
+    session_id: str | None = Field(default=None, max_length=120)
+    report_type: str | None = Field(default=None, max_length=20)
+    supplier_name: str | None = Field(default=None, max_length=160)
+    supplier_url: str | None = Field(default=None, max_length=800)
+    checkout_session_id: str | None = Field(default=None, max_length=240)
+    timestamp: str | None = Field(default=None, max_length=80)
+    metadata: dict[str, Any] | None = None
+
+
 class CheckoutSessionRequest(BaseModel):
     pack_type: Literal["gift", "event"]
     email: EmailStr | None = None
@@ -2016,7 +2201,7 @@ def supplier_advisory_comparison_fields(row: dict, pack_type: str = "gift") -> d
         }
 
     return {
-        "best_for": row.get("advisory_best_for") or row.get("best_for_advisory") or profile["best_for"],
+        "best_for": row.get("advisory_best_for") or row.get("best_for_advisory") or row.get("best_for") or profile["best_for"],
         "best_for_tags": row.get("best_for_tags") or profile["best_for_tags"],
         "typical_spend": row.get("typical_spend") or profile["typical_spend"],
         "minimum_order": row.get("minimum_order") or profile["minimum_order"],
@@ -2032,11 +2217,11 @@ def supplier_advisory_comparison_fields(row: dict, pack_type: str = "gift") -> d
 def premium_executive_recommendation(pack_type: str = "gift", unit_budget: float = 0, count: int = 0) -> list[dict]:
     if pack_type == "event":
         return [
-            {"label": "Recommended route", "value": "Use a dedicated event wine supplier where hosting, delivery or attendee packs matter; use venue packages only where corkage or service rules make outside supply impractical."},
-            {"label": "Budget sweet spot", "value": "Indicative: £45-£120 per attendee for a credible hosted experience before venue/service variables."},
-            {"label": "Recipient strategy", "value": "Separate hosted attendees, alcohol-free attendees and any VIP/client-facing stakeholders before asking for quotes."},
-            {"label": "Timing", "value": "Begin supplier contact 3-6 weeks before the event; longer for Christmas, virtual packs or branded materials."},
-            {"label": "Main risk", "value": "Choosing a format before confirming venue rules, delivery responsibilities, alcohol-free options and cancellation terms."},
+            {"label": "Recommended route", "value": "Start with Majestic Commercial for the operational event conversation, then benchmark against Majestic Corporate Gifts, Virgin Wines Corporate, Laithwaites and Waitrose Cellar."},
+            {"label": "Budget sweet spot", "value": "Indicative: £45-£95 per attendee is usually enough for a credible business tasting or drinks-led event before venue, food and service costs."},
+            {"label": "Attendee strategy", "value": "Separate standard attendees, VIP/client-facing guests and alcohol-free attendees before asking suppliers for options."},
+            {"label": "Timing", "value": "Begin supplier contact 3-6 weeks before the event; longer for Christmas, virtual packs, branded materials or multi-address delivery."},
+            {"label": "Main risk", "value": "Choosing a supplier before confirming quantities, venue rules, delivery ownership, chilling/glassware, alcohol-free options and substitutions."},
         ]
     budget_note = (
         f"Indicative: the entered budget of {money(unit_budget)} is workable for mainstream gifting; ask for a stretch option if premium feel matters."
@@ -2055,11 +2240,11 @@ def premium_executive_recommendation(pack_type: str = "gift", unit_budget: float
 def premium_what_we_would_do(pack_type: str = "gift") -> list[str]:
     if pack_type == "event":
         return [
-            "Separate attendee groups into hosted guests, alcohol-free attendees and VIP/client-facing stakeholders.",
-            "Use a dedicated event supplier if hosting, pacing or tasting packs matter.",
-            "Use the venue or caterer route where corkage, service or licensing makes outside supply risky.",
-            "Keep a supermarket or retailer route only as a benchmark or operational fallback.",
-            "Confirm delivery ownership, cancellation rules, substitutions and alcohol-free handling before payment.",
+            "Use Majestic Commercial as the first event wine route where quantities, delivery planning or office-event support matter.",
+            "Use Majestic Corporate Gifts or Laithwaites for a more straightforward wine-gift or staff-reward style event order.",
+            "Use Virgin Wines Corporate when the event needs approachable mixed-case options rather than a formal fine-wine feel.",
+            "Use Waitrose Cellar as a budget-safe mainstream benchmark before committing to a more managed route.",
+            "Confirm delivery window, chilling, glassware, venue corkage, substitutions and alcohol-free options before payment.",
         ]
     return [
         "Split the recipient list into VIP, standard client and internal stakeholder tiers.",
@@ -2084,13 +2269,17 @@ def premium_recommended_shortlist(rows: list[dict], pack_type: str = "gift") -> 
         return None
 
     if pack_type == "event":
-        overall = find_row("event", "tasting", "majestic") or rows[0]
-        fallback = find_row("venue", "caterer", "retailer", "supermarket") or (rows[1] if len(rows) > 1 else rows[0])
-        vip = find_row("premium", "independent", "merchant", "specialist") or overall
+        overall = find_row("majestic commercial") or rows[0]
+        fallback = find_row("waitrose") or find_row("virgin") or (rows[1] if len(rows) > 1 else rows[0])
+        vip = find_row("laithwaites") or find_row("majestic corporate") or overall
+        wine_only = find_row("majestic corporate") or find_row("virgin") or overall
+        approachable = find_row("virgin") or fallback
         return [
-            {"rank": "Best overall", "supplier": overall.get("supplier") or overall.get("supplier_type"), "reason": "Strongest route when the brief needs hosting, delivery control or advice rather than only bottles."},
-            {"rank": "Best fallback", "supplier": fallback.get("supplier") or fallback.get("supplier_type"), "reason": "Useful if venue rules, budget or timing make the lead route harder to execute."},
-            {"rank": "Best VIP option", "supplier": vip.get("supplier") or vip.get("supplier_type"), "reason": "Best reserved for senior attendees or client-facing moments where presentation matters most."},
+            {"rank": "Best overall", "supplier": overall.get("supplier") or overall.get("supplier_type"), "reason": "Best first call when event quantities, delivery planning and business order support need to be handled together."},
+            {"rank": "Best budget-safe fallback", "supplier": fallback.get("supplier") or fallback.get("supplier_type"), "reason": "Good benchmark if the event can be self-managed and you mainly need recognised UK wine gifts or bottles."},
+            {"rank": "Best VIP/premium option", "supplier": vip.get("supplier") or vip.get("supplier_type"), "reason": "Use where presentation, corporate gifting polish and a more premium wine route matter."},
+            {"rank": "Best wine-only alternative", "supplier": wine_only.get("supplier") or wine_only.get("supplier_type"), "reason": "Useful if the event is closer to staff rewards, client gifting or simple wine distribution than hosted tasting."},
+            {"rank": "Best approachable staff route", "supplier": approachable.get("supplier") or approachable.get("supplier_type"), "reason": "Good for friendly mixed-case options, staff rewards and less formal corporate gifting routes."},
         ]
     overall = find_row("majestic", "corporate", "laithwaites", "virgin") or rows[0]
     fallback = find_row("hamper", "m&s", "fortnum", "john lewis") or (rows[1] if len(rows) > 1 else rows[0])
@@ -2140,8 +2329,8 @@ def premium_recommendation_summary(rows: list[dict], shortlist: list[dict], pack
                 "reasons": [],
                 "contact_url": contact.get("contact_url"),
                 "contactUrl": contact.get("contact_url"),
-                "contact_label": f"View {display_name}" if "local independent" not in normalise_supplier_label(display_name) else "Find local merchant",
-                "contactLabel": f"View {display_name}" if "local independent" not in normalise_supplier_label(display_name) else "Find local merchant",
+                "contact_label": f"View {display_name}" if "local independent" not in normalise_supplier_label(display_name) else "Find local wine merchants",
+                "contactLabel": f"View {display_name}" if "local independent" not in normalise_supplier_label(display_name) else "Find local wine merchants",
                 "mailto_url": contact.get("mailto_url"),
                 "mailtoUrl": contact.get("mailto_url"),
                 "search_suggestion": contact.get("search_suggestion"),
@@ -2175,9 +2364,9 @@ def premium_recommendation_rationale(summary: list[dict], rows: list[dict], pack
         return []
     if pack_type == "event":
         return [
-            "The lead route is chosen for delivery control, hosting support and fewer operational surprises.",
-            "Fallback routes stay visible in case venue rules, timing or attendee suitability change the buying path.",
-            "The VIP route is separated so premium spend is reserved for moments where it changes the outcome.",
+            "The lead route is chosen for operational confidence: quantities, delivery planning, substitutions and business-order support.",
+            "Fallback routes stay visible so the buyer can switch between managed support, mainstream retail and approachable mixed-case routes.",
+            "VIP and premium routes are separated so higher spend is used only where presentation or client-facing value justifies it.",
         ]
     lead = summary[0].get("supplier", "the lead supplier")
     return [
@@ -2408,6 +2597,15 @@ def event_supplier_comparison_rows() -> list[dict]:
             "supplier": "Majestic Commercial",
             "supplier_type": "Event wine and commercial order support",
             "best_for": "Larger events, office celebrations and business orders where range, quantity and delivery planning matter.",
+            "best_for_tags": ["Best overall", "Events", "Operations"],
+            "typical_spend": "Indicative: strongest around £45-£120 per attendee when fulfilment confidence matters.",
+            "minimum_order": "Ask early about event order thresholds, case quantities and whether account support applies.",
+            "branding_personalisation": "Better for practical business ordering than bespoke branding; ask about gift notes or event materials if needed.",
+            "turnaround": "Allow 3-6 weeks for events, longer around Christmas or when delivery windows are fixed.",
+            "multi_address_delivery": "Ask whether they can support venue delivery, office delivery or attendee-pack fulfilment by file upload.",
+            "ease_score": "8/10",
+            "hidden_watchouts": "Operationally strong, but still confirm chilling, glassware, returns and substitutions before committing.",
+            "recommendation": "Use as the first supplier conversation for larger or business-critical event wine planning.",
             "budget_fit": "Indicative: useful when fulfilment confidence and operational support matter more than the lowest bottle price.",
             "strengths": "Strong first route for event wine quantities, office celebrations and corporate event conversations.",
             "watchouts": "Ask about delivery windows, substitutions, chilling, glassware, returns and whether event support fits the format.",
@@ -2418,6 +2616,15 @@ def event_supplier_comparison_rows() -> list[dict]:
             "supplier": "Majestic Corporate Gifts",
             "supplier_type": "Corporate wine gifting",
             "best_for": "Client gifting, staff rewards and straightforward corporate wine options.",
+            "best_for_tags": ["Wine only", "Corporate", "Scalable"],
+            "typical_spend": "Indicative: strongest around £35-£95 per attendee or recipient for practical corporate wine options.",
+            "minimum_order": "Ask about bulk order thresholds, case ordering and whether corporate account support is available.",
+            "branding_personalisation": "Confirm gift notes, simple personalisation and whether attendee or recipient data can be uploaded cleanly.",
+            "turnaround": "Allow 2-4 weeks for straightforward corporate wine orders; longer for seasonal peaks.",
+            "multi_address_delivery": "Ask whether single-venue, office and multiple-address delivery are handled differently.",
+            "ease_score": "8/10",
+            "hidden_watchouts": "Good practical route, but may feel more functional than premium unless the range is chosen carefully.",
+            "recommendation": "Use as the wine-only benchmark or for staff/client orders that do not need a hosted experience.",
             "budget_fit": "Indicative: strong benchmark for mainstream corporate wine gifting and repeat business orders.",
             "strengths": "Good practical comparison route for business wine gifts and staff reward orders.",
             "watchouts": "Confirm gift notes, VAT invoices, multi-address handling, delivery tracking and substitutions.",
@@ -2428,6 +2635,15 @@ def event_supplier_comparison_rows() -> list[dict]:
             "supplier": "Virgin Wines Corporate",
             "supplier_type": "Corporate gifts and mixed cases",
             "best_for": "Approachable corporate gifting, staff rewards, branded gifts and mixed-case options.",
+            "best_for_tags": ["Staff rewards", "Approachable", "Mixed cases"],
+            "typical_spend": "Indicative: strongest around £30-£85 per attendee or recipient for approachable mixed-case options.",
+            "minimum_order": "Ask whether corporate gifting support, branded options and delivery handling fit the attendee count.",
+            "branding_personalisation": "Useful to ask about branded gifts, notes and packaging where the event doubles as staff recognition.",
+            "turnaround": "Allow 2-4 weeks, with extra time for branded or seasonal work.",
+            "multi_address_delivery": "Confirm whether they can handle one venue, one office or many individual addresses.",
+            "ease_score": "7/10",
+            "hidden_watchouts": "Can feel informal for VIP client entertainment unless presentation is specified clearly.",
+            "recommendation": "Use as the friendly staff-reward or mixed-case alternative, not the sole VIP route.",
             "budget_fit": "Indicative: useful where a friendly corporate gift route is more important than boutique curation.",
             "strengths": "Good alternative for mixed-case corporate gifts and staff reward options.",
             "watchouts": "Confirm branding, substitutions, delivery timing and whether options feel appropriate for the audience.",
@@ -2438,6 +2654,15 @@ def event_supplier_comparison_rows() -> list[dict]:
             "supplier": "Laithwaites Corporate Wine Gifts",
             "supplier_type": "Corporate wine gifts",
             "best_for": "Established corporate wine gifts, premium presentation and bulk gifting support.",
+            "best_for_tags": ["Premium", "Corporate gifts", "Presentation"],
+            "typical_spend": "Indicative: strongest around £45-£120 per attendee or recipient where presentation matters.",
+            "minimum_order": "Ask about minimum order quantities, seasonal cut-offs and corporate quote handling.",
+            "branding_personalisation": "Strong route to test for polished presentation, gift notes and corporate-order support.",
+            "turnaround": "Allow 3-5 weeks for premium presentation or Christmas-period work.",
+            "multi_address_delivery": "Ask whether multiple delivery addresses and delivery tracking are available for the brief.",
+            "ease_score": "7/10",
+            "hidden_watchouts": "Premium presentation can be undermined by late substitutions or unclear delivery cut-offs.",
+            "recommendation": "Use as the premium corporate wine-gift comparison route for client-facing events or senior attendees.",
             "budget_fit": "Indicative: useful where presentation and corporate order support are important.",
             "strengths": "Strong polished wine-gift comparison route for corporate buyers.",
             "watchouts": "Confirm minimum order quantities, presentation options, VAT invoice support and seasonal cut-offs.",
@@ -2448,6 +2673,15 @@ def event_supplier_comparison_rows() -> list[dict]:
             "supplier": "Waitrose Cellar",
             "supplier_type": "Recognised UK retail wine gifts",
             "best_for": "Recognised UK retail wine gifts and mainstream premium options.",
+            "best_for_tags": ["Budget-safe", "Mainstream", "Benchmark"],
+            "typical_spend": "Indicative: strongest around £20-£65 per attendee where the buyer can self-manage ordering.",
+            "minimum_order": "Usually more retail-led; check case availability, quantity limits and invoice requirements.",
+            "branding_personalisation": "Expect limited corporate personalisation; use where recognisable wine gifts matter more than branding.",
+            "turnaround": "Allow 1-3 weeks and check delivery slots before assuming event timing will work.",
+            "multi_address_delivery": "May be less suited to complex multi-address fulfilment; confirm before relying on it.",
+            "ease_score": "6/10",
+            "hidden_watchouts": "Retail checkout can be simple for small orders but awkward for large or complex event logistics.",
+            "recommendation": "Use as the budget-safe benchmark or self-managed fallback, not the lead route for complex events.",
             "budget_fit": "Indicative: useful as a mainstream retail benchmark for simple self-managed buying.",
             "strengths": "Good reference point for recognisable wine gifts and straightforward UK retail options.",
             "watchouts": "Confirm case availability, substitutions, delivery timing and whether retail checkout supports the required order size.",
@@ -2938,16 +3172,51 @@ def make_event_plan(req: EventPlanRequest) -> dict:
     else:
         wine_mix = "A balanced tasting mix across sparkling, white and red or a themed three-wine flight."
     supplier_routes = [
-        supplier_category,
-        "Event wine supplier",
-        "Wine merchant events team",
-        "Corporate gifting supplier" if req.format in {"virtual", "hybrid"} else "Local wine merchant",
+        "Majestic Commercial",
+        "Majestic Corporate Gifts",
+        "Virgin Wines Corporate",
+        "Laithwaites Corporate Wine Gifts",
+        "Waitrose Cellar",
     ]
-    if req.food_pairing_needed:
-        supplier_routes.append("Venue or caterer-supported wine supplier")
     if req.format in {"virtual", "hybrid"}:
-        supplier_routes.append("Virtual tasting pack provider")
+        supplier_routes.append("Virtual tasting pack route")
     supplier_routes = list(dict.fromkeys(supplier_routes))
+    recommendation_summary = [
+        "Best overall route: Majestic Commercial for event quantities, delivery planning and business order support.",
+        "Premium option: Laithwaites Corporate Wine Gifts where presentation and a more polished wine-gift route matter.",
+        "Budget-conscious option: Waitrose Cellar as a recognised UK retail benchmark if the event can be self-managed.",
+        "Wine-only alternative: Majestic Corporate Gifts for straightforward corporate wine options or staff rewards.",
+        "Approachable staff route: Virgin Wines Corporate for friendly mixed-case or branded gift-style options.",
+    ]
+    event_planning_considerations = [
+        f"Plan around {req.attendee_count} expected attendees, not invitees, and keep an alcohol-free route visible from the start.",
+        "Use modest pours and a clear finish time so the event remains workplace-safe and client-appropriate.",
+        "Ask suppliers to separate wine/packs, host fees, delivery, VAT, food, venue costs and optional extras in writing.",
+    ]
+    delivery_logistics_reminders = [
+        "Confirm whether delivery is to one venue, one office or individual attendee addresses.",
+        "Ask for delivery windows, tracking, failed-delivery handling and substitution approval before payment.",
+        "For virtual or hybrid events, collect attendee addresses early and set a deadline for late additions.",
+    ]
+    glassware_chilling_reminders = [
+        "Confirm who provides glassware, chilling space, ice, disposal and service support.",
+        "If the venue controls drinks service, check corkage, minimum spend and service charges before buying externally.",
+        "For office events, assign someone to receive delivery and manage storage before attendees arrive.",
+    ]
+    alcohol_free_considerations = [
+        "Ask for alcohol-free sparkling, beer or adult soft drink alternatives that feel intentional rather than an afterthought.",
+        "Keep alcohol-free choices in the main attendee communication so people do not have to disclose preferences publicly.",
+    ]
+    event_timing_considerations = [
+        "Start supplier conversations 3-6 weeks before the event, longer for December, branded items or virtual packs.",
+        "Set internal approval before the supplier cut-off date, not on the event week.",
+        "Send attendee instructions after supplier confirmation, with start time, finish time, food details and responsible-drinking expectations.",
+    ]
+    event_etiquette_tips = [
+        "Keep the format guided, paced and optional enough for mixed wine knowledge levels.",
+        "For client entertainment, prioritise polish and conversation over novelty or heavy alcohol consumption.",
+        "Avoid making wine knowledge a test; a beginner-friendly tone is usually safer for business events.",
+    ]
     supplier_questions = [
         "Can you supply the required quantities by the event date?",
         "Do you offer sale-or-return?",
@@ -2984,6 +3253,13 @@ def make_event_plan(req: EventPlanRequest) -> dict:
         "serving_assumptions": serving_assumptions,
         "wine_quantity_estimate": wine_quantity_estimate,
         "recommended_wine_mix": wine_mix,
+        "event_recommendation_summary": recommendation_summary,
+        "event_planning_considerations": event_planning_considerations,
+        "delivery_logistics_reminders": delivery_logistics_reminders,
+        "glassware_chilling_reminders": glassware_chilling_reminders,
+        "alcohol_free_considerations": alcohol_free_considerations,
+        "event_timing_considerations": event_timing_considerations,
+        "event_etiquette_tips": event_etiquette_tips,
         "budget_guidance": budget_guidance,
         "supplier_category": supplier_category,
         "supplier_routes_to_check": supplier_routes,
@@ -2997,18 +3273,18 @@ def make_event_plan(req: EventPlanRequest) -> dict:
         "questions_to_ask_event_wine_suppliers": supplier_questions,
         "supplier_questions": supplier_questions,
         "risks_and_checks": risks_and_checks,
-        "supplier_links_note": "Supplier links are not required to use this plan. You can use the supplier route guidance to contact retailers, merchants or event suppliers directly.",
+        "supplier_links_note": "Use the supplier buttons as planning starting points. ClientCellar does not confirm stock, pricing, delivery, availability or supplier quotes.",
         "what_to_avoid": avoid,
         "supplier_enquiry_email": {"subject": subject, "body": body},
         "internal_approval_summary": internal_approval_summary,
         "internal_invite_copy": invite,
         "next_steps": [
             "Confirm budget owner, date options, attendee count and any dietary or alcohol-free requirements.",
-            "Shortlist two or three suppliers in the recommended category.",
-            "Ask shortlisted suppliers for current pricing, VAT, availability, delivery and licensing details.",
-            "Confirm lead times, cancellation terms and substitution policy in writing.",
-            "Choose the format that is easiest for attendees and safest for the business context.",
-            "Share joining instructions, start time, finish time and responsible drinking expectations.",
+            "Open with Majestic Commercial, then benchmark against one corporate wine route and one retail fallback.",
+            "Ask shortlisted suppliers for itemised pricing, VAT, availability, delivery, substitutions and event support details.",
+            "Confirm lead times, cancellation terms, venue corkage, chilling/glassware ownership and alcohol-free handling in writing.",
+            "Choose the route with the clearest operational ownership, not just the lowest bottle price.",
+            "Share joining instructions, start time, finish time, food details and responsible-drinking expectations.",
         ],
         "disclaimer": DISCLAIMER,
     }
@@ -5067,6 +5343,44 @@ def example_premium_brief_pack(request: Request):
     )
 
 
+@app.get("/example-premium-event-pack", response_class=HTMLResponse)
+def example_premium_event_pack(request: Request):
+    planner_input = {
+        "event_type": "client_entertainment",
+        "attendee_count": 40,
+        "budget_per_person": 65,
+        "format": "in_person",
+        "location": "London",
+        "tone": "client_safe",
+        "date": "Early December",
+        "wine_knowledge_level": "mixed",
+        "food_pairing_needed": True,
+        "known_preferences": "Polished, beginner-friendly and inclusive, with alcohol-free alternatives.",
+    }
+    event_req = EventPlanRequest(**planner_input)
+    planner_output = make_event_plan(event_req)
+    example_preview = make_premium_pack_preview(
+        PremiumPackPreviewRequest(
+            pack_type="event",
+            planner_input=planner_input,
+            planner_output=planner_output,
+        )
+    )
+    example_preview["pack_name"] = "Example Premium Event Brief Pack"
+    return render(
+        request,
+        "premium_pack_view.html",
+        "Example Premium Event Brief Pack",
+        "See an example ClientCellar Premium Event Brief Pack with supplier recommendations, event planning notes, supplier enquiry email, budget breakdown and comparison matrix.",
+        structured_data=[premium_pack_product_schema(request)],
+        preview=example_preview,
+        pack={"pack_type": "event"},
+        pack_token="example-event-pack",
+        payment_verified=False,
+        is_example_pack=True,
+    )
+
+
 @app.get("/about", response_class=HTMLResponse)
 def about(request: Request):
     return render(
@@ -5162,6 +5476,12 @@ def checkout_success(request: Request):
     customer_email = None
     missing_plan_details = False
     pack_email = None
+    track_server_event(
+        "checkout_success_page_viewed",
+        request,
+        checkout_session_id=session_id,
+        metadata={"source": "checkout_success"},
+    )
 
     if session_id and payments_enabled():
         try:
@@ -5191,6 +5511,13 @@ def checkout_success(request: Request):
                     )
                     if not missing_plan_details and pack:
                         pack_email = send_pack_ready_email(request, pack)
+                    track_server_event(
+                        "premium_access_granted",
+                        request,
+                        report_type=(pack or {}).get("pack_type"),
+                        checkout_session_id=session_id,
+                        metadata={"pack_token": pack_token, "payment_status": payment_status},
+                    )
                 supabase_user_id = stripe_obj_get(metadata, "supabase_user_id")
                 if supabase_user_id:
                     print("Activating premium for Supabase user", supabase_user_id)
@@ -5208,6 +5535,12 @@ def checkout_success(request: Request):
                     print("Stripe checkout completed without supabase_user_id metadata")
         except Exception:
             verification_error = True
+            track_server_event(
+                "premium_access_failed",
+                request,
+                checkout_session_id=session_id,
+                metadata={"error": "checkout_success_verification_failed"},
+            )
 
     open_pack_url = f"/premium-pack/view/{pack_token}" if pack_token else None
     return render_template(
@@ -5286,6 +5619,11 @@ def premium_pack_view(request: Request, pack_token: str):
     pack = get_premium_pack(pack_token)
 
     if not pack:
+        track_server_event(
+            "premium_access_failed",
+            request,
+            metadata={"pack_token": pack_token, "error": "pack_not_found"},
+        )
         return render_template(
             request,
             "message.html",
@@ -5300,6 +5638,12 @@ def premium_pack_view(request: Request, pack_token: str):
         )
 
     if payments_enabled() and pack.get("payment_status") != "paid":
+        track_server_event(
+            "premium_access_failed",
+            request,
+            report_type=pack.get("pack_type"),
+            metadata={"pack_token": pack_token, "payment_status": pack.get("payment_status"), "error": "payment_not_verified"},
+        )
         return render_template(
             request,
             "message.html",
@@ -5329,6 +5673,21 @@ def premium_pack_view(request: Request, pack_token: str):
 
     preview = normalise_premium_pack_view_preview(pack, preview)
     touch_premium_pack_access(pack_token)
+    if pack.get("pack_type") in {"gift", "event"}:
+        track_server_event(
+            f"{pack.get('pack_type')}_premium_viewed",
+            request,
+            report_type=pack.get("pack_type"),
+            checkout_session_id=pack.get("stripe_session_id"),
+            metadata={"pack_token": pack_token, "payment_status": pack.get("payment_status")},
+        )
+    track_server_event(
+        "premium_access_granted",
+        request,
+        report_type=pack.get("pack_type"),
+        checkout_session_id=pack.get("stripe_session_id"),
+        metadata={"pack_token": pack_token, "payment_status": pack.get("payment_status")},
+    )
 
     return render_template(
         request,
@@ -5440,6 +5799,16 @@ def supplier_outbound(request: Request, tracking_slug: str, source_page: str | N
         source_page=source_page,
         user_agent=request.headers.get("user-agent"),
         referrer=request.headers.get("referer"),
+    )
+    report_type = "event" if "event" in (source_page or "") else "gift" if "gift" in (source_page or "") else None
+    track_server_event(
+        "supplier_click",
+        request,
+        page_path=source_page or request.headers.get("referer"),
+        report_type=report_type,
+        supplier_name=supplier.get("name"),
+        supplier_url=destination,
+        metadata={"source": "supplier_outbound", "source_page": source_page},
     )
     return RedirectResponse(url=destination, status_code=302)
 
@@ -5836,6 +6205,129 @@ def admin_summary(request: Request):
     }
 
 
+def fetch_analytics_events(days: int = 30, limit: int = 10000) -> list[dict]:
+    settings = supabase_settings()
+    if not settings["service_configured"]:
+        return []
+    days = max(1, min(days, 90))
+    limit = max(1, min(limit, 10000))
+    since_dt = datetime.utcnow().replace(microsecond=0) - timedelta(days=days)
+    since_value = urllib.parse.quote(since_dt.isoformat() + "Z", safe=":-TZ")
+    url = (
+        f"{settings['url']}/rest/v1/analytics_events"
+        f"?select=created_at,event_name,session_id,page_path,device_type,report_type,supplier_name,supplier_url,checkout_session_id"
+        f"&created_at=gte.{since_value}&order=created_at.desc&limit={limit}"
+    )
+    try:
+        data = _supabase_json_request(
+            url,
+            headers={
+                "apikey": settings["service_role_key"],
+                "Authorization": f"Bearer {settings['service_role_key']}",
+            },
+            timeout=8,
+        )
+    except Exception as error:
+        print("Supabase analytics summary fetch failed:", str(error))
+        return []
+    return data if isinstance(data, list) else []
+
+
+def analytics_count(rows: list[dict], event_names: set[str]) -> int:
+    return sum(1 for row in rows if row.get("event_name") in event_names)
+
+
+def analytics_group_count(rows: list[dict], key: str, event_names: set[str] | None = None, limit: int = 12) -> list[dict]:
+    counts: dict[str, int] = {}
+    for row in rows:
+        if event_names and row.get("event_name") not in event_names:
+            continue
+        value = str(row.get(key) or "unknown")[:180]
+        counts[value] = counts.get(value, 0) + 1
+    return [
+        {"name": name, "count": count}
+        for name, count in sorted(counts.items(), key=lambda item: item[1], reverse=True)[:limit]
+    ]
+
+
+def analytics_summary_for_days(days: int) -> dict:
+    rows = fetch_analytics_events(days)
+    free_reports = analytics_count(rows, {"gift_free_report_generated", "event_free_report_generated"})
+    upgrade_clicks = analytics_count(rows, {"gift_upgrade_clicked", "event_upgrade_clicked", "example_upgrade_clicked"})
+    checkout_starts = analytics_count(rows, {"gift_checkout_started", "event_checkout_started"})
+    successful_payments = analytics_count(rows, {"stripe_webhook_completed"})
+    return {
+        "days": days,
+        "analytics_configured": supabase_settings()["service_configured"],
+        "event_count": len(rows),
+        "visits_by_page": analytics_group_count(rows, "page_path", {"page_view"}),
+        "planner_starts": {
+            "gift": analytics_count(rows, {"gift_planner_started"}),
+            "event": analytics_count(rows, {"event_planner_started"}),
+            "total": analytics_count(rows, {"gift_planner_started", "event_planner_started"}),
+        },
+        "free_reports_generated": {
+            "gift": analytics_count(rows, {"gift_free_report_generated"}),
+            "event": analytics_count(rows, {"event_free_report_generated"}),
+            "total": free_reports,
+        },
+        "upgrade_clicks": {
+            "gift": analytics_count(rows, {"gift_upgrade_clicked"}),
+            "event": analytics_count(rows, {"event_upgrade_clicked"}),
+            "example": analytics_count(rows, {"example_upgrade_clicked"}),
+            "total": upgrade_clicks,
+        },
+        "checkout_starts": checkout_starts,
+        "successful_payments": successful_payments,
+        "supplier_clicks": analytics_count(rows, {"supplier_click", "gift_supplier_clicked", "event_supplier_clicked"}),
+        "free_report_to_upgrade_click_rate": round(upgrade_clicks / free_reports, 4) if free_reports else 0,
+        "checkout_start_to_payment_success_rate": round(successful_payments / checkout_starts, 4) if checkout_starts else 0,
+        "gift_vs_event": analytics_group_count(rows, "report_type", None),
+        "mobile_vs_desktop": analytics_group_count(rows, "device_type", None),
+        "top_clicked_suppliers": analytics_group_count(
+            rows,
+            "supplier_name",
+            {"supplier_click", "gift_supplier_clicked", "event_supplier_clicked"},
+            limit=10,
+        ),
+    }
+
+
+@app.post("/api/analytics")
+def analytics_event(req: AnalyticsEventRequest, request: Request):
+    if req.event_name not in ANALYTICS_EVENT_ALLOWLIST:
+        return Response(status_code=204)
+    payload = build_analytics_payload(
+        req.event_name,
+        request,
+        page_path=req.page_path,
+        referrer=req.referrer,
+        device_type=req.device_type,
+        viewport_width=req.viewport_width,
+        session_id=req.session_id,
+        report_type=req.report_type,
+        supplier_name=req.supplier_name,
+        supplier_url=req.supplier_url,
+        checkout_session_id=req.checkout_session_id,
+        metadata=req.metadata,
+        timestamp=req.timestamp,
+    )
+    store_analytics_event(payload)
+    return Response(status_code=204)
+
+
+@app.get("/api/admin/analytics-summary")
+def admin_analytics_summary(request: Request):
+    admin_password = os.getenv("ADMIN_PASSWORD")
+    supplied_password = request.query_params.get("password", "")
+    if not admin_password or supplied_password != admin_password:
+        raise HTTPException(status_code=403, detail="Analytics summary is not enabled or the password is incorrect.")
+    return {
+        "last_7_days": analytics_summary_for_days(7),
+        "last_30_days": analytics_summary_for_days(30),
+    }
+
+
 @app.post("/api/gift-plan")
 def gift_plan(req: GiftPlanRequest):
     return make_gift_plan(req)
@@ -5991,6 +6483,13 @@ def create_checkout_session_response(req: CheckoutSessionRequest, request: Reque
         session_data["customer_email"] = customer_email
 
     session = stripe.checkout.Session.create(**session_data)
+    track_server_event(
+        "checkout_session_created",
+        request,
+        report_type=req.pack_type,
+        checkout_session_id=session.id,
+        metadata={"pack_token": pack_token, "source": "stripe_checkout"},
+    )
     return {"enabled": True, "url": session.url, "checkout_url": session.url, "session_id": session.id, "pack_token": pack_token}
 
 
@@ -6071,6 +6570,13 @@ async def handle_stripe_webhook(request: Request):
                 print("Premium activated for Supabase user:", supabase_user_id)
             else:
                 print("Saved paid Premium Brief Pack without Supabase user metadata")
+            track_server_event(
+                "stripe_webhook_completed",
+                request,
+                report_type=stripe_obj_get(metadata, "pack_type"),
+                checkout_session_id=stripe_obj_get(data_obj, "id"),
+                metadata={"pack_token": pack_token, "stripe_event_type": event_type, "payment_status": payment_status},
+            )
         elif not pack_token:
             print("Stripe webhook warning: checkout.session.completed missing pack_token")
             subscription_id = stripe_obj_get(data_obj, "subscription")
@@ -6085,6 +6591,13 @@ async def handle_stripe_webhook(request: Request):
                     "stripe_customer_id": stripe_obj_get(data_obj, "customer"),
                     "stripe_subscription_id": subscription_id,
                 },
+            )
+            track_server_event(
+                "stripe_webhook_completed",
+                request,
+                report_type=stripe_obj_get(metadata, "pack_type"),
+                checkout_session_id=stripe_obj_get(data_obj, "id"),
+                metadata={"stripe_event_type": event_type, "payment_status": payment_status, "error": "missing_pack_token"},
             )
     elif event_type == "checkout.session.expired":
         if pack_token:

@@ -6,7 +6,8 @@
   {% elif comp.contact_url and button_label %}
     <a class="{{ class_name }}" href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ button_label }}</a>
   {% elif comp.search_suggestion %}
-    <span class="supplier-search-suggestion">{{ button_label or "Search/contact directly" }}</span>
+    <span class="supplier-search-suggestion supplier-search-action">{{ button_label or "Search/contact directly" }}</span>
+    <span class="supplier-search-detail">Search: {{ comp.search_suggestion }}</span>
   {% endif %}
 {%- endmacro %}
 {% macro premium_recommendation_summary(preview) -%}
@@ -114,19 +115,20 @@
   </div>
 {%- endmacro %}
 {% block content %}
-<section class="premium-pack-header">
+<section class="premium-pack-header example-premium-shell">
   <div class="premium-pack-hero">
     <p class="eyebrow">Example Premium Brief Pack</p>
     <h1>Example Premium Brief Pack</h1>
     <p class="lead">This is an example pack showing the kind of supplier-ready output created after upgrading. It uses sample details and does not include confirmed supplier pricing, stock or quotes.</p>
     <div class="hero-actions">
       <a class="button primary" href="/gift-planner">Create a free gift plan</a>
+      <a class="button secondary" href="/example-premium-event-pack">View event pack example</a>
       <a class="button secondary" href="/pricing">View pricing</a>
     </div>
   </div>
 </section>
 
-<article class="premium-pack-content premium-doc">
+<article class="premium-pack-content premium-doc example-premium-doc">
   <header class="premium-doc-header">
     <div>
       <p class="eyebrow">Sample scenario</p>

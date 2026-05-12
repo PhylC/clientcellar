@@ -33,6 +33,73 @@ const PREMIUM_TEST_KEYS = [
   "clientcellar_plan",
 ];
 const premiumAccountMessage = "Premium Brief Pack features require a completed one-off purchase.";
+const ANALYTICS_SESSION_KEY = "clientcellar_analytics_session";
+const analyticsState = {
+  plannerStarted: new Set(),
+};
+
+function analyticsSessionId() {
+  try {
+    let value = window.sessionStorage?.getItem(ANALYTICS_SESSION_KEY);
+    if (!value) {
+      value = window.crypto?.randomUUID?.() || `cc-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      window.sessionStorage?.setItem(ANALYTICS_SESSION_KEY, value);
+    }
+    return value;
+  } catch (error) {
+    return `cc-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+}
+
+function analyticsDeviceType() {
+  const width = window.innerWidth || 0;
+  if (width < 760) return "mobile";
+  if (width < 1024) return "tablet";
+  return "desktop";
+}
+
+function trackEvent(eventName, payload = {}) {
+  if (!eventName) return;
+  const body = JSON.stringify({
+    event_name: eventName,
+    timestamp: new Date().toISOString(),
+    page_path: window.location.pathname,
+    referrer: document.referrer || "",
+    device_type: analyticsDeviceType(),
+    viewport_width: window.innerWidth || null,
+    user_agent: navigator.userAgent || "",
+    session_id: analyticsSessionId(),
+    ...payload,
+  });
+  try {
+    if (navigator.sendBeacon) {
+      const sent = navigator.sendBeacon("/api/analytics", new Blob([body], { type: "application/json" }));
+      if (sent) return;
+    }
+  } catch (error) {
+    // Analytics is best-effort only.
+  }
+  try {
+    fetch("/api/analytics", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+      keepalive: true,
+    }).catch(() => {});
+  } catch (error) {
+    // Analytics failure should never affect the user journey.
+  }
+}
+
+function currentReportTypeFromPage() {
+  const documentEl = document.querySelector("[data-premium-pack-document]");
+  if (documentEl?.dataset.packType) return documentEl.dataset.packType;
+  if (window.location.pathname === "/example-premium-brief-pack") return "gift";
+  if (window.location.pathname === "/example-premium-event-pack") return "event";
+  if (window.location.pathname.includes("event")) return "event";
+  if (window.location.pathname.includes("gift")) return "gift";
+  return "";
+}
 
 function looksLikeEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
@@ -385,26 +452,36 @@ function list(items) {
   return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
 }
 
+function resultListBlock(title, items = []) {
+  if (!Array.isArray(items) || !items.length) return "";
+  return `
+    <div class="result-block">
+      <h2>${escapeHtml(title)}</h2>
+      ${list(items)}
+    </div>
+  `;
+}
+
 function fallbackSupplierData(type) {
   if (type === "event") {
     return [
       {
-        name: "Virtual tasting host",
-        category: "Tasting events",
-        why: "Useful for remote teams or client sessions where tasting packs need to be sent to each attendee.",
-        budget_fit: "Usually priced per attendee plus delivery. Confirm format, kit contents and host availability.",
+        name: "Majestic Commercial",
+        category: "Event wine",
+        why: "Best first route for larger events, office celebrations and business orders where quantities and delivery planning matter.",
+        budget_fit: "Indicative: strongest when operational confidence matters more than the lowest bottle price.",
       },
       {
-        name: "Wine tasting event provider",
-        category: "Event supplier",
-        why: "Useful for hosted in-person events, client entertainment or team sessions with a structured tasting.",
-        budget_fit: "Confirm host fee, venue needs, glassware, VAT, food pairing and any minimum guest numbers.",
+        name: "Virgin Wines Corporate",
+        category: "Corporate wine gifts",
+        why: "Useful for approachable staff rewards, branded gifts and mixed-case options.",
+        budget_fit: "Indicative: useful where the format is friendly and practical rather than formal fine wine.",
       },
       {
-        name: "Wine merchant events team",
-        category: "Wine merchant",
-        why: "Useful when you want wine advice, bottle supply and event support from the same buying route.",
-        budget_fit: "Ask for package options by headcount and confirm delivery, substitutions and lead times.",
+        name: "Waitrose Cellar",
+        category: "Retail benchmark",
+        why: "Useful as a recognised UK wine-gift fallback where the buyer can self-manage ordering.",
+        budget_fit: "Indicative: check quantity limits, delivery slots, substitutions and VAT invoice needs before relying on it.",
       },
     ];
   }
@@ -493,49 +570,95 @@ function renderSupplierRouteCards(routes = [], type = "gift") {
       </div>
     `;
   }
-  const rows = routeList.map((route) => supplierRouteComparisonRow(route));
+  const rows = eventSupplierRecommendationRows(routeList);
   return `
-    <div class="table-scroll free-route-table-wrap">
-      <table class="free-route-table">
-        <thead><tr><th>Route</th><th>Best for</th><th>Example suppliers</th><th>Check before using</th></tr></thead>
-        <tbody>
-          ${rows
-            .map(
-              (row) => `
-                <tr>
-                  <td><strong>${escapeHtml(row.route)}</strong></td>
-                  <td>${escapeHtml(row.bestFor)}</td>
-                  <td>${escapeHtml(row.examples)}</td>
-                  <td>${escapeHtml(row.whatToCheck)}</td>
-                </tr>
-              `
-            )
-            .join("")}
-        </tbody>
-      </table>
-    </div>
-    <div class="free-route-cards">
+    <div class="event-recommendation-grid">
       ${rows
         .map(
           (row) => `
-            <article class="free-route-card">
-              <h3>${escapeHtml(row.route)}</h3>
-              <dl>
-                <div><dt>Best for</dt><dd>${escapeHtml(row.bestFor)}</dd></div>
-                <div><dt>Example suppliers</dt><dd>${escapeHtml(row.examples)}</dd></div>
-                <div><dt>Check before using</dt><dd>${escapeHtml(row.whatToCheck)}</dd></div>
-              </dl>
+            <article class="event-recommendation-card">
+              <div class="event-route-copy">
+                <span class="route-tag">${escapeHtml(row.role)}</span>
+                <h3>${escapeHtml(row.route)}</h3>
+                <p><strong>Best for:</strong> ${escapeHtml(row.bestFor)}</p>
+                <p><strong>Why:</strong> ${escapeHtml(row.why)}</p>
+                <p><strong>Operational checks:</strong> ${escapeHtml(row.checks)}</p>
+              </div>
+              <div class="event-route-actions">
+                ${row.primaryLink}
+                ${row.alternativeLinks}
+              </div>
             </article>
           `
         )
         .join("")}
     </div>
+    <p class="small-note free-route-note">Start with the route that matches the event risk: managed commercial support for bigger events, corporate wine gifting for simple business orders, and retail benchmarks only where the buyer can self-manage logistics.</p>
     <div class="free-route-upgrade">
-      <h3>Need help choosing the best route?</h3>
-      <p>Premium gives you a ranked shortlist, indicative spend ranges, ease scores, hidden watchouts and a downloadable supplier matrix.</p>
-      <a class="button secondary small" href="/example-premium-brief-pack">See premium example</a>
+      <h3>Need a supplier-ready event brief?</h3>
+      <p>Premium adds a best-overall recommendation, budget ranges, event logistics checks, supplier matrix, enquiry email and internal approval summary.</p>
+      <a class="button secondary small" href="/example-premium-event-pack">See event premium example</a>
     </div>
   `;
+}
+
+function eventSupplierRecommendationRows(routes = []) {
+  const byName = (terms = []) =>
+    routes.find((route) => {
+      const haystack = `${route.route || ""} ${(route.examples || []).join(" ")} ${(route.example_suppliers || []).map((supplier) => supplier.name || supplier.id || "").join(" ")}`.toLowerCase();
+      return terms.some((term) => haystack.includes(term));
+    }) || {};
+  const rowData = [
+    {
+      role: "Best overall",
+      route: "Event wine supplier",
+      bestFor: "Larger events, office celebrations and business orders where quantities and delivery planning matter.",
+      firstChoice: "Majestic Commercial",
+      supplierId: "majestic-commercial",
+      why: "Strongest first conversation when delivery windows, substitutions and operational support need to be clear.",
+      checks: "Quantities, delivery window, glassware, chilling, returns and substitutions.",
+      source: byName(["majestic commercial"]),
+      alternatives: [{ id: "majestic", label: "Majestic Corporate" }],
+    },
+    {
+      role: "Premium option",
+      route: "Corporate wine gifts",
+      bestFor: "Client-facing events, premium staff rewards or polished wine presentation.",
+      firstChoice: "Laithwaites",
+      supplierId: "laithwaites",
+      why: "Good comparison route where presentation and corporate gifting support matter.",
+      checks: "Presentation, seasonal cut-offs, VAT invoice support and bulk gifting terms.",
+      source: byName(["laithwaites"]),
+      alternatives: [{ id: "majestic", label: "Majestic" }],
+    },
+    {
+      role: "Budget-safe",
+      route: "Mainstream wine retail",
+      bestFor: "Simpler self-managed events where recognised UK retail options are enough.",
+      firstChoice: "Waitrose Cellar",
+      supplierId: "waitrose-cellar",
+      why: "Useful benchmark before paying for a more managed event or corporate gifting route.",
+      checks: "Delivery slots, case availability, substitutions and whether checkout suits the order size.",
+      source: byName(["waitrose"]),
+      alternatives: [{ id: "virgin-wines", label: "Virgin Wines" }],
+    },
+    {
+      role: "Approachable staff route",
+      route: "Mixed-case corporate gifting",
+      bestFor: "Staff rewards, informal team occasions or events that need a friendly mixed-case option.",
+      firstChoice: "Virgin Wines",
+      supplierId: "virgin-wines",
+      why: "Best when the event should feel accessible rather than formal or fine-wine led.",
+      checks: "Branded gifts, delivery timing, substitutions and alcohol-free alternatives.",
+      source: byName(["virgin"]),
+      alternatives: [{ id: "laithwaites", label: "Laithwaites" }],
+    },
+  ];
+  return rowData.map((row) => ({
+    ...row,
+    primaryLink: supplierPrimaryLink(row.supplierId, row.supplierId === "majestic-commercial" ? "View event support" : `View ${row.firstChoice}`),
+    alternativeLinks: supplierAlternatives(row.alternatives),
+  }));
 }
 
 function giftSupplierDiscoveryRows(routes = []) {
@@ -548,7 +671,7 @@ function giftSupplierDiscoveryRows(routes = []) {
     firstChoice: route.supplier || "Supplier",
     why: route.why || "",
     primaryLink: route.supplier_id === "local-independent-wine-merchant"
-      ? `<span class="supplier-search-suggestion">${escapeHtml(route.cta_label || "Find local merchant")}: ${escapeHtml(route.search_suggestion || "independent wine merchant near me")}</span>`
+      ? `<span class="supplier-search-suggestion supplier-search-action">${escapeHtml(route.cta_label || "Find local wine merchants")}</span><span class="supplier-search-detail">Search: ${escapeHtml(route.search_suggestion || "independent wine merchant near me")}</span>`
       : supplierPrimaryLink(route.supplier_id, route.cta_label || `View ${route.supplier || "supplier"}`),
     alternativeLinks: supplierAlternatives(
       (Array.isArray(route.alternatives) ? route.alternatives : []).map((supplier) => ({
@@ -747,7 +870,10 @@ function contactRouteButtonHtml(item = {}, label = "View supplier", className = 
     return `<a class="${className}" href="${escapeHtml(contactUrl)}" target="_blank" rel="noopener noreferrer sponsored">${escapeHtml(buttonLabel)}</a>`;
   }
   const search = item.search_suggestion || item.searchSuggestion || "";
-  if (search) return `<span class="supplier-search-suggestion">${escapeHtml(buttonLabel || "Search/contact directly")}</span>`;
+  if (search) {
+    const label = buttonLabel || (search.toLowerCase().includes("independent wine merchant") ? "Find local wine merchants" : "Search/contact directly");
+    return `<span class="supplier-search-suggestion supplier-search-action">${escapeHtml(label)}</span><span class="supplier-search-detail">Search: ${escapeHtml(search)}</span>`;
+  }
   return "";
 }
 
@@ -1127,6 +1253,14 @@ function renderPlan(plan, type) {
           <p>${escapeHtml(plan.recommended_wine_mix || plan.recommended_direction || plan.recommended_format || "")}</p>
           ${list(plan.event_structure || [])}
         </div>
+        ${resultListBlock("Recommendation summary", plan.event_recommendation_summary || [])}
+        ${resultListBlock("Delivery and logistics reminders", plan.delivery_logistics_reminders || [])}
+        ${resultListBlock("Glassware and chilling reminders", plan.glassware_chilling_reminders || [])}
+        ${resultListBlock("Alcohol-free considerations", plan.alcohol_free_considerations || [])}
+        ${resultListBlock("Timing and etiquette notes", [
+          ...(plan.event_timing_considerations || []),
+          ...(plan.event_etiquette_tips || []),
+        ])}
       `
       : `
         <div class="result-block">
@@ -1157,7 +1291,7 @@ function renderPlan(plan, type) {
         ${list(plan.budget_guidance || [])}
       </div>
       <div class="result-block">
-        <h2>${type === "gift" ? "Recommended supplier routes" : "Supplier routes to check"}</h2>
+        <h2>${type === "gift" ? "Recommended supplier routes" : "Recommended supplier routes"}</h2>
         ${renderSupplierRouteCards(plan.supplier_route_cards, type)}
         ${type !== "gift" && !plan.supplier_route_cards?.length ? list(routeList) : ""}
         <p class="small-note">${escapeHtml(plan.supplier_links_note || "Supplier links are not required to use this plan. You can use the supplier route guidance to contact retailers or merchants directly.")}</p>
@@ -1284,6 +1418,7 @@ async function submitPlan(form, type) {
     plannerState[type] = { input: formToJson(form), output: plan };
     target.innerHTML = renderPlan(plan, type);
     target.dataset.csv = plan.recipient_csv_template || "";
+    trackEvent(`${type}_free_report_generated`, { report_type: type });
   } catch (error) {
     target.innerHTML = '<div class="empty-state">Sorry, the plan could not be generated. Check the form and try again. If the issue continues, refresh the page.</div>';
   } finally {
@@ -1331,6 +1466,7 @@ async function createCheckoutSession(packType, button) {
   try {
     const headers = { "Content-Type": "application/json" };
     if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+    trackEvent(`${packType}_checkout_started`, { report_type: packType });
     const response = await fetch("/api/stripe/create-checkout-session", {
       method: "POST",
       headers,
@@ -1343,6 +1479,13 @@ async function createCheckoutSession(packType, button) {
       }),
     });
     const data = await response.json();
+    if (data.session_id) {
+      trackEvent("checkout_session_created", {
+        report_type: packType,
+        checkout_session_id: data.session_id,
+        metadata: { pack_token: data.pack_token || "" },
+      });
+    }
     if (response.status === 400 && data.redirect_url) {
       window.location.href = data.redirect_url;
       return;
@@ -1491,11 +1634,74 @@ function bindPlannerForms() {
   }
 
   for (const form of document.querySelectorAll("[data-plan-form]")) {
+    form.addEventListener("focusin", () => {
+      const type = form.dataset.planForm || "gift";
+      if (analyticsState.plannerStarted.has(type)) return;
+      analyticsState.plannerStarted.add(type);
+      trackEvent(`${type}_planner_started`, { report_type: type });
+    }, { once: true });
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       submitPlan(form, form.dataset.planForm);
     });
   }
+}
+
+function bindAnalyticsTracking() {
+  trackEvent("page_view", { report_type: currentReportTypeFromPage() || undefined });
+  if (window.location.pathname === "/example-premium-brief-pack") {
+    trackEvent("example_gift_premium_viewed", { report_type: "gift", metadata: { is_example: true } });
+  }
+  if (window.location.pathname === "/example-premium-event-pack") {
+    trackEvent("example_event_premium_viewed", { report_type: "event", metadata: { is_example: true } });
+  }
+  if (window.location.pathname === "/checkout/success" || window.location.pathname === "/billing/success") {
+    const sessionId = new URLSearchParams(window.location.search).get("session_id") || "";
+    trackEvent("checkout_success_page_viewed", { checkout_session_id: sessionId });
+  }
+  if (document.querySelector("[data-premium-pack-document]")) {
+    const type = currentReportTypeFromPage();
+    if (type === "gift" || type === "event") {
+      trackEvent(`${type}_premium_viewed`, { report_type: type });
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("a[href]");
+    if (!link) return;
+    const href = link.getAttribute("href") || "";
+    const text = link.textContent.trim().replace(/\s+/g, " ").slice(0, 120);
+    const metadata = { link_text: text, link_url: href };
+    const isSupplier = href.includes("/out/supplier/") || link.closest(".supplier-table-action, .supplier-compact-head, .gift-route-actions, .event-route-actions, .supplier-card-grid");
+    if (isSupplier) {
+      const reportType = currentReportTypeFromPage();
+      const eventName = reportType === "event" ? "event_supplier_clicked" : reportType === "gift" ? "gift_supplier_clicked" : "supplier_click";
+      trackEvent(eventName, {
+        report_type: reportType || undefined,
+        supplier_name: text.replace(/^View\s+/i, "").replace(/^Check\s+/i, ""),
+        supplier_url: href,
+        metadata,
+      });
+      return;
+    }
+    if (href.startsWith("/contact") || href.startsWith("mailto:")) {
+      trackEvent("contact_click", { metadata });
+      return;
+    }
+    if (link.closest(".nav, .site-footer, .header-actions, .mobile-menu-actions")) {
+      trackEvent("nav_click", { metadata });
+      return;
+    }
+    if (
+      (window.location.pathname === "/example-premium-brief-pack" || window.location.pathname === "/example-premium-event-pack")
+      && (href === "/gift-planner" || href === "/event-planner" || href.includes("/pricing"))
+    ) {
+      trackEvent("example_upgrade_clicked", {
+        report_type: window.location.pathname.includes("event") ? "event" : "gift",
+        metadata,
+      });
+    }
+  });
 }
 
 function renderAccountPage(message = "") {
@@ -1725,6 +1931,8 @@ function bindResultActions() {
       downloadSupplierMatrix(button);
     }
     if (button.matches("[data-pack-checkout]")) {
+      const packType = button.dataset.packType || "gift";
+      trackEvent(`${packType}_upgrade_clicked`, { report_type: packType });
       createCheckoutSession(button.dataset.packType || "gift", button);
     }
   });
@@ -1833,6 +2041,7 @@ function bindLeadForms() {
 }
 
 clearLegacyPremiumTestState();
+bindAnalyticsTracking();
 checkAccountStatus();
 bindMobileMenu();
 bindPlannerForms();

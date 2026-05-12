@@ -18,7 +18,8 @@
   {% elif comp.contact_url and button_label %}
     <a class="{{ class_name }}" href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ button_label }}</a>
   {% elif comp.search_suggestion %}
-    <span class="supplier-search-suggestion">{{ button_label or "Search/contact directly" }}</span>
+    <span class="supplier-search-suggestion supplier-search-action">{{ button_label or "Search/contact directly" }}</span>
+    <span class="supplier-search-detail">Search: {{ comp.search_suggestion }}</span>
   {% endif %}
 {%- endmacro %}
 {% macro supplier_name_cell(comp) -%}
@@ -156,8 +157,19 @@
   </div>
 {%- endmacro %}
 {% block content %}
-<section class="premium-pack-header">
+<section class="premium-pack-header{% if is_example_pack %} example-premium-shell{% endif %}">
   <div class="premium-pack-hero">
+    {% if is_example_pack %}
+    <p class="notice compact-notice"><strong>Example only.</strong> This shows the kind of supplier-ready output created after upgrading. It uses sample details and does not include confirmed supplier pricing, stock or quotes.</p>
+    <p class="eyebrow">Example Premium Brief Pack</p>
+    <h1>{% if preview.pack_type == "event" %}Example Premium Event Brief Pack{% else %}Example Premium Brief Pack{% endif %}</h1>
+    <p class="lead">A public sample showing the premium report structure, supplier recommendations, enquiry copy and approval-ready planning notes.</p>
+    <div class="hero-actions">
+      <a class="button primary" href="{% if preview.pack_type == "event" %}/event-planner{% else %}/gift-planner{% endif %}">Create a free {% if preview.pack_type == "event" %}event{% else %}gift{% endif %} plan</a>
+      <a class="button secondary" href="/example-premium-brief-pack">Gift pack example</a>
+      <a class="button secondary" href="/pricing">View pricing</a>
+    </div>
+    {% else %}
     <p class="notice compact-notice"><strong>Saved pack.</strong> You can bookmark this secure page or use <a href="/my-packs">My packs</a> to request the link again later.</p>
     <p class="eyebrow">ClientCellar Premium Brief Pack</p>
     <h1>{% if preview.pack_type == "event" %}Supplier-ready event brief{% else %}Supplier-ready gifting brief{% endif %}</h1>
@@ -168,18 +180,19 @@
       <button class="button secondary" type="button" data-download-pack-text>Download pack text</button>
       <button class="button secondary" type="button" onclick="downloadCSV()">Download CSV</button>
     </div>
+    {% endif %}
   </div>
 </section>
 
-<article class="premium-pack-content premium-doc" data-premium-pack-document data-pack-token="{{ pack_token }}" data-pack-title="{{ preview.pack_name or 'ClientCellar Premium Brief Pack' }}">
+<article class="premium-pack-content premium-doc{% if is_example_pack %} example-premium-doc{% endif %}" data-premium-pack-document data-pack-token="{{ pack_token }}" data-pack-title="{{ preview.pack_name or 'ClientCellar Premium Brief Pack' }}" data-pack-type="{{ preview.pack_type or pack.pack_type or '' }}">
   {% if preview.supplier_comparison %}
   <script type="application/json" data-supplier-matrix-data>{{ preview.supplier_comparison | tojson }}</script>
   {% endif %}
   <header class="premium-doc-header">
     <div>
-      <p class="eyebrow">Prepared by ClientCellar</p>
+      <p class="eyebrow">{% if is_example_pack %}Sample scenario{% else %}Prepared by ClientCellar{% endif %}</p>
       <h2>{{ preview.pack_name or "ClientCellar Premium Brief Pack" }}</h2>
-      <p>Use this document to brief suppliers, compare options and give finance, procurement or a manager a cleaner recommendation.</p>
+      <p>{% if is_example_pack %}Sample event brief for a polished corporate wine tasting, designed to demonstrate the paid output without implying a real customer pack or confirmed supplier quote.{% else %}Use this document to brief suppliers, compare options and give finance, procurement or a manager a cleaner recommendation.{% endif %}</p>
     </div>
     <dl class="pack-overview">
       <div>
@@ -188,7 +201,7 @@
       </div>
       <div>
         <dt>Payment status</dt>
-        <dd>{% if payment_verified %}Verified{% else %}Preview{% endif %}</dd>
+        <dd>{% if is_example_pack %}Example{% elif payment_verified %}Verified{% else %}Preview{% endif %}</dd>
       </div>
       <div>
         <dt>Live pricing</dt>
