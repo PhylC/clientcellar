@@ -12,12 +12,13 @@
   {% endif %}
 {%- endmacro %}
 {% macro contact_route_button(comp, label="View supplier", class_name="button primary small") -%}
-  {% if comp.mailto_url %}
-    <a class="{{ class_name }}" href="{{ comp.mailto_url }}">{{ label }}</a>
-  {% elif comp.contact_url %}
-    <a class="{{ class_name }}" href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ label }}</a>
+  {% set button_label = (label or comp.contact_label or comp.contactLabel or "") | trim %}
+  {% if comp.mailto_url and button_label %}
+    <a class="{{ class_name }}" href="{{ comp.mailto_url }}">{{ button_label }}</a>
+  {% elif comp.contact_url and button_label %}
+    <a class="{{ class_name }}" href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ button_label }}</a>
   {% elif comp.search_suggestion %}
-    <span class="supplier-search-suggestion">Search: {{ comp.search_suggestion }}</span>
+    <span class="supplier-search-suggestion">{{ button_label or "Search/contact directly" }}</span>
   {% endif %}
 {%- endmacro %}
 {% macro supplier_name_cell(comp) -%}
@@ -33,8 +34,6 @@
         <h2>Your recommendation</h2>
       </div>
       <div class="recommendation-cta-row">
-        {% set lead = preview.recommendation_summary[0] %}
-        {{ contact_route_button(lead, "View recommended supplier", "button primary small") }}
         <a class="button secondary small" href="#supplier-comparison-details">Compare alternatives</a>
       </div>
     </div>
@@ -53,8 +52,8 @@
             <span class="route-tag">{{ item.merged_role_label }}</span>
             <h3>{{ item.supplier }}</h3>
             <p>{{ item.reason }}</p>
+            {{ contact_route_button(item, item.contact_label or "View supplier", "button secondary small supplier-summary-link") }}
           </div>
-          {{ contact_route_button(item, item.contact_label or "View supplier", "button secondary small supplier-summary-link") }}
         </article>
         {% endfor %}
       </div>

@@ -739,14 +739,15 @@ function contactRouteHtml(item = {}) {
 }
 
 function contactRouteButtonHtml(item = {}, label = "View supplier", className = "button primary small") {
+  const buttonLabel = String(label || item.contact_label || item.contactLabel || "").trim();
   const mailtoUrl = item.mailto_url || item.mailtoUrl || "";
-  if (mailtoUrl) return `<a class="${className}" href="${escapeHtml(mailtoUrl)}">${escapeHtml(label)}</a>`;
+  if (mailtoUrl && buttonLabel) return `<a class="${className}" href="${escapeHtml(mailtoUrl)}">${escapeHtml(buttonLabel)}</a>`;
   const contactUrl = item.contact_url || item.contactUrl || "";
-  if (contactUrl) {
-    return `<a class="${className}" href="${escapeHtml(contactUrl)}" target="_blank" rel="noopener noreferrer sponsored">${escapeHtml(label)}</a>`;
+  if (contactUrl && buttonLabel) {
+    return `<a class="${className}" href="${escapeHtml(contactUrl)}" target="_blank" rel="noopener noreferrer sponsored">${escapeHtml(buttonLabel)}</a>`;
   }
   const search = item.search_suggestion || item.searchSuggestion || "";
-  if (search) return `<span class="supplier-search-suggestion">Search: ${escapeHtml(search)}</span>`;
+  if (search) return `<span class="supplier-search-suggestion">${escapeHtml(buttonLabel || "Search/contact directly")}</span>`;
   return "";
 }
 
@@ -764,7 +765,6 @@ function renderPremiumRecommendationSummary(preview = {}) {
           <h2>Your recommendation</h2>
         </div>
         <div class="recommendation-cta-row">
-          ${contactRouteButtonHtml(lead, "View recommended supplier", "button primary small")}
           <a class="button secondary small" href="#supplier-comparison-details">Compare alternatives</a>
         </div>
       </div>
@@ -783,8 +783,8 @@ function renderPremiumRecommendationSummary(preview = {}) {
               <span class="route-tag">${escapeHtml(item.merged_role_label || "Recommended")}</span>
               <h3>${escapeHtml(item.supplier || "Supplier route")}</h3>
               <p>${escapeHtml(item.reason || "")}</p>
-              </div>
               ${contactRouteButtonHtml(item, item.contact_label || item.contactLabel || "View supplier", "button secondary small supplier-summary-link")}
+              </div>
             </article>
           `)
           .join("")}

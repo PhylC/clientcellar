@@ -1352,7 +1352,6 @@ textarea {
 
 .supplier-table-link,
 .supplier-summary-primary,
-.supplier-summary-link,
 .supplier-compact-link {
   border-color: var(--burgundy);
   background: var(--burgundy);
@@ -1362,9 +1361,19 @@ textarea {
 
 .supplier-table-link:hover,
 .supplier-summary-primary:hover,
-.supplier-summary-link:hover,
 .supplier-compact-link:hover {
   filter: brightness(0.95);
+}
+
+.supplier-summary-link {
+  border-color: var(--burgundy);
+  background: white;
+  color: var(--burgundy) !important;
+  text-decoration: none !important;
+}
+
+.supplier-summary-link:hover {
+  background: #fff5eb;
 }
 
 .supplier-table-link {
@@ -1470,9 +1479,9 @@ textarea {
 
 .recommendation-alternative-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.65rem;
-  align-items: center;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  align-items: start;
   padding: 0.7rem;
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -1911,12 +1920,12 @@ textarea {
 .supplier-search-suggestion {
   display: inline-block;
   padding: 0.4rem 0.55rem;
-  border: 1px solid var(--line);
+  border: 1px solid #d7b89f;
   border-radius: 999px;
   background: #fff8ef;
-  color: var(--ink);
+  color: var(--burgundy);
   font-size: 0.86rem;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .free-route-note {
