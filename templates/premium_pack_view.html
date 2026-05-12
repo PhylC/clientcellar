@@ -163,7 +163,7 @@
     <p class="notice compact-notice"><strong>Example only.</strong> This shows the kind of supplier-ready output created after upgrading. It uses sample details and does not include confirmed supplier pricing, stock or quotes.</p>
     <p class="eyebrow">Example Premium Brief Pack</p>
     <h1>{% if preview.pack_type == "event" %}Example Premium Event Brief Pack{% else %}Example Premium Brief Pack{% endif %}</h1>
-    <p class="lead">A public sample showing the premium report structure, supplier recommendations, enquiry copy and approval-ready planning notes.</p>
+    <p class="lead">{% if preview.pack_type == "event" %}Event brief example: a public sample showing the event-ready supplier plan, recommendation structure, enquiry copy and approval-ready logistics notes.{% else %}Gift brief example: a public sample showing the supplier-ready gift format, recommendation structure, enquiry copy and approval-ready planning notes.{% endif %}</p>
     <div class="hero-actions">
       <a class="button primary" href="{% if preview.pack_type == "event" %}/event-planner{% else %}/gift-planner{% endif %}">Create a free {% if preview.pack_type == "event" %}event{% else %}gift{% endif %} plan</a>
       <a class="button secondary" href="/example-premium-brief-pack">Gift pack example</a>

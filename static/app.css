@@ -29,6 +29,12 @@ body {
   overflow-x: hidden;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 a {
   color: inherit;
 }
@@ -800,6 +806,46 @@ main {
   font-weight: 800;
   line-height: 1.2;
   padding: 0.35rem 0.58rem;
+}
+
+.planner-preview-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: min(100%, 760px);
+  margin-top: 0.25rem;
+  border: 1px solid #d7b89f;
+  border-left: 4px solid var(--burgundy);
+  border-radius: 8px;
+  background: #fffaf3;
+  padding: 0.75rem 0.85rem;
+  box-shadow: 0 10px 26px rgba(48, 19, 29, 0.05);
+}
+
+.planner-preview-cta div {
+  display: grid;
+  gap: 0.16rem;
+  min-width: min(100%, 16rem);
+}
+
+.planner-preview-cta strong {
+  color: var(--ink);
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.planner-preview-cta span {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.planner-preview-cta .button {
+  flex: 0 0 auto;
+  background: white;
 }
 
 .planner-layout,
@@ -2961,6 +3007,16 @@ textarea {
     width: 100%;
   }
 
+  .planner-preview-cta {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0.72rem;
+  }
+
+  .planner-preview-cta .button {
+    width: 100%;
+  }
+
   .gift-primary-supplier-link {
     width: auto;
     min-height: 1.78rem;
@@ -2999,7 +3055,7 @@ textarea {
   .premium-pack-header,
   .premium-pack-content {
     width: min(var(--container), calc(100% - 2rem));
-    max-width: none;
+    max-width: calc(100% - 2rem);
     box-sizing: border-box;
     margin-left: auto;
     margin-right: auto;
@@ -3386,7 +3442,14 @@ textarea {
   }
 
   .planner-hero h1 {
+    max-width: min(100%, 12ch);
     line-height: 1.08;
+  }
+
+  .planner-hero p,
+  .planner-preview-cta {
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .header-inner {
@@ -3583,7 +3646,10 @@ textarea {
   }
 
   .planner-page.page-shell {
-    width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
+    width: min(var(--container), calc(100% - 2rem));
+    max-width: calc(100% - 2rem);
+    margin-left: auto;
+    margin-right: auto;
     padding-top: 1.5rem;
   }
 
@@ -3618,17 +3684,26 @@ textarea {
 @media (max-width: 600px) {
   .premium-pack-header,
   .premium-pack-content {
-    width: min(343px, calc(100% - 2rem));
-    margin-left: 1rem;
+    width: calc(100% - 2rem);
+    max-width: calc(100% - 2rem);
+    margin-left: auto;
     margin-right: auto;
   }
 }
 
 @media (max-width: 480px) {
+  .planner-page.page-shell {
+    width: calc(100% - 2rem);
+    max-width: calc(100% - 2rem);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .premium-pack-header,
   .premium-pack-content {
-    width: min(343px, calc(100% - 2rem));
-    margin-left: 1rem;
+    width: calc(100% - 2rem);
+    max-width: calc(100% - 2rem);
+    margin-left: auto;
     margin-right: auto;
   }
 
