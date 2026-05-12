@@ -1,3 +1,5 @@
+import json
+import re
 import sys
 from pathlib import Path
 
@@ -11,6 +13,17 @@ from main import app
 
 
 client = TestClient(app)
+
+
+def structured_data_items(html: str) -> list[dict]:
+    return [
+        json.loads(match.group(1))
+        for match in re.finditer(
+            r'<script type="application/ld\+json">(.*?)</script>',
+            html,
+            flags=re.DOTALL,
+        )
+    ]
 
 
 def test_homepage_loads():
@@ -266,6 +279,49 @@ def test_new_high_intent_guides_load():
         assert response.status_code == 200
         assert "<h1" in response.text
         assert "Turn this into a buying brief" in response.text
+
+
+def test_guide_faq_sections_include_matching_faq_schema():
+    response = client.get("/guides/corporate-wine-gifts-uk")
+    assert response.status_code == 200
+    assert "FAQs" in response.text
+    assert "Are prices and stock live?" in response.text
+
+    faq_schemas = [
+        item
+        for item in structured_data_items(response.text)
+        if item.get("@type") == "FAQPage"
+    ]
+
+    assert len(faq_schemas) == 1
+    questions = [item["name"] for item in faq_schemas[0]["mainEntity"]]
+    answers = [item["acceptedAnswer"]["text"] for item in faq_schemas[0]["mainEntity"]]
+    assert "Do corporate wine gifts need approval?" in questions
+    assert "Are prices and stock live?" in questions
+    assert "Should we include alcohol-free alternatives?" in questions
+    assert all(answer in response.text for answer in answers)
+    assert not any("review" in json.dumps(item).lower() or "rating" in json.dumps(item).lower() for item in faq_schemas)
+
+
+def test_seo_landing_faq_sections_include_matching_faq_schema():
+    response = client.get("/corporate-wine-gifts-uk")
+    assert response.status_code == 200
+    assert "Common questions" in response.text
+
+    faq_schemas = [
+        item
+        for item in structured_data_items(response.text)
+        if item.get("@type") == "FAQPage"
+    ]
+
+    assert len(faq_schemas) == 1
+    questions = [item["name"] for item in faq_schemas[0]["mainEntity"]]
+    answers = [item["acceptedAnswer"]["text"] for item in faq_schemas[0]["mainEntity"]]
+    assert "What is a sensible budget for UK corporate wine gifts?" in questions
+    assert "Can ClientCellar supply the wine?" in questions
+    assert all(question in response.text for question in questions)
+    assert all(answer in response.text for answer in answers)
+    assert not any("review" in json.dumps(item).lower() or "rating" in json.dumps(item).lower() for item in faq_schemas)
 
 
 def test_sitemap_includes_public_seo_and_excludes_checkout_pages():

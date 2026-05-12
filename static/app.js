@@ -34,6 +34,7 @@ const PREMIUM_TEST_KEYS = [
 ];
 const premiumAccountMessage = "Premium Brief Pack features require a completed one-off purchase.";
 const ANALYTICS_SESSION_KEY = "clientcellar_analytics_session";
+const LOCAL_WINE_MERCHANT_SEARCH_URL = "https://www.google.com/search?q=independent+wine+merchant+near+me";
 const analyticsState = {
   plannerStarted: new Set(),
 };
@@ -671,7 +672,7 @@ function giftSupplierDiscoveryRows(routes = []) {
     firstChoice: route.supplier || "Supplier",
     why: route.why || "",
     primaryLink: route.supplier_id === "local-independent-wine-merchant"
-      ? `<span class="supplier-search-suggestion supplier-search-action">${escapeHtml(route.cta_label || "Find local wine merchants")}</span><span class="supplier-search-detail">Search: ${escapeHtml(route.search_suggestion || "independent wine merchant near me")}</span>`
+      ? localWineMerchantSearchLink(route.cta_label || "Find local wine merchants", route.search_suggestion || "independent wine merchant near me")
       : supplierPrimaryLink(route.supplier_id, route.cta_label || `View ${route.supplier || "supplier"}`),
     alternativeLinks: supplierAlternatives(
       (Array.isArray(route.alternatives) ? route.alternatives : []).map((supplier) => ({
@@ -704,6 +705,10 @@ function supplierPrimaryLink(supplierId, label) {
   const url = supplierLinkUrl(supplierId);
   if (!url) return "";
   return `<a class="button primary small gift-primary-supplier-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer sponsored">${escapeHtml(label)}</a>`;
+}
+
+function localWineMerchantSearchLink(label = "Find local wine merchants", searchText = "independent wine merchant near me") {
+  return `<a class="supplier-search-suggestion supplier-search-action" href="${LOCAL_WINE_MERCHANT_SEARCH_URL}" target="_blank" rel="noopener noreferrer" data-supplier-click data-supplier-name="Local independent wine merchant">${escapeHtml(label)}</a><span class="supplier-search-detail">Search: ${escapeHtml(searchText)}</span>`;
 }
 
 function supplierAlternatives(suppliers = []) {
@@ -872,7 +877,11 @@ function contactRouteButtonHtml(item = {}, label = "View supplier", className = 
   const search = item.search_suggestion || item.searchSuggestion || "";
   if (search) {
     const label = buttonLabel || (search.toLowerCase().includes("independent wine merchant") ? "Find local wine merchants" : "Search/contact directly");
-    return `<span class="supplier-search-suggestion supplier-search-action">${escapeHtml(label)}</span><span class="supplier-search-detail">Search: ${escapeHtml(search)}</span>`;
+    if (search.toLowerCase().includes("independent wine merchant")) {
+      return localWineMerchantSearchLink(label, search);
+    }
+    const queryUrl = `https://www.google.com/search?q=${encodeURIComponent(search).replace(/%20/g, "+")}`;
+    return `<a class="supplier-search-suggestion supplier-search-action" href="${queryUrl}" target="_blank" rel="noopener noreferrer" data-supplier-click data-supplier-name="${escapeHtml(label)}">${escapeHtml(label)}</a><span class="supplier-search-detail">Search: ${escapeHtml(search)}</span>`;
   }
   return "";
 }
@@ -1672,13 +1681,13 @@ function bindAnalyticsTracking() {
     const href = link.getAttribute("href") || "";
     const text = link.textContent.trim().replace(/\s+/g, " ").slice(0, 120);
     const metadata = { link_text: text, link_url: href };
-    const isSupplier = href.includes("/out/supplier/") || link.closest(".supplier-table-action, .supplier-compact-head, .gift-route-actions, .event-route-actions, .supplier-card-grid");
+    const isSupplier = link.hasAttribute("data-supplier-click") || href.includes("/out/supplier/") || link.closest(".supplier-table-action, .supplier-compact-head, .gift-route-actions, .event-route-actions, .supplier-card-grid, .recommendation-summary-card, .recommendation-alternative-row");
     if (isSupplier) {
       const reportType = currentReportTypeFromPage();
       const eventName = reportType === "event" ? "event_supplier_clicked" : reportType === "gift" ? "gift_supplier_clicked" : "supplier_click";
       trackEvent(eventName, {
         report_type: reportType || undefined,
-        supplier_name: text.replace(/^View\s+/i, "").replace(/^Check\s+/i, ""),
+        supplier_name: link.dataset.supplierName || text.replace(/^View\s+/i, "").replace(/^Check\s+/i, ""),
         supplier_url: href,
         metadata,
       });

@@ -12,6 +12,38 @@
 </section>
 
 <section class="guide-group">
+  {% set seo_planning_pages = [
+    ("Corporate wine gifts UK", "/corporate-wine-gifts-uk", "Supplier routes, budget checks and planning guidance for UK corporate wine gifting."),
+    ("Client Christmas gifts UK", "/client-christmas-gifts-uk", "Christmas gifting routes for clients, with delivery and suitability checks."),
+    ("Corporate hampers UK", "/corporate-hampers-uk", "When hampers are a safer route for staff, clients and mixed recipient groups."),
+    ("Best wine gifts for clients", "/best-wine-gifts-for-clients", "How to choose client wine gifts without relying on live stock or pricing claims."),
+    ("Corporate gifting ideas UK", "/corporate-gifting-ideas-uk", "Practical UK gifting ideas across wine, hampers and alcohol-free alternatives."),
+    ("Event wine planning UK", "/event-wine-planning-uk", "Quantity, supplier and logistics guidance for corporate event wine planning."),
+    ("Wine for corporate events", "/wine-for-corporate-events", "Supplier routes and checks for receptions, dinners and team events."),
+    ("Thank-you gifts for clients", "/thank-you-gifts-for-clients", "Professional thank-you gift routes for UK client relationships."),
+    ("Staff wine gifts UK", "/staff-wine-gifts-uk", "Inclusive staff gifting guidance for wine, hampers and alternatives."),
+    ("Premium client gifts UK", "/premium-client-gifts-uk", "VIP and premium client gift planning with approval-ready checks.")
+  ] %}
+  <div class="section-header section-heading">
+    <p class="eyebrow">Planning pages</p>
+    <h2>Popular UK corporate gifting searches</h2>
+  </div>
+  <div class="guide-grid">
+    {% for title, href, description in seo_planning_pages %}
+    <article class="guide-card">
+      <p class="eyebrow">Planning page</p>
+      <h2><a href="{{ href }}">{{ title }}</a></h2>
+      <p>{{ description }}</p>
+      <div class="button-row">
+        <a class="text-link" href="{{ href }}">Read page</a>
+        <a class="text-link" href="/gift-planner">Create a free plan</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="guide-group">
   {% set corporate_guides = [
     "corporate-wine-gifts-uk",
     "best-client-wine-gifts",

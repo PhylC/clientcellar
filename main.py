@@ -102,6 +102,16 @@ SITEMAP_STATIC_ROUTES = [
     "/client-wine-gifts",
     "/staff-wine-gifts",
     "/corporate-christmas-wine-gifts",
+    "/corporate-wine-gifts-uk",
+    "/client-christmas-gifts-uk",
+    "/corporate-hampers-uk",
+    "/best-wine-gifts-for-clients",
+    "/corporate-gifting-ideas-uk",
+    "/event-wine-planning-uk",
+    "/wine-for-corporate-events",
+    "/thank-you-gifts-for-clients",
+    "/staff-wine-gifts-uk",
+    "/premium-client-gifts-uk",
 ]
 SITEMAP_EXCLUDED_GUIDE_SLUGS = {"corporate-champagne-gifts"}
 
@@ -5077,6 +5087,251 @@ SEO_PAGES = {
 }
 
 
+def seo_supplier(name: str, supplier_id: str, best_for: str, note: str, label: str = "View supplier") -> dict:
+    return {
+        "name": name,
+        "url": configured_supplier_url(supplier_id),
+        "best_for": best_for,
+        "note": note,
+        "label": label,
+    }
+
+
+WINE_GIFT_SUPPLIER_ROUTES = [
+    seo_supplier("Majestic Corporate Gifts", "majestic", "Corporate wine gifting, repeat orders and practical business buying.", "Useful first route for client lists, staff rewards and business wine gifts.", "View corporate gifts"),
+    seo_supplier("Laithwaites Corporate Wine Gifts", "laithwaites", "Established corporate wine gifts and premium presentation.", "Useful comparison route for wine-only gifting and bulk gift conversations.", "View corporate wine gifts"),
+    seo_supplier("Virgin Wines Corporate", "virgin-wines", "Approachable corporate gifts, staff rewards and mixed-case options.", "Useful where the gift should feel accessible rather than formal.", "View corporate gifts"),
+]
+
+HAMPER_SUPPLIER_ROUTES = [
+    seo_supplier("M&S Food & Drink Gifts", "marks-spencer-corporate", "Mainstream hampers for mixed recipient preferences.", "Useful fallback when wine tastes are unknown or food-and-drink variety is safer.", "View hampers"),
+    seo_supplier("Fortnum & Mason", "fortnum-mason", "Premium hampers and presentation-led client gifts.", "Useful for senior clients, formal gifting and stronger perceived value.", "View hampers"),
+    seo_supplier("John Lewis Hampers", "john-lewis-hampers", "Broad food and drink gifting.", "Useful for mainstream hamper comparison and non-specialist buyers.", "View hampers"),
+]
+
+EVENT_SUPPLIER_ROUTES = [
+    seo_supplier("Majestic Commercial", "majestic-commercial", "Larger events, office celebrations and business orders.", "Useful when quantity planning, delivery coordination and substitutions need discussing.", "View event support"),
+    seo_supplier("Waitrose Cellar Gifts", "waitrose-cellar", "Recognised UK retail wine gifts and mainstream premium options.", "Useful benchmark if the event is simple and self-managed.", "View wine gifts"),
+    seo_supplier("Virgin Wines Corporate", "virgin-wines", "Corporate gifts, staff rewards and mixed-case options.", "Useful for approachable event-adjacent wine gifting or post-event packs.", "View corporate gifts"),
+]
+
+
+HIGH_INTENT_SEO_PAGES = {
+    "corporate-wine-gifts-uk": {
+        "title": "Corporate Wine Gifts UK",
+        "h1": "Corporate wine gifts UK",
+        "description": "Plan corporate wine gifts in the UK with budget guidance, supplier routes, buyer checks and a free ClientCellar planning tool.",
+        "intro": "UK corporate wine gifts work best when the brief is clear: who receives the gift, what budget feels appropriate, whether alcohol is suitable and which supplier route can handle delivery and admin.",
+        "sections": [
+            ("Recommended approach", ["Use a corporate wine gifting supplier for standard client lists.", "Keep a hamper or alcohol-free alternative available for mixed preferences.", "Reserve premium retailers or local merchants for senior or VIP relationships."]),
+            ("What to decide before contacting suppliers", ["Recipient count and address quality.", "Budget per recipient before delivery and VAT.", "Gift message, branding and alcohol-free requirements.", "Required delivery window and approval deadline."]),
+            ("Risks to avoid", ["Do not assume live stock or delivery slots.", "Avoid wine-only gifts where alcohol suitability is unclear.", "Get substitutions, VAT and delivery costs in writing before payment."]),
+        ],
+        "supplier_routes": WINE_GIFT_SUPPLIER_ROUTES,
+        "faqs": [
+            {"q": "What is a sensible budget for UK corporate wine gifts?", "a": "Many business buyers start with a planning band such as £30-£75 per recipient, then confirm current supplier pricing, VAT and delivery directly."},
+            {"q": "Can ClientCellar supply the wine?", "a": "No. ClientCellar provides planning guidance and supplier-route recommendations. You order directly from suppliers."},
+            {"q": "Should every client receive the same gift?", "a": "Not always. A simple VIP, standard and internal stakeholder tiering approach often works better."},
+            {"q": "What should I ask suppliers?", "a": "Ask about stock, substitutions, gift messages, VAT invoices, delivery locations, tracking and corporate order support."},
+        ],
+        "primary_cta": ("Create a free gift plan", "/gift-planner"),
+        "example_url": "/example-premium-brief-pack",
+        "related": [("Supplier directory", "/suppliers"), ("Pricing", "/pricing"), ("Premium example", "/example-premium-brief-pack")],
+    },
+    "client-christmas-gifts-uk": {
+        "title": "Client Christmas Gifts UK",
+        "h1": "Client Christmas gifts UK",
+        "description": "Plan UK client Christmas gifts with practical budget, supplier and delivery guidance for corporate wine gifts and hampers.",
+        "intro": "Client Christmas gifting needs early supplier contact, clean recipient data and sensible alternatives. The best route is usually one mainstream supplier for standard recipients plus a premium or advice-led route for VIP clients.",
+        "sections": [
+            ("Christmas planning priorities", ["Start supplier conversations well before December.", "Confirm final recipient count and addresses early.", "Ask for order cut-off dates, substitutions and failed-delivery handling."]),
+            ("Gift routes to compare", ["Corporate wine gifts for wine-friendly clients.", "Food and drink hampers for mixed tastes.", "Premium hampers or wine merchants for senior relationships."]),
+            ("Operational checks", ["Gift message support.", "VAT invoice availability.", "Alcohol-free and dietary alternatives.", "Multi-address delivery method."]),
+        ],
+        "supplier_routes": [*WINE_GIFT_SUPPLIER_ROUTES[:2], *HAMPER_SUPPLIER_ROUTES[:2]],
+        "faqs": [
+            {"q": "When should UK businesses order client Christmas gifts?", "a": "Start planning well before December, especially for larger lists, branded notes or multi-address delivery."},
+            {"q": "Are wine gifts appropriate for Christmas clients?", "a": "They can be, but check client policies and keep alcohol-free or hamper alternatives available."},
+            {"q": "Do suppliers guarantee Christmas delivery?", "a": "ClientCellar does not guarantee delivery. Confirm cut-off dates and delivery windows directly with each supplier."},
+            {"q": "Should I use hampers instead of wine?", "a": "Hampers can be safer for mixed preferences or when individual wine tastes are unknown."},
+        ],
+        "primary_cta": ("Create a free gift plan", "/gift-planner"),
+        "example_url": "/example-premium-brief-pack",
+        "related": [("Corporate wine gifts UK", "/corporate-wine-gifts-uk"), ("Suppliers", "/suppliers"), ("Pricing", "/pricing")],
+    },
+    "corporate-hampers-uk": {
+        "title": "Corporate Hampers UK",
+        "h1": "Corporate hampers UK",
+        "description": "Compare corporate hamper routes for UK business gifting, including supplier checks, delivery questions and planning guidance.",
+        "intro": "Corporate hampers are useful when recipient tastes are mixed or a single bottle feels too narrow. The key is checking contents, allergens, alcohol-free options and delivery before ordering.",
+        "sections": [
+            ("When hampers work well", ["Staff gifts where preferences vary.", "Client gifts where food-and-drink variety is safer.", "Premium presentation when perceived value matters."]),
+            ("What to compare", ["Alcohol contents and alcohol-free versions.", "Dietary options and allergen information.", "Gift messages, VAT invoices and delivery dates."]),
+            ("Buyer cautions", ["Low-spend hampers can feel retail rather than corporate.", "Delivery costs can change the real per-recipient budget.", "Substitutions may affect perceived quality."]),
+        ],
+        "supplier_routes": HAMPER_SUPPLIER_ROUTES,
+        "faqs": [
+            {"q": "Are corporate hampers better than wine gifts?", "a": "They can be better for mixed recipient groups or unknown preferences, but wine may suit known wine-friendly clients."},
+            {"q": "What should I check before ordering hampers?", "a": "Check allergens, alcohol contents, delivery dates, gift notes, VAT invoices and substitutions."},
+            {"q": "Does ClientCellar sell hampers?", "a": "No. ClientCellar provides planning guidance and links to supplier routes."},
+            {"q": "Can hampers be used for staff gifts?", "a": "Yes, but keep dietary, cultural, alcohol-free and HR considerations visible."},
+        ],
+        "primary_cta": ("Create a free gift plan", "/gift-planner"),
+        "example_url": "/example-premium-brief-pack",
+        "related": [("Supplier directory", "/suppliers"), ("Premium example", "/example-premium-brief-pack"), ("Pricing", "/pricing")],
+    },
+    "best-wine-gifts-for-clients": {
+        "title": "Best Wine Gifts for Clients",
+        "h1": "Best wine gifts for clients",
+        "description": "Choose better wine gifts for clients with UK-focused corporate gifting guidance, supplier routes and practical checks.",
+        "intro": "The best client wine gift is not just an impressive bottle. It is a gift that fits the relationship, budget, timing, recipient suitability and supplier delivery reality.",
+        "sections": [
+            ("Client gift routes", ["Corporate wine gifting for standard client lists.", "Premium retailers for presentation-led VIP gifts.", "Local merchants for advice-led bottle choices."]),
+            ("How to choose", ["Use broad-appeal styles unless preferences are known.", "Keep policy and alcohol suitability in mind.", "Match presentation level to relationship value."]),
+            ("What good planning includes", ["Budget per recipient.", "Delivery deadline.", "Gift message tone.", "Fallback route if stock changes."]),
+        ],
+        "supplier_routes": [WINE_GIFT_SUPPLIER_ROUTES[0], WINE_GIFT_SUPPLIER_ROUTES[1], HAMPER_SUPPLIER_ROUTES[1]],
+        "faqs": [
+            {"q": "What wine makes a good client gift?", "a": "Broad-appeal bottles, sparkling wine, mixed cases or wine-and-food hampers often work better than niche choices."},
+            {"q": "Should I send wine to every client?", "a": "No. Consider alcohol suitability, policy and relationship context before choosing a wine-only gift."},
+            {"q": "How can I make client gifts feel more personal?", "a": "Use tiering, a thoughtful message and supplier questions about presentation or gift notes."},
+            {"q": "Can ClientCellar recommend exact bottles?", "a": "ClientCellar gives planning guidance and supplier routes, but live stock and suitability must be confirmed with suppliers."},
+        ],
+        "primary_cta": ("Create a free gift plan", "/gift-planner"),
+        "example_url": "/example-premium-brief-pack",
+        "related": [("Corporate wine gifts UK", "/corporate-wine-gifts-uk"), ("Suppliers", "/suppliers"), ("Premium example", "/example-premium-brief-pack")],
+    },
+    "corporate-gifting-ideas-uk": {
+        "title": "Corporate Gifting Ideas UK",
+        "h1": "Corporate gifting ideas UK",
+        "description": "Practical UK corporate gifting ideas for clients, staff and business relationships, with supplier routes and planning checks.",
+        "intro": "Good corporate gifting is practical as much as creative. Start with the recipient type, budget, timing and suitability, then choose a supplier route that can actually fulfil the brief.",
+        "sections": [
+            ("Useful gift ideas", ["Corporate wine gifts for wine-friendly clients.", "Food and drink hampers for mixed tastes.", "Non-alcoholic drinks or food-only gifts where alcohol is unsuitable.", "Premium hampers for VIP relationships."]),
+            ("How to shortlist", ["Separate clients, staff and VIPs.", "Decide whether alcohol is appropriate.", "Compare supplier routes before choosing a product."]),
+            ("What to ask before buying", ["Can you support the required quantity?", "Can you include gift messages?", "Can you provide VAT invoices?", "What happens if products are out of stock?"]),
+        ],
+        "supplier_routes": [WINE_GIFT_SUPPLIER_ROUTES[0], HAMPER_SUPPLIER_ROUTES[0], HAMPER_SUPPLIER_ROUTES[1]],
+        "faqs": [
+            {"q": "What are good corporate gifting ideas in the UK?", "a": "Wine gifts, hampers, premium food gifts, alcohol-free drinks and event-adjacent gifts can all work when matched to recipient suitability."},
+            {"q": "What should businesses avoid?", "a": "Avoid gifts that feel too personal, unsuitable, policy-sensitive or hard to deliver reliably."},
+            {"q": "How does ClientCellar help?", "a": "The free planner turns recipient count, budget and occasion into practical supplier-route guidance."},
+            {"q": "Do you provide live prices?", "a": "No. Supplier pricing, stock and delivery must be confirmed directly."},
+        ],
+        "primary_cta": ("Create a free gift plan", "/gift-planner"),
+        "example_url": "/example-premium-brief-pack",
+        "related": [("Gift planner", "/gift-planner"), ("Suppliers", "/suppliers"), ("Pricing", "/pricing")],
+    },
+    "event-wine-planning-uk": {
+        "title": "Event Wine Planning UK",
+        "h1": "Event wine planning UK",
+        "description": "Plan wine for UK corporate events with quantity guidance, supplier routes, logistics reminders and event planning checks.",
+        "intro": "Event wine planning is about more than bottle count. You need guest assumptions, format, delivery ownership, chilling, glassware, alcohol-free options and venue rules agreed before ordering.",
+        "sections": [
+            ("Planning priorities", ["Estimate attendee count, format and event duration.", "Decide whether wine is served, tasted or gifted.", "Confirm venue rules, corkage and service ownership."]),
+            ("Operational reminders", ["Delivery window and venue access.", "Chilling, glassware, water and spittoons where relevant.", "Alcohol-free alternatives that feel considered."]),
+            ("Supplier questions", ["Can you supply the required quantity by the event date?", "Can you advise on red, white and sparkling mix?", "What substitutions might be made?", "Is sale-or-return available?"]),
+        ],
+        "supplier_routes": EVENT_SUPPLIER_ROUTES,
+        "faqs": [
+            {"q": "How much wine do I need for a corporate event?", "a": "It depends on format, duration, food and guest profile. Use the event planner for an estimate and confirm with suppliers or the venue."},
+            {"q": "Should I use a venue wine package?", "a": "Venue packages can reduce admin, but check corkage, service charges, house wine quality and minimum spend."},
+            {"q": "Does ClientCellar supply event wine?", "a": "No. ClientCellar provides planning guidance and supplier routes."},
+            {"q": "What should I confirm before ordering?", "a": "Confirm quantities, delivery, chilling, glassware, substitutions, venue access and alcohol-free options."},
+        ],
+        "primary_cta": ("Create a free event plan", "/event-planner"),
+        "example_url": "/example-premium-event-pack",
+        "related": [("Event planner", "/event-planner"), ("Supplier directory", "/suppliers"), ("Event premium example", "/example-premium-event-pack")],
+    },
+    "wine-for-corporate-events": {
+        "title": "Wine for Corporate Events",
+        "h1": "Wine for corporate events",
+        "description": "Choose wine for corporate events with UK supplier routes, quantity checks, event logistics and alcohol-free considerations.",
+        "intro": "Wine for corporate events should fit the occasion, audience and service setup. A board dinner, team social, client reception and virtual tasting all need different supplier questions.",
+        "sections": [
+            ("Choose by event type", ["Client entertainment needs polished but safe choices.", "Team socials need inclusive alcohol-free options.", "Receptions need simple serving plans and reliable quantities."]),
+            ("Mix and quantity", ["Confirm attendee count and service duration.", "Ask suppliers about red, white, sparkling and alcohol-free balance.", "Plan water, food, glassware and chilling."]),
+            ("Practical checks", ["Venue corkage and delivery access.", "Supplier lead times and substitutions.", "Who handles service, cleanup and leftover stock."]),
+        ],
+        "supplier_routes": EVENT_SUPPLIER_ROUTES,
+        "faqs": [
+            {"q": "What wine is best for a corporate event?", "a": "Broad-appeal styles usually work best unless the event is a specialist tasting."},
+            {"q": "Can I buy from a supermarket or retailer?", "a": "For simple self-managed events, mainstream retailers can be useful. Confirm case availability, delivery slots and substitutions."},
+            {"q": "Should alcohol-free options be included?", "a": "Yes. Inclusive events should include adult alcohol-free alternatives."},
+            {"q": "Does ClientCellar confirm event quantities?", "a": "ClientCellar provides planning estimates only. Confirm final quantities with suppliers, caterers or venues."},
+        ],
+        "primary_cta": ("Create a free event plan", "/event-planner"),
+        "example_url": "/example-premium-event-pack",
+        "related": [("Event wine planning UK", "/event-wine-planning-uk"), ("Suppliers", "/suppliers"), ("Pricing", "/pricing")],
+    },
+    "thank-you-gifts-for-clients": {
+        "title": "Thank You Gifts for Clients",
+        "h1": "Thank-you gifts for clients",
+        "description": "Plan thank-you gifts for UK clients with wine, hamper and premium supplier route guidance from ClientCellar.",
+        "intro": "Client thank-you gifts should feel warm, professional and proportionate. The right supplier route depends on the relationship, budget, timing and whether alcohol is suitable.",
+        "sections": [
+            ("Good thank-you routes", ["Wine gifts for known wine-friendly clients.", "Hampers when preferences are unclear.", "Premium retailers for senior relationships.", "Local merchants for advice-led VIP gifts."]),
+            ("Tone and message", ["Keep the note short and specific.", "Avoid sales-heavy wording.", "Make the gift feel like appreciation, not pressure."]),
+            ("Checks before sending", ["Client gift policy.", "Recipient suitability.", "Delivery address accuracy.", "Supplier substitution rules."]),
+        ],
+        "supplier_routes": [WINE_GIFT_SUPPLIER_ROUTES[0], HAMPER_SUPPLIER_ROUTES[0], HAMPER_SUPPLIER_ROUTES[1]],
+        "faqs": [
+            {"q": "What is a good thank-you gift for clients?", "a": "Wine, hampers, sparkling wine or alcohol-free premium drinks can work when they fit the client and occasion."},
+            {"q": "When should I send a thank-you gift?", "a": "Common moments include project completion, renewals, referrals or long-term relationship milestones."},
+            {"q": "Should thank-you gifts be expensive?", "a": "Not necessarily. Proportionate, well-presented and easy-to-receive gifts often work best."},
+            {"q": "Can ClientCellar write the supplier brief?", "a": "The free planner creates guidance, and the Premium Brief Pack provides supplier-ready copy and comparison structure."},
+        ],
+        "primary_cta": ("Create a free gift plan", "/gift-planner"),
+        "example_url": "/example-premium-brief-pack",
+        "related": [("Gift planner", "/gift-planner"), ("Premium example", "/example-premium-brief-pack"), ("Suppliers", "/suppliers")],
+    },
+    "staff-wine-gifts-uk": {
+        "title": "Staff Wine Gifts UK",
+        "h1": "Staff wine gifts UK",
+        "description": "Plan staff wine gifts in the UK with guidance on alcohol suitability, alternatives, budgets and supplier routes.",
+        "intro": "Staff wine gifts need care because teams have mixed preferences, policies and alcohol suitability. Treat alcohol-free and hamper alternatives as normal options, not afterthoughts.",
+        "sections": [
+            ("When staff wine gifts work", ["Small team thank-yous where preferences are known.", "Optional celebration packs.", "Recognition gifts with equal-value alternatives."]),
+            ("Inclusive planning", ["Offer alcohol-free options.", "Check dietary and cultural considerations.", "Avoid making alcohol feel expected."]),
+            ("Supplier checks", ["Delivery to home or office addresses.", "Gift messages and VAT invoices.", "Substitutions and failed-delivery handling."]),
+        ],
+        "supplier_routes": [WINE_GIFT_SUPPLIER_ROUTES[2], HAMPER_SUPPLIER_ROUTES[0], seo_supplier("Waitrose Cellar Gifts", "waitrose-cellar", "Mainstream retail wine gifts and recognised options.", "Useful for straightforward staff or team gifting comparisons.", "View wine gifts")],
+        "faqs": [
+            {"q": "Are wine gifts suitable for staff?", "a": "Sometimes, but staff gifting needs extra attention to alcohol suitability, HR guidance and equal-value alternatives."},
+            {"q": "What is a safer staff gifting route?", "a": "Hampers, choice-based gifts or alcohol-free premium drinks can be safer for mixed teams."},
+            {"q": "Should gifts go to home addresses?", "a": "Only if you have permission and clean address data. Confirm delivery handling with suppliers."},
+            {"q": "Does ClientCellar sell staff gifts?", "a": "No. ClientCellar provides planning guidance and supplier-route links."},
+        ],
+        "primary_cta": ("Create a free gift plan", "/gift-planner"),
+        "example_url": "/example-premium-brief-pack",
+        "related": [("Corporate gifting ideas UK", "/corporate-gifting-ideas-uk"), ("Suppliers", "/suppliers"), ("Pricing", "/pricing")],
+    },
+    "premium-client-gifts-uk": {
+        "title": "Premium Client Gifts UK",
+        "h1": "Premium client gifts UK",
+        "description": "Plan premium client gifts in the UK with guidance on wine, hampers, VIP tiers, supplier checks and approval-ready briefs.",
+        "intro": "Premium client gifts should feel considered, polished and proportionate. The strongest route is usually a clear VIP tier, a premium supplier option and written checks before payment.",
+        "sections": [
+            ("Premium routes to compare", ["Fortnum & Mason or premium retailers for presentation-led hampers.", "Corporate wine suppliers for scalable premium wine gifts.", "Local merchants for advice-led VIP bottle choices."]),
+            ("Approval considerations", ["Gift value and policy fit.", "Business reason for the gift.", "VAT, delivery and itemised supplier quote.", "Substitution and presentation quality."]),
+            ("Avoid overpaying", ["Do not choose prestige before confirming delivery practicality.", "Use mainstream fallback suppliers for standard recipients.", "Reserve boutique routes for senior relationships."]),
+        ],
+        "supplier_routes": [HAMPER_SUPPLIER_ROUTES[1], WINE_GIFT_SUPPLIER_ROUTES[0], WINE_GIFT_SUPPLIER_ROUTES[1]],
+        "faqs": [
+            {"q": "What makes a client gift premium?", "a": "Presentation, supplier reliability, suitability and thoughtful context matter as much as product price."},
+            {"q": "Should premium gifts be sent to all clients?", "a": "Usually no. Tiering helps reserve premium routes for senior or strategically important relationships."},
+            {"q": "What should procurement approve?", "a": "Ask for itemised quotes, VAT treatment, delivery costs, substitution rules and business justification."},
+            {"q": "Can ClientCellar compare supplier quotes?", "a": "The Premium Brief Pack gives a comparison matrix structure, but suppliers must confirm their own quotes directly."},
+        ],
+        "primary_cta": ("Create a free gift plan", "/gift-planner"),
+        "example_url": "/example-premium-brief-pack",
+        "related": [("Premium example", "/example-premium-brief-pack"), ("Pricing", "/pricing"), ("Suppliers", "/suppliers")],
+    },
+}
+
+SEO_PAGES.update(HIGH_INTENT_SEO_PAGES)
+
+
 def public_site_url(request: Request) -> str:
     return CANONICAL_ORIGIN
 
@@ -5164,7 +5419,31 @@ def breadcrumb_schema(request: Request, crumbs: list[tuple[str, str]]) -> dict:
     }
 
 
+GUIDE_FALLBACK_FAQS = [
+    {
+        "q": "Are prices and stock live?",
+        "a": "No. ClientCellar provides planning guidance only. Confirm current pricing, stock, delivery and suitability directly with suppliers.",
+    },
+    {
+        "q": "Should we include alcohol-free alternatives?",
+        "a": "Yes, where recipient suitability is uncertain or the gift is for a mixed workplace group. Alcohol is not suitable for every person or company policy.",
+    },
+]
+
+
+def visible_guide_faqs(guide: dict) -> list[dict]:
+    questions = list(guide.get("faqs") or [])
+    if questions and len(questions) < 3:
+        questions.extend(GUIDE_FALLBACK_FAQS)
+    return questions
+
+
 def faq_schema(questions: list[dict]) -> dict:
+    visible_questions = [
+        {"q": str(item.get("q", "")).strip(), "a": str(item.get("a", "")).strip()}
+        for item in questions
+        if item.get("q") and item.get("a")
+    ]
     return {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -5174,7 +5453,7 @@ def faq_schema(questions: list[dict]) -> dict:
                 "name": item["q"],
                 "acceptedAnswer": {"@type": "Answer", "text": item["a"]},
             }
-            for item in questions
+            for item in visible_questions
         ],
     }
 
@@ -5464,6 +5743,23 @@ def staff_wine_gifts(request: Request):
 @app.get("/corporate-christmas-wine-gifts", response_class=HTMLResponse)
 def corporate_christmas_wine_gifts(request: Request):
     return render_seo_landing(request, "corporate-christmas-wine-gifts")
+
+
+def make_high_intent_seo_route(slug: str):
+    def high_intent_seo_route(request: Request):
+        return render_seo_landing(request, slug)
+
+    high_intent_seo_route.__name__ = f"seo_{slug.replace('-', '_')}"
+    return high_intent_seo_route
+
+
+for high_intent_slug in HIGH_INTENT_SEO_PAGES:
+    app.add_api_route(
+        f"/{high_intent_slug}",
+        make_high_intent_seo_route(high_intent_slug),
+        response_class=HTMLResponse,
+        methods=["GET"],
+    )
 
 
 @app.get("/checkout/success", response_class=HTMLResponse)
@@ -5985,7 +6281,8 @@ def render_seo_landing(request: Request, slug: str):
         page=page,
         slug=slug,
         structured_data=[
-            breadcrumb_schema(request, [("Home", "/"), ("Guides", "/guides"), (page["h1"], f"/{slug}")])
+            breadcrumb_schema(request, [("Home", "/"), ("Guides", "/guides"), (page["h1"], f"/{slug}")]),
+            *([faq_schema(page["faqs"])] if page.get("faqs") else []),
         ],
     )
 
@@ -6015,6 +6312,7 @@ def guide_detail(request: Request, slug: str):
         structured_data=[
             article_schema(request, guide, slug),
             breadcrumb_schema(request, [("Home", "/"), ("Guides", "/guides"), (guide["h1"], f"/guides/{slug}")]),
+            *([faq_schema(visible_guide_faqs(guide))] if guide.get("faqs") else []),
         ],
     )
 
