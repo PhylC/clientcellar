@@ -439,8 +439,8 @@ def test_public_pages_use_clientcellar_business_emails():
         combined += response.text
 
     assert "hello@clientcellar.co.uk" in combined
-    legacy_partnership_address = "partners" + "@clientcellar.co.uk"
-    assert legacy_partnership_address not in combined
+    assert "partners@clientcellar.co.uk" in combined
+    assert "Premium Brief Pack support" in client.get("/contact").text
     assert "parters@clientcellar.co.uk" not in combined
 
 
