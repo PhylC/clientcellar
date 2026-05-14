@@ -247,7 +247,13 @@ def test_required_affiliate_ready_guides_load():
         "/guides/personalised-wine-gifts",
         "/guides/wine-gift-baskets-uk",
     ]
-    enhanced_paths = {"/guides/corporate-wine-gifts-uk", "/guides/best-wine-gifts-under-50"}
+    enhanced_paths = {
+        "/guides/corporate-wine-gifts-uk",
+        "/guides/client-wine-gifts",
+        "/guides/best-wine-gifts-under-50",
+        "/guides/christmas-corporate-wine-gifts",
+        "/guides/wine-gift-hampers-uk",
+    }
     for path in guide_paths:
         response = client.get(path)
         assert response.status_code == 200
@@ -261,6 +267,10 @@ def test_required_affiliate_ready_guides_load():
             assert "Best fit comparison" in response.text
             assert "Supplier routes to consider" in response.text
             assert "Editorial policy" in response.text
+            assert "<built-in method copy" not in response.text
+            assert "dict object" not in response.text
+            assert "<svg" not in response.text
+            assert "guide-article-image" not in response.text
         else:
             assert "Recommended approach" in response.text
             assert "What to check before ordering" in response.text
@@ -286,6 +296,31 @@ def test_new_high_intent_guides_load():
         assert response.status_code == 200
         assert "<h1" in response.text
         assert "Turn this into a buying brief" in response.text
+
+
+def test_enhanced_guides_render_editorial_blocks_without_placeholder_images():
+    message_expectations = {
+        "/guides/corporate-wine-gifts-uk": "Please accept this gift as a token of our appreciation.",
+        "/guides/client-wine-gifts": "Thank you again for the energy and clarity your team brought to the project.",
+        "/guides/christmas-corporate-wine-gifts": "Thank you for your partnership this year.",
+    }
+    for path in [
+        "/guides/corporate-wine-gifts-uk",
+        "/guides/client-wine-gifts",
+        "/guides/best-wine-gifts-under-50",
+        "/guides/christmas-corporate-wine-gifts",
+        "/guides/wine-gift-hampers-uk",
+    ]:
+        response = client.get(path)
+        assert response.status_code == 200
+        assert "guide-best-fit-summary" in response.text
+        assert "guide-editorial-note" in response.text or path == "/guides/christmas-corporate-wine-gifts"
+        assert "<built-in method copy" not in response.text
+        assert "dict object" not in response.text
+        assert "<svg" not in response.text
+        assert "guide-article-image" not in response.text
+        if path in message_expectations:
+            assert message_expectations[path] in response.text
 
 
 def test_guide_faq_sections_include_matching_faq_schema():

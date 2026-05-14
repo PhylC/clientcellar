@@ -1,59 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-{% macro guide_illustration(variant, label) -%}
-<figure class="guide-article-image guide-article-image--{{ variant }}" role="img" aria-label="{{ label }}">
-  <svg viewBox="0 0 360 240" aria-hidden="true" focusable="false">
-    <rect class="guide-illu-bg" x="8" y="8" width="344" height="224" rx="24"></rect>
-    {% if variant == "gift-table" %}
-    <rect class="guide-illu-table" x="44" y="158" width="272" height="18" rx="9"></rect>
-    <rect class="guide-illu-bottle" x="118" y="68" width="34" height="92" rx="10"></rect>
-    <rect class="guide-illu-bottle-neck" x="126" y="44" width="18" height="32" rx="6"></rect>
-    <rect class="guide-illu-gold" x="178" y="104" width="82" height="56" rx="10"></rect>
-    <path class="guide-illu-line" d="M219 104v56M178 128h82"></path>
-    <path class="guide-illu-line" d="M76 98c18-18 42-18 60 0M224 76c20-18 46-16 62 4"></path>
-    {% elif variant == "mixed-case" %}
-    <rect class="guide-illu-table" x="62" y="80" width="236" height="102" rx="16"></rect>
-    <path class="guide-illu-line" d="M62 114h236M62 148h236M121 80v102M180 80v102M239 80v102"></path>
-    <rect class="guide-illu-bottle" x="82" y="92" width="18" height="70" rx="7"></rect>
-    <rect class="guide-illu-green" x="142" y="96" width="18" height="66" rx="7"></rect>
-    <rect class="guide-illu-gold" x="202" y="94" width="18" height="68" rx="7"></rect>
-    <rect class="guide-illu-bottle" x="260" y="96" width="18" height="66" rx="7"></rect>
-    {% elif variant == "sparkling" %}
-    <rect class="guide-illu-bottle" x="92" y="58" width="42" height="118" rx="14"></rect>
-    <rect class="guide-illu-bottle-neck" x="104" y="30" width="18" height="38" rx="6"></rect>
-    <path class="guide-illu-gold" d="M222 74l16 34 38 5-27 26 7 38-34-18-34 18 7-38-27-26 38-5z"></path>
-    <path class="guide-illu-line" d="M168 64c14-24 36-30 64-20M166 98c22-12 48-12 78 0"></path>
-    {% elif variant == "hamper" %}
-    <rect class="guide-illu-table" x="78" y="104" width="204" height="82" rx="16"></rect>
-    <path class="guide-illu-line" d="M112 104c0-34 136-34 136 0"></path>
-    <rect class="guide-illu-bottle" x="122" y="68" width="24" height="86" rx="8"></rect>
-    <circle class="guide-illu-gold" cx="188" cy="122" r="20"></circle>
-    <rect class="guide-illu-green" x="218" y="88" width="34" height="52" rx="8"></rect>
-    <path class="guide-illu-line" d="M94 136h172M112 162h136"></path>
-    {% elif variant == "handwritten-note" %}
-    <rect class="guide-illu-table" x="78" y="58" width="204" height="130" rx="14"></rect>
-    <path class="guide-illu-line" d="M108 94h118M108 122h144M108 150h92"></path>
-    <path class="guide-illu-bottle" d="M240 150c24 8 34 22 26 34-8 10-28 8-42-4"></path>
-    <circle class="guide-illu-gold" cx="86" cy="64" r="18"></circle>
-    {% elif variant == "christmas-table" %}
-    <rect class="guide-illu-table" x="54" y="154" width="252" height="18" rx="9"></rect>
-    <path class="guide-illu-green" d="M178 42l-46 96h92z"></path>
-    <path class="guide-illu-line" d="M178 42v96M144 80h68M132 112h92"></path>
-    <circle class="guide-illu-gold" cx="150" cy="96" r="8"></circle>
-    <circle class="guide-illu-gold" cx="202" cy="118" r="8"></circle>
-    <rect class="guide-illu-bottle" x="82" y="88" width="26" height="72" rx="9"></rect>
-    <rect class="guide-illu-gold" x="244" y="114" width="44" height="46" rx="8"></rect>
-    {% else %}
-    <rect class="guide-illu-table" x="62" y="72" width="236" height="118" rx="18"></rect>
-    <rect class="guide-illu-bottle" x="92" y="96" width="28" height="72" rx="9"></rect>
-    <path class="guide-illu-line" d="M146 108h106M146 134h126M146 160h76"></path>
-    <circle class="guide-illu-gold" cx="266" cy="72" r="18"></circle>
-    {% endif %}
-  </svg>
-  <figcaption>{{ label }}</figcaption>
-</figure>
-{%- endmacro %}
-
 {% if guide.enhanced %}
 <section class="guide-hero">
   <div class="guide-hero__content">
@@ -64,9 +10,14 @@
       <span>Last updated: May 2026</span>
     </div>
     <p>{{ guide.intro }}</p>
-    <ul class="guide-hero__bullets">
-      {% for item in guide.hero_bullets %}<li>{{ item }}</li>{% endfor %}
-    </ul>
+    <div class="guide-best-fit-summary">
+      {% for row in guide.hero_summary %}
+      <div>
+        <span>{{ row.label }}</span>
+        <p>{{ row.text }}</p>
+      </div>
+      {% endfor %}
+    </div>
     <p class="guide-disclosure-line">
       Disclosure: Some links may earn commission where available. These guides work as planning advice whether or not a supplier link is tracked. <a href="/editorial-policy">Read our editorial policy</a>.
     </p>
@@ -74,9 +25,6 @@
       <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
       <a class="button secondary" href="/guides">All guides</a>
     </div>
-  </div>
-  <div class="guide-hero__visual">
-    {{ guide_illustration(guide.hero_image, guide.hero_image_label) }}
   </div>
 </section>
 
@@ -117,8 +65,11 @@
     {% for section in guide.article_sections %}
     <section id="{{ section.id }}">
       <h2>{{ section.heading }}</h2>
-      {% if section.image %}
-        {{ guide_illustration(section.image.variant, section.image.label) }}
+      {% if section.editorial_note %}
+      <aside class="guide-editorial-note">
+        <strong>ClientCellar note</strong>
+        <p>{{ section.editorial_note }}</p>
+      </aside>
       {% endif %}
       {% for paragraph in section.paragraphs or [] %}<p>{{ paragraph }}</p>{% endfor %}
       {% if section.bullets %}
@@ -145,7 +96,7 @@
         {% for message in section.messages %}
         <div>
           <span>{{ message.label }}</span>
-          <p>{{ message.copy }}</p>
+          <p>{{ message.text }}</p>
         </div>
         {% endfor %}
       </div>
@@ -194,7 +145,7 @@
     <div class="guide-rail-card">
       <p class="eyebrow">Plan this gift</p>
       <h2>{{ guide.rail_heading or "Turn this into a brief" }}</h2>
-      <p>{{ guide.rail_copy or "Use the free planner to shape budget, recipient details, supplier route and enquiry copy." }}</p>
+      <p>{{ guide.rail_text or "Use the free planner to shape budget, recipient details and supplier route." }}</p>
       <a class="button primary full" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
     </div>
 
@@ -220,7 +171,7 @@
 <section class="guide-cta guide-cta-panel">
   <div>
     <h2>{{ guide.cta_heading }}</h2>
-    <p>{{ guide.cta_copy }}</p>
+    <p>{{ guide.cta_text }}</p>
   </div>
   <div class="hero-actions compact-actions">
     <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>

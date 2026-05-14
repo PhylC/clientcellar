@@ -2232,22 +2232,18 @@ textarea {
 }
 
 .guide-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.72fr);
-  gap: clamp(1.5rem, 4vw, 3rem);
-  align-items: center;
   width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
   margin: 0 auto;
-  padding: clamp(2rem, 5vw, 4.2rem) 0 clamp(1.25rem, 3vw, 2rem);
+  padding: clamp(1.6rem, 4vw, 3rem) 0 clamp(1rem, 2vw, 1.4rem);
 }
 
 .guide-hero__content h1 {
-  max-width: 980px;
+  max-width: 1050px;
   margin: 0 0 1rem;
   color: var(--ink);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2.4rem, 6.8vw, 5.9rem);
-  line-height: 0.96;
+  font-size: clamp(2.25rem, 5.2vw, 4.75rem);
+  line-height: 1;
   letter-spacing: 0;
 }
 
@@ -2279,75 +2275,6 @@ textarea {
   line-height: 1.4;
 }
 
-.guide-hero__visual {
-  min-width: 0;
-}
-
-.guide-article-image {
-  width: 100%;
-  max-width: 520px;
-  margin: 1.4rem 0;
-  border: 1px solid rgba(123, 23, 51, 0.15);
-  border-radius: 14px;
-  background: #fff8ec;
-  overflow: hidden;
-  box-shadow: 0 18px 42px rgba(68, 30, 40, 0.08);
-}
-
-.guide-hero__visual .guide-article-image {
-  margin: 0;
-  max-width: none;
-}
-
-.guide-article-image svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 3 / 2;
-}
-
-.guide-article-image figcaption {
-  border-top: 1px solid rgba(123, 23, 51, 0.12);
-  padding: 0.7rem 0.9rem;
-  color: var(--muted);
-  font-size: 0.86rem;
-  line-height: 1.35;
-}
-
-.guide-illu-bg {
-  fill: #fff3df;
-  stroke: rgba(123, 23, 51, 0.18);
-  stroke-width: 2;
-}
-
-.guide-illu-table {
-  fill: #efe0c7;
-}
-
-.guide-illu-bottle {
-  fill: #7b1733;
-}
-
-.guide-illu-bottle-neck {
-  fill: #4d1022;
-}
-
-.guide-illu-gold {
-  fill: #d7ae5a;
-}
-
-.guide-illu-green {
-  fill: #315c45;
-}
-
-.guide-illu-line {
-  fill: none;
-  stroke: #503942;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 5;
-}
-
 .guide-quick-answer {
   border: 1px solid rgba(123, 23, 51, 0.15);
   border-radius: 10px;
@@ -2357,6 +2284,38 @@ textarea {
 
 .guide-quick-answer .eyebrow {
   margin-bottom: 0.45rem;
+}
+
+.guide-best-fit-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  max-width: 1040px;
+  margin: 1.25rem 0;
+}
+
+.guide-best-fit-summary div {
+  border: 1px solid rgba(123, 23, 51, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 253, 249, 0.78);
+  padding: 0.9rem 1rem;
+}
+
+.guide-best-fit-summary span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--burgundy);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.guide-best-fit-summary p {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 800;
+  line-height: 1.42;
 }
 
 .guide-comparison {
@@ -2428,6 +2387,31 @@ textarea {
   color: var(--ink);
   font-weight: 800;
   line-height: 1.5;
+}
+
+.guide-editorial-note {
+  margin: 0 0 1rem;
+  border: 1px solid rgba(123, 23, 51, 0.13);
+  border-radius: 10px;
+  background: linear-gradient(135deg, #fffaf3, #fffdf9);
+  padding: 1rem;
+}
+
+.guide-editorial-note strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--burgundy);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.guide-editorial-note p {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 750;
+  line-height: 1.55;
 }
 
 .guide-content--enhanced section {
@@ -3550,11 +3534,7 @@ textarea {
 
 @media (max-width: 1100px) {
   .guide-hero {
-    grid-template-columns: 1fr;
-  }
-
-  .guide-hero__visual .guide-article-image {
-    max-width: 640px;
+    display: block;
   }
 
   .guide-layout {
@@ -3602,8 +3582,10 @@ textarea {
 
 @media (max-width: 760px) {
   .guide-hero {
-    width: calc(100% - 4rem);
+    width: min(335px, calc(100% - 2.5rem));
     max-width: 100%;
+    margin-left: 1.25rem;
+    margin-right: auto;
     padding-top: 1.4rem;
   }
 
@@ -3611,8 +3593,10 @@ textarea {
   .guide-planning-note,
   .guide-cta,
   .related-bottom {
-    width: calc(100% - 4rem);
+    width: min(335px, calc(100% - 2.5rem));
     max-width: 100%;
+    margin-left: 1.25rem;
+    margin-right: auto;
   }
 
   .guide-hero__content h1 {
@@ -3647,20 +3631,20 @@ textarea {
     overflow-wrap: anywhere;
   }
 
-  .guide-article-image {
-    max-width: 100%;
-    border-radius: 10px;
-  }
-
-  .guide-article-image figcaption {
-    font-size: 0.8rem;
-    overflow-wrap: anywhere;
+  .guide-best-fit-summary {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
   }
 
   .guide-hero__content p,
   .guide-planning-note,
   .guide-content--enhanced p,
-  .guide-content--enhanced li {
+  .guide-content--enhanced li,
+  .guide-best-fit-summary,
+  .guide-best-fit-summary div,
+  .guide-quick-answer {
+    min-width: 0;
+    max-width: 100%;
     overflow-wrap: anywhere;
   }
 
