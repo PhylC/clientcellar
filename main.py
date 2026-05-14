@@ -5701,6 +5701,897 @@ GUIDES.update(
     }
 )
 
+GUIDES.update(
+    {
+        "corporate-wine-gifts-uk": enhanced_guide(
+            title="Corporate Wine Gifts UK: Thoughtful Client Gift Ideas",
+            h1="Corporate Wine Gifts UK: How to Send Something That Feels Thoughtful, Not Lazy",
+            description="A practical UK guide to choosing corporate wine gifts that feel thoughtful, appropriate and useful, from mixed cases to Champagne, hampers and team gifts.",
+            intro="Corporate wine gifting is easy to do badly because it looks simple from the outside. Pick a bottle, add a box, send it before Christmas. Done. Except that is exactly why so many client gifts feel forgettable.",
+            hero_bullets=[
+                "Best for: client thank-yous, Christmas gifts, project milestones and senior relationships",
+                "Typical budget: £40-£150, depending on relationship and context",
+                "Avoid: one random bottle for a whole team, over-packaged weak wine, gifts with no note",
+            ],
+            opening_heading="The judgement matters more than the bottle",
+            opening=[
+                "The point is not to prove you know wine. The point is to make the recipient feel considered. That starts with three questions: who is receiving it, why are you sending it, and should the gift be shared?",
+                "A £35 bottle with a proper note can feel better than a £90 gift chosen in a rush. A mixed case can be smarter than Champagne if the gift is for a team. A hamper can be useful if taste is unknown, but only if the contents are worth eating and drinking.",
+            ],
+            best_fit_table={
+                "headers": ["Situation", "Better route", "Editorial view"],
+                "rows": [
+                    ["Senior client", "Champagne, English sparkling or premium mixed case", "Keep it polished, not theatrical."],
+                    ["Client team", "Mixed case or food-and-wine hamper", "One bottle for a team creates awkwardness."],
+                    ["Project thank-you", "Sparkling wine or a small case", "Connect the gift to the milestone in the note."],
+                    ["Unclear preferences", "Hamper or alcohol-free alternative", "Do not make alcohol the only way to accept the gift."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "why-it-goes-wrong",
+                    "heading": "This is where corporate gifting quietly goes wrong",
+                    "paragraphs": [
+                        "Most bad wine gifts fail before the cork is pulled. They are sent to the wrong person, at the wrong moment, with a message that sounds like procurement approved it five minutes before dispatch.",
+                        "Wine still works because it is useful, shareable and easier to understand than many luxury gifts. But it needs a reason. If the gift is really for a whole team, send something the team can share. If it is for a senior relationship, choose restraint. If alcohol suitability is unclear, do not force the recipient into an awkward thank-you.",
+                    ],
+                    "editorial_note": "The safest option is often the one that looks least exciting on a spreadsheet: a good mixed case, a proper note and a supplier who can deliver reliably.",
+                },
+                {
+                    "id": "budget-judgement",
+                    "heading": "Spend enough to look considered, not enough to look strange",
+                    "paragraphs": [
+                        "For many UK client gifts, £50-£100 is the useful middle. Below that, focus on one good idea rather than fake luxury. Above that, make sure the relationship, policy and occasion can carry the spend.",
+                        "If the gift is for a key account or a team, a higher budget can make sense. If it is a small thank-you after a tidy piece of work, modest and specific is often better.",
+                    ],
+                    "table": {
+                        "headers": ["Budget", "Best use", "How to think about it"],
+                        "rows": [
+                            ["£25-£40", "Small thank-you", "Keep it honest and avoid grand packaging."],
+                            ["£40-£75", "Good individual gift", "Strong range for a bottle, pair or compact hamper."],
+                            ["£75-£150", "Warmer relationship", "Use for senior clients, cases or premium hampers."],
+                            ["£150+", "Key account or team", "Check approval and make the reason clear."],
+                        ],
+                    },
+                },
+                {
+                    "id": "note",
+                    "heading": "The note does more work than people think",
+                    "paragraphs": ["A good note turns wine from a transaction into a relationship gesture. Keep it short, specific and human."],
+                    "messages": [
+                        {"label": "Avoid", "text": "Please accept this gift as a token of our appreciation."},
+                        {"label": "Better", "text": "Thanks again for your support on the project this year. We really enjoyed working with you and hope this gives you something nice to open over Christmas."},
+                        {"label": "Better", "text": "A small thank-you for helping get the launch over the line. We really appreciated the pace, patience and good humour from your team."},
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "What is a good corporate wine gift in the UK?", "a": "A mixed case, sparkling wine gift, Champagne route or food-and-wine hamper can all work. The best choice depends on recipient suitability, budget, relationship and delivery practicalities."},
+                {"q": "How much should I spend on a client wine gift?", "a": "Many UK business buyers sit around £50-£100 for a polished client gift, but internal policy and relationship context matter more than a universal number."},
+                {"q": "Is wine still appropriate as a corporate gift?", "a": "Yes, when alcohol is suitable for the recipient and the gift is proportionate. Keep alcohol-free or hamper alternatives available where preferences are unclear."},
+                {"q": "Is Champagne better than wine for corporate gifting?", "a": "Champagne can signal celebration, but English sparkling, a mixed case or a hamper may be more appropriate for some clients."},
+                {"q": "Should I send one bottle or a case?", "a": "One bottle can work for an individual. For teams or shared offices, a case or hamper usually feels less awkward."},
+            ],
+            related=["client-wine-gifts", "best-wine-gifts-under-50", "christmas-corporate-wine-gifts"],
+            cta="Build my wine gift brief",
+            cta_heading="Need a corporate wine gift that does not feel generic?",
+            cta_text="Use ClientCellar to build a quick wine gift brief. Tell us who the gift is for, your budget and the occasion, and we will help you narrow the options and supplier direction.",
+        ),
+        "client-wine-gifts": enhanced_guide(
+            title="Client Wine Gifts: How to Choose a Better Bottle, Case or Hamper",
+            h1="Client Wine Gifts That Feel Personal Without Getting Weird",
+            description="How to choose client wine gifts that feel personal, polished and appropriate, including ideas by budget, relationship type and occasion.",
+            intro="A client wine gift is really a small relationship decision wearing gift wrap. It should feel warm, but not overfamiliar; generous, but not loaded; personal, but not strange.",
+            hero_bullets=[
+                "Best for: relationship-building, thank-yous and account management",
+                "Typical budget: £35-£120",
+                "Avoid: gifts that feel too intimate, too cheap, or too obviously bulk-bought",
+            ],
+            opening_heading="Think like an account director",
+            opening=[
+                "A new client does not need the same gift as someone who has trusted you for five years. A senior stakeholder does not need the same gift as a wider project team. That sounds obvious, but it is where many client gifts drift into awkward territory.",
+                "The gift should read as appreciation, not pressure. If there is a live decision, procurement process or renewal in the background, be more careful. A client gift should not feel like a bribe, a flex, or an apology.",
+            ],
+            best_fit_table={
+                "headers": ["Client relationship", "Safer gift route", "Tone to aim for"],
+                "rows": [
+                    ["New client", "Smart bottle or small pair", "Warm but restrained"],
+                    ["Long-standing client", "Mixed case or premium hamper", "Specific and appreciative"],
+                    ["Senior contact", "Sparkling or elegant bottle", "Calm and polished"],
+                    ["Client team", "Shareable case or hamper", "Inclusive and practical"],
+                    ["Warm prospect", "Modest thank-you only", "Careful, never persuasive"],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "client-dynamics",
+                    "heading": "The awkward bit",
+                    "paragraphs": [
+                        "Client gifts work best when they are connected to something real: a project ending, a difficult milestone, a year of support, an introduction, a referral. Without that reason, even a good bottle can feel oddly hollow.",
+                        "For a long-standing client, you can afford more warmth. For a newer relationship, keep it simpler. For a whole team, do not send a single bottle and leave someone else to decide who gets it.",
+                    ],
+                    "editorial_note": "If you cannot explain why you are sending the gift in one sentence, pause before ordering.",
+                },
+                {
+                    "id": "wording",
+                    "heading": "Subtle wording helps",
+                    "paragraphs": ["The note should sound like a person wrote it, not a CRM sequence. Mention the work, the relationship or the moment. Avoid anything that sounds like you are trying to buy goodwill."],
+                    "messages": [
+                        {"label": "Project thank-you", "text": "Thank you again for the energy and clarity your team brought to the project. We really enjoyed working with you."},
+                        {"label": "End-of-year", "text": "A small thank-you for your support this year. We hope you get a proper pause over the Christmas break."},
+                        {"label": "Long-term account", "text": "We really value the relationship and appreciate the trust you have placed in us over the years."},
+                        {"label": "Team gift", "text": "A thank-you for the whole team. We appreciated the collaboration and hope this gives you something to share."},
+                    ],
+                },
+                {
+                    "id": "wrong-answer",
+                    "heading": "When wine is the wrong answer",
+                    "paragraphs": [
+                        "Wine is not always the right gift. Alcohol may be unsuitable, policies may be strict, or the relationship may be too early. In those cases, a food hamper, premium tea or coffee, alcohol-free sparkling or a choice-based gift can be more thoughtful than forcing the wine route.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "What wine should I send to a client?", "a": "If you know their taste, choose around it. If not, sparkling wine, a balanced mixed case or a wine-and-food hamper is usually safer."},
+                {"q": "How much should I spend on a client wine gift?", "a": "A practical range is often £35-£120, depending on relationship value, policy and occasion."},
+                {"q": "Is it appropriate to send wine to a client?", "a": "It can be, but check alcohol suitability, timing and any gift acceptance policies first."},
+                {"q": "What should I write in a client gift note?", "a": "Mention the relationship or moment briefly. Keep it warm, specific and free of sales pressure."},
+                {"q": "What can I send if I am not sure they drink alcohol?", "a": "Choose a food hamper, premium tea or coffee, non-alcoholic sparkling, or another equal-quality alternative."},
+            ],
+            related=["corporate-wine-gifts-uk", "thank-you-wine-gifts", "business-gift-wine-etiquette"],
+            cta="Plan a client wine gift",
+            cta_heading="Not sure what to send a client?",
+            cta_text="Build a ClientCellar gift brief and get a clearer recommendation based on the relationship, budget and occasion.",
+        ),
+        "best-wine-gifts-under-50": enhanced_guide(
+            title="Best Wine Gifts Under £50: Smart Ideas That Still Feel Generous",
+            h1="Best Wine Gifts Under £50 That Do Not Feel Like an Afterthought",
+            description="Wine gift ideas under £50 that still feel thoughtful, including sparkling wine, mixed pairs, small hampers and client-safe options.",
+            intro="£50 is enough for a good wine gift, but not enough to fake luxury. That is the line to keep in mind.",
+            hero_bullets=[
+                "Best for: thank-yous, smaller client gifts, birthdays, host gifts and team gestures",
+                "Typical budget: £30-£50",
+                "Avoid: fake luxury packaging, weak wine in a heavy box, novelty gifts",
+            ],
+            opening_heading="Do not buy the packaging",
+            opening=[
+                "At this budget, simple wins. A good bottle, a clean two-bottle pair, a small sparkling gift or a compact wine-and-food hamper can all work. A giant hamper full of filler usually does not.",
+                "The more a gift shouts about being luxury under £50, the more carefully you should read the contents list.",
+            ],
+            best_fit_table={
+                "headers": ["Gift route", "Why it works", "Buyer judgement"],
+                "rows": [
+                    ["English sparkling", "Feels celebratory without a huge budget", "Good for milestones and Christmas."],
+                    ["Two-bottle pair", "Gives choice", "Safer than one risky bottle."],
+                    ["Small hamper", "Feels complete", "Only if the food is not filler."],
+                    ["Independent merchant pick", "Feels less generic", "Best when you can ask for advice."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "what-works",
+                    "heading": "Where £50 works hard",
+                    "paragraphs": [
+                        "A focused gift under £50 can feel generous because it knows what it is. A sparkling bottle says celebration. A red-and-white pair says choice. A compact hamper says evening-in, as long as the food and wine are both doing real work.",
+                        "What does not work is fake heft: a wooden box, novelty accessories or a hamper that looks big online but arrives as average wine and tiny jars.",
+                    ],
+                    "editorial_note": "A £45 gift chosen cleanly often beats a £49.99 gift trying to look like £100.",
+                },
+                {
+                    "id": "recipient",
+                    "heading": "Match the level of risk",
+                    "table": {
+                        "headers": ["Recipient", "Safer choice"],
+                        "rows": [
+                            ["Client", "Sparkling, two-bottle gift or polished small hamper"],
+                            ["Host", "Sparkling, white wine or food-friendly red"],
+                            ["Team member", "Small hamper or bottle with a real note"],
+                            ["Wine enthusiast", "Independent merchant recommendation"],
+                        ],
+                    },
+                },
+                {
+                    "id": "avoid",
+                    "heading": "Leave these on the shelf",
+                    "paragraphs": [
+                        "Novelty wine accessories rarely make the gift better. Over-packaged cheap wine feels cynical. Ultra-obscure bottles are fun only when you know the person will enjoy the risk.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "Is £50 enough for a good wine gift?", "a": "Yes. It is enough for a strong bottle, a useful pair, sparkling wine or a compact hamper if you avoid overblown packaging."},
+                {"q": "What is the best wine gift under £50?", "a": "For business gifting, sparkling wine, a red/white pair or a compact wine-and-food gift is usually safer than a niche bottle."},
+                {"q": "Should I buy one bottle or two bottles under £50?", "a": "One bottle gives quality. Two bottles give choice. For unknown tastes, a pair can be more forgiving."},
+                {"q": "Are wine hampers under £50 worth it?", "a": "Some are, but check the actual contents list. Avoid hampers padded with small filler items."},
+                {"q": "What should I avoid when buying wine gifts under £50?", "a": "Avoid fake luxury packaging, novelty accessories, weak wine in heavy boxes and gifts that pretend to be more premium than they are."},
+            ],
+            related=["best-wine-gifts-under-25", "best-wine-gifts-under-100", "wine-gift-hampers-uk"],
+            cta="Find a wine gift under £50",
+            cta_heading="Want a wine gift under £50 that still feels thoughtful?",
+            cta_text="Use ClientCellar to create a quick gift brief and narrow your options by budget, recipient and occasion.",
+        ),
+        "christmas-corporate-wine-gifts": enhanced_guide(
+            title="Christmas Corporate Wine Gifts: Better Ideas for UK Clients and Teams",
+            h1="Christmas Corporate Wine Gifts That Do Not Feel Like Everyone Got the Same Thing",
+            description="A practical guide to Christmas corporate wine gifts for UK clients, teams and suppliers, including budget advice, timing, messages and safer gift ideas.",
+            intro="December has a way of making thoughtful people send forgettable gifts. The inbox is full, offices are half empty, suppliers are busy, and suddenly a beige hamper feels like a strategy.",
+            hero_bullets=[
+                "Best for: end-of-year client thank-yous, account teams, suppliers and senior contacts",
+                "Typical budget: £40-£150",
+                "Avoid: late orders, generic hampers, gifts with no message",
+            ],
+            opening_heading="The December problem",
+            opening=[
+                "Christmas gifting works when it feels timely and specific. It fails when it feels like everyone on the list received the same thing because someone needed the task closed before the break.",
+                "A smaller thoughtful gift can beat a large beige hamper. A short message can make a simple bottle feel warmer. And delivery planning matters more than people admit: a lovely gift arriving at an empty office is not a lovely gift anymore.",
+            ],
+            best_fit_table={
+                "headers": ["Recipient", "Stronger Christmas route", "Why"],
+                "rows": [
+                    ["Senior client", "Champagne or English sparkling", "Classic without needing much explanation."],
+                    ["Client team", "Mixed case or proper hamper", "Shareable and less awkward."],
+                    ["Remote contact", "Direct-to-home gift", "Only if address handling is appropriate."],
+                    ["Supplier or partner", "Thoughtful bottle pair", "Warm without looking excessive."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "timing",
+                    "heading": "The office delivery problem",
+                    "paragraphs": [
+                        "Christmas gifts often go wrong in the boring places: address lists, office closures, substitutions and cut-off dates. Start earlier than feels necessary, especially for larger lists or anything branded.",
+                        "Ask suppliers about delivery windows and substitutions before you fall in love with the gift. If half the recipients are remote, confirm whether home delivery is appropriate and how failed deliveries are handled.",
+                    ],
+                },
+                {
+                    "id": "message",
+                    "heading": "The message makes it seasonal",
+                    "paragraphs": ["The note does not need to be elaborate. It just needs to sound like the relationship exists."],
+                    "messages": [
+                        {"label": "Formal client", "text": "Thank you for your partnership this year. We wish you and your team a restful Christmas and a strong start to the new year."},
+                        {"label": "Warmer client", "text": "It has been a real pleasure working together this year. A small festive thank-you from all of us."},
+                        {"label": "Team thank-you", "text": "A Christmas thank-you for the whole team. We appreciated the collaboration, pace and good humour this year."},
+                    ],
+                    "editorial_note": "Generic Christmas gifts are not always bad. Generic Christmas gifts with generic messages are the problem.",
+                },
+                {
+                    "id": "hamper-warning",
+                    "heading": "Do not let the hamper do all the thinking",
+                    "paragraphs": [
+                        "Hampers are popular because they feel safe, and sometimes they are. But a large hamper filled with weak biscuits, tiny jars and average wine can feel less generous than a better-edited smaller gift.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "What are good Christmas wine gifts for clients?", "a": "Champagne, English sparkling, a smart mixed pair, a seasonal case or a food-and-wine hamper can all work when matched to the recipient."},
+                {"q": "When should I order corporate Christmas wine gifts?", "a": "Start supplier conversations well before December for larger orders. Confirm the supplier’s current cut-off dates directly."},
+                {"q": "Is Champagne a good corporate Christmas gift?", "a": "It can be, especially for senior or celebratory relationships, but sparkling wine, hampers or mixed cases may be more practical."},
+                {"q": "What should I send to a client team at Christmas?", "a": "A mixed case or hamper is usually more shareable than one bottle addressed to a whole team."},
+                {"q": "What should I write in a Christmas client gift message?", "a": "Thank them for the partnership or project, keep it warm, and avoid heavy sales language."},
+            ],
+            related=["corporate-wine-gifts-uk", "client-wine-gifts", "wine-gift-hampers-uk"],
+            cta="Plan Christmas wine gifts",
+            cta_heading="Planning Christmas wine gifts for clients?",
+            cta_text="Build a ClientCellar gift brief and get a clearer plan for who you are buying for, what to spend and what kind of supplier to use.",
+        ),
+        "wine-gift-hampers-uk": enhanced_guide(
+            title="Wine Gift Hampers UK: How to Choose One That Is Actually Worth Sending",
+            h1="Wine Gift Hampers UK: How to Choose One That Is Actually Worth Sending",
+            description="A practical UK guide to choosing wine gift hampers that feel generous rather than generic, including what to look for, what to avoid and who they suit best.",
+            intro="Most bad hampers are built to look better in a product photo than they feel in real life. Big basket, lots of straw, tiny jars, average biscuits, forgettable wine.",
+            hero_bullets=[
+                "Best for: client teams, Christmas gifts, host gifts and shared occasions",
+                "Typical budget: £45-£150",
+                "Avoid: cheap filler products, weak wine, oversized packaging",
+            ],
+            opening_heading="Do not buy the biggest hamper",
+            opening=[
+                "A bigger hamper is not automatically a better hamper. The best ones have fewer, better items: wine you would actually open, food that makes sense with it, and packaging that protects the gift rather than becoming the gift.",
+                "If you are buying for a client or team, the hamper should be easy to share and not too quirky. It should not ask the recipient to pretend to be excited about six tiny jars of chutney.",
+            ],
+            best_fit_table={
+                "headers": ["Occasion", "Better hamper style", "Watch for"],
+                "rows": [
+                    ["Client thank-you", "Wine plus savoury snacks", "Overly themed filler."],
+                    ["Christmas", "Wine, cheese, crackers and sweet items", "Generic festive bulk."],
+                    ["Team gift", "Larger mixed hamper", "Dietary and alcohol suitability."],
+                    ["Senior client", "Premium but restrained hamper", "Huge packaging with modest contents."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "filler",
+                    "heading": "The filler problem",
+                    "paragraphs": [
+                        "Hamper photography can be misleading. More items does not always mean more value. Tiny jars, generic biscuits and cheap chocolate can make a hamper look abundant while quietly reducing the quality of the gift.",
+                        "Read the contents list like a buyer, not a browser. If the wine is vague and the food reads like padding, keep looking.",
+                    ],
+                    "editorial_note": "Do not buy the packaging. Buy the gift.",
+                },
+                {
+                    "id": "case-or-hamper",
+                    "heading": "Hamper or mixed case?",
+                    "paragraphs": [
+                        "A hamper is better when the gift needs to feel like an experience or be shared by a team. A mixed case is better when the recipient mainly cares about wine. If taste is unknown, a hamper can be safer, but only when the contents are genuinely useful.",
+                    ],
+                },
+                {
+                    "id": "checks",
+                    "heading": "The checks that matter",
+                    "paragraphs": [
+                        "Before ordering, confirm delivery date, exact contents, gift message options, alcohol contents, dietary information, substitutions and whether the supplier can provide the invoice you need.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "Are wine gift hampers worth it?", "a": "They can be if the contents are strong and useful. Avoid hampers padded with low-value filler products."},
+                {"q": "What should be in a good wine hamper?", "a": "Good wine, food that pairs sensibly with it, clear contents, strong packaging and enough information about allergens or substitutions."},
+                {"q": "How much should I spend on a wine hamper?", "a": "Many decent corporate wine hampers sit around £45-£150, depending on size, recipient and presentation."},
+                {"q": "Are wine hampers good corporate gifts?", "a": "Yes, especially for teams or mixed preferences, but alcohol suitability and dietary needs should be checked."},
+                {"q": "Is a wine hamper better than a mixed case?", "a": "A hamper is better for sharing and broader appeal. A mixed case is better for someone who mainly enjoys wine."},
+            ],
+            related=["corporate-wine-gifts-uk", "christmas-corporate-wine-gifts", "best-wine-gifts-under-50"],
+            cta="Build my wine gift brief",
+            cta_heading="Need a wine hamper that does not feel generic?",
+            cta_text="Use ClientCellar to create a quick gift brief and compare whether a hamper, mixed case or single bottle is the better fit.",
+        ),
+        "best-client-wine-gifts": enhanced_guide(
+            title="Best Client Wine Gifts: Ideas That Feel Thoughtful, Not Transactional",
+            h1="Best Client Wine Gifts: Ideas That Feel Thoughtful, Not Transactional",
+            description="Relationship-led client wine gift ideas for UK businesses, including budgets, note examples, policy checks and safer alternatives.",
+            intro="This page is for the moment when you know you should send something, but you do not want the gift to feel like a line item in account management.",
+            hero_bullets=[
+                "Best for: account teams, founders, agencies and professional services firms",
+                "Typical budget: £35-£150",
+                "Avoid: gifts that feel too cheap, too flashy, too personal or too bulk-bought",
+            ],
+            opening_heading="If I were buying for...",
+            opening=[
+                "For a new client, I would stay polished and modest: a smart bottle, a pair or a compact hamper. For a long-standing client, I would make the gift a little more specific. For a senior relationship, I would choose restraint over size.",
+                "The safest choice is usually the one that matches the relationship rather than the biggest one in the supplier catalogue.",
+            ],
+            best_fit_table={
+                "headers": ["If you are buying for", "First route to consider", "Why"],
+                "rows": [
+                    ["A new client", "Bottle pair or small hamper", "Warm without being too much."],
+                    ["A long-term client", "Mixed case or premium hamper", "Recognises the relationship."],
+                    ["A senior stakeholder", "Sparkling or elegant wine gift", "Clear and polished."],
+                    ["A project team", "Shareable case or hamper", "Avoids making one person distribute one bottle."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "shopping-judgement",
+                    "heading": "The safest choice here is...",
+                    "paragraphs": [
+                        "If taste is unknown, choose usefulness. Sparkling wine, a red-and-white pair, a balanced mixed case or a food-and-wine gift gives the recipient room to enjoy the gift without needing to share your exact preferences.",
+                        "I would avoid trophy bottles unless you know the person cares about wine. They can look impressive, but they can also feel like you bought the price tag.",
+                    ],
+                    "editorial_note": "A client gift should not feel like homework. If the recipient needs specialist knowledge to enjoy it, make sure they actually have that interest.",
+                },
+                {
+                    "id": "messages",
+                    "heading": "A note that does not sound transactional",
+                    "messages": [
+                        {"label": "Safe and warm", "text": "A small thank-you for your support this year. We have really enjoyed working with you."},
+                        {"label": "Project-led", "text": "Thank you for helping make the project such a constructive one. We appreciated the collaboration."},
+                        {"label": "Team-led", "text": "Something for the team to share. Thank you for the pace, patience and good humour."},
+                    ],
+                },
+                {
+                    "id": "policy",
+                    "heading": "One careful sentence on policy",
+                    "paragraphs": [
+                        "If the gift value is meaningful or the relationship is commercially sensitive, check your internal policy before ordering. It is much easier to adjust the gift before it ships than explain it afterwards.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "What is the best client wine gift?", "a": "For unknown tastes, sparkling wine, a mixed case or a wine-and-food hamper is usually safer than a niche bottle."},
+                {"q": "How much should I spend on a client wine gift?", "a": "Many UK businesses use £40-£100 for polished client gifts, with higher budgets reserved for priority relationships and policy-approved occasions."},
+                {"q": "Should I send wine to a client team?", "a": "A mixed case or hamper is usually better than one bottle if the gift is for a team."},
+                {"q": "What should I write in a client gift note?", "a": "Mention the project, relationship or moment briefly. Keep it warm, specific and not sales-led."},
+                {"q": "What if I am not sure they drink alcohol?", "a": "Use a hamper, alcohol-free sparkling, coffee, tea or another equal-quality alternative."},
+            ],
+            related=["client-wine-gifts", "corporate-wine-gifts-uk", "business-gift-wine-etiquette"],
+            cta="Plan a client gift",
+            cta_heading="Want a client gift that feels considered?",
+            cta_text="Use the gift planner to turn recipient type, budget and occasion into a practical supplier direction.",
+        ),
+        "best-wine-gifts-under-25": enhanced_guide(
+            title="Best Wine Gifts Under £25: Small Gifts That Still Feel Considered",
+            h1="Best Wine Gifts Under £25: Small Gifts That Still Feel Considered",
+            description="Honest wine gift ideas under £25, including single bottles, small thank-yous, host gifts and what to avoid.",
+            intro="Under £25 is not luxury, and pretending otherwise is where these gifts go wrong. That does not mean the gift has to feel cheap.",
+            hero_bullets=[
+                "Best for: modest thank-yous, host gifts and small team gestures",
+                "Typical budget: £15-£25 before delivery",
+                "Avoid: novelty sets, fake-premium boxes and weak wine in heavy packaging",
+            ],
+            opening_heading="One good bottle beats a fake hamper",
+            opening=[
+                "This is the budget where honesty matters. Buy one decent thing. Add a proper note. Do not stretch the money across wine, glasses, corkscrew, box, ribbon and three snack items that nobody asked for.",
+                "Supermarket wine is fine if it is chosen well. A simple bottle can feel thoughtful. A fake-premium gift set usually feels like you bought the packaging and hoped nobody would notice.",
+            ],
+            best_fit_table={
+                "headers": ["Use case", "Better choice", "Skip"],
+                "rows": [
+                    ["Host gift", "Sparkling or crisp white", "Novelty labels."],
+                    ["Small thank-you", "Classic single bottle", "Trying to make it look luxury."],
+                    ["Colleague gesture", "Bottle with a good note", "Alcohol if preferences are unknown."],
+                    ["Friend", "Something personal", "Generic gift set."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "honest-budget",
+                    "heading": "The £25 rule",
+                    "paragraphs": [
+                        "At £25, you are buying a gesture as much as a gift. That is not a bad thing. It just means the message and appropriateness matter more.",
+                        "For client gifting, this can work as a small thank-you, but be careful. If the relationship is important, either spend a little more or keep the gift modest and sincere.",
+                    ],
+                },
+                {
+                    "id": "avoid",
+                    "heading": "The usual traps",
+                    "paragraphs": [
+                        "Bad mini sets, novelty glasses and heavy boxes are usually a sign the contents are doing less work than the presentation. Keep the spend in the wine, not the theatre around it.",
+                    ],
+                    "editorial_note": "Small gifts can be charming. Small gifts pretending to be grand usually are not.",
+                },
+            ],
+            faqs=[
+                {"q": "Is £25 enough for a wine gift?", "a": "Yes, for a simple bottle or modest thank-you. It is not usually enough for a premium corporate gift once delivery is included."},
+                {"q": "Should I buy a gift set under £25?", "a": "Usually only if the wine is decent. Avoid sets where the accessories are doing too much of the selling."},
+                {"q": "Can I send a client wine gift under £25?", "a": "It can work for a small gesture, but make the note thoughtful and avoid making the gift look more premium than it is."},
+                {"q": "What wine style is safest under £25?", "a": "Sparkling, a classic red, or a crisp white usually works better than a niche bottle."},
+            ],
+            related=["best-wine-gifts-under-50", "client-wine-gifts", "corporate-wine-gifts-uk"],
+            cta="Plan a modest wine gift",
+            cta_heading="Need a small gift that still feels thoughtful?",
+            cta_text="Use ClientCellar to shape a simple wine gift brief around budget, recipient and occasion.",
+        ),
+        "best-wine-gifts-under-100": enhanced_guide(
+            title="Best Wine Gifts Under £100: Where Wine Gifting Gets Interesting",
+            h1="Best Wine Gifts Under £100: Where Wine Gifting Gets Interesting",
+            description="How to spend up to £100 well on wine gifts, from premium bottles and mixed cases to hampers and Champagne routes.",
+            intro="£100 is where wine gifting gets interesting, because you have enough budget to choose properly. You also have enough budget to waste it.",
+            hero_bullets=[
+                "Best for: priority clients, senior stakeholders and polished Christmas gifts",
+                "Typical budget: £60-£100",
+                "Avoid: expensive-looking gifts with weak contents",
+            ],
+            opening_heading="This is a trade-off budget",
+            opening=[
+                "You can buy one excellent bottle, two strong bottles, a proper mixed case, a compact hamper or a Champagne-led gift. The best choice depends less on the price and more on what the recipient will actually understand and enjoy.",
+                "If taste is known, one better bottle can be lovely. If taste is unknown, a mixed case or hamper may be wiser. If the moment is celebratory, Champagne makes sense, but it is not automatically the cleverest option.",
+            ],
+            best_fit_table={
+                "headers": ["Route", "Best when", "Judgement"],
+                "rows": [
+                    ["One excellent bottle", "Taste is known", "High quality, higher risk."],
+                    ["Two strong bottles", "You want choice", "Useful and less showy."],
+                    ["Mixed case", "Wine-friendly recipient", "Often the smartest business route."],
+                    ["Compact hamper", "Gift may be shared", "Check for filler."],
+                    ["Champagne", "Celebration is the point", "Classic, but predictable."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "where-to-spend",
+                    "heading": "Where to spend the money",
+                    "paragraphs": [
+                        "Spend it on contents, supplier reliability and presentation that does not shout. Do not spend it on a giant box that makes modest contents look apologetic.",
+                        "Independent merchants can be excellent at this budget if you want advice. Mainstream suppliers can be better if you need practical delivery, invoicing and repeatability.",
+                    ],
+                    "editorial_note": "Premium is not the same as loud. The best £100 gifts usually feel calm.",
+                },
+                {
+                    "id": "champagne",
+                    "heading": "A note on Champagne",
+                    "paragraphs": [
+                        "Champagne is useful shorthand for celebration, but shorthand can become lazy. If the relationship or occasion calls for it, use it. If not, English sparkling, a mixed case or a better-edited hamper may feel more considered.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "What is the best wine gift under £100?", "a": "A premium bottle, mixed case, English sparkling gift or compact hamper can all work. Choose based on recipient and occasion."},
+                {"q": "Is £100 too much for a client gift?", "a": "It depends on policy and relationship context. Higher-value gifts should be proportionate and easy to justify."},
+                {"q": "Should I choose Champagne under £100?", "a": "Champagne is good for celebration, but sparkling wine, mixed cases and hampers may be better for some recipients."},
+                {"q": "Is a hamper better than wine under £100?", "a": "A hamper is better for sharing; wine is better where the recipient is known to enjoy it."},
+            ],
+            related=["luxury-corporate-wine-gifts", "best-wine-gifts-under-50", "wine-gift-hampers-uk"],
+            cta="Plan a premium wine gift",
+            cta_heading="Want to spend under £100 well?",
+            cta_text="Use the planner to compare bottle, case and hamper routes before you contact suppliers.",
+        ),
+        "corporate-gift-ideas-for-clients": enhanced_guide(
+            title="Corporate Gift Ideas for Clients That Do Not Feel Like Branded Filler",
+            h1="Corporate Gift Ideas for Clients That Do Not Feel Like Branded Filler",
+            description="Practical UK client gift ideas, including wine, hampers, coffee, experiences, non-alcoholic options and when each route works.",
+            intro="Most corporate gifts are forgettable because they solve the sender’s problem, not the recipient’s. They tick a box, carry a logo and ask the client to be grateful.",
+            hero_bullets=[
+                "Best for: teams comparing gift routes before ordering",
+                "Typical budget: £25-£150",
+                "Avoid: branded filler that solves your marketing problem, not the client’s",
+            ],
+            opening_heading="Useful beats branded",
+            opening=[
+                "Wine is a good answer when the relationship, occasion and recipient make it suitable. It is not the only answer. Food, coffee, tea, alcohol-free drinks, experiences and charity-linked gifts can all be better in the right context.",
+                "A gift should feel like it belongs in the relationship. If it mainly advertises your company, it is probably not a gift.",
+            ],
+            best_fit_table={
+                "headers": ["Gift type", "Where it works", "Where it does not"],
+                "rows": [
+                    ["Wine or sparkling", "Thank-yous, milestones, Christmas", "Unknown alcohol suitability."],
+                    ["Food hamper", "Teams and mixed preferences", "Dietary needs ignored."],
+                    ["Coffee or tea", "Alcohol is uncertain", "Can feel too small without care."],
+                    ["Experience", "Closer relationships", "Scheduling friction."],
+                    ["Charity-linked gift", "Values-led relationships", "Performative wording."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "gift-routes",
+                    "heading": "What gifts are actually useful?",
+                    "paragraphs": [
+                        "Useful does not mean boring. It means the recipient can enjoy the gift without work. A bottle they can open, a hamper they can share, coffee they will actually drink, or an experience that does not require six emails to arrange.",
+                        "Wine fits naturally for client thank-yous, Christmas gifts and celebratory moments. It is weaker when alcohol suitability is unknown or the timing could look commercially sensitive.",
+                    ],
+                    "editorial_note": "ClientCellar is strongest for wine-led gifts, but wine is not always the answer. That is part of giving sensible advice.",
+                },
+                {
+                    "id": "filler",
+                    "heading": "Avoid branded filler",
+                    "paragraphs": [
+                        "The more a gift looks like leftover campaign merchandise, the less it feels like appreciation. If you want to include a brand touch, keep it subtle: a note, a small card, or packaging that does not overwhelm the gift.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "What are good corporate gift ideas for clients?", "a": "Wine, sparkling, hampers, coffee, tea, alcohol-free drinks, experiences and charity-linked gifts can all work when matched to the relationship."},
+                {"q": "Are wine gifts good for clients?", "a": "They can be, as long as alcohol is suitable and the value is proportionate."},
+                {"q": "What should I avoid in client gifting?", "a": "Avoid branded filler, over-personal gifts, weak hampers and anything that creates policy discomfort."},
+                {"q": "What if I do not know the client well?", "a": "Choose a safer mainstream route such as a modest hamper, sparkling gift, coffee or alcohol-free option."},
+            ],
+            related=["best-client-wine-gifts", "client-wine-gifts", "business-gift-wine-etiquette"],
+            cta="Plan a client gift",
+            cta_heading="Need a gift route that fits the client?",
+            cta_text="Use the planner to shape a practical brief around recipient, budget and occasion.",
+        ),
+        "wine-gifts-for-customers": enhanced_guide(
+            title="Wine Gifts for Customers: When It Works, When It Does Not, and How to Keep It Appropriate",
+            h1="Wine Gifts for Customers: When It Works, When It Does Not, and How to Keep It Appropriate",
+            description="Sensible guidance for customer wine gifts, including scale, suitability, delivery, personalisation and alternatives.",
+            intro="Customer gifting is different from client gifting because scale changes everything. A gift that feels thoughtful for ten close clients can become operationally awkward for hundreds of customers.",
+            hero_bullets=[
+                "Best for: VIP customers, loyalty moments and carefully managed customer campaigns",
+                "Typical budget: varies by customer tier and fulfilment model",
+                "Avoid: alcohol-only campaigns where suitability and delivery data are uncertain",
+            ],
+            opening_heading="Scale makes everything less forgiving",
+            opening=[
+                "At customer scale, the quiet details matter: address quality, delivery permissions, failed deliveries, alcohol sensitivity, personalisation and customer data handling. This is not legal advice, but it is sensible to be careful before sending anything physical or alcohol-led.",
+                "For broad campaigns, a choice-based or non-alcoholic route may be safer. For VIP customers, a more considered wine gift can work if the relationship supports it.",
+            ],
+            best_fit_table={
+                "headers": ["Customer group", "Better route", "Reason"],
+                "rows": [
+                    ["VIP customers", "Premium wine, hamper or choice-led gift", "Relationship can support more thought."],
+                    ["Broad customer list", "Choice-based or non-alcoholic option", "Lower suitability risk."],
+                    ["Renewal thank-you", "Modest bottle or hamper", "Keep it appreciative, not persuasive."],
+                    ["Local customers", "Regional merchant route", "Can feel less generic."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "difference",
+                    "heading": "Client gift or customer campaign?",
+                    "paragraphs": [
+                        "A client gift is usually relationship-led. A customer gift is often campaign-led. That means the gift has to survive more edge cases: people who do not drink, people at different addresses, people with dietary needs, and people who may not expect a gift at all.",
+                        "Personalisation helps only when it feels appropriate. A light note is good. Anything that feels too intimate, overfamiliar or data-heavy is not.",
+                    ],
+                },
+                {
+                    "id": "operational",
+                    "heading": "The operational questions are not boring",
+                    "paragraphs": [
+                        "They are the gift. Ask how addresses are handled, what happens when delivery fails, whether alternatives are available, and whether the supplier can support the campaign cleanly.",
+                    ],
+                    "editorial_note": "If the gift creates a problem for the recipient, it is not a good gift.",
+                },
+            ],
+            faqs=[
+                {"q": "Can businesses send wine gifts to customers?", "a": "Sometimes, but alcohol suitability, delivery data, privacy and message tone need careful review."},
+                {"q": "How is a customer gift different from a client gift?", "a": "Customer gifts are often larger-scale and less relationship-specific, so operational and suitability checks matter more."},
+                {"q": "What is a safer alternative to wine for customers?", "a": "Choice-based gifts, food hampers, coffee, tea or alcohol-free options may be safer."},
+                {"q": "Should customer gifts be personalised?", "a": "Light personalisation can help, but avoid anything that feels intrusive or overfamiliar."},
+            ],
+            related=["corporate-gift-ideas-for-clients", "client-wine-gifts", "business-gift-wine-etiquette"],
+            cta="Plan customer wine gifts",
+            cta_heading="Thinking about wine gifts for customers?",
+            cta_text="Use ClientCellar to shape the route and questions before you contact suppliers.",
+        ),
+        "luxury-corporate-wine-gifts": enhanced_guide(
+            title="Luxury Corporate Wine Gifts: How to Look Generous Without Looking Ridiculous",
+            h1="Luxury Corporate Wine Gifts: How to Look Generous Without Looking Ridiculous",
+            description="A practical guide to premium and luxury corporate wine gifts, including when to choose Champagne, fine wine, hampers and restrained alternatives.",
+            intro="Luxury corporate gifting is where people can accidentally look least thoughtful. Spend more, shout louder, add a huge box, and somehow the gift becomes less elegant.",
+            hero_bullets=[
+                "Best for: senior clients, key accounts and major milestones",
+                "Typical budget: £100-£250+",
+                "Avoid: trophy bottles, showy packaging and gifts that breach policy",
+            ],
+            opening_heading="Calm looks more premium than loud",
+            opening=[
+                "Expensive does not automatically mean appropriate. Trophy bottles can be risky unless you know the recipient cares. Huge hampers can feel like theatre. A smaller elegant gift, chosen for the relationship, often lands better.",
+                "Luxury should feel easy to accept. If it creates policy discomfort, looks like a flex or arrives without a clear reason, it has missed the point.",
+            ],
+            best_fit_table={
+                "headers": ["Luxury route", "When it works", "Where it goes wrong"],
+                "rows": [
+                    ["Champagne", "Celebration is the message", "Too predictable if used automatically."],
+                    ["Fine wine", "Taste is known", "Risky for non-enthusiasts."],
+                    ["Premium hamper", "Gift will be shared", "Filler dressed as luxury."],
+                    ["Independent merchant case", "Advice matters", "Operational support may vary."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "restraint",
+                    "heading": "Restraint is not underspending",
+                    "paragraphs": [
+                        "For senior clients and key accounts, the best luxury gifts usually have a reason: a major milestone, a long relationship, a significant thank-you. Without that reason, the spend can feel awkward.",
+                        "If you choose fine wine, make sure the recipient will appreciate it. If you choose Champagne, make sure celebration is the right signal. If you choose a hamper, read the contents like a sceptic.",
+                    ],
+                    "editorial_note": "The more expensive the gift, the clearer the business reason should be.",
+                },
+                {
+                    "id": "approval",
+                    "heading": "The approval trail matters",
+                    "paragraphs": [
+                        "Meaningful-value gifts should be easy to justify internally. Confirm policy, VAT invoice availability, delivery handling and substitutions before you commit.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "What counts as a luxury corporate wine gift?", "a": "Usually a premium bottle, Champagne, fine wine, advice-led case or high-quality hamper where presentation and suitability are strong."},
+                {"q": "When is a luxury wine gift appropriate?", "a": "For senior relationships, major milestones or key accounts where policy and timing are appropriate."},
+                {"q": "Is fine wine a good corporate gift?", "a": "It can be if the recipient is known to appreciate wine. Otherwise, sparkling or a premium hamper may be safer."},
+                {"q": "Should luxury gifts be approved internally?", "a": "Yes, meaningful-value gifts should be checked against internal policies and recorded."},
+            ],
+            related=["best-wine-gifts-under-100", "best-client-wine-gifts", "business-gift-wine-etiquette"],
+            cta="Plan a luxury wine gift",
+            cta_heading="Need a premium gift that still feels appropriate?",
+            cta_text="Use the planner to shape a clear brief before approaching suppliers.",
+        ),
+        "thank-you-wine-gifts": enhanced_guide(
+            title="Thank You Wine Gifts: Better Ways to Say Thanks Than a Random Bottle",
+            h1="Thank You Wine Gifts: Better Ways to Say Thanks Than a Random Bottle",
+            description="Warm, practical thank-you wine gift guidance for projects, referrals, hosts, teams, suppliers and partners.",
+            intro="A thank-you gift is not really about wine. It is about making the thanks feel visible.",
+            hero_bullets=[
+                "Best for: project endings, referrals, hosts, partners and team thank-yous",
+                "Typical budget: £25-£100",
+                "Avoid: a random bottle with a generic note",
+            ],
+            opening_heading="Start with the reason",
+            opening=[
+                "Was it a referral? A project that needed patience? A host who went out of their way? A team that made difficult work easier? The reason changes the gift.",
+                "Sometimes a bottle is enough. Sometimes a pair feels warmer. Sometimes a hamper or case is better because the thank-you belongs to a group. The message carries the emotion; the gift gives it somewhere to land.",
+            ],
+            best_fit_table={
+                "headers": ["Thank-you moment", "Gift that fits", "Tone"],
+                "rows": [
+                    ["Project completion", "Sparkling or mixed pair", "Appreciative and specific."],
+                    ["Referral", "Smart bottle or hamper", "Warm, not transactional."],
+                    ["Host", "Food-friendly bottle", "Personal and simple."],
+                    ["Team thank-you", "Mixed case or hamper", "Shareable."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "timing",
+                    "heading": "Timing changes the feeling",
+                    "paragraphs": [
+                        "A thank-you sent soon after the moment feels natural. A thank-you sent months later can still work, but the note has to explain the connection. If the relationship is commercially sensitive, avoid sending during a decision window.",
+                    ],
+                    "editorial_note": "The note does more work than the bottle. Do not treat it as an afterthought.",
+                },
+                {
+                    "id": "messages",
+                    "heading": "A few ways to say it",
+                    "messages": [
+                        {"label": "Project", "text": "Thank you for helping get the project over the line. We appreciated the collaboration and pace."},
+                        {"label": "Referral", "text": "A small thank-you for the introduction. We really appreciate you thinking of us."},
+                        {"label": "Host", "text": "Thank you again for hosting. We hope this gives you something nice to open afterwards."},
+                        {"label": "Team", "text": "A thank-you for the whole team. We appreciated the energy and care you brought to the work."},
+                    ],
+                },
+                {
+                    "id": "fit",
+                    "heading": "Make the gift fit the thanks",
+                    "paragraphs": [
+                        "A small, genuine gesture can be stronger than a larger gift with no emotional logic. If the thank-you is personal, keep it personal. If it is for a team, make it shareable. If alcohol is uncertain, choose an equal-quality alternative.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "What is a good thank-you wine gift?", "a": "A sparkling bottle, red/white pair, compact hamper or mixed case can work if it fits the recipient and occasion."},
+                {"q": "How much should I spend on a thank-you wine gift?", "a": "Many thank-you gifts sit between £25 and £100, depending on relationship and policy."},
+                {"q": "What should I write in the note?", "a": "Reference the specific help, project, referral or hospitality. Keep it short and warm."},
+                {"q": "Is wine suitable for every thank-you?", "a": "No. Use alternatives when alcohol suitability is unclear."},
+            ],
+            related=["client-wine-gifts", "best-client-wine-gifts", "corporate-wine-gifts-uk"],
+            cta="Plan a thank-you wine gift",
+            cta_heading="Want the thank-you to feel more personal?",
+            cta_text="Use the planner to match the gift route to the relationship and occasion.",
+        ),
+        "business-gift-wine-etiquette": enhanced_guide(
+            title="Business Gift Wine Etiquette: How to Send Wine Without Making It Awkward",
+            h1="Business Gift Wine Etiquette: How to Send Wine Without Making It Awkward",
+            description="Clear UK business wine gifting etiquette covering value, timing, alcohol suitability, policies, notes and when not to send wine.",
+            intro="Most etiquette problems are really judgement problems. The bottle is rarely the issue. The timing, value, assumptions and context are.",
+            hero_bullets=[
+                "Best for: policy-aware client and partner gifting",
+                "Typical budget: depends on relationship and internal policy",
+                "Avoid: gifts that feel like pressure or ignore alcohol suitability",
+            ],
+            opening_heading="Make it easy to accept",
+            opening=[
+                "A good business wine gift should be proportionate, explainable and easy for the recipient to accept. It should not create obligation, embarrassment or a compliance headache.",
+                "This is not legal advice, but where the value is meaningful or the relationship is commercially sensitive, it is sensible to check internal gift policies.",
+            ],
+            best_fit_table={
+                "headers": ["Judgement call", "Safer position", "Reason"],
+                "rows": [
+                    ["Timing", "After a milestone or thank-you moment", "Avoids pressure."],
+                    ["Value", "Policy-aware and proportionate", "Keeps it defensible."],
+                    ["Delivery", "Office unless home is appropriate", "Reduces awkwardness."],
+                    ["Suitability", "Offer non-alcohol alternatives", "Avoids assumptions."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "adult",
+                    "heading": "The adult-in-the-room checks",
+                    "paragraphs": [
+                        "Ask whether the recipient can accept it, whether alcohol is suitable, whether the value is proportionate and whether the timing could be misread. If any answer feels shaky, choose a safer route.",
+                        "Cultural, religious, health and personal reasons can all make alcohol unsuitable without the recipient wanting to explain. Do not make the gift depend on them having to disclose that.",
+                    ],
+                    "editorial_note": "If the gift would be hard to explain in an email, do not send it yet.",
+                },
+                {
+                    "id": "home-office",
+                    "heading": "Home or office?",
+                    "paragraphs": [
+                        "Office delivery is often simpler for business gifts, but not always. Remote work and Christmas closures can make home delivery more practical, as long as address handling is appropriate and expected.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "Is it appropriate to send wine as a business gift?", "a": "Sometimes, if it is proportionate, policy-aware and suitable for the recipient."},
+                {"q": "Should wine gifts be sent to home or office?", "a": "Office delivery is often safer unless home delivery is appropriate, expected and handled carefully."},
+                {"q": "Is this legal advice?", "a": "No. It is practical planning guidance. Use your own legal, procurement or compliance advice where needed."},
+                {"q": "What if I do not know whether they drink?", "a": "Choose an alcohol-free or food-led alternative."},
+            ],
+            related=["client-gifting-etiquette-uk", "client-gift-policy-checklist", "corporate-wine-gifts-uk"],
+            cta="Create a policy-aware gift plan",
+            cta_heading="Want to avoid an awkward gift?",
+            cta_text="Use ClientCellar to shape a more careful gift route before buying.",
+        ),
+        "corporate-event-wine-planning": enhanced_guide(
+            title="Corporate Event Wine Planning: How Much to Buy and What to Serve",
+            h1="Corporate Event Wine Planning: How Much to Buy and What to Serve",
+            description="Practical corporate event wine planning guidance for receptions, dinners, team celebrations and client events.",
+            intro="Event wine planning is not just choosing bottles. It is pacing, food, guest count, venue rules, delivery, glassware, chilling and making sure nobody feels forgotten.",
+            hero_bullets=[
+                "Best for: receptions, dinners, client events and team celebrations",
+                "Typical budget: plan per guest, then confirm with suppliers",
+                "Avoid: exact quantity promises without venue or supplier input",
+            ],
+            opening_heading="Plan the event, then the wine",
+            opening=[
+                "Start with the shape of the event. Is there a welcome drink? Is food being served? Is wine included during dinner or only at a reception? How long are guests in the room?",
+                "Quantities should be treated as planning ranges, not guarantees. The sensible move is to estimate, then ask the supplier or venue to sanity-check the mix.",
+            ],
+            best_fit_table={
+                "headers": ["Moment", "Planning direction", "Common miss"],
+                "rows": [
+                    ["Welcome drink", "Sparkling or adult alcohol-free alternative", "Forgetting non-drinkers."],
+                    ["Reception", "White-led mix with some red", "Overbuying heavy reds."],
+                    ["Dinner", "Food-led red and white split", "Ignoring the menu."],
+                    ["Team celebration", "Inclusive drinks range", "Making the event too alcohol-centred."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "walkthrough",
+                    "heading": "A simple event walk-through",
+                    "paragraphs": [
+                        "For a reception, think about speed and ease: sparkling at arrival, a white that works without food, a red that does not dominate, and proper alcohol-free options. For dinner, let the menu do more of the work. For a client event, restraint usually feels more professional than abundance.",
+                        "Hosts often forget the practical bits: chilling, glassware, delivery windows, corkage, returns, substitutions and who is actually responsible for service on the day.",
+                    ],
+                    "editorial_note": "For events, the operational questions are as important as the bottle choice.",
+                },
+                {
+                    "id": "supplier",
+                    "heading": "Questions for the supplier or venue",
+                    "paragraphs": [
+                        "Ask whether they can supply the required quantities by the event date, advise on the red/white/sparkling split, deliver to the venue, support sale-or-return where available, and explain what substitutions may be made.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "How much wine should I buy for a corporate event?", "a": "Use guest count, event length, food and format to create a planning estimate, then confirm with your supplier or venue."},
+                {"q": "What wine should be served at a business reception?", "a": "A simple mix of sparkling, white, red and alcohol-free drinks usually works better than niche choices."},
+                {"q": "Should corporate events include alcohol-free options?", "a": "Yes. Inclusive event planning should include adult alcohol-free alternatives."},
+                {"q": "Can ClientCellar supply event wine?", "a": "No. ClientCellar provides planning guidance and supplier-route recommendations."},
+            ],
+            related=["wine-for-corporate-events", "wine-tasting-corporate-event", "wine-gifts-for-events"],
+            cta="Plan a wine event",
+            cta_heading="Planning wine for a corporate event?",
+            cta_text="Use the event planner to estimate quantities, supplier questions and logistics.",
+            cta_url="/event-planner",
+        ),
+        "wine-tasting-corporate-event": enhanced_guide(
+            title="Wine Tasting Corporate Events: How to Make It Fun Without Making It Forced",
+            h1="Wine Tasting Corporate Events: How to Make It Fun Without Making It Forced",
+            description="Ideas for corporate wine tasting events, including hosted tastings, blind tasting, food pairing, team building and inclusive formats.",
+            intro="Wine tasting events work best when they are not treated like a lecture. Nobody wants to be trapped in a room being quietly tested on tannins.",
+            hero_bullets=[
+                "Best for: team socials, client entertainment and hosted tasting events",
+                "Typical budget: depends on host, wine, food and delivery",
+                "Avoid: wine snobbery, compulsory drinking and formats with no pace",
+            ],
+            opening_heading="Give people permission to enjoy it",
+            opening=[
+                "A good tasting gives people something to talk about besides work. A blind tasting works because people are allowed to be wrong. A regional theme works because it gives the evening a story. Food pairing works because it turns the wine into a shared experience rather than a quiz.",
+                "Keep it inclusive. Non-drinkers should not feel like spectators, and nobody should feel they need to perform expertise to belong in the room.",
+            ],
+            best_fit_table={
+                "headers": ["Format", "Best for", "Why it works"],
+                "rows": [
+                    ["Hosted tasting", "Client-safe events", "Keeps tone and pace."],
+                    ["Blind tasting", "Team socials", "Makes being wrong part of the fun."],
+                    ["Regional theme", "More editorial feel", "Gives the event a story."],
+                    ["Food pairing", "Premium events", "Feels complete."],
+                    ["Virtual tasting", "Remote teams", "Delivery becomes the main risk."],
+                ],
+            },
+            article_sections=[
+                {
+                    "id": "human",
+                    "heading": "Keep the tasting human",
+                    "paragraphs": [
+                        "The host matters more than the rarity of the bottles. Choose someone who can read the room, keep explanations short and make beginners feel comfortable.",
+                        "For teams, a simple scorecard or blind round can work well. For clients, keep the tone polished and relaxed. For remote groups, build in more lead time because delivery is part of the event.",
+                    ],
+                    "editorial_note": "Avoid making people prove they know wine. The event should give them confidence, not homework.",
+                },
+                {
+                    "id": "inclusive",
+                    "heading": "Do not make non-drinkers spectators",
+                    "paragraphs": [
+                        "Offer alcohol-free alternatives with the same level of care, include food and water, keep pour sizes modest, and make it clear that tasting does not mean compulsory drinking.",
+                    ],
+                },
+            ],
+            faqs=[
+                {"q": "Are wine tastings good corporate events?", "a": "They can be, if they are hosted well, inclusive and not too heavy on wine knowledge."},
+                {"q": "What format works best for a team wine tasting?", "a": "A relaxed hosted tasting, blind tasting or food-pairing format usually works well."},
+                {"q": "Can wine tastings work remotely?", "a": "Yes, but delivery lead times, address handling and alcohol-free alternatives need planning."},
+                {"q": "How do you avoid making a wine tasting feel forced?", "a": "Keep the structure simple, the tone relaxed, and avoid making attendees perform expertise."},
+            ],
+            related=["virtual-wine-tasting-for-teams", "wine-tasting-team-building", "corporate-event-wine-planning"],
+            cta="Plan a wine event",
+            cta_heading="Want a tasting that people actually enjoy?",
+            cta_text="Use the event planner to shape format, supplier questions and event logistics.",
+            cta_url="/event-planner",
+        ),
+    }
+)
+
 
 SEO_PAGES = {
     "corporate-wine-gifts": {
