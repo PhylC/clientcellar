@@ -34,10 +34,9 @@
 
 <section class="guide-layout">
   <article class="guide-content guide-content--enhanced">
-    <section id="quick-answer" class="guide-quick-answer">
-      <p class="eyebrow">Quick answer</p>
-      <h2>{{ guide.quick_answer_title or "Quick answer" }}</h2>
-      {% for paragraph in guide.quick_answer %}<p>{{ paragraph }}</p>{% endfor %}
+    <section id="opening" class="guide-opening-section">
+      <h2>{{ guide.opening_heading }}</h2>
+      {% for paragraph in guide.opening %}<p>{{ paragraph }}</p>{% endfor %}
     </section>
 
     {% if guide.best_fit_table %}
@@ -143,7 +142,7 @@
 
   <aside class="guide-rail" aria-label="Guide actions and related links">
     <div class="guide-rail-card">
-      <p class="eyebrow">Plan this gift</p>
+      <p class="eyebrow">{% if guide.cta_url == "/event-planner" %}Plan this event{% else %}Plan this gift{% endif %}</p>
       <h2>{{ guide.rail_heading or "Turn this into a brief" }}</h2>
       <p>{{ guide.rail_text or "Use the free planner to shape budget, recipient details and supplier route." }}</p>
       <a class="button primary full" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
@@ -153,8 +152,10 @@
       <p class="eyebrow">Related guides</p>
       <nav class="guide-rail-links" aria-label="Related guides">
         {% for related_slug in guide.related %}
+          {% if related_slug in guides %}
           {% set related = guides[related_slug] %}
           <a href="/guides/{{ related_slug }}">{{ related.title }}</a>
+          {% endif %}
         {% endfor %}
       </nav>
     </div>
@@ -186,11 +187,13 @@
   </div>
   <div class="card-grid three">
     {% for related_slug in guide.related %}
+      {% if related_slug in guides %}
       {% set related = guides[related_slug] %}
       <article class="card">
         <h3><a href="/guides/{{ related_slug }}">{{ related.title }}</a></h3>
         <p>{{ related.intro }}</p>
       </article>
+      {% endif %}
     {% endfor %}
   </div>
 </section>

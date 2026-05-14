@@ -228,9 +228,19 @@ def test_required_affiliate_ready_guides_load():
     guide_paths = [
         "/guides/best-client-wine-gifts",
         "/guides/corporate-wine-gifts-uk",
+        "/guides/client-wine-gifts",
         "/guides/best-wine-gifts-under-25",
         "/guides/best-wine-gifts-under-50",
         "/guides/best-wine-gifts-under-100",
+        "/guides/christmas-corporate-wine-gifts",
+        "/guides/wine-gift-hampers-uk",
+        "/guides/corporate-gift-ideas-for-clients",
+        "/guides/wine-gifts-for-customers",
+        "/guides/luxury-corporate-wine-gifts",
+        "/guides/thank-you-wine-gifts",
+        "/guides/business-gift-wine-etiquette",
+        "/guides/corporate-event-wine-planning",
+        "/guides/wine-tasting-corporate-event",
         "/guides/champagne-gifts-for-clients",
         "/guides/red-wine-gifts-for-clients",
         "/guides/white-wine-gifts-for-clients",
@@ -253,6 +263,16 @@ def test_required_affiliate_ready_guides_load():
         "/guides/best-wine-gifts-under-50",
         "/guides/christmas-corporate-wine-gifts",
         "/guides/wine-gift-hampers-uk",
+        "/guides/best-client-wine-gifts",
+        "/guides/best-wine-gifts-under-25",
+        "/guides/best-wine-gifts-under-100",
+        "/guides/corporate-gift-ideas-for-clients",
+        "/guides/wine-gifts-for-customers",
+        "/guides/luxury-corporate-wine-gifts",
+        "/guides/thank-you-wine-gifts",
+        "/guides/business-gift-wine-etiquette",
+        "/guides/corporate-event-wine-planning",
+        "/guides/wine-tasting-corporate-event",
     }
     for path in guide_paths:
         response = client.get(path)
@@ -263,7 +283,9 @@ def test_required_affiliate_ready_guides_load():
         assert "Planning note: ClientCellar provides guidance only" in response.text
         if path in enhanced_paths:
             assert "ClientCellar guide" in response.text
-            assert "Quick answer" in response.text
+            assert "guide-opening-section" in response.text
+            assert "Quick answer" not in response.text
+            assert "guide-quick-answer" not in response.text
             assert "Best fit comparison" in response.text
             assert "Supplier routes to consider" in response.text
             assert "Editorial policy" in response.text
@@ -310,11 +332,23 @@ def test_enhanced_guides_render_editorial_blocks_without_placeholder_images():
         "/guides/best-wine-gifts-under-50",
         "/guides/christmas-corporate-wine-gifts",
         "/guides/wine-gift-hampers-uk",
+        "/guides/best-client-wine-gifts",
+        "/guides/best-wine-gifts-under-25",
+        "/guides/best-wine-gifts-under-100",
+        "/guides/corporate-gift-ideas-for-clients",
+        "/guides/wine-gifts-for-customers",
+        "/guides/luxury-corporate-wine-gifts",
+        "/guides/thank-you-wine-gifts",
+        "/guides/business-gift-wine-etiquette",
+        "/guides/corporate-event-wine-planning",
+        "/guides/wine-tasting-corporate-event",
     ]:
         response = client.get(path)
         assert response.status_code == 200
         assert "guide-best-fit-summary" in response.text
-        assert "guide-editorial-note" in response.text or path == "/guides/christmas-corporate-wine-gifts"
+        assert "guide-opening-section" in response.text
+        assert "Quick answer" not in response.text
+        assert "guide-quick-answer" not in response.text
         assert "<built-in method copy" not in response.text
         assert "dict object" not in response.text
         assert "<svg" not in response.text

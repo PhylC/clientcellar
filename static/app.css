@@ -2275,15 +2275,16 @@ textarea {
   line-height: 1.4;
 }
 
-.guide-quick-answer {
-  border: 1px solid rgba(123, 23, 51, 0.15);
-  border-radius: 10px;
-  background: #fffaf3;
-  padding: clamp(1rem, 2.6vw, 1.45rem) !important;
+.guide-opening-section {
+  border: 0;
+  border-left: 3px solid rgba(123, 23, 51, 0.32);
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 0 clamp(0.9rem, 2vw, 1.2rem) !important;
 }
 
-.guide-quick-answer .eyebrow {
-  margin-bottom: 0.45rem;
+.guide-opening-section h2 {
+  margin-top: 0;
 }
 
 .guide-best-fit-summary {
@@ -2635,7 +2636,7 @@ textarea {
   width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
   max-width: none;
   margin-top: 0.45rem;
-  margin-bottom: 0;
+  margin-bottom: 1.25rem;
   color: var(--muted);
   font-size: 0.88rem;
   line-height: 1.45;
@@ -3642,7 +3643,7 @@ textarea {
   .guide-content--enhanced li,
   .guide-best-fit-summary,
   .guide-best-fit-summary div,
-  .guide-quick-answer {
+  .guide-opening-section {
     min-width: 0;
     max-width: 100%;
     overflow-wrap: anywhere;
