@@ -247,6 +247,7 @@ def test_required_affiliate_ready_guides_load():
         "/guides/personalised-wine-gifts",
         "/guides/wine-gift-baskets-uk",
     ]
+    enhanced_paths = {"/guides/corporate-wine-gifts-uk", "/guides/best-wine-gifts-under-50"}
     for path in guide_paths:
         response = client.get(path)
         assert response.status_code == 200
@@ -254,12 +255,18 @@ def test_required_affiliate_ready_guides_load():
         assert "Written by ClientCellar editorial team" in response.text
         assert "Last updated: May 2026" in response.text
         assert "Planning note: ClientCellar provides guidance only" in response.text
-        assert "Recommended approach" in response.text
-        assert "What to check before ordering" in response.text
-        assert "Best use cases" in response.text
-        assert "Supplier links to consider" in response.text
+        if path in enhanced_paths:
+            assert "ClientCellar guide" in response.text
+            assert "Quick answer" in response.text
+            assert "Best fit comparison" in response.text
+            assert "Supplier routes to consider" in response.text
+            assert "Editorial policy" in response.text
+        else:
+            assert "Recommended approach" in response.text
+            assert "What to check before ordering" in response.text
+            assert "Best use cases" in response.text
+            assert "Supplier links to consider" in response.text
         assert "In this guide" not in response.text
-        assert "Quick answer" not in response.text
 
 
 def test_new_high_intent_guides_load():
@@ -285,7 +292,7 @@ def test_guide_faq_sections_include_matching_faq_schema():
     response = client.get("/guides/corporate-wine-gifts-uk")
     assert response.status_code == 200
     assert "FAQs" in response.text
-    assert "Are prices and stock live?" in response.text
+    assert "What is a good corporate wine gift in the UK?" in response.text
 
     faq_schemas = [
         item
@@ -296,9 +303,9 @@ def test_guide_faq_sections_include_matching_faq_schema():
     assert len(faq_schemas) == 1
     questions = [item["name"] for item in faq_schemas[0]["mainEntity"]]
     answers = [item["acceptedAnswer"]["text"] for item in faq_schemas[0]["mainEntity"]]
-    assert "Do corporate wine gifts need approval?" in questions
-    assert "Are prices and stock live?" in questions
-    assert "Should we include alcohol-free alternatives?" in questions
+    assert "What is a good corporate wine gift in the UK?" in questions
+    assert "How much should I spend on a client wine gift?" in questions
+    assert "Should I send one bottle or a case?" in questions
     assert all(answer in response.text for answer in answers)
     assert not any("review" in json.dumps(item).lower() or "rating" in json.dumps(item).lower() for item in faq_schemas)
 
