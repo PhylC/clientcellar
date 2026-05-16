@@ -713,6 +713,18 @@ def test_guide_detail_pages_use_mapped_hero_images():
         assert alt in response.text
 
 
+def test_related_guide_cards_include_thumbnails():
+    guide_response = client.get("/guides/corporate-wine-gifts-uk")
+    assert guide_response.status_code == 200
+    assert "related-guide-thumb" in guide_response.text
+    assert "/images/clientcellar/guides/client-wine-gifts.webp" in guide_response.text
+
+    seo_response = client.get("/client-christmas-gifts-uk")
+    assert seo_response.status_code == 200
+    assert "related-guide-thumb" in seo_response.text
+    assert "/images/clientcellar/guides/christmas-corporate-wine-gifts.webp" in seo_response.text
+
+
 def test_clientcellar_brand_assets_are_served_and_referenced():
     for path, content_type in [
         ("/images/clientcellar/clientcellar-logo-lockup-360.webp", "image/webp"),

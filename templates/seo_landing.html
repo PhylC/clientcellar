@@ -117,8 +117,13 @@
   </div>
   <div class="card-grid three">
     {% for label, href, text in page.related_guides %}
+    {% set related_slug = href.strip("/").split("/")[-1] %}
+    {% set related_guide = guides.get(related_slug) if guides is defined else none %}
     <article class="guide-card">
       <p class="eyebrow">Guide</p>
+      {% if related_guide and related_guide.image %}
+      <img class="guide-card-thumb related-guide-thumb" src="{{ related_guide.image }}" width="{{ related_guide.image_width or 1200 }}" height="{{ related_guide.image_height or 900 }}" alt="{{ related_guide.imageAlt }}" loading="lazy" decoding="async">
+      {% endif %}
       <h2><a href="{{ href }}">{{ label }}</a></h2>
       <p>{{ text }}</p>
       <div class="button-row"><a class="text-link" href="{{ href }}">Read guide</a></div>

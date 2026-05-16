@@ -195,6 +195,9 @@
       {% if related_slug in guides %}
       {% set related = guides[related_slug] %}
       <article class="card">
+        {% if related.image %}
+        <img class="guide-card-thumb related-guide-thumb" src="{{ related.image }}" width="{{ related.image_width or 1200 }}" height="{{ related.image_height or 900 }}" alt="{{ related.imageAlt }}" loading="lazy" decoding="async">
+        {% endif %}
         <h3><a href="/guides/{{ related_slug }}">{{ related.title }}</a></h3>
         <p>{{ related.intro }}</p>
       </article>
@@ -397,6 +400,9 @@
     {% for related_slug in guide.related %}
       {% set related = guides[related_slug] %}
       <article class="card">
+        {% if related.image %}
+        <img class="guide-card-thumb related-guide-thumb" src="{{ related.image }}" width="{{ related.image_width or 1200 }}" height="{{ related.image_height or 900 }}" alt="{{ related.imageAlt }}" loading="lazy" decoding="async">
+        {% endif %}
         <h3><a href="/guides/{{ related_slug }}">{{ related.title }}</a></h3>
         <p>{{ related.intro }}</p>
       </article>

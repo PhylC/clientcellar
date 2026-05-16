@@ -7451,6 +7451,8 @@ def guide_image_alt_for(slug: str, guide: dict | None = None) -> str:
 def clean_guide_image_asset_for(slug: str, guide: dict | None = None) -> dict | None:
     # Website guide images live in public/images/clientcellar/guides/*.webp.
     # Keep these clean, no-text assets separate from social/Pinterest graphics.
+    # Current guide images are suitable as thumbnails. Full hero images should
+    # use true high-resolution per-guide assets before being displayed large.
     image_path = GUIDE_IMAGE_DIR / f"{slug}.webp"
     if not image_path.exists():
         return None
@@ -9399,6 +9401,7 @@ def render_seo_landing(request: Request, slug: str):
         page["description"],
         page=page,
         slug=slug,
+        guides=GUIDES,
         structured_data=[
             breadcrumb_schema(request, [("Home", "/"), ("Guides", "/guides"), (page["h1"], f"/{slug}")]),
             *([faq_schema(page["faqs"])] if page.get("faqs") else []),
