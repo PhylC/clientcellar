@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="page-intro seo-hero">
-  <p class="eyebrow">ClientCellar planning page</p>
-  <h1>{{ page.h1 }}</h1>
-  <p>{{ page.intro }}</p>
-  <p class="small-note">ClientCellar provides planning guidance and does not sell alcohol directly. Recommendations are editorially selected; some supplier links may earn commission where available. <a href="/editorial-policy">Read our editorial policy</a>.</p>
-  <div class="hero-actions">
-    <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
-    {% if page.full_guide %}
-    <a class="button secondary" href="{{ page.full_guide[1] }}">{{ page.full_guide[0] }}</a>
-    {% endif %}
-    <a class="button secondary" href="{{ page.example_url or '/example-premium-brief-pack' }}">View premium example</a>
-  </div>
-</section>
+<div class="planning-page">
+  <section class="page-intro seo-hero planning-hero">
+    <p class="eyebrow">ClientCellar planning page</p>
+    <h1>{{ page.h1 }}</h1>
+    <p>{{ page.intro }}</p>
+    <p class="small-note">ClientCellar provides planning guidance and does not sell alcohol directly. Recommendations are editorially selected; some supplier links may earn commission where available. <a href="/editorial-policy">Read our editorial policy</a>.</p>
+    <div class="hero-actions">
+      <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
+      {% if page.full_guide %}
+      <a class="button secondary" href="{{ page.full_guide[1] }}">{{ page.full_guide[0] }}</a>
+      {% endif %}
+      <a class="button secondary" href="{{ page.example_url or '/example-premium-brief-pack' }}">View premium example</a>
+    </div>
+  </section>
 
-<section class="seo-editorial">
+<section class="seo-editorial planning-section">
   <p class="eyebrow">{{ page.editorial_label or "What this page is really for" }}</p>
   <h2>{{ page.editorial_heading or "Start with the situation" }}</h2>
   {% for paragraph in page.editorial_intro or [] %}
@@ -23,13 +24,13 @@
 </section>
 
 {% if page.decision %}
-<section class="seo-decision">
+<section class="seo-decision planning-section">
   <div class="section-heading">
     <p class="eyebrow">{{ page.decision.label or "Decision guide" }}</p>
     <h2>{{ page.decision.heading }}</h2>
     {% if page.decision.intro %}<p>{{ page.decision.intro }}</p>{% endif %}
   </div>
-  <div class="guide-comparison seo-comparison">
+  <div class="guide-comparison seo-comparison table-wrap">
     <table>
       <thead>
         <tr>
@@ -45,7 +46,7 @@
   </div>
 </section>
 {% elif page.sections %}
-<section class="seo-decision">
+<section class="seo-decision planning-section">
   <div class="section-heading">
     <p class="eyebrow">Planning notes</p>
     <h2>What to decide first</h2>
@@ -66,7 +67,7 @@
 {% endif %}
 
 {% if page.advisory %}
-<section class="seo-editorial seo-advisory">
+<section class="seo-editorial seo-advisory planning-section">
   <p class="eyebrow">{{ page.advisory.label or "ClientCellar view" }}</p>
   <h2>{{ page.advisory.heading }}</h2>
   {% for paragraph in page.advisory.paragraphs %}
@@ -79,7 +80,7 @@
 {% endif %}
 
 {% if page.supplier_routes %}
-<section class="seo-suppliers">
+<section class="seo-suppliers planning-section">
   <div class="section-heading">
     <p class="eyebrow">Supplier routes</p>
     <h2>{{ page.supplier_heading or "Useful supplier routes to compare" }}</h2>
@@ -101,7 +102,7 @@
 {% endif %}
 
 {% if page.related_guides %}
-<section class="seo-related-guides">
+<section class="seo-related-guides planning-section">
   <div class="section-heading">
     <p class="eyebrow">Read next</p>
     <h2>Deeper guides</h2>
@@ -120,12 +121,12 @@
 </section>
 {% endif %}
 
-<section class="trust-strip">
+<section class="trust-strip planning-section">
   Planning guidance only: ClientCellar does not sell alcohol directly. Confirm stock, pricing, age restrictions and delivery with the supplier.
 </section>
 
 {% if page.faqs %}
-<section class="seo-faq">
+<section class="seo-faq planning-section">
   <div class="section-heading">
     <p class="eyebrow">FAQ</p>
     <h2>Common questions</h2>
@@ -141,7 +142,7 @@
 </section>
 {% endif %}
 
-<section class="cta-panel seo-cta">
+<section class="cta-panel seo-cta planning-section">
   <div>
     <p class="eyebrow">{{ page.cta_eyebrow or "Turn guidance into a brief" }}</p>
     <h2>{{ page.cta_heading or "Create a clearer plan" }}</h2>
@@ -153,7 +154,7 @@
   </div>
 </section>
 
-<section class="seo-related-pages">
+<section class="seo-related-pages planning-section">
   <div class="section-heading">
     <p class="eyebrow">Related pages</p>
     <h2>Continue planning</h2>
@@ -164,4 +165,5 @@
     {% endfor %}
   </div>
 </section>
+</div>
 {% endblock %}
