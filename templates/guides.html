@@ -1,192 +1,224 @@
 {% extends "base.html" %}
+{% macro guide_card(slug, label, description, secondary_label=None) -%}
+  {% if slug in guides %}
+  {% set guide = guides[slug] %}
+  <article class="guide-card guide-hub-card">
+    <p class="eyebrow">{{ label }}</p>
+    <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
+    <p>{{ description or guide.description }}</p>
+    <div class="button-row guide-card-actions">
+      <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
+      {% if secondary_label %}
+      <a class="text-link" href="{{ guide.cta_url }}">{{ secondary_label }}</a>
+      {% endif %}
+    </div>
+  </article>
+  {% endif %}
+{%- endmacro %}
+
+{% macro page_card(title, href, label, description, secondary_href=None, secondary_label=None) -%}
+  <article class="guide-card guide-hub-card">
+    <p class="eyebrow">{{ label }}</p>
+    <h2><a href="{{ href }}">{{ title }}</a></h2>
+    <p>{{ description }}</p>
+    <div class="button-row guide-card-actions">
+      <a class="text-link" href="{{ href }}">Read page</a>
+      {% if secondary_href and secondary_label %}
+      <a class="text-link" href="{{ secondary_href }}">{{ secondary_label }}</a>
+      {% endif %}
+    </div>
+  </article>
+{%- endmacro %}
+
 {% block content %}
-<section class="page-intro">
-  <p class="eyebrow">Guides</p>
-  <h1>Corporate wine gift and tasting guides</h1>
-  <p>Practical guides for UK businesses planning client gifts, staff gifts, hampers and tasting events.</p>
-  <p class="small-note">Disclosure: ClientCellar may earn commission from some retailer or supplier links. Our guidance is written to help buyers choose suitable client gifts and event wine, not to favour any single retailer.</p>
+<section class="page-intro guide-hub-hero">
+  <p class="eyebrow">ClientCellar guides</p>
+  <h1>Wine gift and event guides for people who do not want to send something generic</h1>
+  <p>Practical UK guides for client gifts, corporate wine, hampers, Christmas gifting and event planning. Start with the situation you are dealing with, not a random list of articles.</p>
+  <p class="small-note">Our guides are written to help buyers make better gifting and event decisions. Some supplier links may earn commission where available, but our guidance is <a href="/editorial-policy">editorially selected</a>.</p>
   <div class="hero-actions">
-    <a class="button primary" href="/gift-planner">Plan corporate gifts</a>
-    <a class="button secondary" href="/event-planner">Plan a wine tasting event</a>
+    <a class="button primary" href="/gift-planner">Plan a corporate gift</a>
+    <a class="button secondary" href="/event-planner">Plan a wine event</a>
   </div>
 </section>
 
-<section class="guide-group">
-  {% set seo_planning_pages = [
-    ("Corporate wine gifts UK", "/corporate-wine-gifts-uk", "Supplier routes, budget checks and planning guidance for UK corporate wine gifting."),
-    ("Client Christmas gifts UK", "/client-christmas-gifts-uk", "Christmas gifting routes for clients, with delivery and suitability checks."),
-    ("Corporate hampers UK", "/corporate-hampers-uk", "When hampers are a safer route for staff, clients and mixed recipient groups."),
-    ("Best wine gifts for clients", "/best-wine-gifts-for-clients", "How to choose client wine gifts without relying on live stock or pricing claims."),
-    ("Corporate gifting ideas UK", "/corporate-gifting-ideas-uk", "Practical UK gifting ideas across wine, hampers and alcohol-free alternatives."),
-    ("Event wine planning UK", "/event-wine-planning-uk", "Quantity, supplier and logistics guidance for corporate event wine planning."),
-    ("Wine for corporate events", "/wine-for-corporate-events", "Supplier routes and checks for receptions, dinners and team events."),
-    ("Thank-you gifts for clients", "/thank-you-gifts-for-clients", "Professional thank-you gift routes for UK client relationships."),
-    ("Staff wine gifts UK", "/staff-wine-gifts-uk", "Inclusive staff gifting guidance for wine, hampers and alternatives."),
-    ("Premium client gifts UK", "/premium-client-gifts-uk", "VIP and premium client gift planning with approval-ready checks.")
-  ] %}
-  <div class="section-header section-heading">
-    <p class="eyebrow">Planning pages</p>
-    <h2>Popular UK corporate gifting searches</h2>
+<section class="guide-hub-section guide-start">
+  <div class="section-heading">
+    <p class="eyebrow">Start here</p>
+    <h2>Start with what you are trying to do</h2>
   </div>
-  <div class="guide-grid">
-    {% for title, href, description in seo_planning_pages %}
-    <article class="guide-card">
-      <p class="eyebrow">Planning page</p>
-      <h2><a href="{{ href }}">{{ title }}</a></h2>
-      <p>{{ description }}</p>
-      <div class="button-row">
-        <a class="text-link" href="{{ href }}">Read page</a>
-        <a class="text-link" href="/gift-planner">Create a free plan</a>
-      </div>
-    </article>
-    {% endfor %}
-  </div>
-</section>
-
-<section class="guide-group">
-  {% set corporate_guides = [
-    "corporate-wine-gifts-uk",
-    "client-wine-gifts",
-    "best-client-wine-gifts",
-    "corporate-gift-ideas-for-clients",
-    "wine-gifts-for-customers",
-    "luxury-corporate-wine-gifts",
-    "luxury-wine-gifts-for-clients",
-    "champagne-gifts-for-clients",
-    "red-wine-gifts-for-clients",
-    "white-wine-gifts-for-clients",
-    "personalised-wine-gifts"
-  ] %}
-  <div class="section-header section-heading">
-    <p class="eyebrow">Client gifts</p>
-    <h2>Corporate and client wine gift guides</h2>
-  </div>
-  <div class="guide-grid">
-    {% for slug in corporate_guides %}
-      {% if slug in guides %}
-      {% set guide = guides[slug] %}
-      <article class="guide-card">
-        <p class="eyebrow">Gift guide</p>
-        <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
-        <p>{{ guide.description }}</p>
-        <div class="button-row">
-          <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
-          <a class="text-link" href="{{ guide.cta_url }}">Plan this</a>
-        </div>
-      </article>
-      {% endif %}
-    {% endfor %}
+  <div class="guide-intent-grid">
+    <a class="guide-intent-card" href="/guides/client-wine-gifts">
+      <strong>I need a client gift</strong>
+      <span>Start here if you are thanking a client, sending a bottle after a project, or trying not to look generic.</span>
+    </a>
+    <a class="guide-intent-card" href="/guides/christmas-corporate-wine-gifts">
+      <strong>I am planning Christmas gifts</strong>
+      <span>Avoid the beige hamper problem and choose something that feels more considered.</span>
+    </a>
+    <a class="guide-intent-card" href="#budget-guides">
+      <strong>I have a fixed budget</strong>
+      <span>See what different budgets can realistically buy without pretending every gift is luxury.</span>
+    </a>
+    <a class="guide-intent-card" href="/guides/wine-gift-hampers-uk">
+      <strong>I am buying for a team</strong>
+      <span>Choose something shareable that does not create an awkward “who gets the bottle?” problem.</span>
+    </a>
+    <a class="guide-intent-card" href="#event-guides">
+      <strong>I am planning an event</strong>
+      <span>Work out quantities, styles and supplier questions for corporate events or tastings.</span>
+    </a>
+    <a class="guide-intent-card" href="/guides/business-gift-wine-etiquette">
+      <strong>I need etiquette advice</strong>
+      <span>Useful if you are unsure about value, timing, alcohol, policy or whether wine is appropriate.</span>
+    </a>
   </div>
 </section>
 
-<section class="guide-group">
-  {% set relationship_guides = [
-    "best-wine-gifts-under-25",
-    "best-wine-gifts-under-50",
-    "best-wine-gifts-under-100",
-    "corporate-wine-gifts-under-50",
-    "corporate-wine-gifts-under-100",
-    "how-much-to-spend-on-client-gifts",
-    "client-gift-policy-checklist",
-    "client-gifting-etiquette-uk",
-    "business-gift-wine-etiquette",
-    "christmas-corporate-wine-gifts",
-    "christmas-wine-gifts-for-clients",
-    "wine-gifts-for-christmas",
-    "wine-gifts-for-thank-you",
-    "thank-you-wine-gifts",
-    "wine-gifts-for-new-business",
-    "client-thank-you-wine-gifts",
-    "wine-gifts-for-sales-teams",
-    "wine-gifts-for-agencies",
-    "wine-gifts-for-law-firms",
-    "wine-gifts-for-accountancy-firms",
-    "staff-wine-gifts"
-  ] %}
-  <div class="section-header section-heading">
-    <p class="eyebrow">Budget and buying advice</p>
-    <h2>Budget, etiquette and relationship-specific guidance</h2>
+<section class="guide-hub-section guide-use-panel">
+  <div>
+    <p class="eyebrow">How to use these guides</p>
+    <h2>Do not start with the bottle</h2>
+    <p>Start with the situation: who the gift is for, why you are sending it, whether it needs to be shared, and how much you can sensibly spend. The right wine gift is usually the one that creates the least friction for the person receiving it.</p>
+  </div>
+  <ul>
+    <li>If taste is unknown, choose safer styles or a mixed case.</li>
+    <li>If it is for a team, make it shareable.</li>
+    <li>If the relationship is sensitive, check policy and keep the gift modest.</li>
+  </ul>
+</section>
+
+<section class="guide-group guide-hub-section">
+  <div class="section-heading">
+    <p class="eyebrow">Recommended first reads</p>
+    <h2>Most useful places to start</h2>
+    <p>If you are not sure where to begin, these are the guides most people should read first.</p>
   </div>
   <div class="guide-grid">
-    {% for slug in relationship_guides %}
-      {% if slug in guides %}
-      {% set guide = guides[slug] %}
-      <article class="guide-card">
-        <p class="eyebrow">Gift guide</p>
-        <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
-        <p>{{ guide.description }}</p>
-        <div class="button-row">
-          <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
-          <a class="text-link" href="{{ guide.cta_url }}">Plan this</a>
-        </div>
-      </article>
-      {% endif %}
-    {% endfor %}
+    {{ guide_card("corporate-wine-gifts-uk", "Corporate gifting", "The flagship guide to choosing wine gifts that feel thoughtful, appropriate and practical.", "Build a gift brief") }}
+    {{ guide_card("client-wine-gifts", "Client gifting", "Start with relationship context, tone and timing before choosing a bottle or hamper.", "Plan a client gift") }}
+    {{ guide_card("best-client-wine-gifts", "Client gifting", "A decision-led guide for choosing safer client gifts by relationship and situation.", "Create a shortlist") }}
+    {{ guide_card("corporate-gift-ideas-for-clients", "Gift ideas", "A broader guide for when wine is one option, not automatically the only answer.", "Compare gift routes") }}
+    {{ guide_card("wine-gift-hampers-uk", "Hampers", "A critical guide to choosing hampers that are not just big baskets of filler.", "Plan a hamper") }}
+    {{ guide_card("business-gift-wine-etiquette", "Etiquette", "Read this when value, timing, alcohol suitability or policy could make the gift awkward.", "Check the route") }}
   </div>
 </section>
 
-<section class="guide-group">
-  {% set event_guides = [
-    "corporate-event-wine-planning",
-    "wine-tasting-corporate-event",
-    "virtual-wine-tasting-for-teams",
-    "corporate-wine-tasting-london",
-    "wine-tasting-team-building",
-    "wine-gifts-for-events"
-  ] %}
-  <div class="section-header section-heading">
-    <p class="eyebrow">Event wine planning</p>
-    <h2>Planning guides for hosted, virtual and in-person tastings</h2>
+<section class="guide-group guide-hub-section" id="budget-guides">
+  <div class="section-heading">
+    <p class="eyebrow">Budget guides</p>
+    <h2>Choosing by budget</h2>
+    <p>Budget changes the job. £25, £50 and £100 are very different wine gifts, and pretending otherwise is where a lot of bad gifting starts.</p>
   </div>
   <div class="guide-grid">
-    {% for slug in event_guides %}
-      {% if slug in guides %}
-      {% set guide = guides[slug] %}
-      <article class="guide-card">
-        <p class="eyebrow">Event guide</p>
-        <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
-        <p>{{ guide.description }}</p>
-        <div class="button-row">
-          <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
-          <a class="text-link" href="{{ guide.cta_url }}">Plan this</a>
-        </div>
-      </article>
-      {% endif %}
-    {% endfor %}
+    {{ guide_card("best-wine-gifts-under-25", "Budget guide", "Honest advice for small wine gifts that should not pretend to be luxury.", "Start with budget") }}
+    {{ guide_card("best-wine-gifts-under-50", "Budget guide", "Sharp buying guidance for the budget where simple and well-chosen beats overpackaged.", "Find a gift") }}
+    {{ guide_card("best-wine-gifts-under-100", "Budget guide", "Where wine gifting gets interesting: bottle, pair, case, hamper or Champagne.", "Compare options") }}
+    {{ guide_card("luxury-corporate-wine-gifts", "Premium gifts", "How to use a higher budget without making the gift feel loud or awkward.", "Plan premium") }}
   </div>
 </section>
 
-<section class="guide-group">
-  {% set planning_guides = [
-    "corporate-gifting-recipient-csv-template",
-    "best-wine-accessories-for-gifts",
-    "non-alcoholic-client-gifts",
-    "luxury-wine-hampers-uk",
-    "wine-gift-hampers-uk",
-    "corporate-wine-hampers",
-    "food-and-wine-hampers",
-    "wine-gift-baskets-uk",
-    "english-sparkling-corporate-gifts"
-  ] %}
-  <div class="section-header section-heading">
-    <p class="eyebrow">Hampers and alternatives</p>
-    <h2>Useful extras, templates and alternatives</h2>
+<section class="guide-group guide-hub-section">
+  <div class="section-heading">
+    <p class="eyebrow">Client relationships</p>
+    <h2>Client and customer gifting</h2>
+    <p>For thank-yous, account management, customer appreciation and gifts where tone matters as much as the bottle.</p>
   </div>
   <div class="guide-grid">
-    {% for slug in planning_guides %}
-      {% if slug in guides %}
-      {% set guide = guides[slug] %}
-      <article class="guide-card">
-        <p class="eyebrow">Checklist</p>
-        <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
-        <p>{{ guide.description }}</p>
-        <div class="button-row">
-          <a class="text-link" href="/guides/{{ slug }}">Read guide</a>
-          <a class="text-link" href="/premium-pack">View Premium Brief Pack</a>
-        </div>
-      </article>
-      {% endif %}
-    {% endfor %}
+    {{ guide_card("client-wine-gifts", "Client gifting", "Relationship-led advice for client gifts that feel personal without getting weird.", "Plan a client gift") }}
+    {{ guide_card("best-client-wine-gifts", "Client gifting", "A practical guide to what to choose for new clients, senior contacts and teams.", "Create a shortlist") }}
+    {{ guide_card("thank-you-wine-gifts", "Thank-you gifts", "Warm guidance for project, referral, partner and team thank-you moments.", "Plan thanks") }}
+    {{ guide_card("wine-gifts-for-customers", "Customer gifts", "Careful advice for customer gifts where scale, data and suitability matter.", "Plan customer gifts") }}
+    {{ guide_card("corporate-gift-ideas-for-clients", "Gift ideas", "A wider look at wine, hampers, coffee, experiences and alcohol-free routes.", "Compare routes") }}
+    {{ guide_card("corporate-wine-gifts-uk", "Corporate gifting", "The main guide for UK corporate wine gifts, budgets, notes and supplier routes.", "Build a brief") }}
+  </div>
+</section>
+
+<section class="guide-group guide-hub-section">
+  <div class="section-heading">
+    <p class="eyebrow">Seasonal gifting</p>
+    <h2>Christmas and seasonal gifting</h2>
+    <p>Useful if you are trying to avoid the standard December gift that looks like it came from a procurement spreadsheet.</p>
+  </div>
+  <div class="guide-grid">
+    {{ guide_card("christmas-corporate-wine-gifts", "Christmas gifting", "Seasonal advice for client and team wine gifts that do not feel last-minute.", "Plan Christmas gifts") }}
+    {{ page_card("Client Christmas gifts UK", "/client-christmas-gifts-uk", "Planning page", "Christmas gifting routes for clients, with delivery and suitability checks.", "/gift-planner", "Create a gift plan") }}
+    {{ page_card("Corporate hampers UK", "/corporate-hampers-uk", "Planning page", "When hampers are a safer route for staff, clients and mixed recipient groups.", "/gift-planner", "Compare hampers") }}
+    {{ guide_card("wine-gift-hampers-uk", "Hampers", "A critical guide to choosing a hamper that is worth sending.", "Plan a hamper") }}
+    {{ guide_card("corporate-wine-gifts-uk", "Corporate gifting", "The wider guide for choosing wine gifts by relationship, budget and occasion.", "Build a brief") }}
+  </div>
+</section>
+
+<section class="guide-group guide-hub-section">
+  <div class="section-heading">
+    <p class="eyebrow">Shareable gifts</p>
+    <h2>Hampers and gifts for teams</h2>
+    <p>For offices, teams and recipients where one bottle may not be the most useful answer.</p>
+  </div>
+  <div class="guide-grid">
+    {{ guide_card("wine-gift-hampers-uk", "Hampers", "How to avoid filler and choose hampers that feel genuinely useful.", "Plan a hamper") }}
+    {{ page_card("Corporate hampers UK", "/corporate-hampers-uk", "Planning page", "A quick planning page for corporate hamper routes and supplier checks.", "/gift-planner", "Compare hampers") }}
+    {{ guide_card("corporate-wine-gifts-uk", "Corporate gifting", "Use this when you are still deciding between bottle, case and hamper.", "Build a brief") }}
+    {{ guide_card("best-wine-gifts-under-100", "Budget guide", "A strong budget guide for cases, compact hampers and premium bottle options.", "Start with budget") }}
+    {{ guide_card("christmas-corporate-wine-gifts", "Christmas gifting", "A seasonal guide for gifts that need to arrive cleanly and feel considered.", "Plan Christmas") }}
+  </div>
+</section>
+
+<section class="guide-group guide-hub-section" id="event-guides">
+  <div class="section-heading">
+    <p class="eyebrow">Events</p>
+    <h2>Events and wine tastings</h2>
+    <p>Planning wine for an event is different from buying a gift. You need to think about guests, pacing, food, non-drinkers and quantities.</p>
+  </div>
+  <div class="guide-grid">
+    {{ guide_card("corporate-event-wine-planning", "Event planning", "A planning memo-style guide for quantities, pacing, food and supplier questions.", "Plan event wine") }}
+    {{ guide_card("wine-tasting-corporate-event", "Wine tasting", "A more human guide to tastings that feel social, not like a lecture.", "Plan a tasting") }}
+    {{ page_card("Event wine planning UK", "/event-wine-planning-uk", "Planning page", "Quantity, supplier and logistics guidance for corporate event wine planning.", "/event-planner", "Build event plan") }}
+    {{ page_card("Wine for corporate events", "/wine-for-corporate-events", "Planning page", "Supplier routes and checks for receptions, dinners and team events.", "/event-planner", "Plan event wine") }}
+    {{ guide_card("virtual-wine-tasting-for-teams", "Virtual tasting", "How to make remote tastings work without awkward video-call energy.", "Plan virtual tasting") }}
+    {{ guide_card("corporate-wine-tasting-london", "London events", "For London tastings where location, transport and tone matter.", "Plan a London tasting") }}
+  </div>
+  <div class="guide-section-cta">
+    <p>Planning an event? Build a clearer wine plan before you speak to suppliers.</p>
+    <a class="button primary" href="/event-planner">Build a clearer wine plan</a>
+  </div>
+</section>
+
+<section class="guide-group guide-hub-section">
+  <div class="section-heading">
+    <p class="eyebrow">Judgement calls</p>
+    <h2>Etiquette, policy and not making it awkward</h2>
+    <p>Sometimes the best wine gift is the one you decide not to send. These guides help with value, timing, alcohol suitability and corporate judgement.</p>
+  </div>
+  <div class="guide-grid">
+    {{ guide_card("business-gift-wine-etiquette", "Etiquette", "The adult-in-the-room guide to proportion, timing, alcohol and policy.", "Check etiquette") }}
+    {{ guide_card("client-gift-policy-checklist", "Policy", "A practical checklist for gifts that need to be explainable and proportionate.", "Check policy") }}
+    {{ guide_card("wine-gifts-for-customers", "Customer gifts", "Useful when scale, address data and alcohol suitability make gifting more sensitive.", "Plan carefully") }}
+    {{ guide_card("luxury-corporate-wine-gifts", "Premium gifts", "Why restraint often looks more premium than excess.", "Plan premium") }}
+    {{ guide_card("client-wine-gifts", "Client gifting", "Relationship-led advice for client gifts where tone matters.", "Plan a client gift") }}
+    {{ guide_card("non-alcoholic-client-gifts", "Alcohol-free", "For situations where wine is not the right answer or should not be the only option.", "Plan alternatives") }}
+  </div>
+</section>
+
+<section class="guide-group guide-hub-section">
+  <div class="section-heading">
+    <p class="eyebrow">More specific guides</p>
+    <h2>When you already know the route</h2>
+    <p>Use these when you are comparing a specific wine style, recipient group, supplier workflow or alternative.</p>
+  </div>
+  <div class="guide-grid">
+    {{ guide_card("champagne-gifts-for-clients", "Sparkling", "When Champagne works, and when it is just the obvious answer.", "Compare sparkling") }}
+    {{ guide_card("english-sparkling-corporate-gifts", "Sparkling", "A more UK-focused sparkling route for client gifts and milestones.", "Plan sparkling gifts") }}
+    {{ guide_card("red-wine-gifts-for-clients", "Wine style", "How to use red wine without ignoring taste risk.", "Plan red wine gifts") }}
+    {{ guide_card("white-wine-gifts-for-clients", "Wine style", "A lighter, practical route for summer gifts and mixed pairs.", "Plan white wine gifts") }}
+    {{ guide_card("personalised-wine-gifts", "Personalisation", "How to personalise without making the branding too loud.", "Plan personalised gifts") }}
+    {{ guide_card("corporate-gifting-recipient-csv-template", "Bulk gifting", "How to prepare recipient data without spreadsheet chaos.", "Plan bulk gifting") }}
+    {{ guide_card("best-wine-accessories-for-gifts", "Alternatives", "Wine-adjacent gifts that are useful rather than gimmicky.", "Compare alternatives") }}
+    {{ guide_card("wine-gift-baskets-uk", "Baskets", "When a basket works, and when a boxed hamper is safer.", "Compare baskets") }}
+    {{ guide_card("wine-gifts-for-sales-teams", "Staff gifts", "Recognition gifts for sales teams without turning rewards into admin.", "Plan team gifts") }}
+    {{ guide_card("wine-gifts-for-agencies", "Sector guide", "Agency client gifts that feel creative without becoming novelty.", "Plan agency gifts") }}
+    {{ guide_card("wine-gifts-for-law-firms", "Sector guide", "Restrained, policy-aware gifts for legal and professional relationships.", "Plan professional gifts") }}
+    {{ guide_card("wine-gifts-for-accountancy-firms", "Sector guide", "Practical gifts for accountancy clients and referral partners.", "Plan client gifts") }}
   </div>
 </section>
 {% endblock %}

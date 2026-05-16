@@ -1,35 +1,88 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="page-intro">
-  <p class="eyebrow">Planning guide</p>
+<section class="page-intro seo-hero">
+  <p class="eyebrow">ClientCellar planning page</p>
   <h1>{{ page.h1 }}</h1>
   <p>{{ page.intro }}</p>
+  <p class="small-note">ClientCellar provides planning guidance and does not sell alcohol directly. Recommendations are editorially selected; some supplier links may earn commission where available. <a href="/editorial-policy">Read our editorial policy</a>.</p>
   <div class="hero-actions">
     <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
-    <a class="button secondary" href="/suppliers">See more supplier routes</a>
-    <a class="button secondary" href="/pricing">View pricing</a>
-    <a class="text-link" href="{{ page.example_url or '/example-premium-brief-pack' }}">View premium example</a>
+    {% if page.full_guide %}
+    <a class="button secondary" href="{{ page.full_guide[1] }}">{{ page.full_guide[0] }}</a>
+    {% endif %}
+    <a class="button secondary" href="{{ page.example_url or '/example-premium-brief-pack' }}">View premium example</a>
   </div>
 </section>
 
-<section class="card-grid two seo-guide-grid page-grid">
-  {% for heading, bullets in page.sections %}
-  <article class="card">
-    <h2>{{ heading }}</h2>
-    <ul class="feature-list">
-      {% for item in bullets %}
-      <li>{{ item }}</li>
-      {% endfor %}
-    </ul>
-  </article>
+<section class="seo-editorial">
+  <p class="eyebrow">{{ page.editorial_label or "What this page is really for" }}</p>
+  <h2>{{ page.editorial_heading or "Start with the situation" }}</h2>
+  {% for paragraph in page.editorial_intro or [] %}
+  <p>{{ paragraph }}</p>
   {% endfor %}
 </section>
 
+{% if page.decision %}
+<section class="seo-decision">
+  <div class="section-heading">
+    <p class="eyebrow">{{ page.decision.label or "Decision guide" }}</p>
+    <h2>{{ page.decision.heading }}</h2>
+    {% if page.decision.intro %}<p>{{ page.decision.intro }}</p>{% endif %}
+  </div>
+  <div class="guide-comparison seo-comparison">
+    <table>
+      <thead>
+        <tr>
+          {% for heading in page.decision.headers %}<th>{{ heading }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in page.decision.rows %}
+        <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% elif page.sections %}
+<section class="seo-decision">
+  <div class="section-heading">
+    <p class="eyebrow">Planning notes</p>
+    <h2>What to decide first</h2>
+  </div>
+  <div class="card-grid two seo-guide-grid page-grid">
+    {% for heading, bullets in page.sections %}
+    <article class="card">
+      <h2>{{ heading }}</h2>
+      <ul class="feature-list">
+        {% for item in bullets %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if page.advisory %}
+<section class="seo-editorial seo-advisory">
+  <p class="eyebrow">{{ page.advisory.label or "ClientCellar view" }}</p>
+  <h2>{{ page.advisory.heading }}</h2>
+  {% for paragraph in page.advisory.paragraphs %}
+  <p>{{ paragraph }}</p>
+  {% endfor %}
+  {% if page.advisory.note %}
+  <aside class="guide-human-aside">{{ page.advisory.note }}</aside>
+  {% endif %}
+</section>
+{% endif %}
+
 {% if page.supplier_routes %}
-<section class="section">
-  <div class="section-header section-heading">
+<section class="seo-suppliers">
+  <div class="section-heading">
     <p class="eyebrow">Supplier routes</p>
-    <h2>Useful supplier routes to compare</h2>
+    <h2>{{ page.supplier_heading or "Useful supplier routes to compare" }}</h2>
     <p>Use these links as starting points, then confirm current stock, pricing, delivery dates, VAT treatment and suitability directly with the supplier.</p>
   </div>
   <div class="card-grid three">
@@ -47,13 +100,33 @@
 </section>
 {% endif %}
 
+{% if page.related_guides %}
+<section class="seo-related-guides">
+  <div class="section-heading">
+    <p class="eyebrow">Read next</p>
+    <h2>Deeper guides</h2>
+    <p>Use these if you want the fuller editorial guide behind this planning page.</p>
+  </div>
+  <div class="card-grid three">
+    {% for label, href, text in page.related_guides %}
+    <article class="guide-card">
+      <p class="eyebrow">Guide</p>
+      <h2><a href="{{ href }}">{{ label }}</a></h2>
+      <p>{{ text }}</p>
+      <div class="button-row"><a class="text-link" href="{{ href }}">Read guide</a></div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 <section class="trust-strip">
   Planning guidance only: ClientCellar does not sell alcohol directly. Confirm stock, pricing, age restrictions and delivery with the supplier.
 </section>
 
 {% if page.faqs %}
-<section class="section">
-  <div class="section-header section-heading">
+<section class="seo-faq">
+  <div class="section-heading">
     <p class="eyebrow">FAQ</p>
     <h2>Common questions</h2>
   </div>
@@ -68,20 +141,20 @@
 </section>
 {% endif %}
 
-<section class="cta-panel">
+<section class="cta-panel seo-cta">
   <div>
-    <p class="eyebrow">Turn guidance into a brief</p>
-    <h2>Create a supplier-ready plan</h2>
-    <p>Use ClientCellar to turn budget, timing and recipient details into a practical enquiry email and checklist.</p>
+    <p class="eyebrow">{{ page.cta_eyebrow or "Turn guidance into a brief" }}</p>
+    <h2>{{ page.cta_heading or "Create a clearer plan" }}</h2>
+    <p>{{ page.cta_text or "Use ClientCellar to turn budget, timing and recipient details into a practical supplier enquiry and checklist." }}</p>
   </div>
   <div class="hero-actions">
     <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
-    <a class="button secondary" href="/suppliers">See more supplier routes</a>
+    <a class="button secondary" href="/guides">Browse guides</a>
   </div>
 </section>
 
-<section class="section">
-  <div class="section-header">
+<section class="seo-related-pages">
+  <div class="section-heading">
     <p class="eyebrow">Related pages</p>
     <h2>Continue planning</h2>
   </div>

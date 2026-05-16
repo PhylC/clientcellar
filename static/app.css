@@ -395,6 +395,13 @@ main {
 .guide-grid,
 .guide-layout,
 .guide-planning-note,
+.guide-hub-section,
+.seo-editorial,
+.seo-decision,
+.seo-suppliers,
+.seo-related-guides,
+.seo-faq,
+.seo-related-pages,
 .related-bottom,
 .trust-strip,
 .cta-panel,
@@ -2210,6 +2217,187 @@ textarea {
   text-decoration: underline;
 }
 
+.guide-hub-hero {
+  padding-bottom: 1.25rem;
+}
+
+.guide-hub-hero h1,
+.guide-hub-hero p,
+.guide-intent-card span,
+.guide-use-panel p,
+.guide-hub-card h2,
+.guide-hub-card p {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.guide-hub-hero .small-note a,
+.guide-use-panel a {
+  color: var(--burgundy);
+  font-weight: 800;
+}
+
+.guide-hub-section {
+  margin: 0 auto;
+  padding: 1.25rem 0;
+}
+
+.guide-start {
+  padding-top: 0.25rem;
+}
+
+.guide-intent-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: 1fr;
+}
+
+.guide-intent-card {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+  border: 1px solid rgba(123, 23, 51, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 253, 249, 0.82);
+  padding: 1rem;
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+.guide-intent-card:hover {
+  border-color: rgba(123, 23, 51, 0.34);
+  background: var(--surface);
+  transform: translateY(-2px);
+}
+
+.guide-intent-card strong {
+  color: var(--burgundy);
+  font-size: 1.02rem;
+}
+
+.guide-intent-card span {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.guide-use-panel {
+  display: grid;
+  gap: 1rem;
+  border-top: 1px solid rgba(123, 23, 51, 0.18);
+  border-bottom: 1px solid rgba(123, 23, 51, 0.18);
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+.guide-use-panel h2 {
+  margin: 0 0 0.55rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.55rem, 3vw, 2.15rem);
+  line-height: 1.08;
+}
+
+.guide-use-panel p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.guide-use-panel ul {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.guide-hub-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.guide-hub-card h2 {
+  margin-bottom: 0.55rem;
+}
+
+.guide-hub-card p:not(.eyebrow) {
+  flex: 1;
+}
+
+.guide-card-actions {
+  gap: 0.5rem 0.85rem;
+}
+
+.guide-section-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid rgba(123, 23, 51, 0.16);
+  border-radius: 8px;
+  background: #fffaf3;
+  padding: 1rem;
+}
+
+.guide-section-cta p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--ink);
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.seo-hero .small-note a {
+  color: var(--burgundy);
+  font-weight: 800;
+}
+
+.seo-editorial,
+.seo-decision,
+.seo-suppliers,
+.seo-related-guides,
+.seo-faq,
+.seo-related-pages {
+  margin: 0 auto;
+  padding: clamp(1.25rem, 3vw, 2rem) 0;
+}
+
+.seo-editorial {
+  max-width: 860px;
+  border-top: 1px solid rgba(123, 23, 51, 0.18);
+  border-bottom: 1px solid rgba(123, 23, 51, 0.18);
+}
+
+.seo-editorial h2,
+.seo-decision .section-heading h2,
+.seo-suppliers .section-heading h2,
+.seo-related-guides .section-heading h2,
+.seo-faq .section-heading h2,
+.seo-related-pages .section-heading h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.6rem, 3.4vw, 2.45rem);
+  line-height: 1.08;
+}
+
+.seo-editorial p {
+  color: var(--muted);
+  font-size: 1.03rem;
+  line-height: 1.65;
+}
+
+.seo-comparison {
+  margin-top: 0.5rem;
+}
+
+.seo-cta {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
 .text-link {
   font-weight: 800;
 }
@@ -3059,6 +3247,15 @@ textarea {
 
   .guide-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .guide-intent-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .guide-use-panel {
+    grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.6fr);
+    align-items: start;
   }
 
   .card-grid.two,
@@ -3984,6 +4181,33 @@ textarea {
 }
 
 @media (max-width: 600px) {
+  .guide-hub-hero h1 {
+    font-size: clamp(1.95rem, 10vw, 2.45rem);
+    line-height: 1.04;
+  }
+
+  .guide-hub-section .section-heading h2,
+  .guide-use-panel h2 {
+    font-size: clamp(1.45rem, 8vw, 1.85rem);
+  }
+
+  .guide-hub-hero .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .guide-hub-hero .button,
+  .guide-section-cta .button {
+    width: 100%;
+  }
+
+  .guide-intent-card,
+  .guide-hub-card,
+  .guide-section-cta {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
   .premium-pack-header,
   .premium-pack-content {
     width: calc(100% - 2rem);
