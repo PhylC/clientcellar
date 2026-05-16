@@ -52,6 +52,8 @@ DEFAULT_META_DESCRIPTION = (
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 DB_PATH = DATA_DIR / "clientcellar.db"
+GUIDE_IMAGE_DIR = BASE_DIR / "public" / "images" / "clientcellar" / "guides"
+GUIDE_IMAGE_URL_PREFIX = "/images/clientcellar/guides"
 OPENAI_ENABLED = bool(os.getenv("OPENAI_API_KEY"))
 PACK_ACCESS_REQUEST_COUNTS: dict[str, int] = {}
 CSV_TEMPLATE = (
@@ -7363,7 +7365,98 @@ GUIDE_IMAGE_SLUGS = {
 }
 
 
+GUIDE_IMAGE_ALT_OVERRIDES = {
+    "corporate-wine-gifts": "Wine bottle and gift box for corporate gifting",
+    "corporate-wine-gifts-uk": "Wine bottle and gift box for corporate gifting",
+    "corporate-wine-gifts-uk-seo": "Wine bottle and gift box for corporate gifting",
+    "client-wine-gifts": "Wine gift with thank-you card for a client",
+    "client-wine-gifts-seo": "Wine gift with thank-you card for a client",
+    "best-client-wine-gifts": "Wine gift shortlist for client gifting",
+    "best-wine-gifts-for-clients": "Wine gift shortlist for client gifting",
+    "wine-gift-hampers-uk": "Wine hamper with food and gift packaging",
+    "corporate-hampers-uk": "Wine hamper with food and gift packaging",
+    "corporate-wine-hampers": "Wine hamper with food and gift packaging",
+    "luxury-wine-hampers-uk": "Premium wine hamper with food and gift packaging",
+    "food-and-wine-hampers": "Food and wine hamper with gift packaging",
+    "corporate-event-wine-planning": "Wine glasses on a table for event drinks planning",
+    "event-wine-planning-uk": "Wine glasses on a table for event drinks planning",
+    "wine-for-corporate-events": "Wine glasses on a table for corporate event drinks",
+    "corporate-wine-tasting-events": "Wine glasses and tasting notes for a corporate event",
+    "wine-tasting-corporate-event": "Wine glasses and tasting notes for a corporate event",
+    "virtual-wine-tasting-for-teams": "Virtual wine tasting packs beside a laptop",
+    "corporate-wine-tasting-london": "Wine tasting table for a corporate event in London",
+    "wine-tasting-team-building": "Wine tasting glasses for a team-building event",
+    "client-christmas-gifts-uk": "Festive wine gift hamper for client Christmas gifts",
+    "christmas-corporate-wine-gifts": "Festive wine gift hamper for client Christmas gifts",
+    "corporate-christmas-wine-gifts": "Festive wine gift hamper for client Christmas gifts",
+    "christmas-wine-gifts-for-clients": "Festive wine gift hamper for client Christmas gifts",
+    "wine-gifts-for-christmas": "Festive wine gift hamper for Christmas gifting",
+    "best-wine-gifts-under-25": "Simple wine gift setup for budget-friendly client gifting",
+    "best-wine-gifts-under-50": "Simple wine gift setup for budget-friendly client gifting",
+    "best-wine-gifts-under-100": "Wine gift setup for a higher client gift budget",
+    "corporate-wine-gifts-under-50": "Simple wine gift setup for budget-friendly client gifting",
+    "corporate-wine-gifts-under-100": "Wine gift setup for a higher corporate gift budget",
+    "champagne-gifts-for-clients": "Champagne bottle in an ice bucket for client gifting",
+    "corporate-champagne-gifts": "Champagne bottle in an ice bucket for client gifting",
+    "english-sparkling-corporate-gifts": "English sparkling wine bottle for corporate gifting",
+    "business-gift-wine-etiquette": "Wine gift beside checklist and pen",
+    "client-gift-policy-checklist": "Wine gift beside checklist and pen",
+    "client-gifting-etiquette-uk": "Wine gift beside checklist and pen",
+    "corporate-gifting-recipient-csv-template": "Recipient spreadsheet and gift delivery labels",
+    "thank-you-gifts-for-clients": "Wine gift with thank-you card for a client",
+    "thank-you-wine-gifts": "Wine gift with thank-you card",
+    "client-thank-you-wine-gifts": "Wine gift with thank-you card for a client",
+    "wine-gifts-for-thank-you": "Wine gift with thank-you card",
+    "staff-wine-gifts": "Staff wine gift options with alcohol-free alternatives",
+    "staff-wine-gifts-uk": "Staff wine gift options with alcohol-free alternatives",
+    "non-alcoholic-client-gifts": "Alcohol-free client gift options with premium packaging",
+    "personalised-wine-gifts": "Personalised wine gift with subtle branded card",
+    "best-wine-accessories-for-gifts": "Wine accessories arranged as a client gift",
+    "wine-gift-baskets-uk": "Wine gift basket with food and gift packaging",
+    "premium-client-gifts-uk": "Premium wine gift with approval notes for a client",
+}
+
+
+def guide_image_alt_for(slug: str, guide: dict | None = None) -> str:
+    if slug in GUIDE_IMAGE_ALT_OVERRIDES:
+        return GUIDE_IMAGE_ALT_OVERRIDES[slug]
+    topic = (guide or {}).get("h1") or (guide or {}).get("title") or slug.replace("-", " ")
+    topic_lower = topic.lower()
+    if "event" in topic_lower or "tasting" in topic_lower:
+        return "Wine glasses on a table for event drinks planning"
+    if "hamper" in topic_lower or "basket" in topic_lower:
+        return "Wine hamper with food and gift packaging"
+    if "christmas" in topic_lower:
+        return "Festive wine gift hamper for client Christmas gifts"
+    if "champagne" in topic_lower or "sparkling" in topic_lower:
+        return "Champagne bottle in an ice bucket for client gifting"
+    if "policy" in topic_lower or "etiquette" in topic_lower or "checklist" in topic_lower:
+        return "Wine gift beside checklist and pen"
+    if "budget" in topic_lower or "under" in topic_lower:
+        return "Simple wine gift setup for budget-friendly client gifting"
+    if "client" in topic_lower or "thank" in topic_lower:
+        return "Wine gift with thank-you card for a client"
+    return "Wine bottle and gift box for corporate gifting"
+
+
+def clean_guide_image_asset_for(slug: str, guide: dict | None = None) -> dict | None:
+    # Website guide images live in public/images/clientcellar/guides/*.webp.
+    # Keep these clean, no-text assets separate from social/Pinterest graphics.
+    image_path = GUIDE_IMAGE_DIR / f"{slug}.webp"
+    if not image_path.exists():
+        return None
+    return {
+        "image": f"{GUIDE_IMAGE_URL_PREFIX}/{slug}.webp",
+        "imageAlt": guide_image_alt_for(slug, guide),
+        "image_width": 1200,
+        "image_height": 900,
+    }
+
+
 def guide_image_asset_for(slug: str, guide: dict) -> dict | None:
+    clean_asset = clean_guide_image_asset_for(slug, guide)
+    if clean_asset:
+        return clean_asset
     if slug in GUIDE_IMAGE_SLUGS:
         return GUIDE_IMAGE_ASSETS[GUIDE_IMAGE_SLUGS[slug]]
     haystack = " ".join(
@@ -7390,8 +7483,6 @@ def guide_image_asset_for(slug: str, guide: dict) -> dict | None:
 
 
 for guide_slug, guide_data in GUIDES.items():
-    if guide_data.get("image"):
-        continue
     guide_image_asset = guide_image_asset_for(guide_slug, guide_data)
     if guide_image_asset:
         guide_data.update(guide_image_asset)
@@ -8265,6 +8356,26 @@ SEO_PAGES.update(
         },
     }
 )
+
+
+SEO_IMAGE_SLUG_OVERRIDES = {
+    "corporate-wine-gifts-uk": "corporate-wine-gifts-uk-seo",
+    "client-wine-gifts": "client-wine-gifts-seo",
+}
+
+
+def seo_page_image_asset_for(slug: str, page: dict) -> dict | None:
+    image_slug = SEO_IMAGE_SLUG_OVERRIDES.get(slug, slug)
+    return clean_guide_image_asset_for(image_slug, page)
+
+
+for seo_slug, seo_page in SEO_PAGES.items():
+    if seo_page.get("image"):
+        seo_page.setdefault("imageAlt", guide_image_alt_for(seo_slug, seo_page))
+        continue
+    seo_image_asset = seo_page_image_asset_for(seo_slug, seo_page)
+    if seo_image_asset:
+        seo_page.update(seo_image_asset)
 
 
 def public_site_url(request: Request) -> str:
@@ -9255,6 +9366,7 @@ def guides_index(request: Request):
         "Wine Gift & Corporate Event Guides UK",
         "Practical UK guides for corporate wine gifts, client gifting, hampers, Christmas gifts and event wine planning — written to help you choose something more thoughtful.",
         guides=GUIDES,
+        seo_pages=SEO_PAGES,
     )
 
 

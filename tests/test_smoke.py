@@ -671,8 +671,8 @@ def test_clientcellar_image_assets_are_served_and_used_on_key_pages():
     assert "Wine gift box with ribbon and thank-you card" in gift
     assert "/images/clientcellar/event-planner-header.webp" in event
     assert "Wine glasses on a business dinner table" in event
-    assert "/images/clientcellar/guide-corporate-wine-gifts.webp" in guides
-    assert "/images/clientcellar/guide-wine-gifts-under-50.webp" in guides
+    assert "/images/clientcellar/guides/corporate-wine-gifts-uk.webp" in guides
+    assert "/images/clientcellar/guides/best-wine-gifts-under-50.webp" in guides
     assert "/images/clientcellar/premium-brief-example.webp" in example
 
 
@@ -680,27 +680,27 @@ def test_guide_detail_pages_use_mapped_hero_images():
     examples = [
         (
             "/guides/corporate-wine-gifts-uk",
-            "/images/clientcellar/guide-corporate-wine-gifts.webp",
+            "/images/clientcellar/guides/corporate-wine-gifts-uk.webp",
             "Wine bottle and gift box for corporate gifting",
         ),
         (
             "/guides/best-wine-gifts-under-50",
-            "/images/clientcellar/guide-wine-gifts-under-50.webp",
-            "Wine gift setup for budget-friendly client gifting",
+            "/images/clientcellar/guides/best-wine-gifts-under-50.webp",
+            "Simple wine gift setup for budget-friendly client gifting",
         ),
         (
             "/guides/christmas-corporate-wine-gifts",
-            "/images/clientcellar/guide-client-christmas-gifts.webp",
+            "/images/clientcellar/guides/christmas-corporate-wine-gifts.webp",
             "Festive wine gift hamper for client Christmas gifts",
         ),
         (
             "/guides/corporate-event-wine-planning",
-            "/images/clientcellar/guide-event-wine-planning.webp",
+            "/images/clientcellar/guides/corporate-event-wine-planning.webp",
             "Wine glasses on a table for event drinks planning",
         ),
         (
             "/guides/champagne-gifts-for-clients",
-            "/images/clientcellar/guide-champagne-gifts.webp",
+            "/images/clientcellar/guides/champagne-gifts-for-clients.webp",
             "Champagne bottle in an ice bucket for client gifting",
         ),
     ]

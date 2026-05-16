@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% macro guide_thumbnail(guide) -%}
   {% if guide.image %}
-  <img class="guide-card-thumb" src="{{ guide.image }}" width="{{ guide.image_width or 153 }}" height="{{ guide.image_height or 120 }}" alt="{{ guide.imageAlt }}" loading="lazy" decoding="async">
+  <img class="guide-card-thumb" src="{{ guide.image }}" width="{{ guide.image_width or 1200 }}" height="{{ guide.image_height or 900 }}" alt="{{ guide.imageAlt }}" loading="lazy" decoding="async">
   {% endif %}
 {%- endmacro %}
 
@@ -24,10 +24,16 @@
 {%- endmacro %}
 
 {% macro page_card(title, href, label, description, secondary_href=None, secondary_label=None, image=None, image_alt=None, image_width=152, image_height=120) -%}
+  {% set page_slug = href.strip("/") %}
+  {% set page = seo_pages.get(page_slug) if seo_pages is defined else none %}
+  {% set card_image = image or page.image if page else image %}
+  {% set card_image_alt = image_alt or page.imageAlt if page else image_alt %}
+  {% set card_image_width = image_width or page.image_width if page else image_width %}
+  {% set card_image_height = image_height or page.image_height if page else image_height %}
   <article class="guide-card guide-hub-card">
     <p class="eyebrow">{{ label }}</p>
-    {% if image %}
-    <img class="guide-card-thumb" src="{{ image }}" width="{{ image_width }}" height="{{ image_height }}" alt="{{ image_alt }}" loading="lazy" decoding="async">
+    {% if card_image %}
+    <img class="guide-card-thumb" src="{{ card_image }}" width="{{ card_image_width or 1200 }}" height="{{ card_image_height or 900 }}" alt="{{ card_image_alt }}" loading="lazy" decoding="async">
     {% endif %}
     <h2><a href="{{ href }}">{{ title }}</a></h2>
     <p>{{ description }}</p>
@@ -153,7 +159,7 @@
   </div>
   <div class="guide-grid">
     {{ guide_card("christmas-corporate-wine-gifts", "Christmas gifting", "Seasonal advice for client and team wine gifts that do not feel last-minute.", "Plan Christmas gifts") }}
-    {{ page_card("Client Christmas gifts UK", "/client-christmas-gifts-uk", "Planning page", "Christmas gifting routes for clients, with delivery and suitability checks.", "/gift-planner", "Create a gift plan", "/images/clientcellar/guide-client-christmas-gifts.webp", "Client Christmas gifts guide thumbnail", 152, 120) }}
+    {{ page_card("Client Christmas gifts UK", "/client-christmas-gifts-uk", "Planning page", "Christmas gifting routes for clients, with delivery and suitability checks.", "/gift-planner", "Create a gift plan") }}
     {{ page_card("Corporate hampers UK", "/corporate-hampers-uk", "Planning page", "When hampers are a safer route for staff, clients and mixed recipient groups.", "/gift-planner", "Compare hampers") }}
     {{ guide_card("wine-gift-hampers-uk", "Hampers", "A critical guide to choosing a hamper that is worth sending.", "Plan a hamper") }}
     {{ guide_card("corporate-wine-gifts-uk", "Corporate gifting", "The wider guide for choosing wine gifts by relationship, budget and occasion.", "Build a brief") }}
@@ -184,7 +190,7 @@
   <div class="guide-grid">
     {{ guide_card("corporate-event-wine-planning", "Event planning", "A planning memo-style guide for quantities, pacing, food and supplier questions.", "Plan event wine") }}
     {{ guide_card("wine-tasting-corporate-event", "Wine tasting", "A more human guide to tastings that feel social, not like a lecture.", "Plan a tasting") }}
-    {{ page_card("Event wine planning UK", "/event-wine-planning-uk", "Planning page", "Quantity, supplier and logistics guidance for corporate event wine planning.", "/event-planner", "Build event plan", "/images/clientcellar/guide-event-wine-planning.webp", "Event wine planning guide thumbnail", 145, 120) }}
+    {{ page_card("Event wine planning UK", "/event-wine-planning-uk", "Planning page", "Quantity, supplier and logistics guidance for corporate event wine planning.", "/event-planner", "Build event plan") }}
     {{ page_card("Wine for corporate events", "/wine-for-corporate-events", "Planning page", "Supplier routes and checks for receptions, dinners and team events.", "/event-planner", "Plan event wine") }}
     {{ guide_card("virtual-wine-tasting-for-teams", "Virtual tasting", "How to make remote tastings work without awkward video-call energy.", "Plan virtual tasting") }}
     {{ guide_card("corporate-wine-tasting-london", "London events", "For London tastings where location, transport and tone matter.", "Plan a London tasting") }}
