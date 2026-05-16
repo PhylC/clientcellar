@@ -466,6 +466,8 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
     assert "https://clientcellar.co.uk/event-planner" in text
     assert "https://clientcellar.co.uk/guides" in text
     assert "https://clientcellar.co.uk/suppliers" in text
+    assert "https://clientcellar.co.uk/supplier-directory" in text
+    assert "https://clientcellar.co.uk/uk-wine-gift-suppliers" not in text
     assert "https://clientcellar.co.uk/pricing" in text
     assert "https://clientcellar.co.uk/faq" in text
     assert "https://clientcellar.co.uk/about" in text
@@ -510,6 +512,10 @@ def test_supplier_link_config_covers_major_visible_suppliers():
         "laithwaites",
         "hotel-chocolat",
         "amazon",
+        "slurp",
+        "hay-wines",
+        "wine-direct",
+        "great-wine-co",
     ]:
         link = getSupplierLink(supplier_id)
         assert link is not None
@@ -609,6 +615,34 @@ def test_supplier_page_has_trust_sections():
     assert "Supplier categories" in response.text
     assert "Important checks before ordering" in response.text
     assert "Champagne and sparkling wine retailers" in response.text
+
+
+def test_supplier_directory_page_is_editorial_and_affiliate_ready():
+    response = client.get("/supplier-directory")
+    assert response.status_code == 200
+    assert "UK wine gift supplier directory" in response.text
+    assert "How this directory works" in response.text
+    assert "Listings are editorially selected" in response.text
+    assert "View Majestic corporate gifting" in response.text
+    assert "View Virgin Wines corporate gifting" in response.text
+    assert "View Wine Direct corporate gifts" in response.text
+    assert 'data-supplier-directory' in response.text
+    assert 'data-supplier-card' in response.text
+    assert 'rel="noopener noreferrer sponsored"' in response.text
+    assert "Official partner" not in response.text
+
+    item_lists = [item for item in structured_data_items(response.text) if item.get("@type") == "ItemList"]
+    assert len(item_lists) == 1
+    names = [item["name"] for item in item_lists[0]["itemListElement"]]
+    assert "Majestic" in names
+    assert "Great Wine Co." in names
+
+
+def test_supplier_directory_aliases_redirect_to_canonical_page():
+    for path in ["/uk-wine-gift-suppliers", "/wine-gift-suppliers-uk"]:
+        response = client.get(path, follow_redirects=False)
+        assert response.status_code == 301
+        assert response.headers["location"] == "/supplier-directory"
 
 
 def test_public_pages_use_clientcellar_business_emails():

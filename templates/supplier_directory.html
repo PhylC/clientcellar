@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro supplier-directory-hero">
+  <p class="eyebrow">Supplier directory</p>
+  <h1>UK wine gift supplier directory</h1>
+  <p class="lead">Choosing wine gifts is easier when you know what each supplier is actually good for. This directory is a practical starting point for UK businesses comparing wine merchants, hamper retailers and corporate gifting services.</p>
+  <p class="small-note">Listings are editorially selected. Some links may become affiliate links in future, but we do not list a supplier simply because they might pay commission.</p>
+  <div class="hero-actions">
+    <a class="button primary" href="/gift-planner">Use the free gift planner</a>
+    <a class="button secondary" href="/supplier-partnerships">Supplier updates</a>
+  </div>
+</section>
+
+<section class="section supplier-directory-page" data-supplier-directory>
+  <aside class="supplier-directory-disclosure">
+    <div>
+      <p class="eyebrow">How this directory works</p>
+      <h2>Editorial first, affiliate-ready later</h2>
+    </div>
+    <ul>
+      <li>Listings are editorially selected.</li>
+      <li>We look for useful supplier pages, corporate gifting options, delivery practicality, presentation and suitability for business gifting.</li>
+      <li>Some links may become affiliate links in future.</li>
+      <li>No supplier is described as a partner unless a partnership exists.</li>
+    </ul>
+  </aside>
+
+  <div class="supplier-directory-controls" aria-label="Supplier directory filters">
+    <label>Search supplier
+      <input type="search" data-supplier-search placeholder="e.g. Majestic, hampers, events">
+    </label>
+    <label>Category
+      <select data-supplier-category>
+        <option value="">All categories</option>
+        {% for category in categories %}
+        <option value="{{ category }}">{{ category }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Best use
+      <select data-supplier-use>
+        <option value="">All uses</option>
+        {% for item in best_use_filters %}
+        <option value="{{ item }}">{{ item }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Budget
+      <select data-supplier-budget>
+        <option value="">All budgets</option>
+        {% for budget in budgets %}
+        <option value="{{ budget }}">{{ budget }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Sort
+      <select data-supplier-sort>
+        <option value="recommended">Recommended</option>
+        <option value="az">A-Z</option>
+        <option value="luxury">Luxury</option>
+        <option value="budget">Budget-friendly</option>
+      </select>
+    </label>
+  </div>
+
+  <section class="supplier-directory-section">
+    <div class="section-heading">
+      <p class="eyebrow">Best starting points</p>
+      <h2>Useful first checks</h2>
+      <p>These are broad, practical places to begin if you need corporate gifting support rather than just a product browse.</p>
+    </div>
+    <div class="supplier-directory-grid supplier-directory-grid--featured">
+      {% for supplier in featured_suppliers %}
+      <article class="supplier-directory-card supplier-directory-card--featured">
+        <div class="supplier-directory-card__top">
+          <span>{{ supplier.category }}</span>
+          <strong>{{ supplier.budget }}</strong>
+        </div>
+        <h3>{{ supplier.name }}</h3>
+        <p>{{ supplier.bestFor }}</p>
+        <a class="button primary small" href="{{ supplier.primaryUrl }}" target="_blank" rel="noopener noreferrer sponsored" data-supplier-click data-supplier-name="{{ supplier.name }}">{{ supplier.linkLabel }}</a>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="supplier-directory-section">
+    <div class="section-heading">
+      <p class="eyebrow">Supplier directory</p>
+      <h2>Compare supplier options</h2>
+      <p>Use this as a shortlist, then confirm delivery, stock, pricing, VAT, age restrictions and suitability directly with the supplier.</p>
+    </div>
+    <div class="supplier-directory-grid" data-supplier-grid>
+      {% for supplier in suppliers %}
+      <article
+        class="supplier-directory-card"
+        data-supplier-card
+        data-rank="{{ loop.index }}"
+        data-name="{{ supplier.name | lower }}"
+        data-category="{{ supplier.category }}"
+        data-budget="{{ supplier.budget }}"
+        data-tags="{{ supplier.tags | join(' ') | lower }}"
+        data-search="{{ (supplier.name ~ ' ' ~ supplier.category ~ ' ' ~ supplier.bestFor ~ ' ' ~ supplier.whyUseful ~ ' ' ~ supplier.tags|join(' ')) | lower }}"
+      >
+        <div class="supplier-directory-card__top">
+          <span>{{ supplier.category }}</span>
+          <strong>{{ supplier.budget }}</strong>
+        </div>
+        <h3>{{ supplier.name }}</h3>
+        <dl class="supplier-directory-facts">
+          <div><dt>Best for</dt><dd>{{ supplier.bestFor }}</dd></div>
+          <div><dt>Gift fit</dt><dd>{{ supplier.giftFit }}</dd></div>
+          <div><dt>Event fit</dt><dd>{{ supplier.eventFit }}</dd></div>
+        </dl>
+        <p>{{ supplier.whyUseful }}</p>
+        <p class="supplier-watchout"><strong>Watch out:</strong> {{ supplier.watchOut }}</p>
+        <div class="supplier-tag-row" aria-label="Supplier tags">
+          {% for tag in supplier.tags %}
+          <span>{{ tag }}</span>
+          {% endfor %}
+        </div>
+        <div class="supplier-card-actions">
+          {% if supplier.primaryUrl %}
+          <a class="button primary small" href="{{ supplier.primaryUrl }}" target="_blank" rel="noopener noreferrer sponsored" data-supplier-click data-supplier-name="{{ supplier.name }}">{{ supplier.linkLabel }}</a>
+          {% endif %}
+          {% if supplier.contactUrl and supplier.contactUrl != supplier.primaryUrl %}
+          <a class="text-link" href="{{ supplier.contactUrl }}" target="_blank" rel="noopener noreferrer sponsored" data-supplier-click data-supplier-name="{{ supplier.name }}">Contact / corporate page</a>
+          {% endif %}
+        </div>
+        <p class="small-note">{{ supplier.editorialStatus }} · {{ supplier.region }}</p>
+      </article>
+      {% endfor %}
+    </div>
+    <p class="supplier-directory-empty" data-supplier-empty hidden>No suppliers match those filters yet. Try a broader category or clear the search.</p>
+  </section>
+
+  <section class="supplier-directory-chooser">
+    <p class="eyebrow">Which supplier should you start with?</p>
+    <h2>A quick editorial chooser</h2>
+    <div class="supplier-chooser-list">
+      <p><strong>Need a safe, recognisable option?</strong> Start with Majestic, M&S or Waitrose Cellar.</p>
+      <p><strong>Need corporate gifting support?</strong> Start with Virgin Wines, Slurp or Wine Direct.</p>
+      <p><strong>Need something more personal?</strong> Look at Hay Wines or Great Wine Co.</p>
+      <p><strong>Need a premium hamper?</strong> Look at Fortnum & Mason, Selfridges or Harvey Nichols.</p>
+      <p><strong>Need event drinks rather than gifts?</strong> Start with Slurp, Hay Wines, Wine Direct or Waitrose Cellar.</p>
+    </div>
+  </section>
+
+  <section class="cta-panel supplier-directory-cta">
+    <div>
+      <p class="eyebrow">Use the planner instead</p>
+      <h2>Not sure what sort of supplier fits?</h2>
+      <p>Start with the free ClientCellar gift planner. It gives you a more useful shortlist based on budget, recipient and occasion.</p>
+    </div>
+    <div class="hero-actions">
+      <a class="button primary" href="/gift-planner">Use the free gift planner</a>
+      <a class="button secondary" href="/event-planner">Plan event wine</a>
+    </div>
+  </section>
+
+  <section class="supplier-directory-updates">
+    <div>
+      <p class="eyebrow">Supplier updates</p>
+      <h2>Should your business be considered?</h2>
+      <p>Are you a UK wine merchant, hamper company or event drinks supplier? If your business should be considered for this directory, contact us.</p>
+    </div>
+    <a class="button secondary" href="/supplier-partnerships">Supplier partnerships</a>
+  </section>
+</section>
+{% endblock %}

@@ -722,7 +722,7 @@ function supplierAlternatives(suppliers = []) {
   `;
 }
 
-function supplierCompareLink(routes = [], patterns = [], label = "Compare options", fallback = "/suppliers", directFallback = "") {
+function supplierCompareLink(routes = [], patterns = [], label = "Compare options", fallback = "/supplier-directory", directFallback = "") {
   const supplier = routes
     .flatMap((route) => Array.isArray(route.example_suppliers) ? route.example_suppliers : [])
     .find((candidate) => {
@@ -733,7 +733,7 @@ function supplierCompareLink(routes = [], patterns = [], label = "Compare option
   return routeCompareLink({ example_suppliers: [supplier], is_affiliate: supplier.is_affiliate }, label, fallback, directFallback);
 }
 
-function routeCompareLink(route = {}, label = "Compare options", fallback = "/suppliers", directFallback = "") {
+function routeCompareLink(route = {}, label = "Compare options", fallback = "/supplier-directory", directFallback = "") {
   const supplierWithLink = Array.isArray(route.example_suppliers)
     ? route.example_suppliers.find((supplier) => supplier.tracked_url || supplier.url || supplier.website_url || supplier.affiliate_url)
     : null;
@@ -801,7 +801,7 @@ function supplierRouteComparisonRow(route = {}) {
     bestFor: defaults.bestFor,
     examples: examples.length ? examples.join(", ") : "Supplier type to search",
     whatToCheck: defaults.whatToCheck,
-    compareOptions: routeCompareLink(route, "Compare options", "/suppliers"),
+    compareOptions: routeCompareLink(route, "Compare options", "/supplier-directory"),
   };
 }
 
@@ -1338,7 +1338,7 @@ function renderPlan(plan, type) {
           <summary>Other next steps</summary>
           <div class="button-row">
             <a class="button secondary small" href="/contact?interest=${type === "gift" ? "gift-planning" : "event-planning"}">Send enquiry / request help</a>
-            <a class="button secondary small" href="/suppliers">See more supplier routes</a>
+            <a class="button secondary small" href="/supplier-directory">See more supplier routes</a>
           </div>
         </details>
         <div data-premium-preview></div>
@@ -2040,6 +2040,61 @@ function bindSupplierApplicationForm() {
   });
 }
 
+function bindSupplierDirectoryFilters() {
+  const root = document.querySelector("[data-supplier-directory]");
+  if (!root) return;
+  const grid = root.querySelector("[data-supplier-grid]");
+  const cards = Array.from(root.querySelectorAll("[data-supplier-card]"));
+  const empty = root.querySelector("[data-supplier-empty]");
+  const search = root.querySelector("[data-supplier-search]");
+  const category = root.querySelector("[data-supplier-category]");
+  const use = root.querySelector("[data-supplier-use]");
+  const budget = root.querySelector("[data-supplier-budget]");
+  const sort = root.querySelector("[data-supplier-sort]");
+  if (!grid || !cards.length) return;
+
+  const normalise = (value) => String(value || "").trim().toLowerCase();
+  const budgetRank = (value) => {
+    if (value === "£££") return 3;
+    if (value === "££") return 2;
+    return 1;
+  };
+
+  const applyFilters = () => {
+    const searchTerm = normalise(search?.value);
+    const categoryValue = category?.value || "";
+    const useValue = normalise(use?.value);
+    const budgetValue = budget?.value || "";
+    const sortValue = sort?.value || "recommended";
+    let visibleCount = 0;
+
+    const sortedCards = [...cards].sort((a, b) => {
+      if (sortValue === "az") return (a.dataset.name || "").localeCompare(b.dataset.name || "");
+      if (sortValue === "luxury") return budgetRank(b.dataset.budget) - budgetRank(a.dataset.budget);
+      if (sortValue === "budget") return budgetRank(a.dataset.budget) - budgetRank(b.dataset.budget);
+      return Number(a.dataset.rank || 0) - Number(b.dataset.rank || 0);
+    });
+
+    sortedCards.forEach((card) => {
+      const matchesSearch = !searchTerm || normalise(card.dataset.search).includes(searchTerm);
+      const matchesCategory = !categoryValue || card.dataset.category === categoryValue;
+      const matchesUse = !useValue || normalise(card.dataset.tags).includes(useValue);
+      const matchesBudget = !budgetValue || card.dataset.budget === budgetValue;
+      const visible = matchesSearch && matchesCategory && matchesUse && matchesBudget;
+      card.hidden = !visible;
+      if (visible) visibleCount += 1;
+      grid.appendChild(card);
+    });
+
+    if (empty) empty.hidden = visibleCount > 0;
+  };
+
+  [search, category, use, budget, sort].forEach((control) => {
+    control?.addEventListener("input", applyFilters);
+    control?.addEventListener("change", applyFilters);
+  });
+}
+
 function bindLeadForms() {
   document.addEventListener("submit", (event) => {
     const form = event.target.closest("[data-lead-form]");
@@ -2059,6 +2114,7 @@ bindAuthForms();
 bindAccountPage();
 bindContactForm();
 bindSupplierApplicationForm();
+bindSupplierDirectoryFilters();
 bindLeadForms();
 bindPremiumPackDownloads();
 bindPackAccessForm();

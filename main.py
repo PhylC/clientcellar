@@ -32,7 +32,11 @@ from data.gift_recommendations import (
     gift_recommendation_shortlist,
     gift_supplier_comparison_rows,
 )
-from data.suppliers import SUPPLIER_ENTRIES
+from data.suppliers import (
+    SUPPLIER_ENTRIES,
+    featured_supplier_directory_entries,
+    supplier_directory_entries,
+)
 
 load_dotenv()
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO").upper())
@@ -80,6 +84,7 @@ SITEMAP_STATIC_ROUTES = [
     "/event-planner",
     "/guides",
     "/suppliers",
+    "/supplier-directory",
     "/pricing",
     "/example-premium-brief-pack",
     "/example-premium-event-pack",
@@ -4635,7 +4640,7 @@ GUIDES.update(
 
 
 PUBLISHER_DISCLOSURE = (
-    "ClientCellar recommendations are editorially selected. Some links may become affiliate or partner links in future, "
+    "ClientCellar recommendations are editorially selected. Some links may become affiliate or sponsored links in future, "
     "which means ClientCellar may earn a commission if you choose to buy through them. "
     "Our aim is to keep recommendations useful, relevant and transparent."
 )
@@ -7299,7 +7304,7 @@ SEO_PAGES = {
             ("Delivery and compliance considerations", ["Confirm age verification and failed-delivery handling.", "Check company gifting, anti-bribery, HR and procurement policies.", "Do not assume every recipient drinks alcohol."]),
         ],
         "primary_cta": ("Use the gift planner", "/gift-planner"),
-        "related": [("Supplier directory", "/suppliers"), ("Client wine gifts", "/client-wine-gifts"), ("Staff wine gifts", "/staff-wine-gifts")],
+        "related": [("Supplier directory", "/supplier-directory"), ("Client wine gifts", "/client-wine-gifts"), ("Staff wine gifts", "/staff-wine-gifts")],
     },
     "corporate-wine-tasting-events": {
         "title": "Corporate Wine Tasting Events",
@@ -7313,7 +7318,7 @@ SEO_PAGES = {
             ("Venue and delivery considerations", ["Ask about licensing, glassware, food, water, transport and accessibility.", "For virtual events, confirm delivery lead times, substitutions and late-pack process."]),
         ],
         "primary_cta": ("Use the event planner", "/event-planner"),
-        "related": [("Supplier directory", "/suppliers"), ("Corporate wine gifts", "/corporate-wine-gifts"), ("Virtual tasting guide", "/guides/virtual-wine-tasting-for-teams")],
+        "related": [("Supplier directory", "/supplier-directory"), ("Corporate wine gifts", "/corporate-wine-gifts"), ("Virtual tasting guide", "/guides/virtual-wine-tasting-for-teams")],
     },
     "client-wine-gifts": {
         "title": "Client Wine Gifts",
@@ -7327,7 +7332,7 @@ SEO_PAGES = {
             ("Delivery timing", ["Build in time for address collection, failed deliveries and substitutions.", "Christmas and quarter-end periods need earlier supplier contact."]),
         ],
         "primary_cta": ("Use the gift planner", "/gift-planner"),
-        "related": [("Corporate wine gifts", "/corporate-wine-gifts"), ("Corporate Christmas wine gifts", "/corporate-christmas-wine-gifts"), ("Supplier directory", "/suppliers")],
+        "related": [("Corporate wine gifts", "/corporate-wine-gifts"), ("Corporate Christmas wine gifts", "/corporate-christmas-wine-gifts"), ("Supplier directory", "/supplier-directory")],
     },
     "staff-wine-gifts": {
         "title": "Staff Wine Gifts",
@@ -7341,7 +7346,7 @@ SEO_PAGES = {
             ("Budget ranges", ["£15-£30 per person: modest bottle or alcohol-free option.", "£30-£60 per person: stronger bottle, small hamper or tasting pack.", "£60+ per person: premium hamper or hosted experience."]),
         ],
         "primary_cta": ("Use the gift planner", "/gift-planner"),
-        "related": [("Corporate wine gifts", "/corporate-wine-gifts"), ("Corporate wine tasting events", "/corporate-wine-tasting-events"), ("Supplier directory", "/suppliers")],
+        "related": [("Corporate wine gifts", "/corporate-wine-gifts"), ("Corporate wine tasting events", "/corporate-wine-tasting-events"), ("Supplier directory", "/supplier-directory")],
     },
     "corporate-christmas-wine-gifts": {
         "title": "Corporate Christmas Wine Gifts",
@@ -7356,7 +7361,7 @@ SEO_PAGES = {
             ("Alternatives and hampers", ["Include alcohol-free alternatives.", "Hampers can work well for mixed preferences and staff gifting.", "Check dietary and workplace suitability."]),
         ],
         "primary_cta": ("Use the gift planner", "/gift-planner"),
-        "related": [("Client wine gifts", "/client-wine-gifts"), ("Staff wine gifts", "/staff-wine-gifts"), ("Supplier directory", "/suppliers")],
+        "related": [("Client wine gifts", "/client-wine-gifts"), ("Staff wine gifts", "/staff-wine-gifts"), ("Supplier directory", "/supplier-directory")],
     },
 }
 
@@ -7410,7 +7415,7 @@ HIGH_INTENT_SEO_PAGES = {
         ],
         "primary_cta": ("Create a free gift plan", "/gift-planner"),
         "example_url": "/example-premium-brief-pack",
-        "related": [("Supplier directory", "/suppliers"), ("Pricing", "/pricing"), ("Premium example", "/example-premium-brief-pack")],
+        "related": [("Supplier directory", "/supplier-directory"), ("Pricing", "/pricing"), ("Premium example", "/example-premium-brief-pack")],
     },
     "client-christmas-gifts-uk": {
         "title": "Client Christmas Gifts UK",
@@ -7431,7 +7436,7 @@ HIGH_INTENT_SEO_PAGES = {
         ],
         "primary_cta": ("Create a free gift plan", "/gift-planner"),
         "example_url": "/example-premium-brief-pack",
-        "related": [("Corporate wine gifts UK", "/corporate-wine-gifts-uk"), ("Suppliers", "/suppliers"), ("Pricing", "/pricing")],
+        "related": [("Corporate wine gifts UK", "/corporate-wine-gifts-uk"), ("Supplier directory", "/supplier-directory"), ("Pricing", "/pricing")],
     },
     "corporate-hampers-uk": {
         "title": "Corporate Hampers UK",
@@ -7452,7 +7457,7 @@ HIGH_INTENT_SEO_PAGES = {
         ],
         "primary_cta": ("Create a free gift plan", "/gift-planner"),
         "example_url": "/example-premium-brief-pack",
-        "related": [("Supplier directory", "/suppliers"), ("Premium example", "/example-premium-brief-pack"), ("Pricing", "/pricing")],
+        "related": [("Supplier directory", "/supplier-directory"), ("Premium example", "/example-premium-brief-pack"), ("Pricing", "/pricing")],
     },
     "best-wine-gifts-for-clients": {
         "title": "Best Wine Gifts for Clients",
@@ -7473,7 +7478,7 @@ HIGH_INTENT_SEO_PAGES = {
         ],
         "primary_cta": ("Create a free gift plan", "/gift-planner"),
         "example_url": "/example-premium-brief-pack",
-        "related": [("Corporate wine gifts UK", "/corporate-wine-gifts-uk"), ("Suppliers", "/suppliers"), ("Premium example", "/example-premium-brief-pack")],
+        "related": [("Corporate wine gifts UK", "/corporate-wine-gifts-uk"), ("Supplier directory", "/supplier-directory"), ("Premium example", "/example-premium-brief-pack")],
     },
     "corporate-gifting-ideas-uk": {
         "title": "Corporate Gifting Ideas UK",
@@ -7494,7 +7499,7 @@ HIGH_INTENT_SEO_PAGES = {
         ],
         "primary_cta": ("Create a free gift plan", "/gift-planner"),
         "example_url": "/example-premium-brief-pack",
-        "related": [("Gift planner", "/gift-planner"), ("Suppliers", "/suppliers"), ("Pricing", "/pricing")],
+        "related": [("Gift planner", "/gift-planner"), ("Supplier directory", "/supplier-directory"), ("Pricing", "/pricing")],
     },
     "event-wine-planning-uk": {
         "title": "Event Wine Planning UK",
@@ -7515,7 +7520,7 @@ HIGH_INTENT_SEO_PAGES = {
         ],
         "primary_cta": ("Create a free event plan", "/event-planner"),
         "example_url": "/example-premium-event-pack",
-        "related": [("Event planner", "/event-planner"), ("Supplier directory", "/suppliers"), ("Event premium example", "/example-premium-event-pack")],
+        "related": [("Event planner", "/event-planner"), ("Supplier directory", "/supplier-directory"), ("Event premium example", "/example-premium-event-pack")],
     },
     "wine-for-corporate-events": {
         "title": "Wine for Corporate Events",
@@ -7536,7 +7541,7 @@ HIGH_INTENT_SEO_PAGES = {
         ],
         "primary_cta": ("Create a free event plan", "/event-planner"),
         "example_url": "/example-premium-event-pack",
-        "related": [("Event wine planning UK", "/event-wine-planning-uk"), ("Suppliers", "/suppliers"), ("Pricing", "/pricing")],
+        "related": [("Event wine planning UK", "/event-wine-planning-uk"), ("Supplier directory", "/supplier-directory"), ("Pricing", "/pricing")],
     },
     "thank-you-gifts-for-clients": {
         "title": "Thank You Gifts for Clients",
@@ -7557,7 +7562,7 @@ HIGH_INTENT_SEO_PAGES = {
         ],
         "primary_cta": ("Create a free gift plan", "/gift-planner"),
         "example_url": "/example-premium-brief-pack",
-        "related": [("Gift planner", "/gift-planner"), ("Premium example", "/example-premium-brief-pack"), ("Suppliers", "/suppliers")],
+        "related": [("Gift planner", "/gift-planner"), ("Premium example", "/example-premium-brief-pack"), ("Supplier directory", "/supplier-directory")],
     },
     "staff-wine-gifts-uk": {
         "title": "Staff Wine Gifts UK",
@@ -7578,7 +7583,7 @@ HIGH_INTENT_SEO_PAGES = {
         ],
         "primary_cta": ("Create a free gift plan", "/gift-planner"),
         "example_url": "/example-premium-brief-pack",
-        "related": [("Corporate gifting ideas UK", "/corporate-gifting-ideas-uk"), ("Suppliers", "/suppliers"), ("Pricing", "/pricing")],
+        "related": [("Corporate gifting ideas UK", "/corporate-gifting-ideas-uk"), ("Supplier directory", "/supplier-directory"), ("Pricing", "/pricing")],
     },
     "premium-client-gifts-uk": {
         "title": "Premium Client Gifts UK",
@@ -7599,7 +7604,7 @@ HIGH_INTENT_SEO_PAGES = {
         ],
         "primary_cta": ("Create a free gift plan", "/gift-planner"),
         "example_url": "/example-premium-brief-pack",
-        "related": [("Premium example", "/example-premium-brief-pack"), ("Pricing", "/pricing"), ("Suppliers", "/suppliers")],
+        "related": [("Premium example", "/example-premium-brief-pack"), ("Pricing", "/pricing"), ("Supplier directory", "/supplier-directory")],
     },
 }
 
@@ -7648,7 +7653,7 @@ SEO_PAGES.update(
                 ("Corporate wine gifts UK", "/guides/corporate-wine-gifts-uk", "The fuller guide to budgets, notes, mistakes and supplier routes."),
                 ("Business gift wine etiquette", "/guides/business-gift-wine-etiquette", "Use this when policy, value or alcohol suitability is sensitive."),
             ],
-            "related": [("Client wine gifts", "/client-wine-gifts"), ("Staff wine gifts", "/staff-wine-gifts"), ("Suppliers", "/suppliers")],
+            "related": [("Client wine gifts", "/client-wine-gifts"), ("Staff wine gifts", "/staff-wine-gifts"), ("Supplier directory", "/supplier-directory")],
             "example_url": "/example-premium-brief-pack",
             "cta_heading": "Turn the gift idea into a practical brief",
             "cta_text": "Tell ClientCellar who the gift is for, your budget and the occasion, and get clearer supplier routes before you start contacting suppliers.",
@@ -7847,7 +7852,7 @@ SEO_PAGES.update(
             "primary_cta": ("Build a wine gift brief", "/gift-planner"),
             "full_guide": ("Read the full corporate wine gifts guide", "/guides/corporate-wine-gifts-uk"),
             "related_guides": [("Corporate wine gifts UK", "/guides/corporate-wine-gifts-uk", "The fuller editorial guide to judgement, budget and message."), ("Best client wine gifts", "/guides/best-client-wine-gifts", "More decision-led client gift ideas.")],
-            "related": [("Gift planner", "/gift-planner"), ("Suppliers", "/suppliers"), ("Pricing", "/pricing")],
+            "related": [("Gift planner", "/gift-planner"), ("Supplier directory", "/supplier-directory"), ("Pricing", "/pricing")],
             "example_url": "/example-premium-brief-pack",
             "cta_heading": "Build a wine gift brief",
             "cta_text": "Use the planner to turn recipient count, budget, occasion and suitability into a practical supplier direction.",
@@ -7890,7 +7895,7 @@ SEO_PAGES.update(
             "primary_cta": ("Create a Christmas gift plan", "/gift-planner"),
             "full_guide": ("Read the full Christmas guide", "/guides/christmas-corporate-wine-gifts"),
             "related_guides": [("Christmas corporate wine gifts", "/guides/christmas-corporate-wine-gifts", "A warmer full guide to avoiding forgettable December gifts."), ("Client wine gifts", "/guides/client-wine-gifts", "Relationship-led advice for client gifting tone and timing.")],
-            "related": [("Corporate wine gifts UK", "/corporate-wine-gifts-uk"), ("Gift planner", "/gift-planner"), ("Suppliers", "/suppliers")],
+            "related": [("Corporate wine gifts UK", "/corporate-wine-gifts-uk"), ("Gift planner", "/gift-planner"), ("Supplier directory", "/supplier-directory")],
             "example_url": "/example-premium-brief-pack",
             "cta_heading": "Create a Christmas gift plan",
             "cta_text": "Use ClientCellar to decide the right Christmas route before supplier choice turns into deadline panic.",
@@ -7913,7 +7918,7 @@ SEO_PAGES.update(
             "primary_cta": ("Plan a hamper or wine gift", "/gift-planner"),
             "full_guide": ("Read the wine hamper guide", "/guides/wine-gift-hampers-uk"),
             "related_guides": [("Wine gift hampers UK", "/guides/wine-gift-hampers-uk", "A critical guide to avoiding filler and weak hampers."), ("Christmas corporate wine gifts", "/guides/christmas-corporate-wine-gifts", "Seasonal advice for client and team gifts.")],
-            "related": [("Gift planner", "/gift-planner"), ("Suppliers", "/suppliers"), ("Premium example", "/example-premium-brief-pack")],
+            "related": [("Gift planner", "/gift-planner"), ("Supplier directory", "/supplier-directory"), ("Premium example", "/example-premium-brief-pack")],
             "example_url": "/example-premium-brief-pack",
             "cta_heading": "Plan a hamper or wine gift",
             "cta_text": "Use the planner to compare whether a hamper, mixed case, single bottle or alcohol-free route is the better fit.",
@@ -7936,7 +7941,7 @@ SEO_PAGES.update(
             "primary_cta": ("Find the right client gift", "/gift-planner"),
             "full_guide": ("Read the client wine gifts guide", "/guides/client-wine-gifts"),
             "related_guides": [("Client wine gifts", "/guides/client-wine-gifts", "Relationship-led client gift advice."), ("Best client wine gifts", "/guides/best-client-wine-gifts", "More specific gift ideas by client type.")],
-            "related": [("Gift planner", "/gift-planner"), ("Corporate wine gifts UK", "/corporate-wine-gifts-uk"), ("Suppliers", "/suppliers")],
+            "related": [("Gift planner", "/gift-planner"), ("Corporate wine gifts UK", "/corporate-wine-gifts-uk"), ("Supplier directory", "/supplier-directory")],
             "example_url": "/example-premium-brief-pack",
             "cta_heading": "Find the right client gift",
             "cta_text": "Use the planner to match gift route, supplier type and message tone to the client relationship.",
@@ -7959,7 +7964,7 @@ SEO_PAGES.update(
             "primary_cta": ("Create a corporate gift plan", "/gift-planner"),
             "full_guide": ("Read the corporate gift ideas guide", "/guides/corporate-gift-ideas-for-clients"),
             "related_guides": [("Corporate gift ideas for clients", "/guides/corporate-gift-ideas-for-clients", "Broader editorial guidance beyond wine."), ("Business gift wine etiquette", "/guides/business-gift-wine-etiquette", "Use this when suitability or policy is unclear.")],
-            "related": [("Gift planner", "/gift-planner"), ("Suppliers", "/suppliers"), ("Pricing", "/pricing")],
+            "related": [("Gift planner", "/gift-planner"), ("Supplier directory", "/supplier-directory"), ("Pricing", "/pricing")],
             "example_url": "/example-premium-brief-pack",
             "cta_heading": "Create a corporate gift plan",
             "cta_text": "Turn a broad gifting idea into a more useful shortlist by recipient type, budget and suitability.",
@@ -7982,7 +7987,7 @@ SEO_PAGES.update(
             "primary_cta": ("Plan event wine", "/event-planner"),
             "full_guide": ("Read the event wine planning guide", "/guides/corporate-event-wine-planning"),
             "related_guides": [("Corporate event wine planning", "/guides/corporate-event-wine-planning", "The fuller planning memo for event wine."), ("Wine tasting corporate event", "/guides/wine-tasting-corporate-event", "How to make tastings fun without making them forced.")],
-            "related": [("Event planner", "/event-planner"), ("Wine for corporate events", "/wine-for-corporate-events"), ("Suppliers", "/suppliers")],
+            "related": [("Event planner", "/event-planner"), ("Wine for corporate events", "/wine-for-corporate-events"), ("Supplier directory", "/supplier-directory")],
             "example_url": "/example-premium-event-pack",
             "cta_heading": "Plan event wine",
             "cta_text": "Build a clearer event wine brief around guest count, format, timing, service and supplier questions.",
@@ -8023,7 +8028,7 @@ SEO_PAGES.update(
             "primary_cta": ("Plan event wine", "/event-planner"),
             "full_guide": ("Read the event wine planning guide", "/guides/corporate-event-wine-planning"),
             "related_guides": [("Corporate event wine planning", "/guides/corporate-event-wine-planning", "Practical planning memo for event wine."), ("Wine tasting corporate event", "/guides/wine-tasting-corporate-event", "Useful if the event is a hosted tasting.")],
-            "related": [("Event wine planning UK", "/event-wine-planning-uk"), ("Event planner", "/event-planner"), ("Suppliers", "/suppliers")],
+            "related": [("Event wine planning UK", "/event-wine-planning-uk"), ("Event planner", "/event-planner"), ("Supplier directory", "/supplier-directory")],
             "example_url": "/example-premium-event-pack",
             "cta_heading": "Get a clearer event wine plan",
             "cta_text": "Use the event planner to shape quantities, styles and supplier questions before ordering.",
@@ -8105,7 +8110,7 @@ SEO_PAGES.update(
             "primary_cta": ("Plan staff gifts", "/gift-planner"),
             "full_guide": ("Read staff gifting advice", "/guides/wine-gifts-for-sales-teams"),
             "related_guides": [("Business gift wine etiquette", "/guides/business-gift-wine-etiquette", "Policy and suitability guidance."), ("Non-alcoholic client gifts", "/guides/non-alcoholic-client-gifts", "Useful alcohol-free alternatives.")],
-            "related": [("Corporate gifting ideas UK", "/corporate-gifting-ideas-uk"), ("Suppliers", "/suppliers"), ("Gift planner", "/gift-planner")],
+            "related": [("Corporate gifting ideas UK", "/corporate-gifting-ideas-uk"), ("Supplier directory", "/supplier-directory"), ("Gift planner", "/gift-planner")],
             "example_url": "/example-premium-brief-pack",
             "cta_heading": "Plan staff gifts with alternatives built in",
             "cta_text": "Use ClientCellar to compare staff gifting routes before choosing a supplier.",
@@ -8147,7 +8152,7 @@ SEO_PAGES.update(
             "primary_cta": ("Plan a premium client gift", "/gift-planner"),
             "full_guide": ("Read luxury corporate wine gifts", "/guides/luxury-corporate-wine-gifts"),
             "related_guides": [("Luxury corporate wine gifts", "/guides/luxury-corporate-wine-gifts", "Sharper advice on premium gifting without overdoing it."), ("Best wine gifts under £100", "/guides/best-wine-gifts-under-100", "Useful trade-offs around a strong gift budget.")],
-            "related": [("Premium example", "/example-premium-brief-pack"), ("Pricing", "/pricing"), ("Suppliers", "/suppliers")],
+            "related": [("Premium example", "/example-premium-brief-pack"), ("Pricing", "/pricing"), ("Supplier directory", "/supplier-directory")],
             "example_url": "/example-premium-brief-pack",
             "cta_heading": "Create a premium-ready gift brief",
             "cta_text": "Use the free planner first, then upgrade if you need supplier-ready emails, a matrix and approval summary.",
@@ -8239,6 +8244,24 @@ def breadcrumb_schema(request: Request, crumbs: list[tuple[str, str]]) -> dict:
                 "item": absolute_url(request, path),
             }
             for index, (name, path) in enumerate(crumbs, start=1)
+        ],
+    }
+
+
+def supplier_directory_item_list_schema(request: Request, suppliers: list[dict]) -> dict:
+    return {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "UK wine gift supplier directory",
+        "url": absolute_url(request, "/supplier-directory"),
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": index,
+                "name": supplier["name"],
+                "url": supplier.get("primaryUrl") or absolute_url(request, "/supplier-directory"),
+            }
+            for index, supplier in enumerate(suppliers, start=1)
         ],
     }
 
@@ -8875,6 +8898,46 @@ def supplier_directory(request: Request):
     )
 
 
+@app.get("/supplier-directory", response_class=HTMLResponse)
+def supplier_directory_page(request: Request):
+    directory_suppliers = supplier_directory_entries()
+    categories = sorted({supplier["category"] for supplier in directory_suppliers})
+    best_use_filters = [
+        "Corporate gifts",
+        "Premium hampers",
+        "Events",
+        "Independent merchant",
+        "Budget-friendly",
+        "Luxury",
+    ]
+    budgets = ["£-££", "££", "£££"]
+    return render(
+        request,
+        "supplier_directory.html",
+        "UK Wine Gift Supplier Directory",
+        "Compare UK wine gift suppliers for corporate gifting, client hampers, event drinks and business thank-you gifts. Editorially selected by ClientCellar.",
+        suppliers=directory_suppliers,
+        featured_suppliers=featured_supplier_directory_entries(),
+        categories=categories,
+        best_use_filters=best_use_filters,
+        budgets=budgets,
+        structured_data=[
+            breadcrumb_schema(request, [("Home", "/"), ("Supplier directory", "/supplier-directory")]),
+            supplier_directory_item_list_schema(request, directory_suppliers),
+        ],
+    )
+
+
+@app.get("/uk-wine-gift-suppliers")
+def uk_wine_gift_suppliers_redirect():
+    return RedirectResponse(url="/supplier-directory", status_code=301)
+
+
+@app.get("/wine-gift-suppliers-uk")
+def wine_gift_suppliers_uk_redirect():
+    return RedirectResponse(url="/supplier-directory", status_code=301)
+
+
 @app.get("/suppliers/join", response_class=HTMLResponse)
 def suppliers_join(request: Request):
     return render(
@@ -9163,7 +9226,12 @@ def privacy_policy(request: Request):
 
 @app.get("/affiliate-disclosure", response_class=HTMLResponse)
 def affiliate_disclosure(request: Request):
-    return render(request, "affiliate_disclosure.html", "Affiliate Disclosure")
+    return render(
+        request,
+        "affiliate_disclosure.html",
+        "Affiliate Disclosure",
+        "How ClientCellar may use affiliate links while keeping UK wine gifting recommendations editorially useful and transparent.",
+    )
 
 
 @app.get("/editorial-policy", response_class=HTMLResponse)
@@ -9182,7 +9250,7 @@ def supplier_partnerships(request: Request):
         request,
         "supplier_partnerships.html",
         "Supplier Partnerships",
-        "Work with ClientCellar on UK corporate wine gifting, hamper, event wine and non-alcoholic gifting partnerships.",
+        "How UK wine merchants, hamper companies and event drinks suppliers can be considered for ClientCellar editorial listings.",
     )
 
 

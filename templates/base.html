@@ -11,7 +11,7 @@
   <meta property="og:description" content="{{ og_description }}">
   <meta property="og:type" content="{{ og_type }}">
   {% if canonical_url %}<meta property="og:url" content="{{ canonical_url }}">{% endif %}
-  <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}?v=20260516-guides-layout">
+  <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}?v=20260516-supplier-directory">
   {% for schema in structured_data %}
   <script type="application/ld+json">{{ schema | tojson }}</script>
   {% endfor %}
@@ -39,7 +39,7 @@
         <a href="/gift-planner">Gifts</a>
         <a href="/event-planner">Events</a>
         <a href="/guides">Guides</a>
-        <a href="/suppliers">Suppliers</a>
+        <a href="/supplier-directory">Suppliers</a>
         <a href="/pricing">Pricing</a>
         <a href="/faq">FAQ</a>
         <a href="/contact">Contact</a>
@@ -72,7 +72,7 @@
           </div>
           <p>ClientCellar helps UK businesses plan corporate wine gifts and tasting events with budget guidance, practical checklists and copy-ready business documents.</p>
           <p class="footer-small">We do not sell alcohol directly.</p>
-          <p class="footer-disclosure">ClientCellar recommendations are editorially selected. Some links may become affiliate or partner links in future, which means ClientCellar may earn a commission if you choose to buy through them. This will not affect the price you pay and our aim is to keep recommendations useful, relevant and transparent.</p>
+          <p class="footer-disclosure">ClientCellar recommendations are editorially selected. Some links may become affiliate links or clearly labelled commercial placements in future. This will not affect the price you pay and our aim is to keep recommendations useful, relevant and transparent.</p>
         </div>
         <div class="footer-links-grid">
           <nav aria-label="Product links">
@@ -84,7 +84,7 @@
           </nav>
           <nav aria-label="Supplier links">
             <h2>Suppliers</h2>
-            <a href="/suppliers">Supplier directory</a>
+            <a href="/supplier-directory">Supplier directory</a>
             <a href="/supplier-partnerships">Supplier partnerships</a>
             <a href="/corporate-wine-gifts">Corporate wine gifts</a>
             <a href="/corporate-wine-tasting-events">Corporate wine tasting events</a>
@@ -118,7 +118,7 @@
         <div class="footer-disclaimer-line">Planning guidance only. Supplier availability, pricing, age restrictions and delivery must be confirmed directly.</div>
         <div class="footer-meta">
           <span>&copy; 2026 ClientCellar. All rights reserved.</span>
-          <span>Recommended suppliers are selected as useful UK options; any future affiliate or partner links will be disclosed.</span>
+          <span>Recommended suppliers are selected as useful UK options; any future affiliate or sponsored links will be disclosed.</span>
         </div>
       </div>
     </div>
