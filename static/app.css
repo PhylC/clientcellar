@@ -14,6 +14,10 @@
   --container-narrow: 920px;
   --page-gutter: clamp(1.25rem, 4vw, 3rem);
   --grid-gap: clamp(1.25rem, 2.4vw, 1.75rem);
+  --hero-top: clamp(2rem, 3.5vw, 3.25rem);
+  --hero-bottom: clamp(1rem, 2vw, 1.5rem);
+  --hero-top-mobile: 1.5rem;
+  --hero-bottom-mobile: 1rem;
 }
 
 * {
@@ -440,7 +444,7 @@ main {
 }
 
 .page-shell {
-  padding: 2rem 0 2.5rem;
+  padding: var(--hero-top) 0 2.5rem;
 }
 
 .planner-page.page-shell {
@@ -464,7 +468,7 @@ main {
 .hero {
   display: grid;
   gap: 1.5rem;
-  padding: 2.7rem 0 1.6rem;
+  padding: var(--hero-top) 0 var(--hero-bottom);
 }
 
 .hero-copy h1,
@@ -609,7 +613,7 @@ main {
   grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.85fr);
   align-items: start;
   gap: clamp(1.8rem, 3.4vw, 3.6rem);
-  padding-top: clamp(2rem, 3.5vw, 3.5rem);
+  padding-top: var(--hero-top);
   padding-bottom: clamp(0.75rem, 1.5vw, 1.25rem);
 }
 
@@ -986,7 +990,7 @@ main {
 }
 
 .page-intro {
-  padding: clamp(2rem, 4vw, 3.2rem) 0 clamp(1rem, 2vw, 1.4rem);
+  padding: var(--hero-top) 0 var(--hero-bottom);
 }
 
 .guide-meta-row {
@@ -1024,7 +1028,17 @@ main {
 .planner-hero {
   display: grid;
   gap: 0.7rem;
-  padding: 0 0 0.65rem;
+  padding: 0 0 var(--hero-bottom);
+}
+
+.page-intro.planner-hero {
+  padding-top: var(--hero-top);
+}
+
+.planner-page .planner-hero,
+.guide-hub-page > .planner-hero,
+.planning-page > .planner-hero {
+  padding-top: 0;
 }
 
 .planner-hero h1 {
@@ -2041,7 +2055,7 @@ textarea {
 }
 
 .supplier-directory-hero {
-  padding-bottom: clamp(2rem, 5vw, 3rem);
+  padding-bottom: var(--hero-bottom);
 }
 
 .supplier-directory-page {
@@ -2689,8 +2703,8 @@ textarea {
 }
 
 .guide-hub-hero {
-  padding-top: clamp(1.5rem, 3vw, 2.4rem);
-  padding-bottom: 0.8rem;
+  padding-top: 0;
+  padding-bottom: var(--hero-bottom);
 }
 
 .guide-hub-page,
@@ -2698,12 +2712,12 @@ textarea {
   width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
   max-width: 100%;
   margin: 0 auto;
-  padding: clamp(0.55rem, 1.8vw, 1.25rem) 0 clamp(1.5rem, 4vw, 3rem);
+  padding: var(--hero-top) 0 clamp(1.5rem, 4vw, 3rem);
   overflow-x: hidden;
 }
 
 .guide-hub-page > .page-intro {
-  padding-top: clamp(0.55rem, 1.4vw, 1rem);
+  padding-top: 0;
 }
 
 .guide-hub-page *,
@@ -3857,13 +3871,11 @@ textarea {
   .hero {
     grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
     align-items: end;
-    padding-top: 5rem;
   }
 
   .home-hero {
     grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.85fr);
     align-items: start;
-    padding-top: clamp(2rem, 3.4vw, 3.6rem);
   }
 
   .card-grid.three {
@@ -4846,7 +4858,8 @@ textarea {
   .hero,
   .planner-hero,
   .page-intro {
-    padding-top: 1.5rem;
+    padding-top: var(--hero-top-mobile);
+    padding-bottom: var(--hero-bottom-mobile);
   }
 
   .planner-page.page-shell {
@@ -4854,7 +4867,7 @@ textarea {
     max-width: calc(100% - 2rem);
     margin-left: auto;
     margin-right: auto;
-    padding-top: 1.5rem;
+    padding-top: var(--hero-top-mobile);
   }
 
   .planner-page .planner-hero {
@@ -4892,7 +4905,7 @@ textarea {
 
   .home-hero {
     gap: 1.1rem;
-    padding-top: 1.55rem;
+    padding-top: var(--hero-top-mobile);
     padding-bottom: 0.9rem;
   }
 
