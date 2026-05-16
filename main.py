@@ -88,6 +88,8 @@ SITEMAP_STATIC_ROUTES = [
     "/guides",
     "/suppliers",
     "/supplier-directory",
+    "/uk-wine-gift-supplier-comparison",
+    "/submit-supplier",
     "/pricing",
     "/example-premium-brief-pack",
     "/example-premium-event-pack",
@@ -9158,6 +9160,26 @@ def supplier_directory_page(request: Request):
             breadcrumb_schema(request, [("Home", "/"), ("Supplier directory", "/supplier-directory")]),
             supplier_directory_item_list_schema(request, directory_suppliers),
         ],
+    )
+
+
+@app.get("/uk-wine-gift-supplier-comparison", response_class=HTMLResponse)
+def supplier_comparison_page(request: Request):
+    return render(
+        request,
+        "supplier_comparison.html",
+        "UK Wine Gift Supplier Comparison",
+        "Compare UK wine gift suppliers by use case, budget, delivery complexity, corporate gifting support and presentation style.",
+    )
+
+
+@app.get("/submit-supplier", response_class=HTMLResponse)
+def submit_supplier_page(request: Request):
+    return render(
+        request,
+        "submit_supplier.html",
+        "Submit a Supplier",
+        "Suggest a UK wine gift, hamper, tasting or corporate event supplier for possible inclusion in the ClientCellar supplier directory.",
     )
 
 
