@@ -70,6 +70,7 @@ WWW_HOST = "www.clientcellar.co.uk"
 
 app = FastAPI(title=PRODUCT_NAME)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+app.mount("/images", StaticFiles(directory=BASE_DIR / "public" / "images"), name="images")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 logger.info(
     "RESEND_ENABLED=%s EMAIL_FROM_SET=%s",

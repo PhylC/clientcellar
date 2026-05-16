@@ -603,6 +603,8 @@ def test_homepage_has_structured_data_and_conversion_links():
     assert response.status_code == 200
     assert 'application/ld+json' in response.text
     assert "Better wine gifts and event drinks, without the guesswork" in response.text
+    assert "/images/clientcellar/homepage-wine-gift-hero.webp" in response.text
+    assert "Corporate wine gift box with bottle, glass and thank-you card" in response.text
     assert "ClientCellar recommendations are editorially selected" in response.text
     assert "Plan a client gift" in response.text
     assert "Plan event drinks" in response.text
@@ -631,6 +633,8 @@ def test_supplier_directory_page_is_editorial_and_affiliate_ready():
     assert "View Wine Direct corporate gifts" in response.text
     assert 'data-supplier-directory' in response.text
     assert 'data-supplier-card' in response.text
+    assert "/images/clientcellar/supplier-corporate-gifts.webp" in response.text
+    assert "/images/clientcellar/supplier-premium-hampers.webp" in response.text
     assert 'rel="noopener noreferrer sponsored"' in response.text
     assert "Official partner" not in response.text
 
@@ -646,6 +650,30 @@ def test_supplier_directory_aliases_redirect_to_canonical_page():
         response = client.get(path, follow_redirects=False)
         assert response.status_code == 301
         assert response.headers["location"] == "/supplier-directory"
+
+
+def test_clientcellar_image_assets_are_served_and_used_on_key_pages():
+    for path in [
+        "/images/clientcellar/homepage-wine-gift-hero.webp",
+        "/images/clientcellar/gift-planner-header.webp",
+        "/images/clientcellar/event-planner-header.webp",
+        "/images/clientcellar/premium-brief-example.webp",
+    ]:
+        response = client.get(path)
+        assert response.status_code == 200
+        assert response.headers["content-type"] in {"image/webp", "image/webp; charset=utf-8"}
+
+    gift = client.get("/gift-planner").text
+    event = client.get("/event-planner").text
+    guides = client.get("/guides").text
+    example = client.get("/example-premium-brief-pack").text
+    assert "/images/clientcellar/gift-planner-header.webp" in gift
+    assert "Wine gift box with ribbon and thank-you card" in gift
+    assert "/images/clientcellar/event-planner-header.webp" in event
+    assert "Wine glasses on a business dinner table" in event
+    assert "/images/clientcellar/guide-corporate-wine-gifts.webp" in guides
+    assert "/images/clientcellar/guide-wine-gifts-under-50.webp" in guides
+    assert "/images/clientcellar/premium-brief-example.webp" in example
 
 
 def test_public_pages_use_clientcellar_business_emails():

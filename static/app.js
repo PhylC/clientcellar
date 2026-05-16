@@ -2051,6 +2051,7 @@ function bindSupplierDirectoryFilters() {
   const use = root.querySelector("[data-supplier-use]");
   const budget = root.querySelector("[data-supplier-budget]");
   const sort = root.querySelector("[data-supplier-sort]");
+  const categoryTiles = Array.from(root.querySelectorAll("[data-supplier-use-tile]"));
   if (!grid || !cards.length) return;
 
   const normalise = (value) => String(value || "").trim().toLowerCase();
@@ -2092,6 +2093,14 @@ function bindSupplierDirectoryFilters() {
   [search, category, use, budget, sort].forEach((control) => {
     control?.addEventListener("input", applyFilters);
     control?.addEventListener("change", applyFilters);
+  });
+
+  categoryTiles.forEach((tile) => {
+    tile.addEventListener("click", () => {
+      if (use) use.value = tile.dataset.supplierUseTile || "";
+      categoryTiles.forEach((item) => item.classList.toggle("is-active", item === tile));
+      applyFilters();
+    });
   });
 }
 

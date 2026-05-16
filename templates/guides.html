@@ -1,9 +1,26 @@
 {% extends "base.html" %}
+{% macro guide_thumbnail(slug) -%}
+  {% if slug == "corporate-wine-gifts-uk" %}
+  <img class="guide-card-thumb" src="/images/clientcellar/guide-corporate-wine-gifts.webp" width="153" height="120" alt="Corporate wine gifts guide thumbnail" loading="lazy" decoding="async">
+  {% elif slug == "best-wine-gifts-under-50" %}
+  <img class="guide-card-thumb" src="/images/clientcellar/guide-wine-gifts-under-50.webp" width="153" height="120" alt="Wine gifts under £50 guide thumbnail" loading="lazy" decoding="async">
+  {% elif slug == "christmas-corporate-wine-gifts" %}
+  <img class="guide-card-thumb" src="/images/clientcellar/guide-client-christmas-gifts.webp" width="152" height="120" alt="Client Christmas gifts guide thumbnail" loading="lazy" decoding="async">
+  {% elif slug == "corporate-event-wine-planning" %}
+  <img class="guide-card-thumb" src="/images/clientcellar/guide-event-wine-planning.webp" width="145" height="120" alt="Event wine planning guide thumbnail" loading="lazy" decoding="async">
+  {% elif slug == "champagne-gifts-for-clients" %}
+  <img class="guide-card-thumb" src="/images/clientcellar/guide-champagne-gifts.webp" width="147" height="120" alt="Champagne gifts guide thumbnail" loading="lazy" decoding="async">
+  {% elif slug in ["choosing-a-wine-merchant", "corporate-gifting-recipient-csv-template"] %}
+  <img class="guide-card-thumb" src="/images/clientcellar/guide-choosing-wine-merchant.webp" width="143" height="120" alt="Choosing a wine merchant guide thumbnail" loading="lazy" decoding="async">
+  {% endif %}
+{%- endmacro %}
+
 {% macro guide_card(slug, label, description, secondary_label=None) -%}
   {% if slug in guides %}
   {% set guide = guides[slug] %}
   <article class="guide-card guide-hub-card">
     <p class="eyebrow">{{ label }}</p>
+    {{ guide_thumbnail(slug) }}
     <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
     <p>{{ description or guide.description }}</p>
     <div class="button-row guide-card-actions">
@@ -16,9 +33,12 @@
   {% endif %}
 {%- endmacro %}
 
-{% macro page_card(title, href, label, description, secondary_href=None, secondary_label=None) -%}
+{% macro page_card(title, href, label, description, secondary_href=None, secondary_label=None, image=None, image_alt=None, image_width=152, image_height=120) -%}
   <article class="guide-card guide-hub-card">
     <p class="eyebrow">{{ label }}</p>
+    {% if image %}
+    <img class="guide-card-thumb" src="{{ image }}" width="{{ image_width }}" height="{{ image_height }}" alt="{{ image_alt }}" loading="lazy" decoding="async">
+    {% endif %}
     <h2><a href="{{ href }}">{{ title }}</a></h2>
     <p>{{ description }}</p>
     <div class="button-row guide-card-actions">
@@ -143,7 +163,7 @@
   </div>
   <div class="guide-grid">
     {{ guide_card("christmas-corporate-wine-gifts", "Christmas gifting", "Seasonal advice for client and team wine gifts that do not feel last-minute.", "Plan Christmas gifts") }}
-    {{ page_card("Client Christmas gifts UK", "/client-christmas-gifts-uk", "Planning page", "Christmas gifting routes for clients, with delivery and suitability checks.", "/gift-planner", "Create a gift plan") }}
+    {{ page_card("Client Christmas gifts UK", "/client-christmas-gifts-uk", "Planning page", "Christmas gifting routes for clients, with delivery and suitability checks.", "/gift-planner", "Create a gift plan", "/images/clientcellar/guide-client-christmas-gifts.webp", "Client Christmas gifts guide thumbnail", 152, 120) }}
     {{ page_card("Corporate hampers UK", "/corporate-hampers-uk", "Planning page", "When hampers are a safer route for staff, clients and mixed recipient groups.", "/gift-planner", "Compare hampers") }}
     {{ guide_card("wine-gift-hampers-uk", "Hampers", "A critical guide to choosing a hamper that is worth sending.", "Plan a hamper") }}
     {{ guide_card("corporate-wine-gifts-uk", "Corporate gifting", "The wider guide for choosing wine gifts by relationship, budget and occasion.", "Build a brief") }}
@@ -174,7 +194,7 @@
   <div class="guide-grid">
     {{ guide_card("corporate-event-wine-planning", "Event planning", "A planning memo-style guide for quantities, pacing, food and supplier questions.", "Plan event wine") }}
     {{ guide_card("wine-tasting-corporate-event", "Wine tasting", "A more human guide to tastings that feel social, not like a lecture.", "Plan a tasting") }}
-    {{ page_card("Event wine planning UK", "/event-wine-planning-uk", "Planning page", "Quantity, supplier and logistics guidance for corporate event wine planning.", "/event-planner", "Build event plan") }}
+    {{ page_card("Event wine planning UK", "/event-wine-planning-uk", "Planning page", "Quantity, supplier and logistics guidance for corporate event wine planning.", "/event-planner", "Build event plan", "/images/clientcellar/guide-event-wine-planning.webp", "Event wine planning guide thumbnail", 145, 120) }}
     {{ page_card("Wine for corporate events", "/wine-for-corporate-events", "Planning page", "Supplier routes and checks for receptions, dinners and team events.", "/event-planner", "Plan event wine") }}
     {{ guide_card("virtual-wine-tasting-for-teams", "Virtual tasting", "How to make remote tastings work without awkward video-call energy.", "Plan virtual tasting") }}
     {{ guide_card("corporate-wine-tasting-london", "London events", "For London tastings where location, transport and tone matter.", "Plan a London tasting") }}
