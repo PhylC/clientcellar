@@ -2,24 +2,26 @@
 {% block content %}
 <div class="planning-page">
   <section class="page-intro seo-hero planning-hero">
-    <div class="planning-hero__content">
-      <p class="eyebrow">ClientCellar planning page</p>
-      <h1>{{ page.h1 }}</h1>
-      <p>{{ page.intro }}</p>
-      <p class="small-note">ClientCellar provides planning guidance and does not sell alcohol directly. Recommendations are editorially selected; some supplier links may earn commission where available. <a href="/editorial-policy">Read our editorial policy</a>.</p>
-      <div class="hero-actions">
-        <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
-        {% if page.full_guide %}
-        <a class="button secondary" href="{{ page.full_guide[1] }}">{{ page.full_guide[0] }}</a>
-        {% endif %}
-        <a class="button secondary" href="{{ page.example_url or '/example-premium-brief-pack' }}">View premium example</a>
+    <div class="guide-hero-inner planning-hero-inner">
+      <div class="guide-hero-copy planning-hero__content">
+        <p class="eyebrow">ClientCellar planning page</p>
+        <h1>{{ page.h1 }}</h1>
+        <p>{{ page.intro }}</p>
+        <p class="small-note">ClientCellar provides planning guidance and does not sell alcohol directly. Recommendations are editorially selected; some supplier links may earn commission where available. <a href="/editorial-policy">Read our editorial policy</a>.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
+          {% if page.full_guide %}
+          <a class="button secondary" href="{{ page.full_guide[1] }}">{{ page.full_guide[0] }}</a>
+          {% endif %}
+          <a class="button secondary" href="{{ page.example_url or '/example-premium-brief-pack' }}">View premium example</a>
+        </div>
       </div>
+      {% if page.image %}
+      <aside class="guide-hero-media planning-hero__visual">
+        <img src="{{ page.image }}" width="{{ page.image_width or 1200 }}" height="{{ page.image_height or 900 }}" alt="{{ page.imageAlt }}" decoding="async">
+      </aside>
+      {% endif %}
     </div>
-    {% if page.image %}
-    <figure class="planning-hero__visual">
-      <img src="{{ page.image }}" width="{{ page.image_width or 1200 }}" height="{{ page.image_height or 900 }}" alt="{{ page.imageAlt }}" decoding="async">
-    </figure>
-    {% endif %}
   </section>
 
 <section class="seo-editorial planning-section">

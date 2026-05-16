@@ -708,7 +708,8 @@ def test_guide_detail_pages_use_mapped_hero_images():
     for path, image, alt in examples:
         response = client.get(path)
         assert response.status_code == 200
-        assert 'class="guide-hero__visual"' in response.text
+        assert "guide-hero-inner" in response.text
+        assert "guide-hero__visual" in response.text
         assert image in response.text
         assert alt in response.text
 

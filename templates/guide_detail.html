@@ -2,35 +2,37 @@
 {% block content %}
 {% if guide.enhanced %}
 <section class="guide-hero">
-  <div class="guide-hero__content">
-    <p class="eyebrow">ClientCellar guide</p>
-    <h1>{{ guide.h1 }}</h1>
-    <div class="guide-meta-row" aria-label="Guide details">
-      <span>Written by ClientCellar editorial team</span>
-      <span>Last updated: May 2026</span>
-    </div>
-    <p>{{ guide.intro }}</p>
-    <div class="guide-best-fit-summary">
-      {% for row in guide.hero_summary %}
-      <div>
-        <span>{{ row.label }}</span>
-        <p>{{ row.text }}</p>
+  <div class="guide-hero-inner">
+    <div class="guide-hero-copy guide-hero__content">
+      <p class="eyebrow">ClientCellar guide</p>
+      <h1>{{ guide.h1 }}</h1>
+      <div class="guide-meta-row" aria-label="Guide details">
+        <span>Written by ClientCellar editorial team</span>
+        <span>Last updated: May 2026</span>
       </div>
-      {% endfor %}
+      <p>{{ guide.intro }}</p>
+      <div class="guide-best-fit-summary">
+        {% for row in guide.hero_summary %}
+        <div>
+          <span>{{ row.label }}</span>
+          <p>{{ row.text }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      <p class="guide-disclosure-line">
+        Disclosure: Some links may earn commission where available. These guides work as planning advice whether or not a supplier link is tracked. <a href="/editorial-policy">Read our editorial policy</a>.
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+        <a class="button secondary" href="/guides">All guides</a>
+      </div>
     </div>
-    <p class="guide-disclosure-line">
-      Disclosure: Some links may earn commission where available. These guides work as planning advice whether or not a supplier link is tracked. <a href="/editorial-policy">Read our editorial policy</a>.
-    </p>
-    <div class="hero-actions">
-      <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
-      <a class="button secondary" href="/guides">All guides</a>
-    </div>
+    {% if guide.image %}
+    <aside class="guide-hero-media guide-hero__visual">
+      <img src="{{ guide.image }}" width="{{ guide.image_width or 1200 }}" height="{{ guide.image_height or 900 }}" alt="{{ guide.imageAlt }}" decoding="async">
+    </aside>
+    {% endif %}
   </div>
-  {% if guide.image %}
-  <figure class="guide-hero__visual">
-    <img src="{{ guide.image }}" width="{{ guide.image_width or 1200 }}" height="{{ guide.image_height or 900 }}" alt="{{ guide.imageAlt }}" decoding="async">
-  </figure>
-  {% endif %}
 </section>
 
 <section class="guide-planning-note">
@@ -206,28 +208,30 @@
   </div>
 </section>
 {% else %}
-<section class="page-intro guide-intro">
-  <div class="guide-intro__content">
-    <p class="eyebrow">{% if guide.cta_url == "/gift-planner" %}Corporate gifting guide{% else %}Corporate event guide{% endif %}</p>
-    <h1>{{ guide.h1 }}</h1>
-    <div class="guide-meta-row" aria-label="Guide details">
-      <span>Written by ClientCellar editorial team</span>
-      <span>Last updated: May 2026</span>
+<section class="page-intro guide-hero guide-intro">
+  <div class="guide-hero-inner">
+    <div class="guide-hero-copy guide-intro__content">
+      <p class="eyebrow">{% if guide.cta_url == "/gift-planner" %}Corporate gifting guide{% else %}Corporate event guide{% endif %}</p>
+      <h1>{{ guide.h1 }}</h1>
+      <div class="guide-meta-row" aria-label="Guide details">
+        <span>Written by ClientCellar editorial team</span>
+        <span>Last updated: May 2026</span>
+      </div>
+      <p>{{ guide.intro }}</p>
+      <p class="guide-disclosure-line">
+        Disclosure: Some links may earn commission where available. These guides work as planning advice whether or not a supplier link is tracked.
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="{{ guide.cta_url }}">{% if guide.cta_url == "/event-planner" %}Plan event wine{% else %}Plan corporate gifts{% endif %}</a>
+        <a class="button secondary" href="/guides">All guides</a>
+      </div>
     </div>
-    <p>{{ guide.intro }}</p>
-    <p class="guide-disclosure-line">
-      Disclosure: Some links may earn commission where available. These guides work as planning advice whether or not a supplier link is tracked.
-    </p>
-    <div class="hero-actions">
-      <a class="button primary" href="{{ guide.cta_url }}">{% if guide.cta_url == "/event-planner" %}Plan event wine{% else %}Plan corporate gifts{% endif %}</a>
-      <a class="button secondary" href="/guides">All guides</a>
-    </div>
+    {% if guide.image %}
+    <aside class="guide-hero-media guide-hero__visual">
+      <img src="{{ guide.image }}" width="{{ guide.image_width or 1200 }}" height="{{ guide.image_height or 900 }}" alt="{{ guide.imageAlt }}" decoding="async">
+    </aside>
+    {% endif %}
   </div>
-  {% if guide.image %}
-  <figure class="guide-hero__visual">
-    <img src="{{ guide.image }}" width="{{ guide.image_width or 1200 }}" height="{{ guide.image_height or 900 }}" alt="{{ guide.imageAlt }}" decoding="async">
-  </figure>
-  {% endif %}
 </section>
 
 <section class="guide-planning-note">
