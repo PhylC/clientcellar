@@ -2,6 +2,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from html.parser import HTMLParser
 
 from fastapi.testclient import TestClient
 
@@ -13,6 +14,42 @@ from main import app
 
 
 client = TestClient(app)
+
+
+class GuideIntentParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.stack: list[str] = []
+        self.in_grid = False
+        self.grid_parent_is_paragraph = False
+        self.card_count = 0
+        self.labels: list[str] = []
+        self._capture_label = False
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]):
+        classes = (dict(attrs).get("class") or "").split()
+        if "guide-intent-grid" in classes:
+            self.in_grid = True
+            self.grid_parent_is_paragraph = any(item == "p" for item in self.stack)
+        if self.in_grid and tag == "a" and "guide-intent-card" in classes:
+            self.card_count += 1
+        if self.in_grid and tag == "strong":
+            self._capture_label = True
+        self.stack.append(tag)
+
+    def handle_endtag(self, tag: str):
+        if tag == "strong":
+            self._capture_label = False
+        if self.stack:
+            self.stack.pop()
+        if self.in_grid and tag == "div" and not any(item == "a" for item in self.stack):
+            self.in_grid = False
+
+    def handle_data(self, data: str):
+        if self._capture_label:
+            label = data.strip()
+            if label:
+                self.labels.append(label)
 
 
 def structured_data_items(html: str) -> list[dict]:
@@ -287,6 +324,34 @@ def test_required_affiliate_ready_guides_load():
             assert "Best use cases" in response.text
             assert "Supplier links to consider" in response.text
         assert "In this guide" not in response.text
+
+
+def test_guides_start_here_renders_as_structured_cards():
+    response = client.get("/guides")
+    assert response.status_code == 200
+    assert "guide-start-section" in response.text
+    assert "guide-intent-grid" in response.text
+
+    parser = GuideIntentParser()
+    parser.feed(response.text)
+
+    expected_labels = [
+        "I need a client gift",
+        "I am planning Christmas gifts",
+        "I have a fixed budget",
+        "I am buying for a team",
+        "I am planning an event",
+        "I need etiquette advice",
+    ]
+    assert parser.card_count == 6
+    assert parser.labels == expected_labels
+    assert parser.grid_parent_is_paragraph is False
+
+    inline_blob = re.compile(
+        r"I need a client gift\\s+Start here if.*I am planning Christmas gifts",
+        flags=re.DOTALL,
+    )
+    assert not inline_blob.search(response.text)
 
 
 def test_new_high_intent_guides_load():

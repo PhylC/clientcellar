@@ -11,7 +11,7 @@
   <meta property="og:description" content="{{ og_description }}">
   <meta property="og:type" content="{{ og_type }}">
   {% if canonical_url %}<meta property="og:url" content="{{ canonical_url }}">{% endif %}
-  <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}?v=20260516-guides-layout">
   {% for schema in structured_data %}
   <script type="application/ld+json">{{ schema | tojson }}</script>
   {% endfor %}
