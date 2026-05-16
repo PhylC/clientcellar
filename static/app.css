@@ -603,20 +603,22 @@ main {
 }
 
 .home-hero {
-  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.82fr);
-  align-items: start;
-  gap: clamp(2rem, 4vw, 4rem);
-  padding-top: clamp(1.75rem, 3vw, 3.25rem);
-  padding-bottom: clamp(1.4rem, 3vw, 2.4rem);
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.85fr);
+  align-items: center;
+  gap: clamp(1.8rem, 3.4vw, 3.6rem);
+  padding-top: clamp(2rem, 3.4vw, 3.6rem);
+  padding-bottom: clamp(1.75rem, 3.2vw, 3rem);
 }
 
 .home-hero .hero-copy {
-  max-width: 760px;
+  max-width: 700px;
 }
 
 .home-hero .hero-copy h1 {
-  max-width: 760px;
-  font-size: clamp(2.35rem, 6.2vw, 4.55rem);
+  max-width: 680px;
+  font-size: clamp(2.8rem, 4.6vw, 4.35rem);
+  line-height: 0.99;
+  letter-spacing: -0.035em;
 }
 
 .home-hero-actions {
@@ -641,14 +643,14 @@ main {
   width: 100%;
   max-width: 540px;
   justify-self: end;
-  align-self: start;
-  margin-top: 0.35rem;
-  border: 1px solid rgba(123, 23, 51, 0.12);
+  align-self: center;
+  margin-top: 0;
+  border: 1px solid rgba(123, 23, 51, 0.1);
   border-radius: 18px;
   background:
-    linear-gradient(135deg, rgba(255, 252, 246, 0.96), rgba(255, 247, 242, 0.9));
-  box-shadow: 0 22px 54px rgba(68, 30, 40, 0.12);
-  padding: clamp(0.45rem, 1vw, 0.7rem);
+    linear-gradient(135deg, rgba(255, 252, 246, 0.74), rgba(255, 247, 242, 0.56));
+  box-shadow: 0 16px 38px rgba(68, 30, 40, 0.08);
+  padding: clamp(0.34rem, 0.75vw, 0.52rem);
 }
 
 .home-hero-visual img,
@@ -667,10 +669,11 @@ main {
 }
 
 .home-hero-visual img {
-  aspect-ratio: 4 / 3;
-  min-height: 300px;
-  max-height: 430px;
-  box-shadow: 0 14px 30px rgba(68, 30, 40, 0.12);
+  aspect-ratio: 16 / 10;
+  min-height: 285px;
+  max-height: 390px;
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(68, 30, 40, 0.08);
 }
 
 .home-action-card {
@@ -3843,9 +3846,9 @@ textarea {
   }
 
   .home-hero {
-    grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.82fr);
-    align-items: start;
-    padding-top: clamp(1.75rem, 3vw, 3.25rem);
+    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.85fr);
+    align-items: center;
+    padding-top: clamp(2rem, 3.4vw, 3.6rem);
   }
 
   .card-grid.three {
@@ -4850,15 +4853,22 @@ textarea {
 
   .home-hero {
     gap: 1.1rem;
-    padding-top: 1.5rem;
-    padding-bottom: 1.35rem;
+    padding-top: 1.55rem;
+    padding-bottom: 1.75rem;
+  }
+
+  .home-hero .hero-copy h1 {
+    max-width: 100%;
+    font-size: clamp(2.35rem, 10vw, 3.15rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
   }
 
   .home-hero-visual {
     justify-self: stretch;
     max-width: 100%;
-    margin-top: 0.15rem;
-    padding: 0.38rem;
+    margin-top: 0.25rem;
+    padding: 0.32rem;
     border-radius: 14px;
   }
 
