@@ -11,7 +11,16 @@
   <meta property="og:description" content="{{ og_description }}">
   <meta property="og:type" content="{{ og_type }}">
   {% if canonical_url %}<meta property="og:url" content="{{ canonical_url }}">{% endif %}
-  <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}?v=20260516-image-system">
+  <meta property="og:site_name" content="ClientCellar">
+  <meta property="og:image" content="https://clientcellar.co.uk/images/clientcellar/clientcellar-logo-lockup.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://clientcellar.co.uk/images/clientcellar/clientcellar-logo-lockup.webp">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/clientcellar/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/images/clientcellar/favicon-48x48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/clientcellar/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/images/clientcellar/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/images/clientcellar/icon-512x512.png">
+  <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}?v=20260516-logo-branding">
   {% for schema in structured_data %}
   <script type="application/ld+json">{{ schema | tojson }}</script>
   {% endfor %}
@@ -21,11 +30,13 @@
   <header class="site-header">
     <div class="header-inner">
       <div class="header-top-row">
-        <a class="brand" href="/">
-          <span class="brand-mark">CC</span>
-          <span class="brand-copy">
-            <strong>ClientCellar</strong>
-            <small>Corporate wine planning</small>
+        <a class="brand" href="/" aria-label="ClientCellar home">
+          <img class="brand-logo-lockup" src="/images/clientcellar/clientcellar-logo-lockup-360.webp" width="360" height="103" alt="ClientCellar" decoding="async">
+          <span class="brand-mobile-lockup">
+            <img class="brand-icon" src="/images/clientcellar/clientcellar-icon.webp" width="1024" height="1024" alt="" decoding="async">
+            <span class="brand-copy">
+              <strong>ClientCellar</strong>
+            </span>
           </span>
         </a>
         <div class="mobile-header-controls">
@@ -64,11 +75,7 @@
       <div class="footer-top">
         <div class="footer-brand">
           <div class="footer-brand-row">
-            <span class="brand-mark footer-brand-mark">CC</span>
-            <div>
-              <strong>ClientCellar</strong>
-              <small>Corporate wine planning</small>
-            </div>
+            <img class="footer-logo-lockup" src="/images/clientcellar/clientcellar-logo-lockup-280.webp" width="280" height="80" alt="ClientCellar logo" loading="lazy" decoding="async">
           </div>
           <p>ClientCellar helps UK businesses plan corporate wine gifts and tasting events with budget guidance, practical checklists and copy-ready business documents.</p>
           <p class="footer-small">We do not sell alcohol directly.</p>

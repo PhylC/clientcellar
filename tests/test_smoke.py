@@ -676,6 +676,35 @@ def test_clientcellar_image_assets_are_served_and_used_on_key_pages():
     assert "/images/clientcellar/premium-brief-example.webp" in example
 
 
+def test_clientcellar_brand_assets_are_served_and_referenced():
+    for path, content_type in [
+        ("/images/clientcellar/clientcellar-logo-lockup-360.webp", "image/webp"),
+        ("/images/clientcellar/clientcellar-logo-lockup-280.webp", "image/webp"),
+        ("/images/clientcellar/clientcellar-icon.webp", "image/webp"),
+        ("/images/clientcellar/favicon-32x32.png", "image/png"),
+        ("/images/clientcellar/favicon-48x48.png", "image/png"),
+        ("/images/clientcellar/apple-touch-icon.png", "image/png"),
+        ("/images/clientcellar/icon-192x192.png", "image/png"),
+        ("/images/clientcellar/icon-512x512.png", "image/png"),
+    ]:
+        response = client.get(path)
+        assert response.status_code == 200
+        assert response.headers["content-type"].split(";")[0] == content_type
+
+    response = client.get("/")
+    assert response.status_code == 200
+    html = response.text
+    assert "/images/clientcellar/clientcellar-logo-lockup-360.webp" in html
+    assert "/images/clientcellar/clientcellar-logo-lockup-280.webp" in html
+    assert "/images/clientcellar/clientcellar-icon.webp" in html
+    assert 'alt="ClientCellar"' in html
+    assert 'alt="ClientCellar logo"' in html
+    assert 'rel="icon" type="image/png" sizes="32x32"' in html
+    assert 'rel="apple-touch-icon" sizes="180x180"' in html
+    assert 'property="og:site_name" content="ClientCellar"' in html
+    assert 'property="og:image" content="https://clientcellar.co.uk/images/clientcellar/clientcellar-logo-lockup.webp"' in html
+
+
 def test_public_pages_use_clientcellar_business_emails():
     pages = [
         "/contact",
