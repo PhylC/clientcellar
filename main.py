@@ -7292,6 +7292,111 @@ GUIDES.update(
 )
 
 
+GUIDE_IMAGE_ASSETS = {
+    "corporate": {
+        "image": "/images/clientcellar/guide-corporate-wine-gifts.webp",
+        "imageAlt": "Wine bottle and gift box for corporate gifting",
+        "image_width": 153,
+        "image_height": 120,
+    },
+    "budget": {
+        "image": "/images/clientcellar/guide-wine-gifts-under-50.webp",
+        "imageAlt": "Wine gift setup for budget-friendly client gifting",
+        "image_width": 153,
+        "image_height": 120,
+    },
+    "christmas": {
+        "image": "/images/clientcellar/guide-client-christmas-gifts.webp",
+        "imageAlt": "Festive wine gift hamper for client Christmas gifts",
+        "image_width": 152,
+        "image_height": 120,
+    },
+    "event": {
+        "image": "/images/clientcellar/guide-event-wine-planning.webp",
+        "imageAlt": "Wine glasses on a table for event drinks planning",
+        "image_width": 145,
+        "image_height": 120,
+    },
+    "merchant": {
+        "image": "/images/clientcellar/guide-choosing-wine-merchant.webp",
+        "imageAlt": "Wine merchant shelves for choosing a supplier",
+        "image_width": 143,
+        "image_height": 120,
+    },
+    "champagne": {
+        "image": "/images/clientcellar/guide-champagne-gifts.webp",
+        "imageAlt": "Champagne bottle in an ice bucket for client gifting",
+        "image_width": 147,
+        "image_height": 120,
+    },
+}
+
+
+GUIDE_IMAGE_SLUGS = {
+    "corporate-wine-gifts-uk": "corporate",
+    "client-wine-gifts": "corporate",
+    "best-client-wine-gifts": "corporate",
+    "corporate-gift-ideas-for-clients": "corporate",
+    "wine-gifts-for-customers": "corporate",
+    "thank-you-wine-gifts": "corporate",
+    "best-wine-gifts-under-25": "budget",
+    "best-wine-gifts-under-50": "budget",
+    "best-wine-gifts-under-100": "budget",
+    "corporate-wine-gifts-under-50": "budget",
+    "corporate-wine-gifts-under-100": "budget",
+    "christmas-corporate-wine-gifts": "christmas",
+    "christmas-wine-gifts-for-clients": "christmas",
+    "wine-gifts-for-christmas": "christmas",
+    "corporate-event-wine-planning": "event",
+    "wine-tasting-corporate-event": "event",
+    "virtual-wine-tasting-for-teams": "event",
+    "corporate-wine-tasting-london": "event",
+    "wine-tasting-team-building": "event",
+    "wine-gifts-for-events": "event",
+    "corporate-gifting-recipient-csv-template": "merchant",
+    "client-gift-policy-checklist": "merchant",
+    "business-gift-wine-etiquette": "merchant",
+    "client-gifting-etiquette-uk": "merchant",
+    "champagne-gifts-for-clients": "champagne",
+    "corporate-champagne-gifts": "champagne",
+    "english-sparkling-corporate-gifts": "champagne",
+}
+
+
+def guide_image_asset_for(slug: str, guide: dict) -> dict | None:
+    if slug in GUIDE_IMAGE_SLUGS:
+        return GUIDE_IMAGE_ASSETS[GUIDE_IMAGE_SLUGS[slug]]
+    haystack = " ".join(
+        [
+            slug,
+            guide.get("title", ""),
+            guide.get("h1", ""),
+            guide.get("description", ""),
+        ]
+    ).lower()
+    if any(term in haystack for term in ["event", "tasting", "venue"]):
+        return GUIDE_IMAGE_ASSETS["event"]
+    if any(term in haystack for term in ["under-25", "under £25", "under-50", "under £50", "under-100", "under £100", "budget"]):
+        return GUIDE_IMAGE_ASSETS["budget"]
+    if any(term in haystack for term in ["champagne", "sparkling", "celebration"]):
+        return GUIDE_IMAGE_ASSETS["champagne"]
+    if any(term in haystack for term in ["christmas", "seasonal", "festive"]):
+        return GUIDE_IMAGE_ASSETS["christmas"]
+    if any(term in haystack for term in ["supplier", "merchant", "where to buy", "csv", "bulk"]):
+        return GUIDE_IMAGE_ASSETS["merchant"]
+    if any(term in haystack for term in ["corporate wine", "corporate gift", "corporate gifting", "client wine"]):
+        return GUIDE_IMAGE_ASSETS["corporate"]
+    return None
+
+
+for guide_slug, guide_data in GUIDES.items():
+    if guide_data.get("image"):
+        continue
+    guide_image_asset = guide_image_asset_for(guide_slug, guide_data)
+    if guide_image_asset:
+        guide_data.update(guide_image_asset)
+
+
 SEO_PAGES = {
     "corporate-wine-gifts": {
         "title": "Corporate Wine Gifts",

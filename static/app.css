@@ -2908,16 +2908,22 @@ textarea {
 }
 
 .guide-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.48fr) minmax(320px, 0.82fr);
+  gap: clamp(1.35rem, 3vw, 2.25rem);
+  align-items: center;
   width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
   padding-bottom: 0.45rem;
 }
 
 .guide-intro h1 {
-  max-width: 1040px;
+  max-width: 820px;
+  font-size: clamp(2.45rem, 4.7vw, 4.35rem);
+  line-height: 1.02;
 }
 
 .guide-intro p {
-  max-width: 980px;
+  max-width: 760px;
 }
 
 .guide-intro .hero-actions {
@@ -2925,18 +2931,22 @@ textarea {
 }
 
 .guide-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.86fr);
+  gap: clamp(1.35rem, 3vw, 2.35rem);
+  align-items: center;
   width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
   margin: 0 auto;
   padding: clamp(1.6rem, 4vw, 3rem) 0 clamp(1rem, 2vw, 1.4rem);
 }
 
 .guide-hero__content h1 {
-  max-width: 1050px;
+  max-width: 860px;
   margin: 0 0 1rem;
   color: var(--ink);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2.25rem, 5.2vw, 4.75rem);
-  line-height: 1;
+  font-size: clamp(2.45rem, 4.8vw, 4.45rem);
+  line-height: 1.02;
   letter-spacing: 0;
 }
 
@@ -2945,10 +2955,36 @@ textarea {
 }
 
 .guide-hero__content > p:not(.eyebrow):not(.guide-disclosure-line) {
-  max-width: 820px;
+  max-width: 740px;
   color: var(--muted);
   font-size: clamp(1.06rem, 1.6vw, 1.22rem);
   line-height: 1.62;
+}
+
+.guide-hero__visual {
+  width: 100%;
+  max-width: 460px;
+  justify-self: end;
+  margin: 0;
+  border: 1px solid rgba(123, 23, 51, 0.13);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 252, 246, 0.98), rgba(255, 247, 242, 0.88));
+  box-shadow: 0 18px 44px rgba(68, 30, 40, 0.11);
+  padding: clamp(0.42rem, 0.9vw, 0.62rem);
+}
+
+.guide-hero__visual img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  min-height: 260px;
+  max-height: 360px;
+  border: 1px solid rgba(123, 23, 51, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 12px 26px rgba(68, 30, 40, 0.1);
+  object-fit: cover;
 }
 
 .guide-hero__bullets {
@@ -4245,8 +4281,9 @@ textarea {
 }
 
 @media (max-width: 1100px) {
-  .guide-hero {
-    display: block;
+  .guide-hero,
+  .guide-intro {
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
   }
 
   .guide-layout {
@@ -4293,7 +4330,10 @@ textarea {
 }
 
 @media (max-width: 760px) {
-  .guide-hero {
+  .guide-hero,
+  .guide-intro {
+    grid-template-columns: 1fr;
+    gap: 1rem;
     width: min(335px, calc(100% - 2.5rem));
     max-width: 100%;
     margin-left: 1.25rem;
@@ -4311,11 +4351,26 @@ textarea {
     margin-right: auto;
   }
 
-  .guide-hero__content h1 {
-    max-width: min(100%, 8.7ch);
-    font-size: clamp(1.95rem, 9.4vw, 2.55rem);
+  .guide-hero__content h1,
+  .guide-intro h1 {
+    max-width: 100%;
+    font-size: clamp(2.05rem, 9vw, 2.7rem);
     line-height: 1.03;
     overflow-wrap: anywhere;
+  }
+
+  .guide-hero__visual {
+    justify-self: stretch;
+    max-width: 100%;
+    padding: 0.34rem;
+    border-radius: 14px;
+  }
+
+  .guide-hero__visual img {
+    aspect-ratio: 16 / 10;
+    min-height: 0;
+    max-height: 210px;
+    border-radius: 10px;
   }
 
   .guide-hero .guide-meta-row {

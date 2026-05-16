@@ -1,17 +1,7 @@
 {% extends "base.html" %}
-{% macro guide_thumbnail(slug) -%}
-  {% if slug == "corporate-wine-gifts-uk" %}
-  <img class="guide-card-thumb" src="/images/clientcellar/guide-corporate-wine-gifts.webp" width="153" height="120" alt="Corporate wine gifts guide thumbnail" loading="lazy" decoding="async">
-  {% elif slug == "best-wine-gifts-under-50" %}
-  <img class="guide-card-thumb" src="/images/clientcellar/guide-wine-gifts-under-50.webp" width="153" height="120" alt="Wine gifts under £50 guide thumbnail" loading="lazy" decoding="async">
-  {% elif slug == "christmas-corporate-wine-gifts" %}
-  <img class="guide-card-thumb" src="/images/clientcellar/guide-client-christmas-gifts.webp" width="152" height="120" alt="Client Christmas gifts guide thumbnail" loading="lazy" decoding="async">
-  {% elif slug == "corporate-event-wine-planning" %}
-  <img class="guide-card-thumb" src="/images/clientcellar/guide-event-wine-planning.webp" width="145" height="120" alt="Event wine planning guide thumbnail" loading="lazy" decoding="async">
-  {% elif slug == "champagne-gifts-for-clients" %}
-  <img class="guide-card-thumb" src="/images/clientcellar/guide-champagne-gifts.webp" width="147" height="120" alt="Champagne gifts guide thumbnail" loading="lazy" decoding="async">
-  {% elif slug in ["choosing-a-wine-merchant", "corporate-gifting-recipient-csv-template"] %}
-  <img class="guide-card-thumb" src="/images/clientcellar/guide-choosing-wine-merchant.webp" width="143" height="120" alt="Choosing a wine merchant guide thumbnail" loading="lazy" decoding="async">
+{% macro guide_thumbnail(guide) -%}
+  {% if guide.image %}
+  <img class="guide-card-thumb" src="{{ guide.image }}" width="{{ guide.image_width or 153 }}" height="{{ guide.image_height or 120 }}" alt="{{ guide.imageAlt }}" loading="lazy" decoding="async">
   {% endif %}
 {%- endmacro %}
 
@@ -20,7 +10,7 @@
   {% set guide = guides[slug] %}
   <article class="guide-card guide-hub-card">
     <p class="eyebrow">{{ label }}</p>
-    {{ guide_thumbnail(slug) }}
+    {{ guide_thumbnail(guide) }}
     <h2><a href="/guides/{{ slug }}">{{ guide.h1 }}</a></h2>
     <p>{{ description or guide.description }}</p>
     <div class="button-row guide-card-actions">
