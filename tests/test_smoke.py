@@ -602,10 +602,13 @@ def test_homepage_has_structured_data_and_conversion_links():
     response = client.get("/")
     assert response.status_code == 200
     assert 'application/ld+json' in response.text
-    assert "Free plan first. Upgrade only if you need copy-ready business documents." in response.text
+    assert "Better wine gifts and event drinks, without the guesswork" in response.text
     assert "ClientCellar recommendations are editorially selected" in response.text
-    assert "Plan corporate gifts" in response.text
-    assert "Plan a tasting event" in response.text
+    assert "Plan a client gift" in response.text
+    assert "Plan event drinks" in response.text
+    assert "/supplier-directory" in response.text
+    assert "Popular guides" in response.text
+    assert "Need a more detailed shortlist?" in response.text
 
 
 def test_supplier_page_has_trust_sections():

@@ -1,216 +1,118 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="hero">
+<section class="hero home-hero">
   <div class="hero-copy">
-    <p class="eyebrow">Corporate wine gifts and tasting events made simple</p>
-    <h1>Corporate wine gifts without the faff</h1>
-    <p class="lead">Plan client gifts, staff wine gifts and tasting events in minutes — with budget guidance, supplier direction and practical next steps.</p>
-    <div class="hero-actions">
-      <a class="button primary" href="/gift-planner">Plan corporate gifts</a>
-      <a class="button secondary" href="/event-planner">Plan a tasting event</a>
+    <p class="eyebrow">UK corporate wine planning</p>
+    <h1>Better wine gifts and event drinks, without the guesswork</h1>
+    <p class="lead">ClientCellar helps UK businesses choose corporate wine gifts, client hampers and event drinks with practical planning tools, supplier ideas and plain-English guidance.</p>
+    <div class="hero-actions home-hero-actions">
+      <a class="button primary" href="/gift-planner">Plan a client gift</a>
+      <a class="button secondary" href="/event-planner">Plan event drinks</a>
+      <a class="text-link home-hero-link" href="/supplier-directory">Browse supplier directory</a>
     </div>
-    <p class="small-note">Free plan first. Upgrade only if you need copy-ready business documents.</p>
+    <p class="small-note">Independent UK-focused guidance. Supplier links are editorially selected.</p>
   </div>
-  <aside class="hero-panel" aria-label="Start with a free plan">
-    <p class="eyebrow">Start free</p>
-    <h2>Choose gift or event</h2>
-    <ul class="feature-list">
-      <li>Answer a few questions</li>
-      <li>Get a practical direction</li>
-      <li>Upgrade only when the plan needs to be shared</li>
-    </ul>
-  </aside>
 </section>
 
-<section class="trust-strip">
-  Planning guidance only: ClientCellar does not sell alcohol directly. Confirm stock, pricing, age restrictions and delivery with the supplier.
-</section>
-
-<section class="section warm">
+<section class="section home-routing-section">
   <div class="section-header section-heading">
+    <p class="eyebrow">Start here</p>
+    <h2>What do you need help with?</h2>
+  </div>
+  <div class="card-grid three home-action-grid">
+    <article class="card mini-card home-action-card">
+      <h3>Client gifts</h3>
+      <p>Find wine gifts, hampers and thank-you ideas that fit your budget and recipient.</p>
+      <a class="button secondary small" href="/gift-planner">Use the gift planner</a>
+    </article>
+    <article class="card mini-card home-action-card">
+      <h3>Event drinks</h3>
+      <p>Estimate wine needs, avoid overbuying and choose bottles that fit the occasion.</p>
+      <a class="button secondary small" href="/event-planner">Use the event planner</a>
+    </article>
+    <article class="card mini-card home-action-card">
+      <h3>Where to buy</h3>
+      <p>Compare UK wine merchants, hamper retailers and corporate gifting pages.</p>
+      <a class="button secondary small" href="/supplier-directory">View suppliers</a>
+    </article>
+  </div>
+</section>
+
+<section class="section home-help-section">
+  <div class="section-header section-heading">
+    <p class="eyebrow">How ClientCellar helps</p>
+    <h2>Useful when the gift needs to feel right</h2>
+    <p>Most business wine gifting goes wrong in one of three ways: it feels too generic, too expensive, or not quite appropriate for the recipient. ClientCellar gives you a quicker way to narrow the options before you buy.</p>
+  </div>
+  <ul class="home-check-list" aria-label="ClientCellar benefits">
+    <li>Match the gift to the recipient and occasion</li>
+    <li>Compare sensible UK supplier options</li>
+    <li>Use guides when you want a second opinion</li>
+  </ul>
+</section>
+
+<section class="cta-panel home-supplier-teaser">
+  <div>
     <p class="eyebrow">Supplier directory</p>
-    <h2>Compare wine gift suppliers</h2>
+    <h2>Compare UK wine gift suppliers</h2>
     <p>Looking for somewhere to buy? Start with the ClientCellar supplier directory — a practical shortlist of UK wine merchants, hamper retailers and corporate gifting pages.</p>
+    <p class="small-note">Listings are editorially selected. Some links may become affiliate links in future.</p>
   </div>
   <div class="hero-actions">
     <a class="button primary" href="/supplier-directory">View supplier directory</a>
-    <a class="button secondary" href="/gift-planner">Create a gift plan</a>
   </div>
 </section>
 
-<section class="section">
+<section class="section home-guides-section">
   <div class="section-header section-heading">
-    <p class="eyebrow">Planning-first</p>
-    <h2>Useful before you contact suppliers</h2>
-    <p>ClientCellar is built to help you plan the brief first. You can use the free planners to define the recipient, occasion, budget, likely buying route and supplier questions before contacting any retailer or merchant directly.</p>
+    <p class="eyebrow">Guides</p>
+    <h2>Popular guides</h2>
   </div>
-  <div class="card-grid three">
-    <article class="card mini-card">
-      <h3>Plan the requirement</h3>
-      <p>Choose the recipient type, occasion, budget and quantity so the gift or event brief is structured from the start.</p>
+  <div class="card-grid four home-guide-grid">
+    <article class="guide-card">
+      <h3><a href="/guides/corporate-wine-gifts-uk">Corporate wine gifts UK</a></h3>
+      <p>How to choose business wine gifts that feel thoughtful, not lazy.</p>
+      <a class="text-link" href="/guides/corporate-wine-gifts-uk">Read guide</a>
     </article>
-    <article class="card mini-card">
-      <h3>Choose a buying route</h3>
-      <p>Get guidance on whether to use a wine merchant, hamper supplier, corporate gifting company, event wine supplier or mainstream retailer.</p>
+    <article class="guide-card">
+      <h3><a href="/guides/best-wine-gifts-under-50">Best wine gifts under £50</a></h3>
+      <p>Smart wine gift ideas when the budget needs to stay sensible.</p>
+      <a class="text-link" href="/guides/best-wine-gifts-under-50">Read guide</a>
     </article>
-    <article class="card mini-card">
-      <h3>Contact suppliers clearly</h3>
-      <p>Use the output as a clearer starting point for supplier enquiries, internal approval or shortlisting.</p>
+    <article class="guide-card">
+      <h3><a href="/client-christmas-gifts-uk">Client Christmas gifts UK</a></h3>
+      <p>A warmer way to plan seasonal client gifts without defaulting to beige hampers.</p>
+      <a class="text-link" href="/client-christmas-gifts-uk">Read guide</a>
     </article>
+    <article class="guide-card">
+      <h3><a href="/event-wine-planning-uk">Event wine planning UK</a></h3>
+      <p>Practical guidance for quantities, styles, suppliers and non-drinkers.</p>
+      <a class="text-link" href="/event-wine-planning-uk">Read guide</a>
+    </article>
+  </div>
+  <div class="button-row">
+    <a class="button secondary" href="/guides">View all guides</a>
   </div>
 </section>
 
-<section class="section">
-  <div class="section-header section-heading">
-    <p class="eyebrow">What ClientCellar helps with</p>
-    <h2>Buying guidance before you choose a supplier</h2>
-    <p>Use ClientCellar for practical UK business gifting and event wine planning, before you approach retailers, wine merchants or event suppliers.</p>
-  </div>
-  <div class="card-grid five">
-    <article class="card mini-card"><h3>Client wine gifts</h3><p>Shortlist suitable routes by relationship, occasion and budget.</p></article>
-    <article class="card mini-card"><h3>Staff gifts and hampers</h3><p>Plan inclusive gift routes with alcohol-free alternatives where needed.</p></article>
-    <article class="card mini-card"><h3>Event wine planning</h3><p>Shape tasting formats, attendee budgets and supplier questions.</p></article>
-    <article class="card mini-card"><h3>Budget guidance</h3><p>Estimate quantity, delivery and contingency before requesting quotes.</p></article>
-    <article class="card mini-card"><h3>Supplier-ready briefs</h3><p>Upgrade only when you need copy-ready emails and approval notes.</p></article>
-  </div>
-</section>
-
-<section class="section">
-  <div class="section-header section-heading">
-    <p class="eyebrow">How it works</p>
-    <h2>Plan corporate wine gifts in 3 steps</h2>
-  </div>
-  <div class="steps">
-    <div><span>1</span><p><strong>Add your brief</strong><br>Recipients, budget, deadline and occasion.</p></div>
-    <div><span>2</span><p><strong>Get a free plan</strong><br>A practical direction with budget guidance and supplier next steps.</p></div>
-    <div><span>3</span><p><strong>Upgrade if needed</strong><br>Turn the plan into supplier emails, quote comparison and approval notes.</p></div>
-  </div>
-</section>
-
-<section class="section warm">
-  <div class="section-header section-heading">
-    <p class="eyebrow">Recommendations</p>
-    <h2>How our recommendations work</h2>
-    <p>We focus on suitability, budget, recipient type, occasion, presentation, delivery practicality and buyer usefulness. We do not claim live prices, stock or supplier availability unless clearly stated.</p>
-  </div>
-  <div class="card-grid three">
-    <article class="card mini-card"><h3>Editorial first</h3><p>Guides are written to help UK business buyers compare suitable routes, not to favour one retailer.</p></article>
-    <article class="card mini-card"><h3>Commercially disclosed</h3><p>Some supplier links may earn commission. Commercial relationships do not guarantee positive placement.</p></article>
-    <article class="card mini-card"><h3>Supplier checks remain essential</h3><p>Confirm live pricing, stock, delivery, minimum orders and suitability directly with suppliers.</p></article>
-  </div>
-</section>
-
-<section class="section">
-  <div class="section-header section-heading">
-    <p class="eyebrow">Free vs Premium</p>
-    <h2>Free helps you decide. Premium gives you the documents.</h2>
-    <p>Premium turns your free plan into copy-ready business documents: supplier emails, quote comparison, budget breakdown, approval summary and risk checklist.</p>
-  </div>
-  <div class="card-grid two">
-    <article class="price-card">
-      <p class="eyebrow">Free Plan</p>
-      <h3>Decide what to do</h3>
-      <p class="price">£0</p>
-      <ul class="feature-list">
-        <li>Gift/event direction</li>
-        <li>Budget guidance</li>
-        <li>Suitability notes</li>
-        <li>Supplier routes to check</li>
-        <li>Works without supplier links</li>
-        <li>No save/download</li>
-        <li>No supplier email</li>
-        <li>No procurement summary</li>
-        <li>No quote comparison</li>
-        <li>No downloadable business pack</li>
-      </ul>
-      <a class="button secondary full" href="/gift-planner">Start free plan</a>
-    </article>
-    <article class="price-card premium-price-card">
-      <p class="eyebrow">Premium Brief Pack</p>
-      <h3>Done-for-you business pack</h3>
-      <p class="price">£29.99 one-off</p>
-      <ul class="feature-list">
-        <li>Saved secure pack link</li>
-        <li>Print/save PDF</li>
-        <li>Copy-and-send supplier enquiry email</li>
-        <li>Supplier quote comparison table</li>
-        <li>Budget and quantity breakdown</li>
-        <li>Internal approval/procurement summary</li>
-        <li>Risk checklist</li>
-        <li>Reusable pack access later via My packs</li>
-      </ul>
-      <div class="button-row">
-        <a class="button primary" href="/gift-planner">Create free plan first</a>
-        <a class="button secondary" href="/example-premium-brief-pack">View example pack</a>
-      </div>
-    </article>
-  </div>
-</section>
-
-<section class="section">
-  <div class="section-header section-heading">
-    <p class="eyebrow">Common use cases</p>
-    <h2>Built for practical business gifting</h2>
-  </div>
-  <div class="card-grid four">
-    <article class="card mini-card">
-      <h3>Client thank-yous</h3>
-      <p>Pick a suitable route and supplier questions before asking for quotes.</p>
-    </article>
-    <article class="card mini-card">
-      <h3>Staff gifts</h3>
-      <p>Plan around preferences, policies and alcohol-free alternatives.</p>
-    </article>
-    <article class="card mini-card">
-      <h3>Christmas gifting</h3>
-      <p>Get budget and delivery assumptions organised early.</p>
-    </article>
-    <article class="card mini-card">
-      <h3>Tasting events</h3>
-      <p>Shape the format, budget and supplier brief for a team or client event.</p>
-    </article>
-  </div>
-</section>
-
-<section class="section warm">
-  <div class="section-header section-heading">
-    <p class="eyebrow">Recently added guides</p>
-    <h2>Useful starting points</h2>
-  </div>
-  <div class="guide-grid">
-    <article class="guide-card"><h3><a href="/guides/best-client-wine-gifts">Best client wine gifts</a></h3><p>Choose suitable client gifts by occasion, budget and policy context.</p></article>
-    <article class="guide-card"><h3><a href="/guides/corporate-wine-gifts-uk">Corporate wine gifts UK</a></h3><p>Plan wine gifts for clients, staff and partners without live stock assumptions.</p></article>
-    <article class="guide-card"><h3><a href="/guides/best-wine-gifts-under-50">Wine gifts under £50</a></h3><p>Practical routes for modest but polished business gifts.</p></article>
-    <article class="guide-card"><h3><a href="/guides/best-wine-gifts-under-100">Wine gifts under £100</a></h3><p>Compare stronger gift routes for priority recipients.</p></article>
-    <article class="guide-card"><h3><a href="/guides/champagne-gifts-for-clients">Champagne gifts for clients</a></h3><p>When Champagne or sparkling wine is suitable for business gifting.</p></article>
-    <article class="guide-card"><h3><a href="/guides/luxury-wine-hampers-uk">Luxury wine hampers</a></h3><p>Presentation-led hamper guidance for premium gifting.</p></article>
-    <article class="guide-card"><h3><a href="/guides/client-gifting-etiquette-uk">Client gifting etiquette</a></h3><p>Policy-aware guidance before sending alcohol or hampers.</p></article>
-    <article class="guide-card"><h3><a href="/guides/non-alcoholic-client-gifts">Non-alcoholic client gifts</a></h3><p>Inclusive alternatives for recipients and workplaces where alcohol is unsuitable.</p></article>
-  </div>
-</section>
-
-<section class="cta-panel">
+<section class="cta-panel home-premium-teaser">
   <div>
-    <p class="eyebrow">For suppliers and partners</p>
-    <h2>Work with a focused business gifting publisher</h2>
-    <p>Wine merchants, hamper suppliers, gifting companies and event wine suppliers can contact ClientCellar about listings, editorial references, future tracked links or other clearly disclosed commercial collaborations.</p>
+    <p class="eyebrow">Premium example</p>
+    <h2>Need a more detailed shortlist?</h2>
+    <p>The free planners are designed to get you moving quickly. For trickier briefs, ClientCellar can produce a more detailed premium brief with supplier options, gift rationale and planning notes.</p>
   </div>
   <div class="hero-actions">
-    <a class="button secondary" href="/supplier-partnerships">Supplier partnerships</a>
-    <a class="text-link" href="/contact">Contact us</a>
+    <a class="button primary" href="/example-premium-brief-pack">See an example brief</a>
+    <a class="button secondary" href="/gift-planner">Start with the free planner</a>
   </div>
 </section>
 
-<section class="cta-panel">
-  <div>
-    <p class="eyebrow">Ready to plan?</p>
-    <h2>Start with the free planner</h2>
-    <p>Choose gifts or events, answer a few questions, then upgrade only if you need supplier emails, quote comparison and approval notes.</p>
-  </div>
-  <div class="hero-actions">
-    <a class="button primary" href="/gift-planner">Plan corporate gifts</a>
-    <a class="button secondary" href="/event-planner">Plan a tasting event</a>
-  </div>
+<section class="trust-strip home-transparency-strip">
+  <span>Independent, UK-focused and editorially selected.</span>
+  <span class="home-transparency-links">
+    <a href="/editorial-policy">How recommendations work</a>
+    <a href="/supplier-partnerships">Supplier partnerships</a>
+    <a href="/affiliate-disclosure">Affiliate disclosure</a>
+  </span>
 </section>
-
 {% endblock %}

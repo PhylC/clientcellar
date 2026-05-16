@@ -8413,8 +8413,9 @@ def index(request: Request):
     return render(
         request,
         "index.html",
-        "Corporate Wine Gifts and Tasting Events",
-        "Plan corporate wine gifts and tasting events with UK budget guidance, supplier suggestions and optional copy-ready business documents.",
+        "Corporate Wine Gifts & Event Drinks Planning",
+        "Plan better corporate wine gifts, client hampers and event drinks with ClientCellar’s free planning tools, UK supplier directory and practical wine gifting guides.",
+        page_title="ClientCellar | Corporate Wine Gifts & Event Drinks Planning",
         structured_data=[website_schema(request), web_app_schema(request)],
     )
 
