@@ -258,21 +258,9 @@ def test_required_affiliate_ready_guides_load():
         "/guides/wine-gift-baskets-uk",
     ]
     enhanced_paths = {
-        "/guides/corporate-wine-gifts-uk",
-        "/guides/client-wine-gifts",
-        "/guides/best-wine-gifts-under-50",
-        "/guides/christmas-corporate-wine-gifts",
-        "/guides/wine-gift-hampers-uk",
-        "/guides/best-client-wine-gifts",
-        "/guides/best-wine-gifts-under-25",
-        "/guides/best-wine-gifts-under-100",
-        "/guides/corporate-gift-ideas-for-clients",
-        "/guides/wine-gifts-for-customers",
-        "/guides/luxury-corporate-wine-gifts",
-        "/guides/thank-you-wine-gifts",
-        "/guides/business-gift-wine-etiquette",
-        "/guides/corporate-event-wine-planning",
-        "/guides/wine-tasting-corporate-event",
+        f"/guides/{slug}"
+        for slug, guide in main.GUIDES.items()
+        if guide.get("enhanced")
     }
     for path in guide_paths:
         response = client.get(path)
@@ -317,7 +305,9 @@ def test_new_high_intent_guides_load():
         response = client.get(path)
         assert response.status_code == 200
         assert "<h1" in response.text
-        assert "Turn this into a buying brief" in response.text
+        assert "ClientCellar guide" in response.text
+        assert "guide-opening-section" in response.text
+        assert "Supplier routes to consider" in response.text
 
 
 def test_enhanced_guides_render_editorial_blocks_without_placeholder_images():
