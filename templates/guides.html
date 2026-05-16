@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% macro guide_thumbnail(guide) -%}
-  {% if guide.image and guide.show_card_image %}
+  {% if guide.image %}
   <img class="guide-card-thumb" src="{{ guide.image }}" width="{{ guide.image_width or 1200 }}" height="{{ guide.image_height or 900 }}" alt="{{ guide.imageAlt }}" loading="lazy" decoding="async">
   {% endif %}
 {%- endmacro %}
@@ -32,7 +32,7 @@
   {% set card_image_height = image_height or page.image_height if page else image_height %}
   <article class="guide-card guide-hub-card">
     <p class="eyebrow">{{ label }}</p>
-    {% if card_image and (image or page.show_card_image) %}
+    {% if card_image %}
     <img class="guide-card-thumb" src="{{ card_image }}" width="{{ card_image_width or 1200 }}" height="{{ card_image_height or 900 }}" alt="{{ card_image_alt }}" loading="lazy" decoding="async">
     {% endif %}
     <h2><a href="{{ href }}">{{ title }}</a></h2>

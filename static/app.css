@@ -715,7 +715,7 @@ main {
 
 .guide-card-thumb {
   aspect-ratio: 16 / 10;
-  max-height: 112px;
+  max-height: 128px;
   margin-bottom: 0.2rem;
   object-position: center;
   box-shadow: none;
@@ -2677,8 +2677,12 @@ textarea {
   width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
   max-width: 100%;
   margin: 0 auto;
-  padding: clamp(0.95rem, 2.6vw, 2rem) 0 clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(0.55rem, 1.8vw, 1.25rem) 0 clamp(1.5rem, 4vw, 3rem);
   overflow-x: hidden;
+}
+
+.guide-hub-page > .page-intro {
+  padding-top: clamp(0.65rem, 2vw, 1.4rem);
 }
 
 .guide-hub-page *,
@@ -2851,10 +2855,10 @@ textarea {
 
 .planning-hero {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.9rem;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.8fr);
+  gap: clamp(2rem, 4vw, 4rem);
   align-items: start;
-  padding: clamp(0.35rem, 1.6vw, 1.05rem) 0 clamp(0.45rem, 1.2vw, 0.85rem);
+  padding: clamp(0.55rem, 1.8vw, 1.35rem) 0 clamp(0.55rem, 1.4vw, 0.95rem);
 }
 
 .planning-hero__content {
@@ -2862,9 +2866,10 @@ textarea {
 }
 
 .planning-hero__content h1 {
-  max-width: 820px;
-  font-size: clamp(2.25rem, 3.5vw, 3.5rem);
+  max-width: 760px;
+  font-size: clamp(2.1rem, 3.15vw, 3.35rem);
   line-height: 1.05;
+  letter-spacing: -0.02em;
 }
 
 .planning-hero__content > p:not(.eyebrow):not(.small-note) {
@@ -2873,7 +2878,7 @@ textarea {
 
 .planning-hero__visual {
   width: 100%;
-  max-width: 360px;
+  max-width: 500px;
   justify-self: start;
   margin: 0;
   border: 1px solid rgba(123, 23, 51, 0.13);
@@ -2889,7 +2894,7 @@ textarea {
   aspect-ratio: 4 / 3;
   height: auto;
   min-height: 0;
-  max-height: 230px;
+  max-height: 360px;
   border: 1px solid rgba(123, 23, 51, 0.1);
   border-radius: 12px;
   box-shadow: 0 12px 26px rgba(68, 30, 40, 0.1);
@@ -2963,18 +2968,19 @@ textarea {
 
 .guide-intro {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.9rem;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.8fr);
+  gap: clamp(2rem, 4vw, 4rem);
   align-items: start;
   width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
-  padding-top: clamp(0.35rem, 1.5vw, 1.1rem);
+  padding-top: clamp(0.55rem, 1.8vw, 1.35rem);
   padding-bottom: 0.35rem;
 }
 
 .guide-intro h1 {
-  max-width: 860px;
-  font-size: clamp(2.25rem, 3.5vw, 3.5rem);
+  max-width: 760px;
+  font-size: clamp(2.1rem, 3.15vw, 3.35rem);
   line-height: 1.05;
+  letter-spacing: -0.02em;
 }
 
 .guide-intro p {
@@ -2987,22 +2993,22 @@ textarea {
 
 .guide-hero {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.9rem;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.8fr);
+  gap: clamp(2rem, 4vw, 4rem);
   align-items: start;
   width: min(var(--container), calc(100% - (var(--page-gutter) * 2)));
   margin: 0 auto;
-  padding: clamp(0.35rem, 1.5vw, 1.1rem) 0 clamp(0.45rem, 1.2vw, 0.85rem);
+  padding: clamp(0.55rem, 1.8vw, 1.35rem) 0 clamp(0.55rem, 1.4vw, 0.95rem);
 }
 
 .guide-hero__content h1 {
-  max-width: 860px;
+  max-width: 760px;
   margin: 0 0 1rem;
   color: var(--ink);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2.25rem, 3.5vw, 3.5rem);
+  font-size: clamp(2.1rem, 3.15vw, 3.35rem);
   line-height: 1.05;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
 }
 
 .guide-hero__content {
@@ -3018,7 +3024,7 @@ textarea {
 
 .guide-hero__visual {
   width: 100%;
-  max-width: 340px;
+  max-width: 500px;
   justify-self: start;
   margin: 0;
   border: 1px solid rgba(123, 23, 51, 0.13);
@@ -3035,7 +3041,7 @@ textarea {
   aspect-ratio: 4 / 3;
   height: auto;
   min-height: 0;
-  max-height: 215px;
+  max-height: 360px;
   border: 1px solid rgba(123, 23, 51, 0.1);
   border-radius: 12px;
   box-shadow: 0 12px 26px rgba(68, 30, 40, 0.1);
@@ -4336,11 +4342,6 @@ textarea {
 }
 
 @media (max-width: 1100px) {
-  .guide-hero,
-  .guide-intro {
-    grid-template-columns: 1fr;
-  }
-
   .guide-layout {
     grid-template-columns: 1fr;
     gap: 2rem;
