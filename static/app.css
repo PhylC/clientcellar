@@ -2898,12 +2898,11 @@ textarea {
   justify-self: start;
   margin: 0;
   align-self: start;
-  padding-top: 0.25rem;
-  border: 1px solid rgba(123, 23, 51, 0.13);
+  border: 1px solid rgba(123, 23, 51, 0.11);
   border-radius: 16px;
   background: linear-gradient(135deg, rgba(255, 252, 246, 0.98), rgba(255, 247, 242, 0.88));
-  box-shadow: 0 18px 44px rgba(68, 30, 40, 0.11);
-  padding: calc(0.25rem + clamp(0.42rem, 0.9vw, 0.62rem)) clamp(0.42rem, 0.9vw, 0.62rem) clamp(0.42rem, 0.9vw, 0.62rem);
+  box-shadow: 0 14px 34px rgba(68, 30, 40, 0.08);
+  padding: clamp(0.32rem, 0.7vw, 0.48rem);
 }
 
 .planning-hero__visual img {
@@ -2913,9 +2912,9 @@ textarea {
   height: auto;
   min-height: 0;
   max-height: 390px;
-  border: 1px solid rgba(123, 23, 51, 0.1);
-  border-radius: 12px;
-  box-shadow: 0 12px 26px rgba(68, 30, 40, 0.1);
+  border: 1px solid rgba(123, 23, 51, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(68, 30, 40, 0.08);
   object-fit: cover;
 }
 
@@ -3029,12 +3028,11 @@ textarea {
   justify-self: start;
   margin: 0;
   align-self: start;
-  padding-top: 0.25rem;
-  border: 1px solid rgba(123, 23, 51, 0.13);
+  border: 1px solid rgba(123, 23, 51, 0.11);
   border-radius: 16px;
   background: linear-gradient(135deg, rgba(255, 252, 246, 0.98), rgba(255, 247, 242, 0.88));
-  box-shadow: 0 18px 44px rgba(68, 30, 40, 0.11);
-  padding: calc(0.25rem + clamp(0.42rem, 0.9vw, 0.62rem)) clamp(0.42rem, 0.9vw, 0.62rem) clamp(0.42rem, 0.9vw, 0.62rem);
+  box-shadow: 0 14px 34px rgba(68, 30, 40, 0.08);
+  padding: clamp(0.32rem, 0.7vw, 0.48rem);
 }
 
 .guide-hero__visual img {
@@ -3045,9 +3043,9 @@ textarea {
   height: auto;
   min-height: 0;
   max-height: 390px;
-  border: 1px solid rgba(123, 23, 51, 0.1);
-  border-radius: 12px;
-  box-shadow: 0 12px 26px rgba(68, 30, 40, 0.1);
+  border: 1px solid rgba(123, 23, 51, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(68, 30, 40, 0.08);
   object-fit: cover;
 }
 
@@ -4406,36 +4404,48 @@ textarea {
 
   .planning-hero__visual {
     justify-self: stretch;
+    width: 100%;
     max-width: 100%;
     margin-top: 1.25rem;
-    padding: 0.34rem;
-    border-radius: 14px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .planning-hero__visual img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
     aspect-ratio: 16 / 10;
     min-height: 0;
-    max-height: 170px;
-    border-radius: 10px;
+    max-height: 210px;
+    border: 0;
+    border-radius: 16px;
+    box-shadow: none;
+    object-fit: cover;
   }
 
   .guide-hero,
   .guide-intro {
-    width: min(335px, calc(100% - 2.5rem));
+    width: min(100% - 2rem, 720px);
     max-width: 100%;
-    margin-left: 1.25rem;
+    margin-left: auto;
     margin-right: auto;
     padding-top: 1.5rem;
+    overflow-x: clip;
   }
 
   .guide-layout,
   .guide-planning-note,
   .guide-cta,
   .related-bottom {
-    width: min(335px, calc(100% - 2.5rem));
+    width: min(100% - 2rem, 720px);
     max-width: 100%;
-    margin-left: 1.25rem;
+    margin-left: auto;
     margin-right: auto;
+    overflow-x: clip;
   }
 
   .guide-hero__content h1,
@@ -4448,17 +4458,27 @@ textarea {
 
   .guide-hero__visual {
     justify-self: stretch;
+    width: 100%;
     max-width: 100%;
     margin-top: 1.25rem;
-    padding: 0.34rem;
-    border-radius: 14px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .guide-hero__visual img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
     aspect-ratio: 16 / 10;
     min-height: 0;
-    max-height: 165px;
-    border-radius: 10px;
+    max-height: 210px;
+    border: 0;
+    border-radius: 16px;
+    box-shadow: none;
+    object-fit: cover;
   }
 
   .guide-hero .guide-meta-row {
