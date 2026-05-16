@@ -7298,38 +7298,38 @@ GUIDE_IMAGE_ASSETS = {
     "corporate": {
         "image": "/images/clientcellar/guide-corporate-wine-gifts.webp",
         "imageAlt": "Wine bottle and gift box for corporate gifting",
-        "image_width": 153,
-        "image_height": 120,
+        "image_width": 1200,
+        "image_height": 900,
     },
     "budget": {
         "image": "/images/clientcellar/guide-wine-gifts-under-50.webp",
         "imageAlt": "Wine gift setup for budget-friendly client gifting",
-        "image_width": 153,
-        "image_height": 120,
+        "image_width": 1200,
+        "image_height": 900,
     },
     "christmas": {
         "image": "/images/clientcellar/guide-client-christmas-gifts.webp",
         "imageAlt": "Festive wine gift hamper for client Christmas gifts",
-        "image_width": 152,
-        "image_height": 120,
+        "image_width": 1200,
+        "image_height": 900,
     },
     "event": {
         "image": "/images/clientcellar/guide-event-wine-planning.webp",
         "imageAlt": "Wine glasses on a table for event drinks planning",
-        "image_width": 145,
-        "image_height": 120,
+        "image_width": 1200,
+        "image_height": 900,
     },
     "merchant": {
         "image": "/images/clientcellar/guide-choosing-wine-merchant.webp",
         "imageAlt": "Wine merchant shelves for choosing a supplier",
-        "image_width": 143,
-        "image_height": 120,
+        "image_width": 1200,
+        "image_height": 900,
     },
     "champagne": {
         "image": "/images/clientcellar/guide-champagne-gifts.webp",
         "imageAlt": "Champagne bottle in an ice bucket for client gifting",
-        "image_width": 147,
-        "image_height": 120,
+        "image_width": 1200,
+        "image_height": 900,
     },
 }
 
@@ -7362,6 +7362,15 @@ GUIDE_IMAGE_SLUGS = {
     "champagne-gifts-for-clients": "champagne",
     "corporate-champagne-gifts": "champagne",
     "english-sparkling-corporate-gifts": "champagne",
+}
+
+GUIDE_CARD_IMAGE_SLUGS = {
+    "corporate-wine-gifts-uk",
+    "best-wine-gifts-under-50",
+    "christmas-corporate-wine-gifts",
+    "corporate-event-wine-planning",
+    "champagne-gifts-for-clients",
+    "corporate-gifting-recipient-csv-template",
 }
 
 
@@ -7486,6 +7495,10 @@ for guide_slug, guide_data in GUIDES.items():
     guide_image_asset = guide_image_asset_for(guide_slug, guide_data)
     if guide_image_asset:
         guide_data.update(guide_image_asset)
+        guide_data["show_card_image"] = (
+            guide_data["image"].startswith(GUIDE_IMAGE_URL_PREFIX)
+            or guide_slug in GUIDE_CARD_IMAGE_SLUGS
+        )
 
 
 SEO_PAGES = {
