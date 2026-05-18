@@ -81,49 +81,97 @@ logger.info(
 )
 
 
+SEO_REDIRECTS = {
+    "/privacy": "/privacy-policy",
+    "/best-wine-gifts-for-clients": "/guides/best-client-wine-gifts",
+    "/guides/client-wine-gifts": "/guides/best-client-wine-gifts",
+    "/corporate-wine-gifts-uk": "/corporate-wine-gifts",
+    "/guides/christmas-wine-gifts-for-clients": "/guides/christmas-corporate-wine-gifts",
+    "/guides/wine-gifts-for-christmas": "/guides/christmas-corporate-wine-gifts",
+    "/guides/thank-you-wine-gifts": "/guides/client-thank-you-wine-gifts",
+    "/guides/wine-gifts-for-thank-you": "/guides/client-thank-you-wine-gifts",
+    "/wine-for-corporate-events": "/event-wine-planning-uk",
+    "/guides/wine-tasting-corporate-event": "/corporate-wine-tasting-events",
+    "/guides/wine-gift-baskets-uk": "/guides/wine-gift-hampers-uk",
+    "/guides/luxury-wine-gifts-for-clients": "/guides/luxury-corporate-wine-gifts",
+    "/staff-wine-gifts-uk": "/staff-wine-gifts",
+    "/supplier-application": "/submit-supplier",
+}
+
 SITEMAP_STATIC_ROUTES = [
     "/",
-    "/gift-planner",
+    "/about",
+    "/affiliate-disclosure",
+    "/client-wine-gifts",
+    "/client-christmas-gifts-uk",
+    "/corporate-christmas-wine-gifts",
+    "/corporate-gifting-ideas-uk",
+    "/corporate-hampers-uk",
+    "/corporate-wine-gifts",
+    "/corporate-wine-tasting-events",
+    "/editorial-policy",
     "/event-planner",
-    "/guides",
-    "/suppliers",
-    "/supplier-directory",
-    "/uk-wine-gift-supplier-comparison",
-    "/submit-supplier",
-    "/pricing",
+    "/event-wine-planning-uk",
     "/example-premium-brief-pack",
     "/example-premium-event-pack",
     "/faq",
-    "/about",
-    "/contact",
-    "/terms",
-    "/privacy-policy",
-    "/affiliate-disclosure",
-    "/editorial-policy",
-    "/supplier-partnerships",
-    "/supplier-application",
-    "/responsible-drinking",
-    "/copyright",
-    "/cookies",
+    "/gift-planner",
     "/guides",
-    "/premium-pack",
-    "/corporate-wine-gifts",
-    "/corporate-wine-tasting-events",
-    "/client-wine-gifts",
-    "/staff-wine-gifts",
-    "/corporate-christmas-wine-gifts",
-    "/corporate-wine-gifts-uk",
-    "/client-christmas-gifts-uk",
-    "/corporate-hampers-uk",
-    "/best-wine-gifts-for-clients",
-    "/corporate-gifting-ideas-uk",
-    "/event-wine-planning-uk",
-    "/wine-for-corporate-events",
-    "/thank-you-gifts-for-clients",
-    "/staff-wine-gifts-uk",
     "/premium-client-gifts-uk",
+    "/premium-pack",
+    "/pricing",
+    "/privacy-policy",
+    "/responsible-drinking",
+    "/staff-wine-gifts",
+    "/submit-supplier",
+    "/supplier-directory",
+    "/supplier-partnerships",
+    "/suppliers",
+    "/terms",
+    "/thank-you-gifts-for-clients",
+    "/uk-wine-gift-supplier-comparison",
 ]
-SITEMAP_EXCLUDED_GUIDE_SLUGS = {"corporate-champagne-gifts"}
+SITEMAP_GUIDE_SLUGS = [
+    "best-client-wine-gifts",
+    "best-wine-accessories-for-gifts",
+    "best-wine-gifts-under-100",
+    "best-wine-gifts-under-25",
+    "best-wine-gifts-under-50",
+    "business-gift-wine-etiquette",
+    "champagne-gifts-for-clients",
+    "christmas-corporate-wine-gifts",
+    "client-gift-policy-checklist",
+    "client-gifting-etiquette-uk",
+    "client-thank-you-wine-gifts",
+    "corporate-event-wine-planning",
+    "corporate-gift-ideas-for-clients",
+    "corporate-gifting-recipient-csv-template",
+    "corporate-wine-gifts-uk",
+    "corporate-wine-gifts-under-100",
+    "corporate-wine-gifts-under-50",
+    "corporate-wine-hampers",
+    "corporate-wine-tasting-london",
+    "english-sparkling-corporate-gifts",
+    "food-and-wine-hampers",
+    "how-much-to-spend-on-client-gifts",
+    "luxury-corporate-wine-gifts",
+    "luxury-wine-hampers-uk",
+    "non-alcoholic-client-gifts",
+    "personalised-wine-gifts",
+    "red-wine-gifts-for-clients",
+    "staff-wine-gifts",
+    "virtual-wine-tasting-for-teams",
+    "white-wine-gifts-for-clients",
+    "wine-gift-hampers-uk",
+    "wine-gifts-for-accountancy-firms",
+    "wine-gifts-for-agencies",
+    "wine-gifts-for-customers",
+    "wine-gifts-for-events",
+    "wine-gifts-for-law-firms",
+    "wine-gifts-for-new-business",
+    "wine-gifts-for-sales-teams",
+    "wine-tasting-team-building",
+]
 
 
 def canonical_path(path: str) -> str:
@@ -173,12 +221,14 @@ async def canonical_redirect_middleware(request: Request, call_next):
     scheme = forwarded_proto or request.url.scheme
     path = request.url.path
     clean_path = canonical_path(path)
+    redirect_destination = SEO_REDIRECTS.get(clean_path)
     should_redirect_host = host == WWW_HOST or is_render_host(host)
     should_redirect_scheme = host in {CANONICAL_HOST, WWW_HOST} and scheme == "http"
     should_redirect_path = path != clean_path
-    if should_redirect_host or should_redirect_scheme or should_redirect_path:
+    if redirect_destination or should_redirect_host or should_redirect_scheme or should_redirect_path:
         query = f"?{request.url.query}" if request.url.query else ""
-        return RedirectResponse(f"{CANONICAL_ORIGIN}{clean_path}{query}", status_code=301)
+        destination_path = redirect_destination or clean_path
+        return RedirectResponse(f"{CANONICAL_ORIGIN}{destination_path}{query}", status_code=301)
     return await call_next(request)
 
 
@@ -8375,6 +8425,60 @@ SEO_PAGES.update(
 )
 
 
+GUIDE_SLUG_REDIRECTS = {
+    redirect_path.removeprefix("/guides/"): destination.removeprefix("/guides/")
+    for redirect_path, destination in SEO_REDIRECTS.items()
+    if redirect_path.startswith("/guides/") and destination.startswith("/guides/")
+}
+
+
+def canonicalise_internal_path(path: str) -> str:
+    if not isinstance(path, str) or not path.startswith("/"):
+        return path
+    clean = canonical_path(path)
+    return SEO_REDIRECTS.get(clean, clean)
+
+
+def canonicalise_related_guide_slugs(slugs: list[str], current_slug: str | None = None) -> list[str]:
+    canonical_slugs: list[str] = []
+    for slug in slugs or []:
+        canonical_slug = GUIDE_SLUG_REDIRECTS.get(slug, slug)
+        if canonical_slug == current_slug or canonical_slug in canonical_slugs:
+            continue
+        canonical_slugs.append(canonical_slug)
+    return canonical_slugs
+
+
+def canonicalise_tuple_links(items: list[tuple]) -> list[tuple]:
+    canonical_items = []
+    for item in items or []:
+        if not isinstance(item, tuple):
+            canonical_items.append(item)
+            continue
+        canonical_items.append(
+            tuple(canonicalise_internal_path(value) if index == 1 else value for index, value in enumerate(item))
+        )
+    return canonical_items
+
+
+for guide_slug, guide_data in GUIDES.items():
+    guide_data["related"] = canonicalise_related_guide_slugs(guide_data.get("related", []), guide_slug)
+
+for seo_slug, seo_page in SEO_PAGES.items():
+    if seo_page.get("primary_cta"):
+        label, href = seo_page["primary_cta"]
+        seo_page["primary_cta"] = (label, canonicalise_internal_path(href))
+    if seo_page.get("full_guide"):
+        label, href = seo_page["full_guide"]
+        seo_page["full_guide"] = (label, canonicalise_internal_path(href))
+    if seo_page.get("related_guides"):
+        seo_page["related_guides"] = canonicalise_tuple_links(seo_page["related_guides"])
+    if seo_page.get("related"):
+        seo_page["related"] = canonicalise_tuple_links(seo_page["related"])
+    if seo_page.get("example_url"):
+        seo_page["example_url"] = canonicalise_internal_path(seo_page["example_url"])
+
+
 SEO_IMAGE_SLUG_OVERRIDES = {
     "corporate-wine-gifts-uk": "corporate-wine-gifts-uk-seo",
     "client-wine-gifts": "client-wine-gifts-seo",
@@ -9538,7 +9642,7 @@ def cookies(request: Request):
 
 @app.get("/sitemap.xml")
 def sitemap(request: Request):
-    guide_urls = [f"/guides/{slug}" for slug in GUIDES if slug not in SITEMAP_EXCLUDED_GUIDE_SLUGS]
+    guide_urls = [f"/guides/{slug}" for slug in SITEMAP_GUIDE_SLUGS if slug in GUIDES]
     urls = list(dict.fromkeys(SITEMAP_STATIC_ROUTES + guide_urls))
     lastmod = date.today().isoformat()
     body = "\n".join(

@@ -265,7 +265,6 @@ def test_required_affiliate_ready_guides_load():
     guide_paths = [
         "/guides/best-client-wine-gifts",
         "/guides/corporate-wine-gifts-uk",
-        "/guides/client-wine-gifts",
         "/guides/best-wine-gifts-under-25",
         "/guides/best-wine-gifts-under-50",
         "/guides/best-wine-gifts-under-100",
@@ -274,16 +273,13 @@ def test_required_affiliate_ready_guides_load():
         "/guides/corporate-gift-ideas-for-clients",
         "/guides/wine-gifts-for-customers",
         "/guides/luxury-corporate-wine-gifts",
-        "/guides/thank-you-wine-gifts",
+        "/guides/client-thank-you-wine-gifts",
         "/guides/business-gift-wine-etiquette",
         "/guides/corporate-event-wine-planning",
-        "/guides/wine-tasting-corporate-event",
         "/guides/champagne-gifts-for-clients",
         "/guides/red-wine-gifts-for-clients",
         "/guides/white-wine-gifts-for-clients",
         "/guides/luxury-wine-hampers-uk",
-        "/guides/wine-gifts-for-christmas",
-        "/guides/wine-gifts-for-thank-you",
         "/guides/wine-gifts-for-new-business",
         "/guides/wine-gifts-for-events",
         "/guides/best-wine-accessories-for-gifts",
@@ -292,7 +288,6 @@ def test_required_affiliate_ready_guides_load():
         "/guides/food-and-wine-hampers",
         "/guides/non-alcoholic-client-gifts",
         "/guides/personalised-wine-gifts",
-        "/guides/wine-gift-baskets-uk",
     ]
     enhanced_paths = {
         f"/guides/{slug}"
@@ -324,6 +319,30 @@ def test_required_affiliate_ready_guides_load():
             assert "Best use cases" in response.text
             assert "Supplier links to consider" in response.text
         assert "In this guide" not in response.text
+
+
+def test_duplicate_seo_urls_redirect_permanently():
+    redirect_client = TestClient(app, follow_redirects=False)
+    redirects = {
+        "/privacy": "/privacy-policy",
+        "/best-wine-gifts-for-clients": "/guides/best-client-wine-gifts",
+        "/guides/client-wine-gifts": "/guides/best-client-wine-gifts",
+        "/corporate-wine-gifts-uk": "/corporate-wine-gifts",
+        "/guides/christmas-wine-gifts-for-clients": "/guides/christmas-corporate-wine-gifts",
+        "/guides/wine-gifts-for-christmas": "/guides/christmas-corporate-wine-gifts",
+        "/guides/thank-you-wine-gifts": "/guides/client-thank-you-wine-gifts",
+        "/guides/wine-gifts-for-thank-you": "/guides/client-thank-you-wine-gifts",
+        "/wine-for-corporate-events": "/event-wine-planning-uk",
+        "/guides/wine-tasting-corporate-event": "/corporate-wine-tasting-events",
+        "/guides/wine-gift-baskets-uk": "/guides/wine-gift-hampers-uk",
+        "/guides/luxury-wine-gifts-for-clients": "/guides/luxury-corporate-wine-gifts",
+        "/staff-wine-gifts-uk": "/staff-wine-gifts",
+        "/supplier-application": "/submit-supplier",
+    }
+    for source, destination in redirects.items():
+        response = redirect_client.get(source)
+        assert response.status_code == 301
+        assert response.headers["location"] == f"https://clientcellar.co.uk{destination}"
 
 
 def test_guides_start_here_renders_as_structured_cards():
@@ -383,7 +402,6 @@ def test_enhanced_guides_render_editorial_blocks_without_placeholder_images():
     }
     for path in [
         "/guides/corporate-wine-gifts-uk",
-        "/guides/client-wine-gifts",
         "/guides/best-wine-gifts-under-50",
         "/guides/christmas-corporate-wine-gifts",
         "/guides/wine-gift-hampers-uk",
@@ -393,10 +411,9 @@ def test_enhanced_guides_render_editorial_blocks_without_placeholder_images():
         "/guides/corporate-gift-ideas-for-clients",
         "/guides/wine-gifts-for-customers",
         "/guides/luxury-corporate-wine-gifts",
-        "/guides/thank-you-wine-gifts",
+        "/guides/client-thank-you-wine-gifts",
         "/guides/business-gift-wine-etiquette",
         "/guides/corporate-event-wine-planning",
-        "/guides/wine-tasting-corporate-event",
     ]:
         response = client.get(path)
         assert response.status_code == 200
@@ -435,7 +452,7 @@ def test_guide_faq_sections_include_matching_faq_schema():
 
 
 def test_seo_landing_faq_sections_include_matching_faq_schema():
-    response = client.get("/corporate-wine-gifts-uk")
+    response = client.get("/corporate-wine-gifts")
     assert response.status_code == 200
     assert "Common questions" in response.text
 
@@ -448,8 +465,8 @@ def test_seo_landing_faq_sections_include_matching_faq_schema():
     assert len(faq_schemas) == 1
     questions = [item["name"] for item in faq_schemas[0]["mainEntity"]]
     answers = [item["acceptedAnswer"]["text"] for item in faq_schemas[0]["mainEntity"]]
-    assert "What is a sensible budget for UK corporate wine gifts?" in questions
-    assert "Can ClientCellar supply the wine?" in questions
+    assert "What is a sensible budget for corporate wine gifts?" in questions
+    assert "Does ClientCellar sell the wine?" in questions
     assert all(question in response.text for question in questions)
     assert all(answer in response.text for answer in answers)
     assert not any("review" in json.dumps(item).lower() or "rating" in json.dumps(item).lower() for item in faq_schemas)
@@ -471,7 +488,7 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
     assert "https://clientcellar.co.uk/pricing" in text
     assert "https://clientcellar.co.uk/faq" in text
     assert "https://clientcellar.co.uk/about" in text
-    assert "https://clientcellar.co.uk/contact" in text
+    assert "https://clientcellar.co.uk/contact" not in text
     assert "https://clientcellar.co.uk/terms" in text
     assert "www.clientcellar.co.uk" not in text
     assert "cv-optimiser.com" not in text
@@ -718,7 +735,7 @@ def test_related_guide_cards_include_thumbnails():
     guide_response = client.get("/guides/corporate-wine-gifts-uk")
     assert guide_response.status_code == 200
     assert "related-guide-thumb" in guide_response.text
-    assert "/images/clientcellar/guides/client-wine-gifts.webp" in guide_response.text
+    assert "/images/clientcellar/guides/best-client-wine-gifts.webp" in guide_response.text
 
     seo_response = client.get("/client-christmas-gifts-uk")
     assert seo_response.status_code == 200
