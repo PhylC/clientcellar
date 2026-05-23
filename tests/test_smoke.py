@@ -250,6 +250,11 @@ def test_commercial_content_routes_load():
         "/editorial-policy",
         "/supplier-partnerships",
         "/network-readiness",
+        "/corporate-wine-gift-suppliers-uk",
+        "/corporate-hamper-suppliers-uk",
+        "/client-gift-suppliers-uk",
+        "/christmas-client-gift-suppliers",
+        "/wine-gift-suppliers-for-businesses",
         "/corporate-wine-gifts",
         "/corporate-wine-tasting-events",
         "/client-wine-gifts",
@@ -488,7 +493,7 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
     assert "https://clientcellar.co.uk/pricing" in text
     assert "https://clientcellar.co.uk/faq" in text
     assert "https://clientcellar.co.uk/about" in text
-    assert "https://clientcellar.co.uk/contact" not in text
+    assert "https://clientcellar.co.uk/contact" in text
     assert "https://clientcellar.co.uk/terms" in text
     assert "www.clientcellar.co.uk" not in text
     assert "cv-optimiser.com" not in text
@@ -499,6 +504,11 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
     assert "/guides/champagne-gifts-for-clients" in text
     assert "/guides/corporate-champagne-gifts" not in text
     assert "/corporate-wine-gifts" in text
+    assert "/corporate-wine-gift-suppliers-uk" in text
+    assert "/corporate-hamper-suppliers-uk" in text
+    assert "/client-gift-suppliers-uk" in text
+    assert "/christmas-client-gift-suppliers" in text
+    assert "/wine-gift-suppliers-for-businesses" in text
     assert "/privacy-policy" in text
     assert "/privacy</loc>" not in text
     assert "/editorial-policy" in text

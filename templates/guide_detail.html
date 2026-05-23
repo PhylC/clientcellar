@@ -187,6 +187,18 @@
   </div>
 </section>
 
+<section class="cta-panel guide-supplier-cta">
+  <div>
+    <p class="eyebrow">Supplier inclusion</p>
+    <h2>Are you a UK wine, hamper or gifting supplier?</h2>
+    <p>ClientCellar is building a practical UK resource for corporate gifting, wine gifts and event planning. If you supply businesses, client gifting teams or event organisers, tell us about your range for possible editorial inclusion.</p>
+  </div>
+  <div class="hero-actions compact-actions">
+    <a class="button secondary" href="/supplier-partnerships">Supplier enquiries</a>
+    <a class="button secondary" href="{% if guide.cta_url == '/event-planner' %}/event-planner{% else %}/gift-planner{% endif %}">{% if guide.cta_url == '/event-planner' %}Use Event Planner{% else %}Use Gift Planner{% endif %}</a>
+  </div>
+</section>
+
 <section class="related-bottom">
   <div class="section-heading">
     <p class="eyebrow">Related guides</p>
@@ -392,6 +404,18 @@
   <div class="hero-actions compact-actions">
     <a class="button primary" href="{{ guide.cta_url }}">{% if guide.cta_url == "/event-planner" %}Plan event wine{% else %}Plan corporate gifts{% endif %}</a>
     <a class="button secondary" href="/guides">View all guides</a>
+  </div>
+</section>
+
+<section class="cta-panel guide-supplier-cta">
+  <div>
+    <p class="eyebrow">Supplier inclusion</p>
+    <h2>Are you a UK wine, hamper or gifting supplier?</h2>
+    <p>ClientCellar is building a practical UK resource for corporate gifting, wine gifts and event planning. If you supply businesses, client gifting teams or event organisers, tell us about your range for possible editorial inclusion.</p>
+  </div>
+  <div class="hero-actions compact-actions">
+    <a class="button secondary" href="/supplier-partnerships">Supplier enquiries</a>
+    <a class="button secondary" href="{% if guide.cta_url == '/event-planner' %}/event-planner{% else %}/gift-planner{% endif %}">{% if guide.cta_url == '/event-planner' %}Use Event Planner{% else %}Use Gift Planner{% endif %}</a>
   </div>
 </section>
 

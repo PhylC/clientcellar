@@ -163,7 +163,11 @@
     <p>{{ page.cta_text or "Use ClientCellar to turn budget, timing and recipient details into a practical supplier enquiry and checklist." }}</p>
   </div>
   <div class="hero-actions">
+    {% if page.cta_eyebrow == "Supplier inclusion" %}
+    <a class="button primary" href="/supplier-partnerships">Supplier enquiries</a>
+    {% else %}
     <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
+    {% endif %}
     <a class="button secondary" href="/guides">Browse guides</a>
   </div>
 </section>

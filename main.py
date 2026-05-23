@@ -102,6 +102,11 @@ SITEMAP_STATIC_ROUTES = [
     "/",
     "/about",
     "/affiliate-disclosure",
+    "/contact",
+    "/corporate-wine-gift-suppliers-uk",
+    "/corporate-hamper-suppliers-uk",
+    "/client-gift-suppliers-uk",
+    "/christmas-client-gift-suppliers",
     "/client-wine-gifts",
     "/client-christmas-gifts-uk",
     "/corporate-christmas-wine-gifts",
@@ -130,6 +135,7 @@ SITEMAP_STATIC_ROUTES = [
     "/terms",
     "/thank-you-gifts-for-clients",
     "/uk-wine-gift-supplier-comparison",
+    "/wine-gift-suppliers-for-businesses",
 ]
 SITEMAP_GUIDE_SLUGS = [
     "best-client-wine-gifts",
@@ -7872,6 +7878,271 @@ HIGH_INTENT_SEO_PAGES = {
     },
 }
 
+SUPPLIER_INTENT_SEO_PAGES = {
+    "corporate-wine-gift-suppliers-uk": {
+        "title": "Corporate Wine Gift Suppliers UK: How to Shortlist Better Options",
+        "h1": "Corporate wine gift suppliers in the UK",
+        "description": "Compare what matters when choosing UK corporate wine gift suppliers, from budgets and delivery to presentation, personalisation and client suitability.",
+        "intro": "This page is for business buyers who need a better supplier shortlist before they start sending enquiry emails. ClientCellar does not sell wine directly or pretend every supplier is a partner; use this as a practical way to compare routes and ask better questions.",
+        "editorial_label": "Supplier shortlisting",
+        "editorial_heading": "Choose the supplier around the job, not the bottle photo",
+        "editorial_intro": [
+            "Corporate wine gifting is rarely just a product decision. The supplier has to handle budgets, recipient data, substitutions, gift messages, invoices and delivery timing.",
+            "A good shortlist normally includes one scalable corporate route, one premium route for senior recipients, and one sensible fallback if alcohol suitability is unclear.",
+        ],
+        "decision": {
+            "heading": "What to compare before ordering",
+            "headers": ["Criteria", "What good looks like", "Watch-out"],
+            "rows": [
+                ["Corporate ordering", "Clear business contact route, VAT invoice and bulk order support", "Consumer checkout only"],
+                ["Delivery", "Multi-address support, cut-off dates and failed-delivery process", "Unclear substitutions or no delivery reporting"],
+                ["Presentation", "Gift notes, packaging options and proofing where needed", "Branding that makes the gift feel like marketing"],
+                ["Suitability", "Alcohol-free or hamper alternatives available", "Assuming every recipient drinks wine"],
+            ],
+        },
+        "advisory": {
+            "heading": "Editorially useful beats commercially convenient",
+            "paragraphs": [
+                "ClientCellar is building supplier ideas and shortlists around buyer usefulness: fit for the brief, operational reliability and suitability for business gifting.",
+                "Where commercial relationships exist in future, they should not replace basic judgement. Buyers still need to confirm live stock, pricing, delivery and policies directly.",
+            ],
+        },
+        "supplier_routes": WINE_GIFT_SUPPLIER_ROUTES,
+        "supplier_heading": "Supplier routes worth comparing",
+        "primary_cta": ("Create a gift brief", "/gift-planner"),
+        "full_guide": ("Read the corporate wine gifts guide", "/guides/corporate-wine-gifts-uk"),
+        "related_guides": [
+            ("Corporate wine gifts UK", "/guides/corporate-wine-gifts-uk", "The fuller buying guide for budgets, notes and supplier routes."),
+            ("Best client wine gifts", "/guides/best-client-wine-gifts", "Useful when you need gift ideas by client type and occasion."),
+            ("Business gift wine etiquette", "/guides/business-gift-wine-etiquette", "Policy and suitability checks before sending alcohol."),
+        ],
+        "related": [
+            ("Gift Planner", "/gift-planner"),
+            ("Event Planner", "/event-planner"),
+            ("Guides", "/guides"),
+            ("Supplier Partnerships", "/supplier-partnerships"),
+            ("Corporate hamper suppliers", "/corporate-hamper-suppliers-uk"),
+        ],
+        "image": "/images/clientcellar/guide-corporate-wine-gifts.webp",
+        "imageAlt": "Corporate wine gift bottle and packaging for supplier shortlisting",
+        "image_width": 1200,
+        "image_height": 900,
+        "cta_eyebrow": "Supplier inclusion",
+        "cta_heading": "Are you a UK wine, hamper or gifting supplier?",
+        "cta_text": "ClientCellar is building a practical UK resource for corporate gifting, wine gifts and event planning. If you supply businesses, client gifting teams or event organisers, tell us about your range for possible editorial inclusion.",
+    },
+    "corporate-hamper-suppliers-uk": {
+        "title": "Corporate Hamper Suppliers UK: What to Check Before Ordering",
+        "h1": "Corporate hamper suppliers in the UK",
+        "description": "A practical guide to choosing UK corporate hamper suppliers for client gifts, team rewards and Christmas gifting.",
+        "intro": "Corporate hampers can be the safest route for mixed recipients, but only when the contents, delivery and supplier process stand up. This page helps you compare hamper suppliers before the order turns into a late-season scramble.",
+        "editorial_label": "Supplier shortlisting",
+        "editorial_heading": "The contents list matters more than the basket",
+        "editorial_intro": [
+            "A hamper photographs well long before anyone knows whether it contains useful, generous or suitable items. Read the contents list carefully and ask what can be substituted.",
+            "For business gifting, supplier reliability often matters as much as taste: delivery dates, address handling, gift messages, allergens and VAT invoices all need checking.",
+        ],
+        "decision": {
+            "heading": "Corporate hamper supplier checks",
+            "headers": ["Criteria", "What to ask", "Why it matters"],
+            "rows": [
+                ["Contents", "Exact item list, sizes, alcohol contents and substitutions", "Avoids filler and disappointment"],
+                ["Dietary needs", "Allergens, vegetarian, vegan and alcohol-free options", "Keeps gifts usable for mixed teams"],
+                ["Fulfilment", "Multi-address upload, delivery tracking and failed-delivery handling", "Prevents December admin pain"],
+                ["Presentation", "Gift note, branding restraint and packaging quality", "Makes the gift feel considered"],
+            ],
+        },
+        "advisory": {
+            "heading": "Use hampers when variety solves a problem",
+            "paragraphs": [
+                "Hampers are strong for client teams, staff rewards and uncertain preferences. They are weaker when they are bought only because nobody wanted to choose properly.",
+                "For senior clients, restrained premium presentation usually works better than oversized packaging.",
+            ],
+        },
+        "supplier_routes": HAMPER_SUPPLIER_ROUTES,
+        "supplier_heading": "Hamper supplier routes worth comparing",
+        "primary_cta": ("Plan a hamper brief", "/gift-planner"),
+        "full_guide": ("Read the wine hamper guide", "/guides/wine-gift-hampers-uk"),
+        "related_guides": [
+            ("Wine gift hampers UK", "/guides/wine-gift-hampers-uk", "How to avoid weak hampers and overpackaged gifts."),
+            ("Christmas corporate wine gifts", "/guides/christmas-corporate-wine-gifts", "Seasonal planning when delivery windows matter."),
+            ("Food and wine hampers", "/guides/food-and-wine-hampers", "Useful when wine alone feels too narrow."),
+        ],
+        "related": [
+            ("Gift Planner", "/gift-planner"),
+            ("Event Planner", "/event-planner"),
+            ("Guides", "/guides"),
+            ("Supplier Partnerships", "/supplier-partnerships"),
+            ("Client gift suppliers", "/client-gift-suppliers-uk"),
+        ],
+        "image": "/images/clientcellar/supplier-premium-hampers.webp",
+        "imageAlt": "Corporate hamper with wine and food gifts",
+        "image_width": 1200,
+        "image_height": 900,
+        "cta_eyebrow": "Supplier inclusion",
+        "cta_heading": "Are you a UK wine, hamper or gifting supplier?",
+        "cta_text": "ClientCellar is building a practical UK resource for corporate gifting, wine gifts and event planning. If you supply businesses, client gifting teams or event organisers, tell us about your range for possible editorial inclusion.",
+    },
+    "client-gift-suppliers-uk": {
+        "title": "Client Gift Suppliers UK: Better Ways to Shortlist Business Gifts",
+        "h1": "Client gift suppliers in the UK",
+        "description": "How to compare client gift suppliers in the UK, including budgets, delivery, brand fit, alcohol policies and premium options.",
+        "intro": "Client gift suppliers are not interchangeable. The right choice depends on relationship value, recipient suitability, delivery risk, budget and whether the gift should feel personal, scalable or premium.",
+        "editorial_label": "Supplier shortlisting",
+        "editorial_heading": "Start with the relationship, then choose the route",
+        "editorial_intro": [
+            "A new client, a long-term account, a referral partner and a client team are different gifting problems. Supplier choice should follow that context.",
+            "Use this page to build a shortlist that includes practical corporate fulfilment, premium options where appropriate, and safer alternatives when alcohol is not the right answer.",
+        ],
+        "decision": {
+            "heading": "How to compare client gift suppliers",
+            "headers": ["Buyer need", "Supplier route", "Question to ask"],
+            "rows": [
+                ["Many recipients", "Corporate gifting or wine supplier", "Can they handle bulk data and delivery reporting?"],
+                ["Senior relationship", "Premium hamper or merchant route", "Is the gift polished without being excessive?"],
+                ["Unknown preferences", "Food hamper or alcohol-free route", "Is there an equal-quality alternative?"],
+                ["Policy-sensitive client", "Modest and practical route", "Can the value and reason be justified?"],
+            ],
+        },
+        "advisory": {
+            "heading": "Do not let supplier convenience decide the gift",
+            "paragraphs": [
+                "A supplier with a slick checkout may still be wrong for the recipient. A slower advice-led merchant may be better for one VIP gift and worse for a 200-recipient Christmas list.",
+                "ClientCellar’s supplier ideas are selection-led and planning-led. Confirm live commercial terms directly before ordering.",
+            ],
+        },
+        "supplier_routes": [WINE_GIFT_SUPPLIER_ROUTES[0], WINE_GIFT_SUPPLIER_ROUTES[1], HAMPER_SUPPLIER_ROUTES[0], HAMPER_SUPPLIER_ROUTES[1]],
+        "supplier_heading": "Supplier routes for client gifts",
+        "primary_cta": ("Create a client gift plan", "/gift-planner"),
+        "full_guide": ("Read best client wine gifts", "/guides/best-client-wine-gifts"),
+        "related_guides": [
+            ("Best client wine gifts", "/guides/best-client-wine-gifts", "Gift ideas by relationship, budget and occasion."),
+            ("Client gifting etiquette UK", "/guides/client-gifting-etiquette-uk", "Useful before gifts become awkward."),
+            ("Corporate gift ideas for clients", "/guides/corporate-gift-ideas-for-clients", "Broader ideas beyond wine."),
+        ],
+        "related": [
+            ("Gift Planner", "/gift-planner"),
+            ("Event Planner", "/event-planner"),
+            ("Guides", "/guides"),
+            ("Supplier Partnerships", "/supplier-partnerships"),
+            ("Wine gift suppliers", "/wine-gift-suppliers-for-businesses"),
+        ],
+        "image": "/images/clientcellar/guides/client-wine-gifts.webp",
+        "imageAlt": "Client gift with wine and thank-you card",
+        "image_width": 1200,
+        "image_height": 900,
+        "cta_eyebrow": "Supplier inclusion",
+        "cta_heading": "Are you a UK wine, hamper or gifting supplier?",
+        "cta_text": "ClientCellar is building a practical UK resource for corporate gifting, wine gifts and event planning. If you supply businesses, client gifting teams or event organisers, tell us about your range for possible editorial inclusion.",
+    },
+    "christmas-client-gift-suppliers": {
+        "title": "Christmas Client Gift Suppliers: UK Shortlisting Guide",
+        "h1": "Christmas client gift suppliers",
+        "description": "A practical guide to finding Christmas client gift suppliers, avoiding late ordering problems and choosing gifts that feel appropriate.",
+        "intro": "Christmas client gifting is where supplier choice becomes operational. The gift still needs taste and judgement, but order cut-offs, clean data and substitutions decide whether it lands well.",
+        "editorial_label": "Supplier shortlisting",
+        "editorial_heading": "December rewards the organised buyer",
+        "editorial_intro": [
+            "The best Christmas supplier is not always the fanciest catalogue. It is the one that can handle the recipient list, delivery window, gift message and fallback plan without turning the buyer into a helpdesk.",
+            "Build a shortlist early, then ask direct questions about stock, substitutions, branded notes, address files and final safe order dates.",
+        ],
+        "decision": {
+            "heading": "Christmas supplier checks",
+            "headers": ["Risk", "Question to ask", "Better sign"],
+            "rows": [
+                ["Late ordering", "What is the final safe order date?", "Clear cut-offs and proofing deadlines"],
+                ["Address errors", "Do you provide a recipient file template?", "CSV upload or checked address process"],
+                ["Stock changes", "How are substitutions approved?", "Written substitution policy"],
+                ["Mixed recipients", "Can you provide hamper or alcohol-free alternatives?", "Equal-quality alternative routes"],
+            ],
+        },
+        "advisory": {
+            "heading": "Keep Christmas gifts warm, not chaotic",
+            "paragraphs": [
+                "A specific message and sensible recipient tiering can make a bulk Christmas order feel less bulk-bought.",
+                "If you cannot confirm alcohol suitability, consider a hamper, food gift or alcohol-free route with the same care as the wine option.",
+            ],
+        },
+        "supplier_routes": [*WINE_GIFT_SUPPLIER_ROUTES[:2], *HAMPER_SUPPLIER_ROUTES[:2]],
+        "supplier_heading": "Christmas gift supplier routes to compare",
+        "primary_cta": ("Plan Christmas client gifts", "/gift-planner"),
+        "full_guide": ("Read Christmas corporate wine gifts", "/guides/christmas-corporate-wine-gifts"),
+        "related_guides": [
+            ("Christmas corporate wine gifts", "/guides/christmas-corporate-wine-gifts", "The main seasonal wine gifting guide."),
+            ("Corporate gifting recipient CSV template", "/guides/corporate-gifting-recipient-csv-template", "Useful when delivery admin is the main risk."),
+            ("Wine gift hampers UK", "/guides/wine-gift-hampers-uk", "A safer route for mixed recipient preferences."),
+        ],
+        "related": [
+            ("Gift Planner", "/gift-planner"),
+            ("Event Planner", "/event-planner"),
+            ("Guides", "/guides"),
+            ("Supplier Partnerships", "/supplier-partnerships"),
+            ("Corporate wine gift suppliers", "/corporate-wine-gift-suppliers-uk"),
+        ],
+        "image": "/images/clientcellar/guide-client-christmas-gifts.webp",
+        "imageAlt": "Christmas wine gift hamper for client gifting",
+        "image_width": 1200,
+        "image_height": 900,
+        "cta_eyebrow": "Supplier inclusion",
+        "cta_heading": "Are you a UK wine, hamper or gifting supplier?",
+        "cta_text": "ClientCellar is building a practical UK resource for corporate gifting, wine gifts and event planning. If you supply businesses, client gifting teams or event organisers, tell us about your range for possible editorial inclusion.",
+    },
+    "wine-gift-suppliers-for-businesses": {
+        "title": "Wine Gift Suppliers for Businesses: What to Look For",
+        "h1": "Wine gift suppliers for businesses",
+        "description": "How businesses should choose wine gift suppliers for clients, stakeholders, teams and corporate events.",
+        "intro": "Business wine gifts need more than a good bottle. The supplier has to support the way companies buy: clear pricing, VAT invoices, delivery confidence, presentation and sensible alternatives.",
+        "editorial_label": "Supplier shortlisting",
+        "editorial_heading": "Business buying has different pressure points",
+        "editorial_intro": [
+            "A personal wine gift can be chosen on taste. A business wine gift has to survive procurement, delivery, suitability and timing.",
+            "Use this page to compare suppliers by what they help you manage, not just what they sell.",
+        ],
+        "decision": {
+            "heading": "Business wine gift supplier criteria",
+            "headers": ["Criteria", "Why it matters", "What to confirm"],
+            "rows": [
+                ["Invoice and pricing clarity", "Internal approval needs clean numbers", "VAT, delivery and itemised quotes"],
+                ["Recipient handling", "Corporate lists create admin risk", "Address upload, tracking and failed delivery process"],
+                ["Gift quality", "The gift represents your business", "Packaging, notes and substitution rules"],
+                ["Use-case fit", "Clients, teams and events need different routes", "Wine-only, hamper, alcohol-free and event options"],
+            ],
+        },
+        "advisory": {
+            "heading": "A supplier shortlist should have a fallback",
+            "paragraphs": [
+                "For business gifting, one route rarely covers everything. Keep a scalable corporate supplier, a premium option and an alcohol-free or hamper alternative in view.",
+                "If the wine is for an event rather than a gift list, use the Event Planner first; quantities, glassware and service may matter more than gift packaging.",
+            ],
+        },
+        "supplier_routes": [*WINE_GIFT_SUPPLIER_ROUTES, EVENT_SUPPLIER_ROUTES[0]],
+        "supplier_heading": "Wine supplier routes for business use cases",
+        "primary_cta": ("Create a gift plan", "/gift-planner"),
+        "full_guide": ("Read the corporate wine gifts guide", "/guides/corporate-wine-gifts-uk"),
+        "related_guides": [
+            ("Corporate wine gifts UK", "/guides/corporate-wine-gifts-uk", "The main business wine gift buying guide."),
+            ("Corporate event wine planning", "/guides/corporate-event-wine-planning", "Use this when the wine is for an event."),
+            ("Champagne gifts for clients", "/guides/champagne-gifts-for-clients", "A more specific route for premium or celebratory gifts."),
+        ],
+        "related": [
+            ("Gift Planner", "/gift-planner"),
+            ("Event Planner", "/event-planner"),
+            ("Guides", "/guides"),
+            ("Supplier Partnerships", "/supplier-partnerships"),
+            ("Client gift suppliers", "/client-gift-suppliers-uk"),
+        ],
+        "image": "/images/clientcellar/guide-corporate-wine-gifts.webp",
+        "imageAlt": "Wine gifts for business supplier shortlisting",
+        "image_width": 1200,
+        "image_height": 900,
+        "cta_eyebrow": "Supplier inclusion",
+        "cta_heading": "Are you a UK wine, hamper or gifting supplier?",
+        "cta_text": "ClientCellar is building a practical UK resource for corporate gifting, wine gifts and event planning. If you supply businesses, client gifting teams or event organisers, tell us about your range for possible editorial inclusion.",
+    },
+}
+
+HIGH_INTENT_SEO_PAGES.update(SUPPLIER_INTENT_SEO_PAGES)
+
 SEO_PAGES.update(HIGH_INTENT_SEO_PAGES)
 
 SEO_PAGES.update(
@@ -8477,6 +8748,34 @@ for seo_slug, seo_page in SEO_PAGES.items():
         seo_page["related"] = canonicalise_tuple_links(seo_page["related"])
     if seo_page.get("example_url"):
         seo_page["example_url"] = canonicalise_internal_path(seo_page["example_url"])
+
+SEO_META_UPDATES = {
+    "corporate-wine-gifts": (
+        "Corporate Wine Gifts UK: Supplier Ideas, Budgets & Safer Picks",
+        "Plan better UK corporate wine gifts with supplier routes, budget checks, gift-message guidance and practical alternatives for clients and teams.",
+    ),
+    "client-christmas-gifts-uk": (
+        "Client Christmas Gifts UK: Wine, Hampers & Better Supplier Ideas",
+        "Choose better client Christmas gifts in the UK with wine, hamper and supplier-route guidance that avoids last-minute generic gifting.",
+    ),
+    "corporate-hampers-uk": (
+        "Corporate Hampers UK: How to Choose Better Client Hampers",
+        "A practical guide to corporate hampers in the UK, including contents checks, delivery questions, alcohol-free options and supplier routes.",
+    ),
+    "corporate-gifting-ideas-uk": (
+        "Corporate Gifting Ideas UK: Practical Options for Clients and Teams",
+        "Useful UK corporate gifting ideas across wine, hampers, food, alcohol-free options and experiences, with practical suitability checks.",
+    ),
+}
+
+for seo_slug, (title, description) in SEO_META_UPDATES.items():
+    if seo_slug in SEO_PAGES:
+        SEO_PAGES[seo_slug]["title"] = title
+        SEO_PAGES[seo_slug]["description"] = description
+
+if "best-client-wine-gifts" in GUIDES:
+    GUIDES["best-client-wine-gifts"]["title"] = "Best Wine Gifts for Clients: Safer Picks by Budget and Occasion"
+    GUIDES["best-client-wine-gifts"]["description"] = "Choose better wine gifts for clients with practical ideas by budget, occasion and relationship, plus supplier checks before ordering."
 
 
 SEO_IMAGE_SLUG_OVERRIDES = {
