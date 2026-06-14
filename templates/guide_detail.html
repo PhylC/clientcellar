@@ -113,6 +113,17 @@
     </section>
     {% endfor %}
 
+    {% if guide.internal_links %}
+    <section id="next-steps" class="summary-card">
+      <h2>Useful next steps</h2>
+      <ul>
+        {% for item in guide.internal_links %}
+        <li><a href="{{ item.href }}">{{ item.label }}</a>{% if item.text %}: {{ item.text }}{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
     {% if guide.merchant_links %}
     <section id="supplier-links">
       <h2>Supplier routes to consider</h2>
