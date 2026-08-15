@@ -7,10 +7,38 @@ added here later without changing planner, guide or template rendering code.
 from __future__ import annotations
 
 import logging
+import os
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 logger = logging.getLogger("clientcellar.supplier_links")
+
+
+def affiliate_env_var_name(supplier_id: str) -> str:
+    key = supplier_id.upper().replace("-", "_")
+    return f"CLIENTCELLAR_AFFILIATE_URL_{key}"
+
+
+def _valid_https_url(url: str | None) -> bool:
+    if not url:
+        return True
+    parsed = urlparse(url)
+    return parsed.scheme == "https" and bool(parsed.netloc)
+
+
+def affiliate_url_from_env(supplier_id: str) -> str | None:
+    env_var = affiliate_env_var_name(supplier_id)
+    value = os.getenv(env_var, "").strip()
+    if not value:
+        return None
+    if not _valid_https_url(value):
+        logger.warning("Ignoring malformed affiliate URL in %s", env_var)
+        return None
+    return value
 
 
 @dataclass(frozen=True)
@@ -39,7 +67,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="majestic",
         name="Majestic Corporate Gifts",
         canonical_base_url="https://www.majestic.co.uk/services/corporate-gifting",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("majestic"),
         fallback_url="https://www.majestic.co.uk/gifting",
         category_tags=("wine", "corporate-gifting", "event-wine"),
     ),
@@ -47,7 +75,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="majestic-commercial",
         name="Majestic Commercial / events",
         canonical_base_url="https://www.majestic.co.uk/information/majestic-commercial/corporate-partnerships-events",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("majestic-commercial"),
         fallback_url="https://www.majestic.co.uk/services/corporate-gifting",
         category_tags=("wine", "corporate-gifting", "event-wine", "commercial"),
     ),
@@ -55,7 +83,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="laithwaites",
         name="Laithwaites Corporate Wine Gifts",
         canonical_base_url="https://www.laithwaites.co.uk/gifts/corporate-wine-gifts",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("laithwaites"),
         fallback_url="https://www.laithwaites.co.uk/gifts/all-gifts",
         category_tags=("wine", "wine-gifts", "corporate-gifting"),
     ),
@@ -63,7 +91,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="virgin-wines",
         name="Virgin Wines Corporate Gifts",
         canonical_base_url="https://www.virginwines.co.uk/corporate-gifting",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("virgin-wines"),
         fallback_url="https://www.virginwines.co.uk/corporate-gifts",
         category_tags=("wine", "wine-gifts", "corporate-gifting"),
     ),
@@ -71,7 +99,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="slurp",
         name="Slurp",
         canonical_base_url="https://www.slurp.co.uk/pages/gifting-services",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("slurp"),
         fallback_url="https://www.slurp.co.uk/pages/client-gifting",
         category_tags=("wine", "wine-gifts", "corporate-gifting", "event-wine"),
     ),
@@ -79,7 +107,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="hay-wines",
         name="Hay Wines",
         canonical_base_url="https://haywines.co.uk/pages/company-gifts",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("hay-wines"),
         fallback_url="https://haywines.co.uk/pages/company-gifts",
         category_tags=("wine", "independent-merchant", "corporate-gifting", "event-wine"),
     ),
@@ -87,15 +115,23 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="wine-direct",
         name="Wine Direct",
         canonical_base_url="https://www.winedirect.co.uk/info/corporate-wine-gifts",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("wine-direct"),
         fallback_url="https://www.winedirect.co.uk/info/corporate-wine-gifts",
         category_tags=("wine", "wine-gifts", "corporate-gifting"),
+    ),
+    "vintage-wine-gifts": SupplierLink(
+        id="vintage-wine-gifts",
+        name="Vintage Wine Gifts",
+        canonical_base_url="https://www.vintagewinegifts.co.uk/acatalog/corporate_gifts.html",
+        affiliate_url=affiliate_url_from_env("vintage-wine-gifts"),
+        fallback_url="https://www.vintagewinegifts.co.uk/index.html",
+        category_tags=("wine", "wine-gifts", "champagne", "corporate-gifting", "premium-gifts"),
     ),
     "wine-society": SupplierLink(
         id="wine-society",
         name="The Wine Society",
         canonical_base_url="https://www.thewinesociety.com/buy/gifts/gift-cases-and-wine-hampers/",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("wine-society"),
         fallback_url="https://www.thewinesociety.com/buy/gifts/",
         category_tags=("wine", "premium-gifts"),
     ),
@@ -103,7 +139,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="berry-bros-rudd",
         name="Berry Bros. & Rudd",
         canonical_base_url=None,
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("berry-bros-rudd"),
         fallback_url=None,
         category_tags=("wine", "premium-gifts"),
         active=False,
@@ -112,7 +148,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="fortnum-mason",
         name="Fortnum & Mason",
         canonical_base_url="https://www.fortnumandmason.com/hampers/all-hampers/wine-hampers",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("fortnum-mason"),
         fallback_url="https://www.fortnumandmason.com/hampers",
         category_tags=("hampers", "premium-gifts"),
     ),
@@ -120,7 +156,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="marks-spencer-corporate",
         name="M&S Hampers",
         canonical_base_url="https://www.marksandspencer.com/l/gifts/food-and-drink-gifts/hampers/wine-hampers",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("marks-spencer-corporate"),
         fallback_url="https://www.marksandspencer.com/l/gifts/food-and-drink-gifts/hampers",
         category_tags=("hampers", "food-gifts"),
     ),
@@ -128,7 +164,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="waitrose-cellar",
         name="Waitrose Cellar",
         canonical_base_url="https://www.waitrosecellar.com/shop/gifts/wine-gifts",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("waitrose-cellar"),
         fallback_url="https://www.waitrosecellar.com/shop/gifts",
         category_tags=("wine", "wine-gifts"),
     ),
@@ -136,7 +172,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="john-lewis-hampers",
         name="John Lewis Hampers",
         canonical_base_url="https://www.johnlewis.com/browse/gifts/gift-food-alcohol/hampers/_/N-2q3pZ1z0vwzu",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("john-lewis-hampers"),
         fallback_url="https://www.johnlewis.com/browse/gifts/gift-food-alcohol/_/N-7d8p",
         category_tags=("hampers", "food-gifts"),
     ),
@@ -144,7 +180,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="selfridges-hampers",
         name="Selfridges hampers",
         canonical_base_url="https://www.selfridges.com/GB/en/cat/foodhall/hampers/wine-spirits-hampers/",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("selfridges-hampers"),
         fallback_url="https://www.selfridges.com/GB/en/cat/gifts/wine-food-gifts/",
         category_tags=("hampers", "premium-gifts"),
     ),
@@ -152,7 +188,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="harrods-hampers",
         name="Harrods hampers",
         canonical_base_url="https://www.harrods.com/en-gb/shopping/hampers",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("harrods-hampers"),
         fallback_url="https://www.harrods.com/en-gb/",
         category_tags=("hampers", "premium-gifts"),
     ),
@@ -160,7 +196,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="harvey-nichols-hampers",
         name="Harvey Nichols hampers",
         canonical_base_url="https://www.harveynichols.com/food-and-wine/hampers/wine-and-spirit-hampers/",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("harvey-nichols-hampers"),
         fallback_url="https://www.harveynichols.com/food-and-wine/hampers/",
         category_tags=("hampers", "premium-gifts"),
     ),
@@ -168,7 +204,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="great-wine-co",
         name="Great Wine Co.",
         canonical_base_url="https://greatwine.co.uk/gifts-more/mixed-cases/",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("great-wine-co"),
         fallback_url="https://greatwine.co.uk/",
         category_tags=("wine", "mixed-cases", "event-wine"),
     ),
@@ -176,7 +212,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="hotel-chocolat",
         name="Hotel Chocolat",
         canonical_base_url="https://www.hotelchocolat.com/uk/shop/gift-ideas/",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("hotel-chocolat"),
         fallback_url="https://www.hotelchocolat.com/uk/",
         category_tags=("chocolate", "staff-gifts"),
     ),
@@ -184,7 +220,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="amazon",
         name="Amazon",
         canonical_base_url="https://www.amazon.co.uk/gift-cards-vouchers/b?node=1571304031",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("amazon"),
         fallback_url="https://www.amazon.co.uk/",
         category_tags=("gift-cards", "mainstream-retailer"),
     ),
@@ -192,7 +228,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="noughty-thomson-scott",
         name="Noughty / Thomson & Scott",
         canonical_base_url="https://noughtyaf.com/",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("noughty-thomson-scott"),
         fallback_url="https://noughtyaf.com/",
         category_tags=("non-alcoholic",),
     ),
@@ -200,7 +236,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="dry-drinker",
         name="Dry Drinker",
         canonical_base_url="https://drydrinker.com/",
-        affiliate_url=None,
+        affiliate_url=affiliate_url_from_env("dry-drinker"),
         fallback_url="https://drydrinker.com/",
         category_tags=("non-alcoholic",),
     ),
@@ -250,6 +286,10 @@ def supplier_canonical_url(supplier_id: str) -> str | None:
 def supplier_affiliate_url(supplier_id: str) -> str | None:
     link = get_supplier_link(supplier_id)
     return link.affiliate_url if link else None
+
+
+def has_live_affiliate_links() -> bool:
+    return any(link.is_affiliate for link in SUPPLIER_LINK_CONFIG.values())
 
 
 validate_supplier_links()

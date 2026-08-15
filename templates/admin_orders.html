@@ -34,6 +34,7 @@
         <th>stripe_session_id</th>
         <th>stripe_payment_intent</th>
         <th>access_count</th>
+        <th>download_count</th>
         <th>last_accessed_at</th>
         <th>Premium Brief Pack</th>
       </tr>
@@ -51,6 +52,7 @@
         <td>{{ order.stripe_session_id or '' }}</td>
         <td>{{ order.stripe_payment_intent or '' }}</td>
         <td>{{ order.access_count or 0 }}</td>
+        <td>{{ order.download_count or 0 }}</td>
         <td>{{ order.last_accessed_at or '' }}</td>
         <td>
           {% if order.payment_status == 'paid' %}
@@ -61,7 +63,7 @@
         </td>
       </tr>
       {% else %}
-      <tr><td colspan="12">No premium orders yet.</td></tr>
+      <tr><td colspan="13">No premium orders yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>

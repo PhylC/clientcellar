@@ -1,5 +1,8 @@
 import json
+import importlib.util
+import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 from html.parser import HTMLParser
@@ -14,6 +17,17 @@ from main import app
 
 
 client = TestClient(app)
+
+
+def load_script_module(script_name: str):
+    path = Path(__file__).resolve().parents[1] / "scripts" / script_name
+    module_name = script_name.replace(".py", "")
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
 
 
 class GuideIntentParser(HTMLParser):
@@ -108,6 +122,91 @@ def test_billing_pages_load():
     assert "Checkout cancelled" in cancel.text
 
 
+def test_gsc_export_analyser_prioritises_search_actions(tmp_path):
+    analyser = load_script_module("analyse_gsc_export.py")
+    export = tmp_path / "gsc.csv"
+    export.write_text(
+        "\n".join(
+            [
+                "Query,Page,Clicks,Impressions,CTR,Position",
+                "corporate wine gifts,/corporate-wine-gifts,1,500,0.5%,5.2",
+                "client gift hampers,/corporate-hampers-uk,0,140,1.5%,14.0",
+                "premium wine hampers,/guides/luxury-wine-hampers-uk,8,90,8.9%,6.0",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    rows = analyser.load_gsc_rows(export)
+    output = analyser.format_markdown(rows, limit=3)
+
+    assert rows[0].query == "corporate wine gifts"
+    assert rows[0].ctr == 0.005
+    assert "Improve title/meta and first-screen relevance" in output
+    assert "Strengthen existing page or create a better-matched section" in output
+    assert "Add monetisation and planner CTAs" in output
+
+
+def test_supplier_affiliate_env_url_overrides_normal_destination():
+    code = (
+        "from data.supplier_links import affiliate_env_var_name, get_supplier_link, has_live_affiliate_links;"
+        "link = get_supplier_link('majestic');"
+        "print(affiliate_env_var_name('majestic'));"
+        "print(link.url);"
+        "print(link.is_affiliate);"
+        "print(has_live_affiliate_links())"
+    )
+    env = {
+        **os.environ,
+        "CLIENTCELLAR_AFFILIATE_URL_MAJESTIC": "https://affiliate.example.com/majestic",
+    }
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    lines = result.stdout.strip().splitlines()
+    assert lines == [
+        "CLIENTCELLAR_AFFILIATE_URL_MAJESTIC",
+        "https://affiliate.example.com/majestic",
+        "True",
+        "True",
+    ]
+
+
+def test_vintage_wine_gifts_affiliate_env_url_is_supported():
+    code = (
+        "from data.supplier_links import affiliate_env_var_name, get_supplier_link;"
+        "link = get_supplier_link('vintage-wine-gifts');"
+        "print(affiliate_env_var_name('vintage-wine-gifts'));"
+        "print(link.url);"
+        "print(link.is_affiliate)"
+    )
+    env = {
+        **os.environ,
+        "CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS": "https://www.awin1.com/cread.php?awinmid=806&awinaffid=199523&ued=https%3A%2F%2Fwww.vintagewinegifts.co.uk%2Facatalog%2Fcorporate_gifts.html",
+    }
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    lines = result.stdout.strip().splitlines()
+    assert lines == [
+        "CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS",
+        "https://www.awin1.com/cread.php?awinmid=806&awinaffid=199523&ued=https%3A%2F%2Fwww.vintagewinegifts.co.uk%2Facatalog%2Fcorporate_gifts.html",
+        "True",
+    ]
+
+
 def test_premium_pack_page_loads():
     response = client.get("/premium-pack")
     assert response.status_code == 200
@@ -153,6 +252,35 @@ def test_paid_premium_pack_view_renders_fallback_content(tmp_path, monkeypatch):
     assert "Internal approval summary" in response.text
     assert "Some planning details were not available" in response.text
     assert "Saved pack" in response.text
+
+
+def test_pack_access_token_updates_access_and_download_counts(tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(main, "DB_PATH", tmp_path / "clientcellar.db")
+    token = "verified-pack-token"
+    access_token = "secure-access-token"
+    main.save_premium_pack(
+        pack_token=token,
+        pack_type="gift",
+        customer_email="buyer@example.com",
+        payment_status="paid",
+    )
+    with main.get_db_connection() as connection:
+        connection.execute(
+            "UPDATE premium_packs SET access_token = ? WHERE pack_token = ?",
+            (access_token, token),
+        )
+        connection.commit()
+
+    response = client.get(f"/premium-pack/view/{access_token}")
+    assert response.status_code == 200
+    download_response = client.post(f"/api/premium-pack/{access_token}/download")
+    assert download_response.status_code == 200
+
+    pack = main.get_premium_pack(token)
+    assert pack["access_count"] == 1
+    assert pack["download_count"] == 1
+    assert pack["last_accessed_at"]
 
 
 def test_pack_access_request_is_generic_and_calls_email_helper(tmp_path, monkeypatch):
@@ -235,7 +363,18 @@ def test_pricing_premium_cta_routes_to_planner_not_checkout():
     assert response.status_code == 200
     assert "Create free plan" in response.text
     assert "copy-ready business documents" in response.text
+    assert 'data-lead-form data-interested-in="premium_pack" data-source-page="/pricing"' in response.text
+    assert "Ask about the Premium Brief Pack" in response.text
     assert "data-pack-checkout" not in response.text
+
+
+def test_supplier_directory_has_buyer_lead_capture():
+    response = client.get("/supplier-directory")
+    assert response.status_code == 200
+    assert 'data-lead-form data-interested-in="gifts" data-source-page="/supplier-directory"' in response.text
+    assert "Ask about turning this into a supplier-ready brief" in response.text
+    assert "Finding reliable UK merchants for corporate wine gifts" in response.text
+    assert "Premium business wine gifting" in response.text
 
 
 def test_commercial_content_routes_load():
@@ -309,7 +448,8 @@ def test_required_affiliate_ready_guides_load():
         if path in enhanced_paths:
             assert "ClientCellar guide" in response.text
             assert "guide-opening-section" in response.text
-            assert "Quick answer" not in response.text
+            if path != "/guides/champagne-gifts-for-clients":
+                assert "Quick answer" not in response.text
             assert "guide-quick-answer" not in response.text
             assert "Best fit comparison" in response.text
             assert "Supplier routes to consider" in response.text
@@ -324,6 +464,25 @@ def test_required_affiliate_ready_guides_load():
             assert "Best use cases" in response.text
             assert "Supplier links to consider" in response.text
         assert "In this guide" not in response.text
+
+
+def test_gsc_query_led_guide_updates_render():
+    champagne = client.get("/guides/champagne-gifts-for-clients")
+    best_client = client.get("/guides/best-client-wine-gifts")
+    christmas = client.get("/guides/christmas-corporate-wine-gifts")
+
+    assert champagne.status_code == 200
+    assert "Is Champagne an Appropriate Corporate or Client Gift?" in champagne.text
+    assert "Quick answer: when champagne is appropriate" in champagne.text
+    assert "I need to send champagne as a corporate gift to clients. What should I get?" in champagne.text
+
+    assert best_client.status_code == 200
+    assert "Best client wine gifts by situation" in best_client.text
+    assert "Use the gift planner" in best_client.text
+
+    assert christmas.status_code == 200
+    assert "Christmas Gifts for Clients: Corporate Wine and Hamper Ideas" in christmas.text
+    assert "Christmas gifts for clients: what works best" in christmas.text
 
 
 def test_duplicate_seo_urls_redirect_permanently():
@@ -658,6 +817,8 @@ def test_supplier_directory_page_is_editorial_and_affiliate_ready():
     assert "View Majestic corporate gifting" in response.text
     assert "View Virgin Wines corporate gifting" in response.text
     assert "View Wine Direct corporate gifts" in response.text
+    assert "Vintage Wine Gifts" in response.text
+    assert "View Vintage Wine Gifts corporate gifts" in response.text
     assert 'data-supplier-directory' in response.text
     assert 'data-supplier-card' in response.text
     assert "/images/clientcellar/supplier-corporate-gifts.webp" in response.text
@@ -802,6 +963,20 @@ def test_public_pages_use_clientcellar_business_emails():
     assert "parters@clientcellar.co.uk" not in combined
 
 
+def test_affiliate_and_editorial_disclosures_cover_commercial_states():
+    affiliate = client.get("/affiliate-disclosure")
+    editorial = client.get("/editorial-policy")
+
+    assert affiliate.status_code == 200
+    assert editorial.status_code == 200
+    assert "normal reference links" in affiliate.text
+    assert "affiliate or tracked links" in affiliate.text
+    assert "Sponsored placements will be labelled" in affiliate.text
+    assert "does not mean ClientCellar has a partnership" in affiliate.text
+    assert "Affiliate potential does not guarantee inclusion" in editorial.text
+    assert "Sponsored placements will be labelled" in editorial.text
+
+
 def test_account_routes_load():
     for path in ["/sign-in", "/login", "/account", "/logout"]:
         response = client.get(path)
@@ -834,6 +1009,28 @@ def test_gift_plan_endpoint():
     assert data["suggested_suppliers"] == data["supplier_shortlist"]
     assert data["supplier_shortlist"][0]["tracked_url"].startswith("/out/supplier/")
     assert "internal_approval_summary" in data
+
+
+def test_vintage_wine_gifts_can_surface_for_premium_sparkling_briefs():
+    response = client.post(
+        "/api/gift-plan",
+        json={
+            "recipient_type": "clients",
+            "recipient_count": 12,
+            "budget_per_recipient": 100,
+            "occasion": "client thank-you",
+            "gift_style": "sparkling",
+            "tone": "premium",
+            "uk_only": True,
+            "international_needed": False,
+            "personal_message_needed": True,
+            "branding_needed": False,
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    supplier_ids = [supplier["supplier_id"] for supplier in data["supplier_shortlist"]]
+    assert "vintage-wine-gifts" in supplier_ids
 
 
 def test_event_plan_endpoint():

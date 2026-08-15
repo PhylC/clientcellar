@@ -79,7 +79,11 @@
           </div>
           <p>ClientCellar helps UK businesses plan corporate wine gifts and tasting events with budget guidance, practical checklists and copy-ready business documents.</p>
           <p class="footer-small">We do not sell alcohol directly.</p>
+          {% if has_live_affiliate_links %}
+          <p class="footer-disclosure">ClientCellar recommendations are editorially selected. Some links may be affiliate links or clearly labelled commercial placements. This will not affect the price you pay and our aim is to keep recommendations useful, relevant and transparent.</p>
+          {% else %}
           <p class="footer-disclosure">ClientCellar recommendations are editorially selected. Some links may become affiliate links or clearly labelled commercial placements in future. This will not affect the price you pay and our aim is to keep recommendations useful, relevant and transparent.</p>
+          {% endif %}
         </div>
         <div class="footer-links-grid">
           <nav aria-label="Product links">
@@ -127,7 +131,11 @@
         <div class="footer-disclaimer-line">Planning guidance only. Supplier availability, pricing, age restrictions and delivery must be confirmed directly.</div>
         <div class="footer-meta">
           <span>&copy; 2026 ClientCellar. All rights reserved.</span>
+          {% if has_live_affiliate_links %}
+          <span>Recommended suppliers are selected as useful UK options; affiliate or sponsored links are disclosed.</span>
+          {% else %}
           <span>Recommended suppliers are selected as useful UK options; any future affiliate or sponsored links will be disclosed.</span>
+          {% endif %}
         </div>
       </div>
     </div>

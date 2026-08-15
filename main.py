@@ -24,6 +24,7 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 from data.supplier_links import (
     SUPPLIER_LINK_CONFIG,
     get_supplier_link,
+    has_live_affiliate_links,
     supplier_affiliate_url as configured_supplier_affiliate_url,
     supplier_url as configured_supplier_url,
 )
@@ -846,9 +847,9 @@ def touch_premium_pack_access(pack_token: str) -> bool:
             SET access_count = COALESCE(access_count, 0) + 1,
                 last_accessed_at = ?,
                 updated_at = ?
-            WHERE pack_token = ?
+            WHERE pack_token = ? OR access_token = ?
             """,
-            (now, now, pack_token),
+            (now, now, pack_token, pack_token),
         )
         connection.commit()
         return True
@@ -863,9 +864,9 @@ def increment_premium_pack_download(pack_token: str) -> bool:
             UPDATE premium_packs
             SET download_count = COALESCE(download_count, 0) + 1,
                 updated_at = ?
-            WHERE pack_token = ?
+            WHERE pack_token = ? OR access_token = ?
             """,
-            (now, pack_token),
+            (now, pack_token, pack_token),
         )
         connection.commit()
         return True
@@ -1969,6 +1970,19 @@ def readable(value: str) -> str:
     return value.replace("_", " ")
 
 
+def supplier_has_commercial_term(supplier: dict, term: str) -> bool:
+    target = term.lower()
+    values = [
+        supplier.get("category"),
+        supplier.get("notes"),
+        supplier.get("search_suggestion"),
+        *supplier.get("best_for", []),
+        *supplier.get("use_cases", []),
+        *supplier.get("link_category_tags", []),
+    ]
+    return any(target in str(value).lower() for value in values if value)
+
+
 def supplier_category_label(supplier: dict) -> str:
     return {
         "wine_merchant": "Wine merchants",
@@ -2567,7 +2581,7 @@ def gift_supplier_route_cards(req: GiftPlanRequest) -> list[dict]:
         routes.append(supplier_route_card(
             "Premium retailer",
             "Better for formal client gifts, Champagne, premium presentation or higher perceived value.",
-            ["fortnum-mason", "waitrose-cellar", "majestic"],
+            ["fortnum-mason", "vintage-wine-gifts", "waitrose-cellar", "majestic"],
             "Can they handle gift messaging, delivery timing, VAT invoice and multiple addresses?",
             "/gift-planner",
         ))
@@ -2838,7 +2852,11 @@ def rank_gift_supplier(supplier: dict, req: GiftPlanRequest) -> int:
         score += 3
     if req.gift_style == "wine_hamper" and supplier["category"] in {"hamper_company", "corporate_gifting"}:
         score += 5
-    if req.gift_style == "sparkling" and supplier["category"] in {"champagne_sparkling", "english_sparkling"}:
+    sparkling_fit = supplier["category"] in {"champagne_sparkling", "english_sparkling"} or supplier_has_commercial_term(
+        supplier,
+        "champagne",
+    )
+    if req.gift_style == "sparkling" and sparkling_fit:
         score += 5
     if req.gift_style == "mixed_case" and supplier["category"] == "wine_merchant":
         score += 4
@@ -4701,8 +4719,8 @@ GUIDES.update(
 
 
 PUBLISHER_DISCLOSURE = (
-    "ClientCellar recommendations are editorially selected. Some links may become affiliate or sponsored links in future, "
-    "which means ClientCellar may earn a commission if you choose to buy through them. "
+    "ClientCellar recommendations are editorially selected. Some supplier links may be affiliate or sponsored links where available, "
+    "which means ClientCellar may earn a commission if you choose to buy through them at no extra cost to you. "
     "Our aim is to keep recommendations useful, relevant and transparent."
 )
 
@@ -9238,6 +9256,102 @@ if "best-client-wine-gifts" in GUIDES:
     GUIDES["best-client-wine-gifts"]["title"] = "Best Wine Gifts for Clients: Safer Picks by Budget and Occasion"
     GUIDES["best-client-wine-gifts"]["description"] = "Choose better wine gifts for clients with practical ideas by budget, occasion and relationship, plus supplier checks before ordering."
 
+if "champagne-gifts-for-clients" in GUIDES:
+    champagne_guide = GUIDES["champagne-gifts-for-clients"]
+    champagne_guide["title"] = "Is Champagne an Appropriate Corporate Gift? Client Gift Guide"
+    champagne_guide["description"] = "Decide when Champagne is an appropriate corporate or client gift, what to send, what to spend and when English sparkling, hampers or alcohol-free gifts are safer."
+    champagne_guide["h1"] = "Is Champagne an Appropriate Corporate or Client Gift?"
+    champagne_guide["intro"] = "Champagne can be an appropriate corporate gift when the moment is genuinely celebratory, the relationship can carry the signal and alcohol is suitable for the recipient. Use this guide to decide whether Champagne is right, what to send if it is, and what to choose when a safer gift would be better."
+    champagne_guide.setdefault("hero_summary", [])
+    champagne_guide["hero_summary"] = [
+        {"label": "Short answer", "text": "yes, for celebratory, senior or clearly appreciative client moments"},
+        {"label": "Typical budget", "text": "£45-£150, depending on brand, packaging and relationship"},
+        {"label": "Safer alternatives", "text": "English sparkling, wine hampers, mixed cases or premium alcohol-free gifts"},
+    ]
+    champagne_guide.setdefault("article_sections", []).insert(
+        0,
+        {
+            "id": "quick-answer",
+            "heading": "Quick answer: when champagne is appropriate",
+            "paragraphs": [
+                "Champagne is appropriate when the gift is tied to a real business moment: a completed project, a senior thank-you, a promotion, a successful event, a festive relationship gift or a genuine congratulations.",
+                "It is less appropriate when the recipient is unknown, the relationship is early, the company has strict gift or alcohol rules, or the bottle could look like a flashy shortcut instead of a considered thank-you.",
+            ],
+            "bullets": [
+                "Good fit: senior client thank-you, milestone, celebration, festive gift, polished congratulations.",
+                "Risky fit: cold prospecting, early negotiation, unclear alcohol suitability, strict procurement policy.",
+                "Safer swap: English sparkling, refined hamper, classic mixed case or premium alcohol-free sparkling.",
+            ],
+        },
+    )
+    champagne_guide.setdefault("faqs", []).insert(
+        0,
+        {
+            "q": "I need to send champagne as a corporate gift to clients. What should I get?",
+            "a": "Choose a recognised Champagne or English sparkling gift with smart packaging, a restrained note and confirmed delivery. For unknown tastes or stricter policies, a wine hamper, mixed case or premium alcohol-free option may be safer.",
+        },
+    )
+
+if "best-client-wine-gifts" in GUIDES:
+    best_client_guide = GUIDES["best-client-wine-gifts"]
+    best_client_guide["intro"] = "This page is for the moment when you know you should send something, but you do not want the gift to feel like a line item in account management. Use it to choose client wine gifts by relationship, occasion and risk level before speaking to suppliers."
+    best_client_guide.setdefault("article_sections", []).insert(
+        0,
+        {
+            "id": "best-by-situation",
+            "heading": "Best client wine gifts by situation",
+            "paragraphs": [
+                "The best client wine gift is rarely the most expensive bottle. It is the option that fits the relationship, occasion, recipient policy and delivery reality.",
+                "For unknown tastes, start with broad-appeal routes. For senior contacts, use restraint and presentation. For teams, choose something shareable. For policy-sensitive relationships, consider alcohol-free or food-led alternatives.",
+            ],
+            "table": {
+                "headers": ["Situation", "Safer gift route", "Why it works"],
+                "rows": [
+                    ["New client or prospect", "Smart single bottle or compact wine hamper", "Polished without feeling excessive."],
+                    ["Long-standing client", "Bottle pair, mixed case or more personal merchant choice", "Allows more thought while staying professional."],
+                    ["Senior contact", "Champagne, English sparkling or premium hamper", "Signals value without needing novelty."],
+                    ["Client team", "Mixed case or food-and-wine hamper", "Shareable and less dependent on one person's taste."],
+                    ["Alcohol suitability unclear", "Premium alcohol-free sparkling, coffee, tea or food hamper", "Keeps the gesture inclusive and easier to accept."],
+                ],
+            },
+        },
+    )
+    best_client_guide.setdefault("internal_links", [])
+    best_client_guide["internal_links"] = [
+        {"label": "Use the gift planner", "href": "/gift-planner", "text": "turn recipient count, budget and timing into a practical brief."},
+        {"label": "Compare supplier routes", "href": "/supplier-directory", "text": "see wine merchants, hamper suppliers and premium routes."},
+        {"label": "View Premium Brief Pack example", "href": "/example-premium-brief-pack", "text": "see the supplier-ready output before upgrading."},
+    ] + best_client_guide["internal_links"]
+
+if "christmas-corporate-wine-gifts" in GUIDES:
+    christmas_guide = GUIDES["christmas-corporate-wine-gifts"]
+    christmas_guide["title"] = "Christmas Gifts for Clients: Corporate Wine & Hamper Ideas"
+    christmas_guide["description"] = "Choose better Christmas gifts for clients with corporate wine, Champagne, hamper and alcohol-free routes, plus timing, supplier and delivery checks."
+    christmas_guide["h1"] = "Christmas Gifts for Clients: Corporate Wine and Hamper Ideas"
+    christmas_guide.setdefault("article_sections", []).insert(
+        0,
+        {
+            "id": "client-christmas-gift-ideas",
+            "heading": "Christmas gifts for clients: what works best",
+            "paragraphs": [
+                "The highest-impression Christmas queries are broad, so the page needs to answer the bigger question before narrowing into wine. Good client Christmas gifts are timely, easy to accept and specific enough not to feel like a mass send.",
+                "Wine can work well, but it should sit alongside hampers, sparkling gifts, alcohol-free choices and policy-safe alternatives when the recipient list is mixed.",
+            ],
+            "bullets": [
+                "For one senior contact: Champagne, English sparkling or a refined wine hamper.",
+                "For a whole client team: mixed case, food-and-wine hamper or shareable gift.",
+                "For policy-sensitive clients: alcohol-free sparkling, food hamper, coffee, tea or choice-led gift.",
+                "For larger lists: supplier-led fulfilment, recipient CSV, delivery cut-offs and substitutions matter more than bottle novelty.",
+            ],
+        },
+    )
+    christmas_guide.setdefault("internal_links", [])
+    christmas_guide["internal_links"] = [
+        {"label": "Plan Christmas client gifts", "href": "/gift-planner", "text": "shape the recipient list, budget and supplier brief."},
+        {"label": "Supplier directory", "href": "/supplier-directory", "text": "compare wine merchants and hamper suppliers before ordering."},
+        {"label": "Champagne gifts for clients", "href": "/guides/champagne-gifts-for-clients", "text": "decide whether Champagne is the right festive signal."},
+    ] + christmas_guide["internal_links"]
+
 
 SEO_IMAGE_SLUG_OVERRIDES = {
     "corporate-wine-gifts-uk": "corporate-wine-gifts-uk-seo",
@@ -9423,6 +9537,7 @@ def render_template(request: Request, template_name: str, status_code: int = 200
         "supplier_link_config",
         {supplier_id: link.url for supplier_id, link in SUPPLIER_LINK_CONFIG.items() if link.active and link.url},
     )
+    context.setdefault("has_live_affiliate_links", has_live_affiliate_links())
     context.setdefault("gift_recommendation_routes", gift_recommendation_routes())
     context.setdefault("structured_data", structured_data)
     context.setdefault("noindex", context.get("noindex") or request.url.path.startswith("/admin"))
@@ -10595,6 +10710,30 @@ def analytics_summary_for_days(days: int) -> dict:
         "checkout_start_to_payment_success_rate": round(successful_payments / checkout_starts, 4) if checkout_starts else 0,
         "gift_vs_event": analytics_group_count(rows, "report_type", None),
         "mobile_vs_desktop": analytics_group_count(rows, "device_type", None),
+        "top_free_report_pages": analytics_group_count(
+            rows,
+            "page_path",
+            {"gift_free_report_generated", "event_free_report_generated"},
+            limit=10,
+        ),
+        "top_upgrade_click_pages": analytics_group_count(
+            rows,
+            "page_path",
+            {"gift_upgrade_clicked", "event_upgrade_clicked", "example_upgrade_clicked"},
+            limit=10,
+        ),
+        "top_checkout_start_pages": analytics_group_count(
+            rows,
+            "page_path",
+            {"gift_checkout_started", "event_checkout_started"},
+            limit=10,
+        ),
+        "top_supplier_click_pages": analytics_group_count(
+            rows,
+            "page_path",
+            {"supplier_click", "gift_supplier_clicked", "event_supplier_clicked"},
+            limit=10,
+        ),
         "top_clicked_suppliers": analytics_group_count(
             rows,
             "supplier_name",

@@ -1175,6 +1175,15 @@ main {
   box-shadow: none;
 }
 
+.lead-capture-section {
+  max-width: 860px;
+  margin: 0 auto 2.2rem;
+}
+
+.lead-capture-section .lead-capture-form {
+  margin-top: 0;
+}
+
 .lead-capture-form h2 {
   margin: 0;
 }
@@ -1287,6 +1296,25 @@ textarea {
 
 .premium-comparison {
   padding: 1rem 0 2rem;
+}
+
+.pricing-proof {
+  display: grid;
+  gap: 1rem;
+  padding: 0.5rem 0 2rem;
+}
+
+.pricing-proof .section-heading {
+  margin-bottom: 0;
+}
+
+.pricing-example-link {
+  display: flex;
+  justify-content: center;
+}
+
+.pricing-decision-panel {
+  margin-top: 0;
 }
 
 .premium-card,
@@ -2065,6 +2093,7 @@ textarea {
 
 .supplier-directory-disclosure,
 .supplier-directory-chooser,
+.supplier-directory-search-intent,
 .supplier-directory-updates {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
@@ -2079,6 +2108,7 @@ textarea {
 
 .supplier-directory-disclosure h2,
 .supplier-directory-chooser h2,
+.supplier-directory-search-intent h2,
 .supplier-directory-updates h2 {
   margin: 0;
 }
@@ -4947,6 +4977,7 @@ textarea {
 
   .supplier-directory-disclosure,
   .supplier-directory-chooser,
+  .supplier-directory-search-intent,
   .supplier-directory-updates {
     grid-template-columns: 1fr;
   }
@@ -5048,6 +5079,7 @@ textarea {
   .supplier-directory-card,
   .supplier-directory-disclosure,
   .supplier-directory-chooser,
+  .supplier-directory-search-intent,
   .supplier-directory-updates {
     border-radius: 10px;
   }

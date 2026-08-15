@@ -64,7 +64,7 @@ With `ADMIN_PASSWORD` set, fetch:
 /api/admin/analytics-summary?password=YOUR_ADMIN_PASSWORD
 ```
 
-The JSON response includes last 7 and 30 day summaries for visits by page, planner starts, free reports, upgrade clicks, checkout starts, successful payments, supplier clicks, conversion rates, gift/event comparison, mobile/desktop comparison and top clicked suppliers.
+The JSON response includes last 7 and 30 day summaries for visits by page, planner starts, free reports, upgrade clicks, checkout starts, successful payments, supplier clicks, conversion rates, gift/event comparison, mobile/desktop comparison, top clicked suppliers and the pages producing free reports, upgrade clicks, checkout starts and supplier clicks.
 
 ## Example SQL Queries
 
