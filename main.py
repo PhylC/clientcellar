@@ -55,6 +55,7 @@ DATA_DIR = BASE_DIR / "data"
 DB_PATH = DATA_DIR / "clientcellar.db"
 GUIDE_IMAGE_DIR = BASE_DIR / "public" / "images" / "clientcellar" / "guides"
 GUIDE_IMAGE_URL_PREFIX = "/images/clientcellar/guides"
+INDEXNOW_KEY_FILE = BASE_DIR / "1D5E7D94-35F4-47C4-8CBF-408F8C36F08F.txt"
 OPENAI_ENABLED = bool(os.getenv("OPENAI_API_KEY"))
 PACK_ACCESS_REQUEST_COUNTS: dict[str, int] = {}
 CSV_TEMPLATE = (
@@ -10534,6 +10535,11 @@ def sitemap(request: Request):
 @app.get("/robots.txt")
 def robots(request: Request):
     return Response(content=f"User-agent: *\nAllow: /\n\nSitemap: {CANONICAL_ORIGIN}/sitemap.xml\n", media_type="text/plain")
+
+
+@app.get(f"/{INDEXNOW_KEY_FILE.name}")
+def indexnow_key():
+    return Response(content=INDEXNOW_KEY_FILE.read_text(encoding="utf-8"), media_type="text/plain")
 
 
 @app.get("/api/health")
