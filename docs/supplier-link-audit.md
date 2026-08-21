@@ -2,7 +2,7 @@
 
 Internal audit for public supplier and retailer links used by ClientCellar.
 
-Updated: 2026-08-15
+Updated: 2026-08-21
 
 ClientCellar does not claim these suppliers are partners unless separately confirmed. Recommendations are editorially selected for now. Links are normal public supplier links unless an affiliate or tracked relationship is explicitly configured.
 
@@ -12,8 +12,8 @@ The canonical supplier URL source is `data/supplier_links.py`. Planner, guide an
 
 | Supplier | Active | Current destination | Page purpose | Where used | Affiliate configured | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| Majestic Corporate Gifts | Yes | `https://www.majestic.co.uk/services/corporate-gifting` | Corporate gifting page | Gift planner, event routes, supplier directory, premium packs, guides | No | Good high-fit affiliate/direct outreach candidate because it has a corporate gifting route. |
-| Majestic Commercial / events | Yes | `https://www.majestic.co.uk/information/majestic-commercial/corporate-partnerships-events` | Corporate partnerships and events page | Event planner, premium event packs, supplier directory, guides | No | Useful for event-led supplier conversations and commercial/event drinks pages. |
+| Majestic Corporate Gifts | Yes | `https://www.majestic.co.uk/services/corporate-gifting` | Corporate gifting page | Gift planner, event routes, supplier directory, premium packs, guides | No | Editorial-only for now. Awin rejected ClientCellar on 2026-08-21 because the advertiser does not work with this publisher type. |
+| Majestic Commercial / events | Yes | `https://www.majestic.co.uk/information/majestic-commercial/corporate-partnerships-events` | Corporate partnerships and events page | Event planner, premium event packs, supplier directory, guides | No | Editorial-only for now. Do not use affiliate/tracked links unless a future reapplication is approved. |
 | Laithwaites Corporate Wine Gifts | Yes | `https://www.laithwaites.co.uk/gifts/corporate-wine-gifts` | Corporate wine gifts page | Gift planner, event planner, premium comparisons, guides | No | High-fit affiliate/direct outreach candidate if corporate gifting tracking is available. |
 | Virgin Wines Corporate Gifts | Yes | `https://www.virginwines.co.uk/corporate-gifting` | Corporate gifts page | Gift planner, event planner, premium comparisons, supplier directory, guides | No | High-fit candidate for affiliate reapplication/direct outreach. Fallback remains `https://www.virginwines.co.uk/corporate-gifts`. |
 | Slurp | Yes | `https://www.slurp.co.uk/pages/gifting-services` | Gifting services page | Supplier directory and corporate gifting routes | No | Strong direct outreach candidate because the route is service-led. Contact URL uses `https://www.slurp.co.uk/pages/client-gifting`. |
@@ -65,7 +65,6 @@ Treat live results carefully. Retailers may block bot requests, return cookie/re
 
 High-fit direct outreach or affiliate reapplication candidates:
 
-- Majestic Corporate Gifts / Majestic Commercial
 - Virgin Wines
 - Laithwaites
 - Slurp
@@ -74,6 +73,10 @@ High-fit direct outreach or affiliate reapplication candidates:
 - Fortnum & Mason
 - Waitrose Cellar
 - premium hamper retailers where the programme accepts content-led publishers
+
+Review-later editorial supplier:
+
+- Majestic Corporate Gifts / Majestic Commercial: useful buyer route, but parked for affiliate purposes after Awin rejection on 2026-08-21. Revisit no earlier than 2026-11-21 with stronger profile and traffic evidence.
 
 Lower-fit or use-cautiously routes:
 

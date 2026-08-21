@@ -16,15 +16,13 @@ ClientCellar now supports approved supplier affiliate or tracked links through e
 Example:
 
 ```bash
-CLIENTCELLAR_AFFILIATE_URL_MAJESTIC=https://approved-network.example/...
+CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS=https://approved-network.example/...
 ```
 
 Do not commit live affiliate URLs to the repo unless a programme explicitly requires public links and the URL contains no sensitive account token. Prefer deployment environment variables.
 
 ## Supported supplier env vars
 
-- `CLIENTCELLAR_AFFILIATE_URL_MAJESTIC`
-- `CLIENTCELLAR_AFFILIATE_URL_MAJESTIC_COMMERCIAL`
 - `CLIENTCELLAR_AFFILIATE_URL_LAITHWAITES`
 - `CLIENTCELLAR_AFFILIATE_URL_VIRGIN_WINES`
 - `CLIENTCELLAR_AFFILIATE_URL_SLURP`
@@ -44,13 +42,15 @@ Do not commit live affiliate URLs to the repo unless a programme explicitly requ
 - `CLIENTCELLAR_AFFILIATE_URL_NOUGHTY_THOMSON_SCOTT`
 - `CLIENTCELLAR_AFFILIATE_URL_DRY_DRINKER`
 
+Do not add Majestic env vars unless a future reapplication is approved. Majestic rejected ClientCellar on Awin on 2026-08-21 because the advertiser does not work with this publisher type.
+
 ## First sensible targets
 
 Use approved links first where they match existing search and buyer intent:
 
 - First approved Awin target: Vintage Wine Gifts. Use `CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS` with the approved Awin deeplink.
-- Champagne/client gifting pages: Majestic, Laithwaites, Virgin Wines, Waitrose Cellar, Fortnum & Mason.
-- Supplier directory: Majestic, Virgin Wines, Slurp, Wine Direct, Hay Wines, Fortnum & Mason.
+- Champagne/client gifting pages: Laithwaites, Virgin Wines, Waitrose Cellar, Fortnum & Mason and Vintage Wine Gifts where relevant.
+- Supplier directory: Virgin Wines, Slurp, Wine Direct, Hay Wines, Fortnum & Mason and Vintage Wine Gifts where relevant.
 - Christmas and hamper pages: Fortnum & Mason, M&S Hampers, John Lewis Hampers, Selfridges, Harvey Nichols.
 - Alcohol-free gift pages: Noughty / Thomson & Scott, Dry Drinker.
 

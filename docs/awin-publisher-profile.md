@@ -1,8 +1,8 @@
 # ClientCellar Awin publisher profile
 
-Updated: 2026-08-15
+Updated: 2026-08-21
 
-Use this to complete the Awin publisher profile before applying to Majestic Wine and other advertisers.
+Use this to complete the Awin publisher profile before applying to advertisers. Majestic Wine rejected ClientCellar on 2026-08-21 because the advertiser does not work with this publisher type, so Majestic should not be reapplied to until the review date in `docs/affiliate-supplier-outreach-tracker.md`.
 
 ## Profile basics
 
@@ -37,6 +37,7 @@ Do not select:
 - Cashback
 - Discount code
 - Loyalty
+- Voucher / coupon
 - Display
 - Search direct linking
 - PPC/search advertising
@@ -45,23 +46,23 @@ Do not select:
 
 ## Profile description
 
-ClientCellar is a UK-focused business gifting and event drinks planning website. It helps professionals choose suitable corporate wine gifts, client hampers, staff rewards and wine tasting/event drinks suppliers using practical buying guides, free planning tools, supplier-directory content and paid supplier-ready Premium Brief Packs.
+ClientCellar is a UK-focused business gifting and event drinks planning website. It helps professionals choose suitable corporate wine gifts, client hampers, staff rewards and wine tasting/event drinks suppliers using practical buying guides, free planning tools, supplier-directory content, supplier comparison content and paid supplier-ready Premium Brief Packs.
 
-The site is not a voucher-code, cashback or discount site. It is a planning and supplier-discovery resource for buyers who are deciding what type of supplier fits their brief before contacting merchants or placing an order.
+The site is not a voucher-code, cashback, loyalty, subnetwork or discount site. It is a planning, comparison and supplier-discovery resource for buyers who are deciding what type of supplier fits their brief before contacting merchants or placing an order.
 
 ClientCellar promotes advertisers through relevant editorial content, supplier-directory listings, planning-tool outputs and buyer guides. Supplier references are based on buyer usefulness, budget fit, corporate ordering support, presentation, delivery practicality and suitability for professional relationships.
 
 Typical users are UK professionals planning client gifts, corporate Christmas gifts, staff rewards, Champagne or sparkling gifts, wine hampers, alcohol-free alternatives and event drinks. The site includes guidance on responsible gifting, alcohol suitability, internal policy checks, anti-bribery considerations and supplier confirmation.
 
-Commercial links are disclosed clearly. ClientCellar does not claim live prices, stock, delivery availability or supplier quotes unless verified directly. Affiliate potential does not guarantee inclusion or positive wording.
+Commercial links are disclosed clearly. ClientCellar does not claim live prices, stock, delivery availability or supplier quotes unless verified directly. Affiliate potential does not guarantee inclusion or positive wording, and ClientCellar does not describe a supplier as a partner unless a real partnership exists.
 
 Current promotional routes include SEO-led editorial guides, the supplier directory, free gift and event planners, Premium Brief Pack examples, and supplier-ready enquiry copy.
 
 ## Short profile description
 
-ClientCellar is a UK business gifting and event drinks planning site. It helps professionals choose corporate wine gifts, client hampers, staff rewards and event wine suppliers through editorial guides, free planning tools, a supplier directory and supplier-ready Premium Brief Packs.
+ClientCellar is a UK business gifting and event drinks planning site. It helps professionals choose corporate wine gifts, client hampers, staff rewards and event wine suppliers through editorial guides, free planning tools, a supplier directory, supplier comparison content and supplier-ready Premium Brief Packs.
 
-The site is content/planning-led, not voucher-code-led. Commercial links are clearly disclosed, and supplier recommendations are based on buyer usefulness, corporate gifting/event fit, presentation, delivery practicality and suitability for professional relationships.
+The site is content/planning-led, not voucher-code-led. Commercial links are clearly disclosed, and supplier recommendations are based on buyer usefulness, corporate gifting/event fit, presentation, delivery practicality and suitability for professional relationships. No supplier is described as a partner unless a partnership exists.
 
 ## Promotional space: ClientCellar website
 
@@ -183,6 +184,8 @@ ClientCellar will use affiliate or tracked links only where they are useful to t
 Where possible, ClientCellar will use deeplinks to useful corporate gifting, hamper, wine gift, Champagne, event or supplier pages rather than generic homepages.
 
 Affiliate links will be disclosed through page copy, the footer and the affiliate disclosure page.
+
+Rejected advertisers should remain normal editorial links unless and until the advertiser later approves ClientCellar. Do not add tracked links, sponsored labels or partner wording for rejected suppliers.
 
 ## If asked about compliance
 

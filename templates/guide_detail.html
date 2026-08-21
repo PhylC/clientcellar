@@ -1,16 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
 {% if guide.enhanced %}
-<section class="guide-hero">
+<section class="guide-hero{% if guide.commercial_hero %} guide-hero--commercial{% endif %}">
   <div class="guide-hero-inner">
     <div class="guide-hero-copy guide-hero__content">
-      <p class="eyebrow">ClientCellar guide</p>
+      <p class="eyebrow">{{ guide.hero_eyebrow or "ClientCellar guide" }}</p>
+      {% if guide.hero_eyebrow %}<span class="sr-only">ClientCellar guide</span>{% endif %}
       <h1>{{ guide.h1 }}</h1>
+      <p>{{ guide.intro }}</p>
+      {% if guide.commercial_hero %}
+      <div class="hero-actions">
+        <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+        <a class="button secondary" href="{{ guide.secondary_cta_url or '/supplier-directory' }}">{{ guide.secondary_cta or "Compare UK suppliers" }}</a>
+      </div>
+      {% if guide.trust_signals %}
+      <ul class="guide-trust-strip" aria-label="Corporate gifting planning support">
+        {% for signal in guide.trust_signals %}<li>{{ signal }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+      {% if guide.commercial_note %}
+      <p class="guide-commercial-note">{{ guide.commercial_note }}</p>
+      {% endif %}
+      {% endif %}
       <div class="guide-meta-row" aria-label="Guide details">
         <span>Written by ClientCellar editorial team</span>
         <span>Last updated: May 2026</span>
       </div>
-      <p>{{ guide.intro }}</p>
       <div class="guide-best-fit-summary">
         {% for row in guide.hero_summary %}
         <div>
@@ -22,10 +37,12 @@
       <p class="guide-disclosure-line">
         Disclosure: Some links may earn commission where available. These guides work as planning advice whether or not a supplier link is tracked. <a href="/editorial-policy">Read our editorial policy</a>.
       </p>
+      {% if not guide.commercial_hero %}
       <div class="hero-actions">
         <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
         <a class="button secondary" href="/guides">All guides</a>
       </div>
+      {% endif %}
     </div>
     {% if guide.image %}
     <aside class="guide-hero-media guide-hero__visual">
@@ -134,7 +151,7 @@
           <h3>{{ merchant.name }}</h3>
           <p>{{ merchant.note }}</p>
           {% if merchant.url %}
-          <a class="button secondary small" href="{{ merchant.url }}" target="_blank" rel="noopener noreferrer sponsored">View supplier</a>
+          <a class="button secondary small" href="{{ merchant.url }}" target="_blank" rel="noopener noreferrer{% if merchant.is_affiliate %} sponsored{% endif %}">View supplier</a>
           {% endif %}
         </article>
         {% endfor %}
@@ -341,7 +358,7 @@
         <article class="mini-card">
           <h3>
             {% if merchant.url %}
-            <a href="{{ merchant.url }}" target="_blank" rel="noopener noreferrer sponsored">{{ merchant.name }}</a>
+            <a href="{{ merchant.url }}" target="_blank" rel="noopener noreferrer{% if merchant.is_affiliate %} sponsored{% endif %}">{{ merchant.name }}</a>
             {% else %}
             {{ merchant.name }}
             {% endif %}

@@ -147,7 +147,7 @@ def test_gsc_export_analyser_prioritises_search_actions(tmp_path):
     assert "Add monetisation and planner CTAs" in output
 
 
-def test_supplier_affiliate_env_url_overrides_normal_destination():
+def test_rejected_majestic_affiliate_env_url_is_ignored():
     code = (
         "from data.supplier_links import affiliate_env_var_name, get_supplier_link, has_live_affiliate_links;"
         "link = get_supplier_link('majestic');"
@@ -172,9 +172,9 @@ def test_supplier_affiliate_env_url_overrides_normal_destination():
     lines = result.stdout.strip().splitlines()
     assert lines == [
         "CLIENTCELLAR_AFFILIATE_URL_MAJESTIC",
-        "https://affiliate.example.com/majestic",
-        "True",
-        "True",
+        "https://www.majestic.co.uk/services/corporate-gifting",
+        "False",
+        "False",
     ]
 
 
@@ -823,7 +823,7 @@ def test_supplier_directory_page_is_editorial_and_affiliate_ready():
     assert 'data-supplier-card' in response.text
     assert "/images/clientcellar/supplier-corporate-gifts.webp" in response.text
     assert "/images/clientcellar/supplier-premium-hampers.webp" in response.text
-    assert 'rel="noopener noreferrer sponsored"' in response.text
+    assert 'href="https://www.majestic.co.uk/services/corporate-gifting" target="_blank" rel="noopener noreferrer"' in response.text
     assert "Official partner" not in response.text
 
     item_lists = [item for item in structured_data_items(response.text) if item.get("@type") == "ItemList"]

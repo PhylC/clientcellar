@@ -3083,6 +3083,54 @@ textarea {
   line-height: 1.62;
 }
 
+.guide-hero--commercial {
+  padding-top: clamp(1rem, 2.2vw, 1.8rem);
+}
+
+.guide-hero--commercial .guide-hero-inner {
+  align-items: center;
+}
+
+.guide-hero--commercial .guide-meta-row {
+  margin-top: 0.75rem;
+}
+
+.guide-hero--commercial .guide-best-fit-summary {
+  margin-top: 0.8rem;
+}
+
+.guide-trust-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  max-width: 780px;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guide-trust-strip li {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.15rem;
+  border: 1px solid rgba(123, 23, 51, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 253, 249, 0.84);
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 850;
+  line-height: 1.2;
+  padding: 0.42rem 0.62rem;
+}
+
+.guide-commercial-note {
+  max-width: 740px;
+  margin: 0.85rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem !important;
+  line-height: 1.45 !important;
+}
+
 .guide-hero__visual {
   width: 100%;
   max-width: 520px;
@@ -4553,6 +4601,23 @@ textarea {
 
   .guide-hero .button {
     width: 100%;
+  }
+
+  .guide-hero--commercial .guide-meta-row {
+    margin-top: 0.65rem;
+  }
+
+  .guide-trust-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .guide-trust-strip li {
+    align-items: flex-start;
+    min-height: 3rem;
+    font-size: 0.8rem;
+    overflow-wrap: anywhere;
   }
 
   .guide-hero__bullets {

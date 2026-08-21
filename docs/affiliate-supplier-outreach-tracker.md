@@ -1,6 +1,6 @@
 # ClientCellar affiliate and supplier outreach tracker
 
-Updated: 2026-08-15
+Updated: 2026-08-21
 
 Purpose: maintain the working list of affiliate networks, direct supplier targets and sponsored-placement prospects for ClientCellar. Keep this as the source of truth for outreach status, rejections, approvals and follow-ups.
 
@@ -8,7 +8,7 @@ Purpose: maintain the working list of affiliate networks, direct supplier target
 
 - Live affiliate infrastructure is ready via `CLIENTCELLAR_AFFILIATE_URL_*` environment variables.
 - Vintage Wine Gifts is approved on Awin and live via production environment variable.
-- The repo does not contain exact historic rejection emails or rejection wording. If recovered from email/network dashboards, paste the date and reason into the tracker below.
+- Majestic Wine rejected the Awin application on 2026-08-21 with the exact reason: "Advertiser doesn't work with this publisher type." Keep Majestic editorial-only until a later reapplication is justified.
 - Strong review evidence is now available: indexed public site, supplier directory, editorial policy, affiliate disclosure, pricing page, Premium Brief Pack example and early GSC visibility.
 - Awin publisher profile copy is prepared in `docs/awin-publisher-profile.md`.
 
@@ -54,8 +54,8 @@ Use current GSC evidence from `docs/gsc-action-log-2026-08-15.md`:
 
 | Priority | Target | Type | Route / network | Current status | Previous rejection/status | Why it fits ClientCellar | Next action | Link env var if approved | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| P1 | Majestic Wine | Affiliate + direct supplier | Awin merchant profile found; direct commercial page exists | Applied | Applied 2026-08-15; awaiting response | Strong corporate gifting and event relevance; existing supplier-directory and planner fit | Check Awin status in 3-5 working days; if rejected, record exact reason and consider direct Majestic Commercial outreach | `CLIENTCELLAR_AFFILIATE_URL_MAJESTIC`, `CLIENTCELLAR_AFFILIATE_URL_MAJESTIC_COMMERCIAL` | Public Awin profile lists Majestic Wine programme and content-friendly assets. |
-| P1 | Laithwaites | Affiliate + direct supplier | UK affiliate page; corporate/business page exists | Ready to apply | Unknown, exact old status not found locally | High-fit corporate wine gifts and business gifting content | Apply/reapply through stated affiliate/network route; emphasise business gift guides and supplier-ready planning | `CLIENTCELLAR_AFFILIATE_URL_LAITHWAITES` | UK affiliate page references LinkShare/Rakuten-style route; confirm current dashboard route before applying. |
+| Parked | Majestic Wine | Editorial supplier only for now | Awin merchant profile found; direct commercial page exists | Rejected | Rejected 2026-08-21: "Advertiser doesn't work with this publisher type" | Still useful editorially for UK corporate wine gifts and events, but not currently an affiliate fit | Revisit after 2026-11-21 only if publisher profile, traffic evidence and content/comparison positioning are stronger; do not use affiliate env vars before approval | N/A while rejected | Keep normal editorial links only. Do not describe as partner, affiliate, approved or sponsored. |
+| P1 | Laithwaites | Affiliate + direct supplier | UK affiliate page; corporate/business page exists | Ready to apply | Unknown, exact old status not found locally | High-fit corporate wine gifts and business gifting content | Apply/reapply through stated affiliate/network route; emphasise business gift guides, supplier directory, planning tools and no voucher/coupon traffic | `CLIENTCELLAR_AFFILIATE_URL_LAITHWAITES` | Confirm current dashboard route before applying. |
 | P1 | Virgin Wines | Affiliate/direct supplier | Research needed | Research | Unknown, exact old status not found locally | Corporate gifts, staff rewards and branded gifting already appear in directory | Confirm current affiliate/network route or direct corporate contact, then apply/email | `CLIENTCELLAR_AFFILIATE_URL_VIRGIN_WINES` | Good fit but public programme route still needs confirmation. |
 | P1 | Slurp | Direct supplier / tracked link | Direct corporate email/page found | Contacted | Direct email sent 2026-08-15; awaiting response | Corporate gifting services, client gifting, employee gifting and event support match ClientCellar closely | Follow up in 5-7 working days if no response; ask for tracked/affiliate route, referral arrangement or sponsored supplier-directory test | `CLIENTCELLAR_AFFILIATE_URL_SLURP` | Direct corporate route may be stronger than network application. Email sent to `corporate@slurp.co.uk` with subject "Supplier listing enquiry". |
 | P1 | Wine Direct | Direct supplier / tracked link | Direct corporate gift page found | Contacted | Direct email sent 2026-08-15; awaiting response | Explicit corporate wine gifts and spreadsheet/order process fits Premium Brief Pack audience | Follow up in 5-7 working days if no response; ask for referral/tracked link, sponsored test or preferred corporate contact | `CLIENTCELLAR_AFFILIATE_URL_WINE_DIRECT` | Strong direct outreach candidate. Email sent to `info@winedirect.co.uk` with subject "Corporate wine gifts listing". |
@@ -83,13 +83,12 @@ Use current GSC evidence from `docs/gsc-action-log-2026-08-15.md`:
 
 Start with Awin-accessible targets first:
 
-1. Majestic Wine: Awin application/reapplication.
-2. Hay Hampers / Hampers.co.uk: Awin application.
-3. Regency Hampers: Awin application.
-4. Prestige Hampers: Awin application.
-5. The British Hamper Company: Awin application.
-6. Vintage Wine Gifts: Awin application.
-7. Cartwright & Butler: Awin application.
+1. Laithwaites: confirm current network route and apply if content/comparison publishers are accepted.
+2. Virgin Wines: confirm current affiliate/network route or direct corporate contact.
+3. Fortnum & Mason / premium hamper route: confirm current programme route and apply only with relevant premium hamper/gift evidence.
+4. Waitrose Cellar or M&S Hampers: confirm category permissions before applying.
+5. Regency Hampers, Prestige Hampers, The British Hamper Company and Cartwright & Butler: check existing Awin application statuses.
+6. Keep direct supplier emails to Slurp, Wine Direct and Hay Wines active as the relationship-led route.
 
 Keep direct supplier emails to Slurp, Wine Direct and Hay Wines as the next batch after the Awin applications.
 
@@ -105,7 +104,7 @@ Keep direct supplier emails to Slurp, Wine Direct and Hay Wines as the next batc
 
 | Batch | Target | Awin ID | Fit | Why apply now | Status |
 | --- | --- | ---: | --- | --- | --- |
-| 1 | Majestic Wine | 1546 | Wine merchant / corporate gifting / event wine | Already in ClientCellar supplier flow; strong corporate wine gifting relevance | Applied 2026-08-15 |
+| 1 | Majestic Wine | 1546 | Wine merchant / corporate gifting / event wine | Useful editorial supplier, but rejected for publisher type | Rejected 2026-08-21; reapply no earlier than 2026-11-21 if evidence is stronger |
 | 1 | Hay Hampers / Hampers.co.uk | 29169 | Luxury hampers / food, wine and beer gifts / corporate orders | Strong Christmas/client hamper fit; Awin profile mentions corporate and multiple-address orders | Blocked: direct Awin profile showed inactive |
 | 1 | Regency Hampers | 119899 | Luxury food and drink hampers / corporate buyers | Awin profile explicitly references corporate buyers, Q4 gifting and deeplinking | Applied 2026-08-15 |
 | 1 | Prestige Hampers | 32959 | Hampers and gifts | Strong hamper/Christmas fit, active Awin profile, 70-day cookie and product feed | Applied 2026-08-15 |
@@ -125,6 +124,21 @@ For previously rejected targets, use this angle:
 > ClientCellar was newer when first reviewed. Since then it has more indexed public content, a supplier directory, editorial policy, affiliate disclosure, public publisher profile, Premium Brief Pack example and Search Console evidence for relevant corporate wine gift and supplier queries.
 
 Do not overstate traffic. Use “early search visibility” and quote the GSC page/query examples above where useful.
+
+## Majestic reapplication reminder
+
+Review date: 2026-11-21.
+
+Before reapplying to Majestic Wine on Awin, confirm all of the following:
+
+- ClientCellar's Awin publisher type/profile clearly says `Content > Editorial` or equivalent.
+- The profile explicitly says ClientCellar is not a voucher-code, cashback, loyalty, subnetwork, PPC or coupon publisher.
+- The supplier directory, supplier comparison page, editorial policy and affiliate disclosure are live and indexed.
+- There is stronger evidence of relevant traffic or search visibility for corporate wine gifts, client wine gifts, supplier-directory and event wine terms.
+- Majestic is still shown only as an editorial supplier reference, with no partner, approved, affiliate or sponsored wording.
+- Any reapplication message explains the buyer audience, planning tools, guide content and no-voucher traffic model in plain terms.
+
+This repository records the reminder, but it will not send a proactive notification by itself. Add the review date to a calendar or task system if a push reminder is required.
 
 ## Direct supplier email draft
 
@@ -178,7 +192,7 @@ Review URLs:
 
 | Date | Target | Channel | Outcome | Exact reason | Evidence submitted | Next move |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2026-08-15 | Majestic Wine | Awin | Applied | Pending | Awin publisher profile plus ClientCellar site/evidence URLs | Check status in 3-5 working days. |
+| 2026-08-21 | Majestic Wine | Awin | Rejected | Advertiser doesn't work with this publisher type | Awin publisher profile plus ClientCellar site/evidence URLs | Keep editorial-only. Reapply no earlier than 2026-11-21 after profile/traffic evidence review. |
 | 2026-08-15 | Regency Hampers | Awin | Applied | Pending | ClientCellar site/evidence URLs and corporate hamper/gifting positioning | Check status in 3-5 working days. |
 | 2026-08-15 | Prestige Hampers | Awin | Applied | Pending | ClientCellar site/evidence URLs and Christmas/client hamper positioning | Check status in 3-5 working days. |
 | 2026-08-15 | Vintage Wine Gifts | Awin | Live | Accepted | ClientCellar site/evidence URLs and premium wine/Champagne gift positioning | Production env var set and live link confirmed. Monitor Awin clicks/conversions. |

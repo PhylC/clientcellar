@@ -1,6 +1,6 @@
 # ClientCellar launch and monetisation backlog
 
-Updated: 2026-08-15
+Updated: 2026-08-18
 
 This is the working backlog for launching ClientCellar properly and monetising the site now that it has started to rank and attract search clicks.
 
@@ -21,6 +21,7 @@ This is the working backlog for launching ClientCellar properly and monetising t
 ## Active priorities
 
 1. Monitor the updated GSC pages after the next crawl window and prioritise the next round from fresh impressions/clicks.
+2. Maintain twice-weekly LinkedIn/Facebook posting for ClientCellar using `docs/social-content-tracker.md`.
 
 ## SEO growth next checks
 
@@ -78,6 +79,12 @@ This is the working backlog for launching ClientCellar properly and monetising t
 - Build a small supplier target list from current directory categories.
 - Send test outreach to a few relevant suppliers before publishing any fixed rate card.
 - Keep sponsored placement wording clearly labelled and separate from editorial selection.
+
+## Social content next checks
+
+- Check `docs/social-content-tracker.md` before recommending next actions.
+- If fewer than two posts are planned or published for the current week, add a twice-weekly social posting task to the next action list.
+- Prioritise posts that support current affiliate evidence, supplier outreach, Premium Brief Pack credibility or high-intent guide pages.
 
 ## Notes
 

@@ -62,12 +62,16 @@ class SupplierLink:
         return bool(self.active and self.affiliate_url)
 
 
+# Majestic/Awin rejected ClientCellar on 2026-08-21 with:
+# "Advertiser doesn't work with this publisher type".
+# Keep Majestic as an editorial-only supplier reference until a later
+# reapplication is explicitly approved.
 SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
     "majestic": SupplierLink(
         id="majestic",
         name="Majestic Corporate Gifts",
         canonical_base_url="https://www.majestic.co.uk/services/corporate-gifting",
-        affiliate_url=affiliate_url_from_env("majestic"),
+        affiliate_url=None,
         fallback_url="https://www.majestic.co.uk/gifting",
         category_tags=("wine", "corporate-gifting", "event-wine"),
     ),
@@ -75,7 +79,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="majestic-commercial",
         name="Majestic Commercial / events",
         canonical_base_url="https://www.majestic.co.uk/information/majestic-commercial/corporate-partnerships-events",
-        affiliate_url=affiliate_url_from_env("majestic-commercial"),
+        affiliate_url=None,
         fallback_url="https://www.majestic.co.uk/services/corporate-gifting",
         category_tags=("wine", "corporate-gifting", "event-wine", "commercial"),
     ),

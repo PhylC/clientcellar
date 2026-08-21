@@ -1,13 +1,29 @@
 # Majestic Wine Awin application
 
-Updated: 2026-08-15
+Updated: 2026-08-21
 
 Target: Majestic Wine  
 Network: Awin  
 Programme ID: `1546`  
 Public profile: `https://ui.awin.com/merchant-profile/1546`  
-Application priority: P1  
+Application priority: Parked until reapplication review  
 Tracker: `docs/affiliate-supplier-outreach-tracker.md`
+
+## Current outcome
+
+Majestic Wine rejected ClientCellar's Awin application on 2026-08-21.
+
+Exact reason supplied by Awin:
+
+> Advertiser doesn't work with this publisher type
+
+Action now:
+
+- Keep Majestic as a normal editorial supplier reference only.
+- Do not use Majestic affiliate or tracked links.
+- Do not describe Majestic as a partner, approved supplier, affiliate supplier or sponsored placement.
+- Review for possible reapplication no earlier than 2026-11-21, after updating the Awin publisher profile and gathering stronger evidence of relevant corporate gifting / supplier-directory traffic.
+- Consider direct Majestic Commercial outreach separately only if the message is clearly about editorial listing or direct business relationship, not an implied affiliate approval.
 
 ## Programme fit notes
 
@@ -134,6 +150,8 @@ Confirm in application/terms acceptance:
 
 ## If approved
 
+Do not use this section unless a future reapplication is approved.
+
 1. Create Awin deeplink(s) to:
    - Majestic corporate gifting page.
    - Majestic Commercial / events page if allowed.
@@ -141,14 +159,15 @@ Confirm in application/terms acceptance:
 2. Add approved links to production env vars:
    - `CLIENTCELLAR_AFFILIATE_URL_MAJESTIC`
    - `CLIENTCELLAR_AFFILIATE_URL_MAJESTIC_COMMERCIAL`
-3. Run:
+3. Re-enable the Majestic affiliate URL lookups in `data/supplier_links.py`. They are intentionally disabled while the programme is rejected.
+4. Run:
 
 ```bash
 .venv/bin/python scripts/audit_supplier_links.py
 .venv/bin/python -m pytest -q
 ```
 
-4. Check:
+5. Check:
    - `/supplier-directory`
    - `/suppliers`
    - `/gift-planner`
@@ -165,3 +184,10 @@ Record exact rejection in `docs/affiliate-supplier-outreach-tracker.md`:
 - whether reason was traffic, content, alcohol category, site age, publisher model, policy or missing evidence
 - evidence submitted
 - whether direct Majestic Commercial outreach is a better next route
+
+Current recorded rejection:
+
+- Date: 2026-08-21.
+- Outcome: rejected.
+- Exact reason: "Advertiser doesn't work with this publisher type".
+- Next move: keep editorial-only and reapply no earlier than 2026-11-21 if the publisher profile and evidence pack are stronger.

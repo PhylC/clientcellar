@@ -111,7 +111,7 @@
         </div>
         <h3>{{ supplier.name }}</h3>
         <p>{{ supplier.bestFor }}</p>
-        <a class="button primary small" href="{{ supplier.primaryUrl }}" target="_blank" rel="noopener noreferrer sponsored" data-supplier-click data-supplier-name="{{ supplier.name }}">{{ supplier.linkLabel }}</a>
+        <a class="button primary small" href="{{ supplier.primaryUrl }}" target="_blank" rel="noopener noreferrer{% if supplier.isAffiliate %} sponsored{% endif %}" data-supplier-click data-supplier-name="{{ supplier.name }}">{{ supplier.linkLabel }}</a>
       </article>
       {% endfor %}
     </div>
@@ -154,10 +154,10 @@
         </div>
         <div class="supplier-card-actions">
           {% if supplier.primaryUrl %}
-          <a class="button primary small" href="{{ supplier.primaryUrl }}" target="_blank" rel="noopener noreferrer sponsored" data-supplier-click data-supplier-name="{{ supplier.name }}">{{ supplier.linkLabel }}</a>
+          <a class="button primary small" href="{{ supplier.primaryUrl }}" target="_blank" rel="noopener noreferrer{% if supplier.isAffiliate %} sponsored{% endif %}" data-supplier-click data-supplier-name="{{ supplier.name }}">{{ supplier.linkLabel }}</a>
           {% endif %}
           {% if supplier.contactUrl and supplier.contactUrl != supplier.primaryUrl %}
-          <a class="text-link" href="{{ supplier.contactUrl }}" target="_blank" rel="noopener noreferrer sponsored" data-supplier-click data-supplier-name="{{ supplier.name }}">Contact / corporate page</a>
+          <a class="text-link" href="{{ supplier.contactUrl }}" target="_blank" rel="noopener noreferrer{% if supplier.isAffiliate %} sponsored{% endif %}" data-supplier-click data-supplier-name="{{ supplier.name }}">Contact / corporate page</a>
           {% endif %}
         </div>
         <p class="small-note">{{ supplier.editorialStatus }} · {{ supplier.region }}</p>

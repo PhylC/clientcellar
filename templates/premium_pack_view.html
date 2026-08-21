@@ -3,7 +3,7 @@
   {% if comp.mailto_url %}
     <a href="{{ comp.mailto_url }}">Email supplier</a>
   {% elif comp.contact_url %}
-    <a href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ comp.contact_label or "Contact supplier" }}</a>
+    <a href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer{% if comp.is_affiliate %} sponsored{% endif %}">{{ comp.contact_label or "Contact supplier" }}</a>
   {% else %}
     <span>Search/contact directly</span>
     {% if comp.search_suggestion %}
@@ -16,7 +16,7 @@
   {% if comp.mailto_url and button_label %}
     <a class="{{ class_name }}" href="{{ comp.mailto_url }}">{{ button_label }}</a>
   {% elif comp.contact_url and button_label %}
-    <a class="{{ class_name }}" href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ button_label }}</a>
+    <a class="{{ class_name }}" href="{{ comp.contact_url }}" target="_blank" rel="noopener noreferrer{% if comp.is_affiliate %} sponsored{% endif %}">{{ button_label }}</a>
   {% elif comp.search_suggestion %}
     {% set search_url = "https://www.google.com/search?q=independent+wine+merchant+near+me" if "independent wine merchant" in comp.search_suggestion|lower else "https://www.google.com/search?q=" ~ comp.search_suggestion|urlencode %}
     <a class="supplier-search-suggestion supplier-search-action" href="{{ search_url }}" target="_blank" rel="noopener noreferrer" data-supplier-click data-supplier-name="{{ comp.supplier or comp.supplier_type or button_label }}">{{ button_label or "Search/contact directly" }}</a>

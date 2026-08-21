@@ -102,7 +102,7 @@
       <p><strong>Best for:</strong> {{ supplier.best_for }}</p>
       <p>{{ supplier.note }}</p>
       {% if supplier.url %}
-      <a class="button secondary small" href="{{ supplier.url }}" target="_blank" rel="noopener noreferrer sponsored">{{ supplier.label or "View supplier" }}</a>
+      <a class="button secondary small" href="{{ supplier.url }}" target="_blank" rel="noopener noreferrer{% if supplier.is_affiliate %} sponsored{% endif %}">{{ supplier.label or "View supplier" }}</a>
       {% endif %}
     </article>
     {% endfor %}

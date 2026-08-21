@@ -64,7 +64,7 @@
       <p class="small-note">Use normal supplier links where available; some may become affiliate or tracked links later. Confirm stock, pricing, availability and delivery directly.</p>
       <div class="button-row">
         {% if card.visit_url %}
-        <a class="button secondary small" href="{{ card.visit_url }}" target="_blank" rel="noopener noreferrer sponsored">{{ card.link_label }}</a>
+        <a class="button secondary small" href="{{ card.visit_url }}" target="_blank" rel="noopener noreferrer{% if card.is_affiliate %} sponsored{% endif %}">{{ card.link_label }}</a>
         {% else %}
         <span class="small-note"><strong>Search suggestion:</strong> {{ card.search_guidance }}</span>
         {% endif %}

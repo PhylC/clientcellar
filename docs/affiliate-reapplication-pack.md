@@ -8,7 +8,7 @@ Use this pack when reapplying to affiliate networks, supplier programmes or publ
 
 ClientCellar is a UK-focused business gifting and event drinks planning website. It helps professionals choose suitable corporate wine gifts, client hampers, staff rewards and wine tasting/event drinks suppliers using practical guides, free planning tools, supplier-directory pages and a paid Premium Brief Pack.
 
-The site is not a voucher-code or discount site. It is a planning and supplier-discovery resource for buyers who are still deciding what type of supplier fits their brief.
+The site is not a voucher-code, cashback, loyalty, subnetwork or discount site. It is a planning, comparison and supplier-discovery resource for buyers who are still deciding what type of supplier fits their brief.
 
 ## Suggested publisher description
 
@@ -77,7 +77,6 @@ The maintained working tracker now lives in `docs/affiliate-supplier-outreach-tr
 
 Start with:
 
-- Majestic Wine
 - Laithwaites
 - Slurp
 - Wine Direct
@@ -86,6 +85,8 @@ Start with:
 - Hay Hampers / Hampers.co.uk
 
 Keep exact rejection wording, approval dates, evidence submitted and follow-up dates in the tracker rather than relying on memory.
+
+Majestic Wine is parked after its 2026-08-21 Awin rejection: "Advertiser doesn't work with this publisher type." Keep it editorial-only and do not reapply before the review date recorded in `docs/affiliate-supplier-outreach-tracker.md`.
 
 ## Live link deployment
 
@@ -113,7 +114,7 @@ Useful review pages:
 - Editorial policy: https://clientcellar.co.uk/editorial-policy
 - Affiliate disclosure: https://clientcellar.co.uk/affiliate-disclosure
 
-The site is editorial and planning-led rather than voucher-code-led. Supplier references are based on buyer usefulness, corporate gifting/event fit, presentation, delivery practicality and suitability for professional relationships. We clearly disclose affiliate and sponsored relationships and do not claim live stock, live pricing or supplier availability without verification.
+The site is editorial and planning-led rather than voucher-code-led. It is not cashback, loyalty, coupon, PPC or subnetwork traffic. Supplier references are based on buyer usefulness, corporate gifting/event fit, presentation, delivery practicality and suitability for professional relationships. We clearly disclose affiliate and sponsored relationships, do not imply supplier partnerships unless one exists, and do not claim live stock, live pricing or supplier availability without verification.
 
 I can provide current Search Console or analytics snapshots if helpful.
 
