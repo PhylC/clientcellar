@@ -6,6 +6,10 @@ It helps business users plan client gifts, staff gifts, partner thank-yous and t
 
 ClientCellar does not sell alcohol directly, scrape retailer websites, check live stock, confirm supplier pricing or invent supplier availability. Supplier data is manually curated in `main.py` and must stay conservative.
 
+## Supplier update source of truth
+
+When supplier status changes, update `docs/affiliate-supplier-outreach-tracker.md` immediately. This includes affiliate approvals, rejections, direct replies, follow-up dates, partner/sponsored discussions, rejected publisher reasons and reapplication review dates. Do not rely on chat history or memory for supplier status.
+
 ## Current positioning
 
 ClientCellar should feel like a polished B2B planning tool, not a generic AI demo. The public experience is built around:
