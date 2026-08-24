@@ -10,8 +10,14 @@
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      analytics_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied'
+    });
     gtag('js', new Date());
-    gtag('config', 'G-VL1TVWGQ1N');
+    gtag('config', 'G-VL1TVWGQ1N', { send_page_view: false });
   </script>
   {% if noindex %}<meta name="robots" content="noindex, nofollow">{% endif %}
   {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}" />{% endif %}
@@ -77,6 +83,17 @@
   <main>
     {% block content %}{% endblock %}
   </main>
+
+  <div class="cookie-consent" data-analytics-consent-banner hidden>
+    <div>
+      <strong>Analytics cookies</strong>
+      <p>ClientCellar uses GA4 to understand page usage, planner starts, enquiries and supplier clicks. We do not send recipient names, messages, budgets or planner inputs to GA4.</p>
+    </div>
+    <div class="cookie-consent-actions">
+      <button class="button primary small" type="button" data-analytics-consent-accept>Accept analytics</button>
+      <button class="button secondary small" type="button" data-analytics-consent-reject>Reject</button>
+    </div>
+  </div>
 
   <footer class="site-footer">
     <div class="footer-inner">

@@ -34,6 +34,7 @@ const PREMIUM_TEST_KEYS = [
 ];
 const premiumAccountMessage = "Premium Brief Pack features require a completed one-off purchase.";
 const ANALYTICS_SESSION_KEY = "clientcellar_analytics_session";
+const ANALYTICS_CONSENT_KEY = "clientcellar_analytics_consent";
 const LOCAL_WINE_MERCHANT_SEARCH_URL = "https://www.google.com/search?q=independent+wine+merchant+near+me";
 const analyticsState = {
   plannerStarted: new Set(),
@@ -59,8 +60,69 @@ function analyticsDeviceType() {
   return "desktop";
 }
 
+function analyticsConsentChoice() {
+  try {
+    const choice = window.localStorage?.getItem(ANALYTICS_CONSENT_KEY);
+    return choice === "accepted" || choice === "rejected" ? choice : "";
+  } catch (error) {
+    return "";
+  }
+}
+
+function updateGoogleAnalyticsConsent(choice) {
+  if (typeof window.gtag !== "function") return;
+  const granted = choice === "accepted" ? "granted" : "denied";
+  window.gtag("consent", "update", {
+    ad_storage: "denied",
+    analytics_storage: granted,
+    ad_user_data: "denied",
+    ad_personalization: "denied",
+  });
+}
+
+function setAnalyticsConsentChoice(choice) {
+  try {
+    window.localStorage?.setItem(ANALYTICS_CONSENT_KEY, choice);
+  } catch (error) {
+    // Local storage can be unavailable in restricted browser modes.
+  }
+  updateGoogleAnalyticsConsent(choice);
+}
+
+function ga4SupplierHost(url) {
+  try {
+    return new URL(url, window.location.origin).hostname.replace(/^www\./, "");
+  } catch (error) {
+    return "";
+  }
+}
+
+function safeGa4EventParams(eventName, payload = {}) {
+  const params = {
+    page_path: window.location.pathname,
+    report_type: payload.report_type || undefined,
+  };
+  if (eventName.includes("supplier")) {
+    params.supplier_name = payload.supplier_name || undefined;
+    params.supplier_host = ga4SupplierHost(payload.supplier_url);
+  }
+  if (eventName === "contact_click" || eventName === "nav_click" || eventName === "example_upgrade_clicked") {
+    params.link_text = payload.metadata?.link_text || undefined;
+  }
+  if (eventName.includes("checkout") || eventName.includes("premium")) {
+    params.checkout_step = eventName;
+  }
+  return Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined && value !== ""));
+}
+
+function trackGa4Event(eventName, payload = {}) {
+  if (analyticsConsentChoice() !== "accepted" || typeof window.gtag !== "function") return;
+  window.gtag("event", eventName, safeGa4EventParams(eventName, payload));
+}
+
 function trackEvent(eventName, payload = {}) {
   if (!eventName) return;
+  trackGa4Event(eventName, payload);
   const body = JSON.stringify({
     event_name: eventName,
     timestamp: new Date().toISOString(),
@@ -1397,6 +1459,9 @@ async function submitLeadForm(form) {
     }
     status.textContent = "Thanks — your enquiry has been saved. We’ll use the details you shared to understand the request.";
     form.reset();
+    trackEvent("lead_submitted", {
+      report_type: form.dataset.contextType || (form.dataset.interestedIn === "events" ? "event" : "gift"),
+    });
   } catch (error) {
     status.textContent = error.message;
   }
@@ -1657,6 +1722,7 @@ function bindPlannerForms() {
 }
 
 function bindAnalyticsTracking() {
+  updateGoogleAnalyticsConsent(analyticsConsentChoice());
   trackEvent("page_view", { report_type: currentReportTypeFromPage() || undefined });
   if (window.location.pathname === "/example-premium-brief-pack") {
     trackEvent("example_gift_premium_viewed", { report_type: "gift", metadata: { is_example: true } });
@@ -1710,6 +1776,23 @@ function bindAnalyticsTracking() {
         metadata,
       });
     }
+  });
+}
+
+function bindAnalyticsConsentBanner() {
+  const banner = document.querySelector("[data-analytics-consent-banner]");
+  if (!banner) return;
+  const choice = analyticsConsentChoice();
+  updateGoogleAnalyticsConsent(choice);
+  banner.hidden = choice === "accepted" || choice === "rejected";
+  banner.querySelector("[data-analytics-consent-accept]")?.addEventListener("click", () => {
+    setAnalyticsConsentChoice("accepted");
+    banner.hidden = true;
+    trackEvent("page_view", { report_type: currentReportTypeFromPage() || undefined });
+  });
+  banner.querySelector("[data-analytics-consent-reject]")?.addEventListener("click", () => {
+    setAnalyticsConsentChoice("rejected");
+    banner.hidden = true;
   });
 }
 
@@ -2114,6 +2197,7 @@ function bindLeadForms() {
 }
 
 clearLegacyPremiumTestState();
+bindAnalyticsConsentBanner();
 bindAnalyticsTracking();
 checkAccountStatus();
 bindMobileMenu();
