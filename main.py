@@ -9261,12 +9261,12 @@ if "corporate-wine-gifts-uk" in GUIDES:
         {
             "commercial_hero": True,
             "hero_eyebrow": "UK corporate wine gifting",
-            "title": "Corporate Wine Gifts UK: Client Gifts, Hampers & Supplier Planning",
-            "description": "Plan corporate wine gifts for clients, teams and business events. Compare budgets, supplier routes, bulk delivery questions, gift notes, hampers, Champagne and alcohol-free alternatives.",
-            "h1": "Corporate Wine Gifts for Clients, Teams and Business Events",
-            "intro": "Choose better wine, Champagne and hamper gifts for professional relationships. ClientCellar helps UK businesses shape budgets, compare supplier routes, plan bulk delivery and write gift messages that do not feel generic.",
+            "title": "Corporate Wine Gifts UK: Client Wine Gifts, Hampers & Suppliers",
+            "description": "Choose corporate wine gifts for UK clients, teams and business events. Compare client wine, Champagne, hampers, supplier routes, bulk delivery and alcohol-free alternatives.",
+            "h1": "Corporate Wine Gifts UK: Client Wine, Hampers and Supplier Routes",
+            "intro": "Use this UK corporate wine gift guide when you need a client gift that feels appropriate, not generic. Compare wine, Champagne, hamper and alcohol-free routes, then turn budget, recipient count and delivery timing into a supplier-ready plan.",
             "hero_summary": [
-                {"label": "Best for", "text": "client thank-yous, teams, events, Christmas, milestones and senior contacts"},
+                {"label": "Best for", "text": "client wine gifts, corporate Christmas gifts, team thank-yous and senior contacts"},
                 {"label": "Typical budget", "text": "£25-£150+, with delivery, VAT, packaging and notes included"},
                 {"label": "Avoid", "text": "generic bottles, weak packaging, late ordering and alcohol-only assumptions"},
             ],
@@ -9281,13 +9281,22 @@ if "corporate-wine-gifts-uk" in GUIDES:
             "secondary_cta_url": "/supplier-directory",
             "cta": "Build my wine gift brief",
             "cta_heading": "Need a corporate wine gift that feels properly chosen?",
-            "cta_text": "Use the free gift planner to shape budget, recipient details, supplier questions and a more confident shortlist before ordering.",
+            "cta_text": "Use the free gift planner to shape client type, budget, delivery timing, supplier questions and a more confident shortlist before ordering.",
         }
     )
+    corporate_guide["opening_heading"] = "Start with the client wine gift job"
+    corporate_guide["opening"] = [
+        "Most searches for corporate wine gifts are really asking one of three questions: what is a good client wine gift, which supplier can fulfil it reliably, and how do we avoid making the gesture feel excessive or generic?",
+        "For one valued client, Champagne, English sparkling or a polished bottle pair can work. For a wider client list, a wine hamper, mixed case or supplier-managed fulfilment route may be safer. For Christmas, delivery windows, substitutions, address quality and gift-message workflow matter as much as the bottle.",
+        "If alcohol suitability is unclear, do not force wine into every brief. A premium hamper, coffee, tea or alcohol-free sparkling route should sit beside the wine option so the gift remains easy to accept.",
+    ]
     corporate_guide.setdefault("internal_links", [])
     corporate_guide["internal_links"] = [
         {"label": "Build a corporate wine gift brief", "href": "/gift-planner", "text": "turn recipient count, budget, timing and tone into a practical buying plan."},
         {"label": "Compare UK corporate wine gift suppliers", "href": "/supplier-directory", "text": "shortlist wine merchants, hamper retailers and business gifting routes."},
+        {"label": "Best client wine gifts", "href": "/guides/best-client-wine-gifts", "text": "choose by relationship, occasion and risk level."},
+        {"label": "Corporate Christmas wine gifts", "href": "/guides/christmas-corporate-wine-gifts", "text": "plan seasonal client gifts before cut-offs become the real constraint."},
+        {"label": "Champagne gifts for clients", "href": "/guides/champagne-gifts-for-clients", "text": "decide when Champagne is the right signal and when to choose a safer route."},
         {"label": "See a Premium Brief Pack example", "href": "/example-premium-brief-pack", "text": "preview a supplier-ready shortlist format before upgrading."},
     ] + corporate_guide["internal_links"]
     corporate_guide.setdefault("faqs", []).insert(
@@ -9336,15 +9345,15 @@ if "corporate-wine-gifts-uk" in GUIDES:
     )
 
 if "best-client-wine-gifts" in GUIDES:
-    GUIDES["best-client-wine-gifts"]["title"] = "Best Wine Gifts for Clients: Safer Picks by Budget and Occasion"
-    GUIDES["best-client-wine-gifts"]["description"] = "Choose better wine gifts for clients with practical ideas by budget, occasion and relationship, plus supplier checks before ordering."
+    GUIDES["best-client-wine-gifts"]["title"] = "Best Client Wine Gifts: Reliable Merchant Routes & Safer Ideas"
+    GUIDES["best-client-wine-gifts"]["description"] = "Choose client wine gifts by relationship, occasion and budget. Compare reliable merchant routes, Champagne, hampers and safer alternatives before ordering."
 
 if "champagne-gifts-for-clients" in GUIDES:
     champagne_guide = GUIDES["champagne-gifts-for-clients"]
-    champagne_guide["title"] = "Is Champagne an Appropriate Corporate Gift? Client Gift Guide"
-    champagne_guide["description"] = "Decide when Champagne is an appropriate corporate or client gift, what to send, what to spend and when English sparkling, hampers or alcohol-free gifts are safer."
-    champagne_guide["h1"] = "Is Champagne an Appropriate Corporate or Client Gift?"
-    champagne_guide["intro"] = "Champagne can be an appropriate corporate gift when the moment is genuinely celebratory, the relationship can carry the signal and alcohol is suitable for the recipient. Use this guide to decide whether Champagne is right, what to send if it is, and what to choose when a safer gift would be better."
+    champagne_guide["title"] = "Champagne Gifts for Clients: What to Send as a Corporate Gift"
+    champagne_guide["description"] = "Need to send Champagne as a corporate gift to clients? Decide when it is appropriate, what to choose, what to spend and when sparkling, hampers or alcohol-free gifts are safer."
+    champagne_guide["h1"] = "Champagne Gifts for Clients: What to Send and When It Works"
+    champagne_guide["intro"] = "Is Champagne an Appropriate Corporate or Client Gift? It can be when the moment is genuinely celebratory, the relationship can carry the signal and alcohol is suitable for the recipient. If you need to send Champagne to clients, use this guide to choose the right route and know when a safer gift would work better."
     champagne_guide.setdefault("hero_summary", [])
     champagne_guide["hero_summary"] = [
         {"label": "Short answer", "text": "yes, for celebratory, senior or clearly appreciative client moments"},
@@ -9377,7 +9386,13 @@ if "champagne-gifts-for-clients" in GUIDES:
 
 if "best-client-wine-gifts" in GUIDES:
     best_client_guide = GUIDES["best-client-wine-gifts"]
-    best_client_guide["intro"] = "This page is for the moment when you know you should send something, but you do not want the gift to feel like a line item in account management. Use it to choose client wine gifts by relationship, occasion and risk level before speaking to suppliers."
+    best_client_guide["h1"] = "Best Client Wine Gifts by Relationship, Budget and Occasion"
+    best_client_guide["intro"] = "This page is for the moment when you know you should send something, but you do not want the gift to feel like a line item in account management. Use it to choose client wine gifts by relationship, occasion and risk level, then compare reliable merchant and supplier routes before ordering."
+    best_client_guide["opening_heading"] = "Match the client gift to the relationship"
+    best_client_guide["opening"] = [
+        "The best client wine gift depends less on the bottle and more on the relationship. A new client, a senior decision maker, a client team and a long-standing advocate should not automatically receive the same thing.",
+        "For unknown tastes, start with broad-appeal wine, sparkling or hamper routes. For valued clients, use better presentation and a more specific note. For policy-sensitive relationships, keep the value proportionate and offer an alcohol-free or food-led fallback.",
+    ]
     best_client_guide.setdefault("article_sections", []).insert(
         0,
         {
@@ -9403,6 +9418,9 @@ if "best-client-wine-gifts" in GUIDES:
     best_client_guide["internal_links"] = [
         {"label": "Use the gift planner", "href": "/gift-planner", "text": "turn recipient count, budget and timing into a practical brief."},
         {"label": "Compare supplier routes", "href": "/supplier-directory", "text": "see wine merchants, hamper suppliers and premium routes."},
+        {"label": "Corporate wine gifts UK", "href": "/guides/corporate-wine-gifts-uk", "text": "use the main guide for budgets, bulk orders and business gifting routes."},
+        {"label": "Champagne gifts for clients", "href": "/guides/champagne-gifts-for-clients", "text": "check whether Champagne is appropriate for the client and moment."},
+        {"label": "Christmas corporate wine gifts", "href": "/guides/christmas-corporate-wine-gifts", "text": "use when the gift is seasonal or deadline-sensitive."},
         {"label": "View Premium Brief Pack example", "href": "/example-premium-brief-pack", "text": "see the supplier-ready output before upgrading."},
     ] + best_client_guide["internal_links"]
 
@@ -9410,10 +9428,10 @@ if "christmas-corporate-wine-gifts" in GUIDES:
     christmas_guide = GUIDES["christmas-corporate-wine-gifts"]
     christmas_guide["commercial_hero"] = True
     christmas_guide["hero_eyebrow"] = "UK corporate Christmas gifting"
-    christmas_guide["title"] = "Christmas Gifts for Clients: Corporate Wine & Hamper Ideas"
-    christmas_guide["description"] = "Choose better Christmas gifts for clients with corporate wine, Champagne, hamper and alcohol-free routes, plus timing, supplier and delivery checks."
-    christmas_guide["h1"] = "Christmas Gifts for Clients: Corporate Wine and Hamper Ideas"
-    christmas_guide["intro"] = "Plan client Christmas wine, Champagne and hamper gifts without defaulting to a generic basket. Start with the recipient list, budget, delivery risk and message, then choose a supplier route that can actually fulfil the order cleanly."
+    christmas_guide["title"] = "Corporate Christmas Wine Gifts for Clients: UK Planning Guide"
+    christmas_guide["description"] = "Plan corporate Christmas wine gifts for clients with Champagne, hamper and alcohol-free routes, plus supplier cut-offs, delivery checks and message guidance."
+    christmas_guide["h1"] = "Corporate Christmas Wine Gifts for Clients"
+    christmas_guide["intro"] = "Plan client Christmas wine, Champagne and hamper gifts without defaulting to a generic basket. Start with the recipient list, budget, delivery risk and message, then choose a supplier route that can fulfil the order cleanly before December cut-offs tighten."
     christmas_guide["hero_summary"] = [
         {"label": "Best for", "text": "end-of-year client thank-yous, account teams, suppliers and senior contacts"},
         {"label": "Typical budget", "text": "£40-£150, depending on recipient, delivery and packaging"},
@@ -9428,6 +9446,11 @@ if "christmas-corporate-wine-gifts" in GUIDES:
     christmas_guide["commercial_note"] = "Looking for year-round corporate wine gifts? Use the main corporate wine gifts guide for client thank-yous, teams, events and bulk orders outside Christmas."
     christmas_guide["secondary_cta"] = "View corporate wine gifts"
     christmas_guide["secondary_cta_url"] = "/guides/corporate-wine-gifts-uk"
+    christmas_guide["opening_heading"] = "Christmas client gifts need earlier decisions"
+    christmas_guide["opening"] = [
+        "Christmas Gifts for Clients: Corporate Wine and Hamper Ideas is still the practical job here: choose something timely, specific and easy to accept. These gifts fail when the recipient list is rushed, the message is generic, or the supplier cannot hit delivery windows.",
+        "Use wine, Champagne and hampers as routes rather than defaults. Senior contacts may suit sparkling or a refined hamper. Client teams may need something shareable. Mixed lists need alcohol-free and food-led alternatives alongside wine.",
+    ]
     christmas_guide.setdefault("article_sections", []).insert(
         0,
         {
