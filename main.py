@@ -27,6 +27,7 @@ from data.supplier_links import (
     has_live_affiliate_links,
     supplier_affiliate_url as configured_supplier_affiliate_url,
     supplier_url as configured_supplier_url,
+    supplier_url_with_clickref as configured_supplier_url_with_clickref,
 )
 from data.gift_recommendations import (
     gift_recommendation_routes,
@@ -9349,22 +9350,26 @@ if "corporate-wine-gifts-uk" in GUIDES:
 # wine-gifting guides. The configured URL falls back to the canonical supplier
 # page outside production, while production keeps the tracked URL and sponsored
 # disclosure controlled by the existing environment variable.
-VINTAGE_WINE_GIFTS_GUIDE_LINK = {
-    "name": "Vintage Wine Gifts",
-    "url": configured_supplier_url("vintage-wine-gifts"),
-    "note": "Vintage wine, Champagne and Port for milestone, anniversary and premium corporate gifts.",
-    "url_purpose": "Corporate gifts page",
-    "url_checked_date": "2026-11-18",
-    "is_affiliate": bool(configured_supplier_affiliate_url("vintage-wine-gifts")),
+VINTAGE_WINE_GIFTS_GUIDE_CLICKREFS = {
+    "corporate-wine-gifts-uk": "cc_guide_corporate_wine_gifts",
+    "best-wine-gifts-under-100": "cc_guide_wine_gifts_under_100",
 }
 
-for guide_slug in ("corporate-wine-gifts-uk", "best-wine-gifts-under-100"):
+for guide_slug, clickref in VINTAGE_WINE_GIFTS_GUIDE_CLICKREFS.items():
     guide = GUIDES.get(guide_slug)
     if not guide:
         continue
+    vintage_wine_gifts_link = {
+        "name": "Vintage Wine Gifts",
+        "url": configured_supplier_url_with_clickref("vintage-wine-gifts", clickref),
+        "note": "Vintage wine, Champagne and Port for milestone, anniversary and premium corporate gifts.",
+        "url_purpose": "Corporate gifts page",
+        "url_checked_date": "2026-11-18",
+        "is_affiliate": bool(configured_supplier_affiliate_url("vintage-wine-gifts")),
+    }
     merchant_links = list(guide.get("merchant_links") or [])
     if not any(link.get("name") == "Vintage Wine Gifts" for link in merchant_links):
-        guide["merchant_links"] = [*merchant_links, VINTAGE_WINE_GIFTS_GUIDE_LINK]
+        guide["merchant_links"] = [*merchant_links, vintage_wine_gifts_link]
 
 if "best-client-wine-gifts" in GUIDES:
     GUIDES["best-client-wine-gifts"]["title"] = "Best Client Wine Gifts: Reliable Merchant Routes & Safer Ideas"

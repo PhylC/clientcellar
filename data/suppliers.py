@@ -1,6 +1,11 @@
 """Central supplier references for non-affiliate supplier-route guidance."""
 
-from data.supplier_links import supplier_affiliate_url, supplier_canonical_url, supplier_url
+from data.supplier_links import (
+    supplier_affiliate_url,
+    supplier_canonical_url,
+    supplier_url,
+    supplier_url_with_clickref,
+)
 
 SUPPLIER_ENTRIES = [
     {
@@ -289,9 +294,14 @@ def directory_supplier(
     contact_url: str | None = None,
     editorial_status: str = "Editorially listed",
     region: str = "UK",
+    affiliate_clickref: str | None = None,
 ) -> dict:
     """Build supplier-directory data from the central link config."""
-    primary_url = supplier_url(supplier_id)
+    primary_url = (
+        supplier_url_with_clickref(supplier_id, affiliate_clickref)
+        if affiliate_clickref
+        else supplier_url(supplier_id)
+    )
     return {
         "id": supplier_id,
         "name": name,
@@ -392,6 +402,7 @@ SUPPLIER_DIRECTORY_ENTRIES = [
         "Best for considered premium gifts rather than very large automated fulfilment; confirm stock, vintage substitutions, delivery timing and presentation directly.",
         "View Vintage Wine Gifts corporate gifts",
         ["Affiliate link", "Corporate gifts", "Champagne", "Premium gifts"],
+        affiliate_clickref="cc_supplier_directory",
     ),
     directory_supplier(
         "wine-society",

@@ -207,6 +207,35 @@ def test_vintage_wine_gifts_affiliate_env_url_is_supported():
     ]
 
 
+def test_vintage_wine_gifts_affiliate_clickref_identifies_placement():
+    code = (
+        "from data.supplier_links import supplier_url_with_clickref;"
+        "from data.suppliers import supplier_directory_entries;"
+        "print(supplier_url_with_clickref('vintage-wine-gifts', 'cc_supplier_directory'));"
+        "print(next(item['primaryUrl'] for item in supplier_directory_entries() "
+        "if item['id']=='vintage-wine-gifts'))"
+    )
+    affiliate_url = (
+        "https://www.awin1.com/cread.php?awinmid=806&awinaffid=199523&"
+        "ued=https%3A%2F%2Fwww.vintagewinegifts.co.uk%2Facatalog%2Fcorporate_gifts.html"
+    )
+    env = {
+        **os.environ,
+        "CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS": affiliate_url,
+    }
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    expected_url = f"{affiliate_url}&clickref=cc_supplier_directory"
+    assert result.stdout.strip().splitlines() == [expected_url, expected_url]
+
+
 def test_vintage_wine_gifts_affiliate_is_used_on_high_intent_guides():
     code = (
         "import main;"
@@ -233,8 +262,8 @@ def test_vintage_wine_gifts_affiliate_is_used_on_high_intent_guides():
     )
 
     assert result.stdout.strip().splitlines() == [
-        f"{affiliate_url}|True",
-        f"{affiliate_url}|True",
+        f"{affiliate_url}&clickref=cc_guide_corporate_wine_gifts|True",
+        f"{affiliate_url}&clickref=cc_guide_wine_gifts_under_100|True",
     ]
 
 

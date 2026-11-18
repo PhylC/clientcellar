@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 import os
 from dataclasses import dataclass
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse, urlsplit, urlunsplit
 
 from dotenv import load_dotenv
 
@@ -280,6 +280,22 @@ def getSupplierLink(supplier_id: str) -> SupplierLink | None:
 def supplier_url(supplier_id: str) -> str | None:
     link = get_supplier_link(supplier_id)
     return link.url if link else None
+
+
+def supplier_url_with_clickref(supplier_id: str, clickref: str) -> str | None:
+    """Return an affiliate URL tagged with an Awin placement reference.
+
+    Canonical and fallback supplier links are returned unchanged, so editorial
+    links do not gain tracking parameters when an affiliate URL is unavailable.
+    """
+    link = get_supplier_link(supplier_id)
+    if not link or not link.url or not link.affiliate_url or not clickref:
+        return link.url if link else None
+
+    parts = urlsplit(link.url)
+    query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True) if key.lower() != "clickref"]
+    query.append(("clickref", clickref))
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
 
 
 def supplier_canonical_url(supplier_id: str) -> str | None:
