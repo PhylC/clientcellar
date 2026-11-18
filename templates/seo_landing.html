@@ -5,6 +5,7 @@
     <div class="guide-hero-inner planning-hero-inner">
       <div class="guide-hero-copy planning-hero__content">
         <p class="eyebrow">ClientCellar planning page</p>
+        {% if page.last_updated %}<p class="small-note">Updated {{ page.last_updated }}</p>{% endif %}
         <h1>{{ page.h1 }}</h1>
         <p>{{ page.intro }}</p>
         <p class="small-note">ClientCellar provides planning guidance and does not sell alcohol directly. Recommendations are editorially selected; some supplier links may earn commission where available. <a href="/editorial-policy">Read our editorial policy</a>.</p>

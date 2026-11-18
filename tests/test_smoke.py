@@ -619,6 +619,21 @@ def test_gsc_query_led_guide_updates_render():
     assert "Christmas gifts for clients: what works best" in christmas.text
 
 
+def test_client_christmas_landing_matches_broad_seasonal_query():
+    response = client.get("/client-christmas-gifts-uk")
+    assert response.status_code == 200
+    assert "Christmas Gifts for Clients UK: Wine, Hampers &amp; Ideas" in response.text
+    assert "Christmas gifts for clients: UK wine, hamper and corporate gift ideas" in response.text
+    assert "What makes a good Christmas gift for a client?" in response.text
+    assert "Christmas client gift ideas by situation and budget" in response.text
+    assert "What are good Christmas gifts for clients?" in response.text
+    assert "Updated November 2026" in response.text
+
+    supporting_guide = client.get("/guides/christmas-corporate-wine-gifts")
+    assert supporting_guide.status_code == 200
+    assert 'href="/client-christmas-gifts-uk"' in supporting_guide.text
+
+
 def test_duplicate_seo_urls_redirect_permanently():
     redirect_client = TestClient(app, follow_redirects=False)
     redirects = {
