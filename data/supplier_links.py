@@ -131,6 +131,14 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         fallback_url="https://www.vintagewinegifts.co.uk/index.html",
         category_tags=("wine", "wine-gifts", "champagne", "corporate-gifting", "premium-gifts"),
     ),
+    "king-country": SupplierLink(
+        id="king-country",
+        name="King & Country",
+        canonical_base_url="https://king-country.com/collections/gin",
+        affiliate_url=affiliate_url_from_env("king-country"),
+        fallback_url="https://king-country.com/",
+        category_tags=("gin", "spirits", "british-gifts", "premium-gifts"),
+    ),
     "wine-society": SupplierLink(
         id="wine-society",
         name="The Wine Society",

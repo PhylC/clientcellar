@@ -49,6 +49,7 @@ Do not add Majestic env vars unless a future reapplication is approved. Majestic
 Use approved links first where they match existing search and buyer intent:
 
 - First approved Awin target: Vintage Wine Gifts. Use `CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS` with the approved Awin deeplink.
+- King & Country: approved on Awin on 2026-11-18. Use `CLIENTCELLAR_AFFILIATE_URL_KING_COUNTRY` with the approved Awin deeplink to the gin collection.
 - Champagne/client gifting pages: Laithwaites, Virgin Wines, Waitrose Cellar, Fortnum & Mason and Vintage Wine Gifts where relevant.
 - Supplier directory: Virgin Wines, Slurp, Wine Direct, Hay Wines, Fortnum & Mason and Vintage Wine Gifts where relevant.
 - Christmas and hamper pages: Fortnum & Mason, M&S Hampers, John Lewis Hampers, Selfridges, Harvey Nichols.

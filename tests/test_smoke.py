@@ -236,6 +236,38 @@ def test_vintage_wine_gifts_affiliate_clickref_identifies_placement():
     assert result.stdout.strip().splitlines() == [expected_url, expected_url]
 
 
+def test_king_country_affiliate_is_live_in_supplier_directory():
+    code = (
+        "from data.suppliers import supplier_directory_entries;"
+        "item=next(item for item in supplier_directory_entries() if item['id']=='king-country');"
+        "print(item['primaryUrl']);"
+        "print(item['isAffiliate']);"
+        "print(item['category'])"
+    )
+    affiliate_url = (
+        "https://www.awin1.com/cread.php?awinmid=129701&awinaffid=199523&"
+        "ued=https%3A%2F%2Fking-country.com%2Fcollections%2Fgin"
+    )
+    env = {
+        **os.environ,
+        "CLIENTCELLAR_AFFILIATE_URL_KING_COUNTRY": affiliate_url,
+    }
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.stdout.strip().splitlines() == [
+        f"{affiliate_url}&clickref=cc_supplier_directory",
+        "True",
+        "Gin / spirits brand",
+    ]
+
+
 def test_vintage_wine_gifts_affiliate_is_used_on_high_intent_guides():
     code = (
         "import main;"
@@ -789,6 +821,7 @@ def test_supplier_link_config_covers_major_visible_suppliers():
         "hay-wines",
         "wine-direct",
         "great-wine-co",
+        "king-country",
     ]:
         link = getSupplierLink(supplier_id)
         assert link is not None
@@ -906,6 +939,8 @@ def test_supplier_directory_page_is_editorial_and_affiliate_ready():
     assert "View Wine Direct corporate gifts" in response.text
     assert "Vintage Wine Gifts" in response.text
     assert "View Vintage Wine Gifts corporate gifts" in response.text
+    assert "King &amp; Country" in response.text
+    assert "View King &amp; Country gin gifts" in response.text
     assert 'data-supplier-directory' in response.text
     assert 'data-supplier-card' in response.text
     assert "/images/clientcellar/supplier-corporate-gifts.webp" in response.text
@@ -918,6 +953,7 @@ def test_supplier_directory_page_is_editorial_and_affiliate_ready():
     names = [item["name"] for item in item_lists[0]["itemListElement"]]
     assert "Majestic" in names
     assert "Great Wine Co." in names
+    assert "King & Country" in names
 
 
 def test_supplier_directory_aliases_redirect_to_canonical_page():

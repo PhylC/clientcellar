@@ -1,6 +1,6 @@
 # ClientCellar affiliate and supplier outreach tracker
 
-Updated: 2026-08-21
+Updated: 2026-11-18
 
 Purpose: maintain the working list of affiliate networks, direct supplier targets and sponsored-placement prospects for ClientCellar. Keep this as the source of truth for outreach status, rejections, approvals and follow-ups.
 
@@ -8,6 +8,7 @@ Purpose: maintain the working list of affiliate networks, direct supplier target
 
 - Live affiliate infrastructure is ready via `CLIENTCELLAR_AFFILIATE_URL_*` environment variables.
 - Vintage Wine Gifts is approved on Awin and live via production environment variable.
+- King & Country is approved on Awin and live via production environment variable.
 - Majestic Wine rejected the Awin application on 2026-08-21 with the exact reason: "Advertiser doesn't work with this publisher type." Keep Majestic editorial-only until a later reapplication is justified.
 - Strong review evidence is now available: indexed public site, supplier directory, editorial policy, affiliate disclosure, pricing page, Premium Brief Pack example and early GSC visibility.
 - Awin publisher profile copy is prepared in `docs/awin-publisher-profile.md`.
@@ -71,6 +72,7 @@ Use current GSC evidence from `docs/gsc-action-log-2026-08-15.md`:
 | P2 | Prestige Hampers | Affiliate / hamper supplier | Awin profile found and visible in Awin UI | Applied | Applied 2026-08-15; awaiting response | Hampers and gifts across UK; useful for Christmas pages | Check Awin status in 3-5 working days; if approved, add supplier mapping and env-var support | Add supplier mapping first if approved | Not currently in supplier config. |
 | P2 | The British Hamper Company | Affiliate / premium hamper supplier | Awin profile found | Applied | Applied 2026-08-15; awaiting response | Premium British hampers, high AOV and UK/international gifting fit Christmas/client gift pages | Check Awin status in 3-5 working days; if approved, add supplier mapping and env-var support | Add supplier mapping first if approved | Awin ID 35023. |
 | P2 | Vintage Wine Gifts | Affiliate / wine and Champagne gifts | Awin profile found | Live | Accepted on Awin 2026-08-15; first £5 commission reported 2026-11-18 | Vintage wine, Champagne and corporate gift fit for premium/milestone pages | Monitor clicks/conversions in Awin and keep the directory and guide links live-checked | `CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS` | First accepted Awin wine-gift programme. Approved deeplink generated for corporate gifts page, confirmed live and now revenue-producing. |
+| P2 | King & Country | Affiliate / premium British gin | Awin profile found | Live | Approved on Awin 2026-11-18 | Distinctive premium British gin with strong presentation and gifting appeal | Monitor directory clicks and sales; confirm corporate fulfilment details directly before making B2B service claims | `CLIENTCELLAR_AFFILIATE_URL_KING_COUNTRY` | Awin ID 129701. Live directory link targets the gin collection with placement-level clickref tracking. |
 | P2 | Cartwright & Butler | Affiliate / luxury food and drink hampers | Awin profile found | Applied | Applied 2026-08-15; awaiting response | Premium food gifting fit for client hampers, Christmas pages and mixed-recipient alternatives | Check Awin status in 3-5 working days; if approved, add supplier mapping and env-var support | Add supplier mapping first if approved | Awin ID 21047. |
 | P2 | The Great Wine Co. | Affiliate / wine merchant | Awin profile found | Applied | Applied 2026-08-15; awaiting response | Mixed cases, giftable wine and event-friendly buying fit ClientCellar's supplier directory and planner outputs | Check Awin status in 3-5 working days; if approved, set env-var support already available | `CLIENTCELLAR_AFFILIATE_URL_GREAT_WINE_CO` | Already in supplier config; Awin visible with product feed and 100% approval rate on 2026-08-15. |
 | P3 | Bottle in a Box | Affiliate / alcohol gift hampers | Affiliate page found | Ready to apply | Not previously tracked | Alcohol gift hampers and corporate gifting sites explicitly mentioned | Apply if alcohol/corporate gifting terms fit; review product quality and B2B usefulness | Add supplier mapping first if approved | Good for niche hamper/gift guide pages. |
