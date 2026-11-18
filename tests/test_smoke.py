@@ -926,6 +926,25 @@ def test_supplier_page_has_trust_sections():
     assert "Supplier categories" in response.text
     assert "Important checks before ordering" in response.text
     assert "Champagne and sparkling wine retailers" in response.text
+    assert "Premium spirits and gin gifts" in response.text
+    assert "King &amp; Country" in response.text
+
+
+def test_king_country_is_in_relevant_curated_guides_only():
+    for path in [
+        "/corporate-gifting-ideas-uk",
+        "/thank-you-gifts-for-clients",
+        "/premium-client-gifts-uk",
+    ]:
+        response = client.get(path)
+        assert response.status_code == 200
+        assert "King &amp; Country" in response.text
+        assert "View King &amp; Country gin gifts" in response.text
+
+    for path in ["/corporate-wine-gifts-uk", "/staff-wine-gifts-uk"]:
+        response = client.get(path)
+        assert response.status_code == 200
+        assert "View King &amp; Country gin gifts" not in response.text
 
 
 def test_supplier_directory_page_is_editorial_and_affiliate_ready():
@@ -1132,6 +1151,27 @@ def test_gift_plan_endpoint():
     assert data["suggested_suppliers"] == data["supplier_shortlist"]
     assert data["supplier_shortlist"][0]["tracked_url"].startswith("/out/supplier/")
     assert "internal_approval_summary" in data
+
+
+def test_king_country_surfaces_for_suitable_premium_open_brief():
+    response = client.post(
+        "/api/gift-plan",
+        json={
+            "recipient_type": "clients",
+            "recipient_count": 12,
+            "budget_per_recipient": 65,
+            "occasion": "client thank-you",
+            "gift_style": "not_sure",
+            "tone": "premium",
+            "uk_only": True,
+            "international_needed": False,
+            "personal_message_needed": True,
+            "branding_needed": False,
+        },
+    )
+    assert response.status_code == 200
+    supplier_ids = [supplier["supplier_id"] for supplier in response.json()["supplier_shortlist"]]
+    assert "king-country" in supplier_ids
 
 
 def test_vintage_wine_gifts_can_surface_for_premium_sparkling_briefs():

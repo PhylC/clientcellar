@@ -2787,6 +2787,7 @@ def supplier_directory_sections() -> list[dict]:
     section_ids = {
         "Wine merchants": ["majestic", "laithwaites", "virgin-wines", "waitrose-cellar"],
         "Hampers and corporate gifting": ["fortnum-mason", "marks-spencer-corporate", "waitrose-cellar", "john-lewis-hampers"],
+        "Premium spirits and gin gifts": ["king-country"],
         "Event wine and larger orders": ["majestic-commercial", "majestic", "virgin-wines", "laithwaites", "waitrose-cellar"],
         "Non-alcoholic options": ["noughty-thomson-scott", "dry-drinker"],
     }
@@ -2865,6 +2866,13 @@ def rank_gift_supplier(supplier: dict, req: GiftPlanRequest) -> int:
         score += 4
     if req.recipient_type in {"clients", "prospects", "partners"} and supplier["corporate_gifting"]:
         score += 3
+    if (
+        req.gift_style == "not_sure"
+        and req.budget_per_recipient >= 40
+        and req.recipient_type in {"clients", "prospects", "partners"}
+        and supplier["category"] == "spirits_brand"
+    ):
+        score += 4
     if req.recipient_type == "employees" and "staff gifts" in supplier["best_for"]:
         score += 4
     return score
@@ -8159,6 +8167,17 @@ EVENT_SUPPLIER_ROUTES = [
 ]
 
 
+def king_country_guide_route(clickref: str) -> dict:
+    return seo_supplier(
+        "King & Country",
+        "king-country",
+        "Premium British gin gifts for clients, thank-yous and celebratory moments.",
+        "A distinctive spirits alternative when gin suits the recipient; confirm gift packaging, business-order support and delivery directly.",
+        "View King & Country gin gifts",
+        clickref,
+    )
+
+
 HIGH_INTENT_SEO_PAGES = {
     "corporate-wine-gifts-uk": {
         "title": "Corporate Wine Gifts UK",
@@ -9199,6 +9218,23 @@ SEO_PAGES.update(
         },
     }
 )
+
+
+# Keep this premium spirits route on broad gifting pages only. Wine-only,
+# Champagne-specific and staff guides should continue to recommend products
+# that match their narrower reader intent.
+KING_COUNTRY_GUIDE_PLACEMENTS = {
+    "corporate-gifting-ideas-uk": "cc_guide_corporate_gifting_ideas",
+    "thank-you-gifts-for-clients": "cc_guide_thank_you_client_gifts",
+    "premium-client-gifts-uk": "cc_guide_premium_client_gifts",
+}
+for seo_slug, clickref in KING_COUNTRY_GUIDE_PLACEMENTS.items():
+    seo_page = SEO_PAGES.get(seo_slug)
+    if not seo_page:
+        continue
+    supplier_routes = seo_page.setdefault("supplier_routes", [])
+    if not any(route.get("name") == "King & Country" for route in supplier_routes):
+        supplier_routes.insert(1, king_country_guide_route(clickref))
 
 
 GUIDE_SLUG_REDIRECTS = {
