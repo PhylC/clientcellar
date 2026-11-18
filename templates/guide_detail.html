@@ -24,7 +24,7 @@
       {% endif %}
       <div class="guide-meta-row" aria-label="Guide details">
         <span>Written by ClientCellar editorial team</span>
-        <span>Last updated: May 2026</span>
+        <span>Last updated: {{ guide.last_updated or "May 2026" }}</span>
       </div>
       <div class="guide-best-fit-summary">
         {% for row in guide.hero_summary %}
@@ -255,7 +255,7 @@
       <h1>{{ guide.h1 }}</h1>
       <div class="guide-meta-row" aria-label="Guide details">
         <span>Written by ClientCellar editorial team</span>
-        <span>Last updated: May 2026</span>
+        <span>Last updated: {{ guide.last_updated or "May 2026" }}</span>
       </div>
       <p>{{ guide.intro }}</p>
       <p class="guide-disclosure-line">

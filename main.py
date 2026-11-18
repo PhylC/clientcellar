@@ -5125,6 +5125,7 @@ def enhanced_guide(
     cta_text: str,
     cta_url: str = "/gift-planner",
     merchant_links: list[dict] | None = None,
+    last_updated: str = "May 2026",
 ) -> dict:
     hero_summary = []
     for item in hero_bullets:
@@ -5161,6 +5162,7 @@ def enhanced_guide(
         "affiliate": True,
         "affiliate_disclosure": PUBLISHER_DISCLOSURE,
         "merchant_links": merchant_links or DEFAULT_MERCHANT_LINKS,
+        "last_updated": last_updated,
     }
 
 
@@ -6295,7 +6297,7 @@ GUIDES.update(
                 {"q": "Should I choose Champagne under £100?", "a": "Champagne is good for celebration, but sparkling wine, mixed cases and hampers may be better for some recipients."},
                 {"q": "Is a hamper better than wine under £100?", "a": "A hamper is better for sharing; wine is better where the recipient is known to enjoy it."},
             ],
-            related=["luxury-corporate-wine-gifts", "best-wine-gifts-under-50", "wine-gift-hampers-uk"],
+            related=["luxury-corporate-wine-gifts", "best-wine-gifts-under-50", "wine-gift-hampers-uk", "best-wine-accessories-for-gifts"],
             cta="Plan a premium wine gift",
             cta_heading="Want to spend under £100 well?",
             cta_text="Use the planner to compare bottle, case and hamper routes before you contact suppliers.",
@@ -7150,23 +7152,25 @@ GUIDES.update(
 GUIDES.update(
     {
         "best-wine-accessories-for-gifts": enhanced_guide(
-            title="Best Wine Accessories for Gifts",
-            h1="Wine accessories that are actually useful as gifts",
-            description="Wine accessory gift ideas for clients and staff when alcohol itself may not be suitable.",
-            intro="Wine accessories are where gifting can get gimmicky very quickly. The useful ones solve a small problem. The bad ones sit in a drawer.",
+            title="Best Wine Accessories and Gadgets for Gifts UK",
+            h1="Best wine accessories and gadgets for gifts",
+            description="Compare useful wine accessories and gadgets for gifts in the UK, including openers, glassware, stoppers and tasting notebooks by budget.",
+            intro="The best wine gadgets solve a small problem and feel good to use. The worst are novelty clutter. This guide compares practical wine accessories for gifts, from reliable openers and stoppers to glassware and tasting notebooks.",
             hero_bullets=["Best for: alcohol-sensitive gifting and practical add-ons", "Typical budget: £15-£75", "Avoid: novelty gadgets and fragile showpieces"],
             opening_heading="Useful beats clever",
             opening=["If you are not sending alcohol, a wine-adjacent gift can still work. But the accessory has to be genuinely useful: glassware, a decent opener, a stopper, a tasting notebook, or something that supports an event.", "Avoid anything that promises to transform cheap wine or looks funny for five seconds and then becomes clutter."],
             best_fit_table={"headers": ["Accessory route", "Best for", "Watch"], "rows": [["Good opener", "Practical gift", "Cheap mechanisms"], ["Glassware", "Premium but fragile", "Breakage"], ["Tasting notebook", "Event follow-up", "Too niche"], ["Wine stopper", "Small thank-you", "Can feel slight"]]},
             article_sections=[
                 {"id": "where-it-fits", "heading": "When accessories make sense", "paragraphs": ["They work best when alcohol is not suitable, when you need a practical add-on, or when the gift relates to a tasting event. They work less well when they are used as a substitute for thinking about the recipient."]},
+                {"id": "by-budget", "heading": "Best wine gadgets by budget", "table": {"headers": ["Budget", "Useful gift route", "Check before buying"], "rows": [["Under £20", "A sturdy stopper or simple waiter-style opener", "Mechanism and build quality"], ["£20-£50", "A better opener, tasting notebook or small glassware set", "Presentation and delivery protection"], ["£50-£75", "Quality glassware or a well-made accessory set", "Whether every item is genuinely useful"]]}, "editorial_note": "One good tool is a better gift than a box of six forgettable gadgets."},
                 {"id": "avoid", "heading": "The novelty trap", "paragraphs": ["Most novelty accessories age badly. If you would not want it on your own kitchen counter, think twice before sending it to a client."]},
             ],
-            faqs=[{"q": "Are wine accessories good client gifts?", "a": "They can be, especially when alcohol is unsuitable or the accessory is genuinely practical."}, {"q": "What wine accessory is safest?", "a": "A quality opener, glassware or tasting notebook is usually safer than novelty gadgets."}],
+            faqs=[{"q": "What are the best wine gadgets to give as gifts?", "a": "A well-made opener, quality glassware, a reliable stopper or a tasting notebook are usually the safest choices because they are practical and easy to understand."}, {"q": "Are wine accessories good client gifts?", "a": "They can be, especially when alcohol is unsuitable or the accessory is genuinely practical."}, {"q": "What wine accessory is safest?", "a": "A quality opener, glassware or tasting notebook is usually safer than novelty gadgets."}],
             related=["non-alcoholic-client-gifts", "wine-tasting-corporate-event", "business-gift-wine-etiquette"],
             cta="Plan a non-wine gift route",
             cta_heading="Need a wine-adjacent gift instead?",
             cta_text="Use the planner to compare wine, accessory and alcohol-free options.",
+            last_updated="November 2026",
         ),
         "client-gift-policy-checklist": enhanced_guide(
             title="Client Gift Policy Checklist",

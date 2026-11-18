@@ -562,7 +562,8 @@ def test_required_affiliate_ready_guides_load():
         assert response.status_code == 200
         assert "Disclosure: Some links may earn commission" in response.text
         assert "Written by ClientCellar editorial team" in response.text
-        assert "Last updated: May 2026" in response.text
+        expected_updated = "November 2026" if path == "/guides/best-wine-accessories-for-gifts" else "May 2026"
+        assert f"Last updated: {expected_updated}" in response.text
         assert "Planning note: ClientCellar provides guidance only" in response.text
         if path in enhanced_paths:
             assert "ClientCellar guide" in response.text
@@ -583,6 +584,20 @@ def test_required_affiliate_ready_guides_load():
             assert "Best use cases" in response.text
             assert "Supplier links to consider" in response.text
         assert "In this guide" not in response.text
+
+
+def test_wine_accessories_guide_targets_existing_gadgets_query():
+    response = client.get("/guides/best-wine-accessories-for-gifts")
+    assert response.status_code == 200
+    assert "Best Wine Accessories and Gadgets for Gifts UK" in response.text
+    assert "Best wine gadgets by budget" in response.text
+    assert "What are the best wine gadgets to give as gifts?" in response.text
+    assert "including openers, glassware, stoppers and tasting notebooks by budget" in response.text
+    assert "Last updated: November 2026" in response.text
+
+    supporting_guide = client.get("/guides/best-wine-gifts-under-100")
+    assert supporting_guide.status_code == 200
+    assert 'href="/guides/best-wine-accessories-for-gifts"' in supporting_guide.text
 
 
 def test_gsc_query_led_guide_updates_render():
