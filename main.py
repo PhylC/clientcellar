@@ -9344,6 +9344,28 @@ if "corporate-wine-gifts-uk" in GUIDES:
         },
     )
 
+
+# Reuse the approved Vintage Wine Gifts Awin route on the two highest-intent
+# wine-gifting guides. The configured URL falls back to the canonical supplier
+# page outside production, while production keeps the tracked URL and sponsored
+# disclosure controlled by the existing environment variable.
+VINTAGE_WINE_GIFTS_GUIDE_LINK = {
+    "name": "Vintage Wine Gifts",
+    "url": configured_supplier_url("vintage-wine-gifts"),
+    "note": "Vintage wine, Champagne and Port for milestone, anniversary and premium corporate gifts.",
+    "url_purpose": "Corporate gifts page",
+    "url_checked_date": "2026-11-18",
+    "is_affiliate": bool(configured_supplier_affiliate_url("vintage-wine-gifts")),
+}
+
+for guide_slug in ("corporate-wine-gifts-uk", "best-wine-gifts-under-100"):
+    guide = GUIDES.get(guide_slug)
+    if not guide:
+        continue
+    merchant_links = list(guide.get("merchant_links") or [])
+    if not any(link.get("name") == "Vintage Wine Gifts" for link in merchant_links):
+        guide["merchant_links"] = [*merchant_links, VINTAGE_WINE_GIFTS_GUIDE_LINK]
+
 if "best-client-wine-gifts" in GUIDES:
     GUIDES["best-client-wine-gifts"]["title"] = "Best Client Wine Gifts: Reliable Merchant Routes & Safer Ideas"
     GUIDES["best-client-wine-gifts"]["description"] = "Choose client wine gifts by relationship, occasion and budget. Compare reliable merchant routes, Champagne, hampers and safer alternatives before ordering."
