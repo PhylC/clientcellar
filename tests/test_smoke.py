@@ -832,6 +832,13 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
     text = response.text
     assert text.startswith('<?xml version="1.0" encoding="UTF-8"?>')
     assert "<lastmod>" in text
+    assert text.count("<lastmod>2026-11-18</lastmod>") == len(main.SITEMAP_LASTMOD_BY_PATH)
+    for path in main.SITEMAP_LASTMOD_BY_PATH:
+        assert (
+            f"<loc>https://clientcellar.co.uk{path}</loc><lastmod>2026-11-18</lastmod>"
+            in text
+        )
+    assert "<loc>https://clientcellar.co.uk/about</loc><lastmod>" not in text
     assert "https://clientcellar.co.uk/" in text
     assert "https://clientcellar.co.uk/gift-planner" in text
     assert "https://clientcellar.co.uk/event-planner" in text

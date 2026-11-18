@@ -182,6 +182,24 @@ SITEMAP_GUIDE_SLUGS = [
     "wine-tasting-team-building",
 ]
 
+# Only declare a last-modified date when the public page materially changed.
+# Leaving unchanged URLs without <lastmod> is more accurate than stamping the
+# entire sitemap with the request date on every fetch.
+SITEMAP_LASTMOD_BY_PATH = {
+    "/client-christmas-gifts-uk": "2026-11-18",
+    "/corporate-christmas-wine-gifts": "2026-11-18",
+    "/corporate-gifting-ideas-uk": "2026-11-18",
+    "/event-planner": "2026-11-18",
+    "/gift-planner": "2026-11-18",
+    "/premium-client-gifts-uk": "2026-11-18",
+    "/supplier-directory": "2026-11-18",
+    "/suppliers": "2026-11-18",
+    "/thank-you-gifts-for-clients": "2026-11-18",
+    "/guides/best-wine-accessories-for-gifts": "2026-11-18",
+    "/guides/best-wine-gifts-under-100": "2026-11-18",
+    "/guides/corporate-wine-gifts-uk": "2026-11-18",
+}
+
 
 def canonical_path(path: str) -> str:
     clean_path = urllib.parse.urlsplit(path or "/").path or "/"
@@ -10753,12 +10771,16 @@ def cookies(request: Request):
 def sitemap(request: Request):
     guide_urls = [f"/guides/{slug}" for slug in SITEMAP_GUIDE_SLUGS if slug in GUIDES]
     urls = list(dict.fromkeys(SITEMAP_STATIC_ROUTES + guide_urls))
-    lastmod = date.today().isoformat()
+    sitemap_entries = []
+    for path in urls:
+        lastmod = SITEMAP_LASTMOD_BY_PATH.get(path)
+        lastmod_xml = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
+        sitemap_entries.append(f"  <url><loc>{canonical_url_for_path(path)}</loc>{lastmod_xml}</url>")
     body = "\n".join(
         [
             '<?xml version="1.0" encoding="UTF-8"?>',
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-            *[f"  <url><loc>{canonical_url_for_path(path)}</loc><lastmod>{lastmod}</lastmod></url>" for path in urls],
+            *sitemap_entries,
             "</urlset>",
         ]
     )
