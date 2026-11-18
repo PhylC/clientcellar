@@ -9421,7 +9421,7 @@ if "corporate-wine-gifts-uk" in GUIDES:
 # disclosure controlled by the existing environment variable.
 VINTAGE_WINE_GIFTS_GUIDE_CLICKREFS = {
     "corporate-wine-gifts-uk": "cc_guide_corporate_wine_gifts",
-    "best-wine-gifts-under-100": "cc_guide_wine_gifts_under_100",
+    "best-wine-gifts-under-100": "cc_under100_supplier_grid",
 }
 
 for guide_slug, clickref in VINTAGE_WINE_GIFTS_GUIDE_CLICKREFS.items():
@@ -9439,6 +9439,19 @@ for guide_slug, clickref in VINTAGE_WINE_GIFTS_GUIDE_CLICKREFS.items():
     merchant_links = list(guide.get("merchant_links") or [])
     if not any(link.get("name") == "Vintage Wine Gifts" for link in merchant_links):
         guide["merchant_links"] = [*merchant_links, vintage_wine_gifts_link]
+
+under_100_guide = GUIDES.get("best-wine-gifts-under-100")
+if under_100_guide:
+    under_100_guide["featured_supplier"] = {
+        "eyebrow": "A practical route to compare",
+        "heading": "Browse a specialist wine-gift range",
+        "name": "Vintage Wine Gifts",
+        "text": "Useful when you want to compare vintage wine, Champagne and Port gifts for a milestone or priority client. Not every item will be under £100, so check the live price, stock, presentation and delivery date before ordering.",
+        "url": configured_supplier_url_with_clickref("vintage-wine-gifts", "cc_under100_featured_route"),
+        "link_label": "Browse Vintage Wine Gifts",
+        "is_affiliate": bool(configured_supplier_affiliate_url("vintage-wine-gifts")),
+        "disclosure": "Affiliate link where tracking is available. Inclusion is editorial and does not guarantee price, stock or suitability.",
+    }
 
 if "best-client-wine-gifts" in GUIDES:
     GUIDES["best-client-wine-gifts"]["title"] = "Best Client Wine Gifts: Reliable Merchant Routes & Safer Ideas"

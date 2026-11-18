@@ -85,6 +85,20 @@
     </section>
     {% endif %}
 
+    {% if guide.featured_supplier %}
+    <section id="featured-supplier" class="guide-featured-supplier">
+      <p class="eyebrow">{{ guide.featured_supplier.eyebrow }}</p>
+      <h2>{{ guide.featured_supplier.heading }}</h2>
+      <h3>{{ guide.featured_supplier.name }}</h3>
+      <p>{{ guide.featured_supplier.text }}</p>
+      <div class="guide-featured-supplier__actions">
+        <a class="button primary" href="{{ guide.featured_supplier.url }}" target="_blank" rel="noopener noreferrer{% if guide.featured_supplier.is_affiliate %} sponsored{% endif %}">{{ guide.featured_supplier.link_label }}</a>
+        <a class="text-link" href="/supplier-directory">Compare more suppliers</a>
+      </div>
+      <p class="small-note">{{ guide.featured_supplier.disclosure }}</p>
+    </section>
+    {% endif %}
+
     {% for section in guide.article_sections %}
     <section id="{{ section.id }}">
       <h2>{{ section.heading }}</h2>

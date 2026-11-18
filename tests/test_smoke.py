@@ -295,8 +295,49 @@ def test_vintage_wine_gifts_affiliate_is_used_on_high_intent_guides():
 
     assert result.stdout.strip().splitlines() == [
         f"{affiliate_url}&clickref=cc_guide_corporate_wine_gifts|True",
-        f"{affiliate_url}&clickref=cc_guide_wine_gifts_under_100|True",
+        f"{affiliate_url}&clickref=cc_under100_supplier_grid|True",
     ]
+
+
+def test_under_100_guide_has_a_distinct_contextual_affiliate_route():
+    code = (
+        "import main;from fastapi.testclient import TestClient;"
+        "route=main.GUIDES['best-wine-gifts-under-100']['featured_supplier'];"
+        "html=TestClient(main.app).get('/guides/best-wine-gifts-under-100').text;"
+        "print(f\"{route['url']}|{route['is_affiliate']}\");"
+        "print('clickref=cc_under100_featured_route' in html);"
+        "print('rel=\"noopener noreferrer sponsored\"' in html)"
+    )
+    affiliate_url = (
+        "https://www.awin1.com/cread.php?awinmid=806&awinaffid=199523&"
+        "ued=https%3A%2F%2Fwww.vintagewinegifts.co.uk%2Facatalog%2Fcorporate_gifts.html"
+    )
+    env = {
+        **os.environ,
+        "CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS": affiliate_url,
+    }
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.stdout.strip().splitlines() == [
+        f"{affiliate_url}&clickref=cc_under100_featured_route|True",
+        "True",
+        "True",
+    ]
+
+    response = client.get("/guides/best-wine-gifts-under-100")
+    assert response.status_code == 200
+    assert "A practical route to compare" in response.text
+    assert "Browse a specialist wine-gift range" in response.text
+    assert "Browse Vintage Wine Gifts" in response.text
+    assert "Not every item will be under £100" in response.text
+    assert "Affiliate link where tracking is available" in response.text
 
 
 def test_vintage_wine_gifts_affiliate_is_used_on_christmas_page():
