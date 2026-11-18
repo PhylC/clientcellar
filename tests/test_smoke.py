@@ -267,6 +267,33 @@ def test_vintage_wine_gifts_affiliate_is_used_on_high_intent_guides():
     ]
 
 
+def test_vintage_wine_gifts_affiliate_is_used_on_christmas_page():
+    code = (
+        "import main;"
+        "link=next(link for link in main.SEO_PAGES['corporate-christmas-wine-gifts']['supplier_routes'] "
+        "if link['name']=='Vintage Wine Gifts');"
+        "print(f\"{link['url']}|{link['is_affiliate']}\")"
+    )
+    affiliate_url = (
+        "https://www.awin1.com/cread.php?awinmid=806&awinaffid=199523&"
+        "ued=https%3A%2F%2Fwww.vintagewinegifts.co.uk%2Facatalog%2Fcorporate_gifts.html"
+    )
+    env = {
+        **os.environ,
+        "CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS": affiliate_url,
+    }
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.stdout.strip() == f"{affiliate_url}&clickref=cc_christmas_wine_gifts|True"
+
+
 def test_premium_pack_page_loads():
     response = client.get("/premium-pack")
     assert response.status_code == 200

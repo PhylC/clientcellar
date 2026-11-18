@@ -8118,10 +8118,21 @@ SEO_PAGES = {
 }
 
 
-def seo_supplier(name: str, supplier_id: str, best_for: str, note: str, label: str = "View supplier") -> dict:
+def seo_supplier(
+    name: str,
+    supplier_id: str,
+    best_for: str,
+    note: str,
+    label: str = "View supplier",
+    affiliate_clickref: str | None = None,
+) -> dict:
     return {
         "name": name,
-        "url": configured_supplier_url(supplier_id),
+        "url": (
+            configured_supplier_url_with_clickref(supplier_id, affiliate_clickref)
+            if affiliate_clickref
+            else configured_supplier_url(supplier_id)
+        ),
         "best_for": best_for,
         "note": note,
         "label": label,
@@ -8837,7 +8848,18 @@ SEO_PAGES.update(
                     "A smaller thoughtful gift with a proper note can beat a large beige hamper chosen in a rush.",
                 ],
             },
-            "supplier_routes": [*WINE_GIFT_SUPPLIER_ROUTES[:2], *HAMPER_SUPPLIER_ROUTES[:2]],
+            "supplier_routes": [
+                *WINE_GIFT_SUPPLIER_ROUTES[:2],
+                seo_supplier(
+                    "Vintage Wine Gifts",
+                    "vintage-wine-gifts",
+                    "Vintage wine, Champagne, Port and milestone Christmas gifts.",
+                    "Useful for senior contacts and distinctive premium gifts; confirm stock, substitutions and Christmas delivery dates directly.",
+                    "View Christmas wine gifts",
+                    affiliate_clickref="cc_christmas_wine_gifts",
+                ),
+                *HAMPER_SUPPLIER_ROUTES[:2],
+            ],
             "supplier_heading": "Christmas supplier routes to compare",
             "faqs": [
                 {"q": "When should UK businesses order client Christmas gifts?", "a": "Start planning well before December, especially for larger lists, branded notes or multi-address delivery."},
