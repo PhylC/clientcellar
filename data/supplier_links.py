@@ -139,6 +139,22 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         fallback_url="https://winebuyers.com/en_GB/",
         category_tags=("wine", "wine-gifts", "marketplace", "mixed-cases", "premium-gifts"),
     ),
+    "bottle-in-a-box": SupplierLink(
+        id="bottle-in-a-box",
+        name="Bottle In A Box",
+        canonical_base_url="https://bottleinabox.co.uk/corporate-gifts",
+        affiliate_url=affiliate_url_from_env("bottle-in-a-box"),
+        fallback_url="https://bottleinabox.co.uk/wine-gifts",
+        category_tags=("wine", "wine-gifts", "hampers", "corporate-gifting", "premium-gifts"),
+    ),
+    "bottle-in-a-box-wine-gifts": SupplierLink(
+        id="bottle-in-a-box-wine-gifts",
+        name="Bottle In A Box wine gifts",
+        canonical_base_url="https://bottleinabox.co.uk/wine-gifts",
+        affiliate_url=affiliate_url_from_env("bottle-in-a-box-wine-gifts"),
+        fallback_url="https://bottleinabox.co.uk/corporate-gifts",
+        category_tags=("wine", "wine-gifts", "hampers", "premium-gifts"),
+    ),
     "king-country": SupplierLink(
         id="king-country",
         name="King & Country",
@@ -299,7 +315,7 @@ def supplier_url(supplier_id: str) -> str | None:
 
 
 def supplier_url_with_clickref(supplier_id: str, clickref: str) -> str | None:
-    """Return an affiliate URL tagged with an Awin placement reference.
+    """Return an Awin affiliate URL tagged with a placement reference.
 
     Canonical and fallback supplier links are returned unchanged, so editorial
     links do not gain tracking parameters when an affiliate URL is unavailable.
@@ -309,6 +325,8 @@ def supplier_url_with_clickref(supplier_id: str, clickref: str) -> str | None:
         return link.url if link else None
 
     parts = urlsplit(link.url)
+    if parts.netloc.lower() not in {"awin1.com", "www.awin1.com"}:
+        return link.url
     query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True) if key.lower() != "clickref"]
     query.append(("clickref", clickref))
     return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))

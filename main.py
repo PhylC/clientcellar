@@ -200,6 +200,11 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/guides/best-wine-gifts-under-100": "2026-11-19",
     "/guides/christmas-corporate-wine-gifts": "2026-11-19",
     "/guides/corporate-wine-gifts-uk": "2026-11-19",
+    "/guides/wine-gift-hampers-uk": "2026-11-19",
+    "/corporate-hampers-uk": "2026-11-19",
+    "/corporate-wine-gifts": "2026-11-19",
+    "/corporate-wine-gift-suppliers-uk": "2026-11-19",
+    "/corporate-hamper-suppliers-uk": "2026-11-19",
 }
 
 
@@ -1716,6 +1721,21 @@ def apply_central_supplier_entries() -> None:
                 "active": configured_active,
             }
         )
+        for entry_key, supplier_key in {
+            "typicalBudgetMin": "typical_budget_min",
+            "typicalBudgetMax": "typical_budget_max",
+            "bulkOrders": "bulk_orders",
+            "corporateGifting": "corporate_gifting",
+            "personalisation": "personalisation",
+            "branding": "branding",
+            "ukDelivery": "uk_delivery",
+            "internationalDelivery": "international_delivery",
+            "eventAvailable": "event_available",
+            "virtualEventAvailable": "virtual_event_available",
+            "inPersonEventAvailable": "in_person_event_available",
+        }.items():
+            if entry_key in entry:
+                supplier[supplier_key] = entry[entry_key]
 
 
 def apply_supplier_link_config() -> None:
@@ -2611,7 +2631,7 @@ def gift_supplier_route_cards(req: GiftPlanRequest) -> list[dict]:
     routes.append(supplier_route_card(
         "Corporate wine gifting supplier",
         "Good for case gifting, repeated orders and practical delivery.",
-        ["majestic", "winebuyers-uk", "laithwaites", "virgin-wines"],
+        ["bottle-in-a-box", "majestic", "winebuyers-uk", "laithwaites", "virgin-wines"],
         "Can they support bulk orders, gift notes, delivery tracking and substitutions?",
         "/gift-planner",
     ))
@@ -2619,7 +2639,7 @@ def gift_supplier_route_cards(req: GiftPlanRequest) -> list[dict]:
         routes.append(supplier_route_card(
             "Hamper supplier",
             "Food-and-drink hampers can suit mixed preferences better than single bottles.",
-            ["marks-spencer-corporate", "john-lewis-hampers", "fortnum-mason"],
+            ["bottle-in-a-box", "marks-spencer-corporate", "john-lewis-hampers", "fortnum-mason"],
             "Are alcohol-free or dietary options available?",
             "/gift-planner",
         ))
@@ -2806,7 +2826,7 @@ def event_supplier_comparison_rows() -> list[dict]:
 def supplier_directory_sections() -> list[dict]:
     section_ids = {
         "Wine merchants": ["majestic", "winebuyers-uk", "laithwaites", "virgin-wines", "waitrose-cellar"],
-        "Hampers and corporate gifting": ["fortnum-mason", "marks-spencer-corporate", "waitrose-cellar", "john-lewis-hampers"],
+        "Hampers and corporate gifting": ["bottle-in-a-box", "fortnum-mason", "marks-spencer-corporate", "waitrose-cellar", "john-lewis-hampers"],
         "Premium spirits and gin gifts": ["king-country"],
         "Event wine and larger orders": ["majestic-commercial", "majestic", "virgin-wines", "laithwaites", "waitrose-cellar"],
         "Non-alcoholic options": ["noughty-thomson-scott", "dry-drinker"],
@@ -2888,6 +2908,15 @@ def rank_gift_supplier(supplier: dict, req: GiftPlanRequest) -> int:
         if req.gift_style in {"wine", "mixed_case"}:
             score += 5
         elif req.gift_style == "not_sure":
+            score += 2
+    if supplier["id"] == "bottle-in-a-box":
+        if req.gift_style == "wine_hamper":
+            score += 6
+        elif req.gift_style in {"wine", "not_sure"}:
+            score += 3
+        if req.recipient_count >= 10:
+            score += 3
+        if req.recipient_type in {"clients", "employees", "mixed", "partners"}:
             score += 2
     if req.recipient_type in {"clients", "prospects", "partners"} and supplier["corporate_gifting"]:
         score += 3
@@ -8178,6 +8207,7 @@ def seo_supplier(
 
 
 WINE_GIFT_SUPPLIER_ROUTES = [
+    seo_supplier("Bottle In A Box", "bottle-in-a-box", "Gift-ready wine boxes, corporate orders and multi-address UK delivery.", "Useful for client lists and branded gifting; confirm stock, lead times, delivery dates and alcohol suitability.", "View corporate wine gifts"),
     seo_supplier("Majestic Corporate Gifts", "majestic", "Corporate wine gifting, repeat orders and practical business buying.", "Useful first route for client lists, staff rewards and business wine gifts.", "View corporate gifts"),
     seo_supplier("Laithwaites Corporate Wine Gifts", "laithwaites", "Established corporate wine gifts and premium presentation.", "Useful comparison route for wine-only gifting and bulk gift conversations.", "View corporate wine gifts"),
     seo_supplier("Virgin Wines Corporate", "virgin-wines", "Approachable corporate gifts, staff rewards and mixed-case options.", "Useful where the gift should feel accessible rather than formal.", "View corporate gifts"),
@@ -8185,6 +8215,7 @@ WINE_GIFT_SUPPLIER_ROUTES = [
 ]
 
 HAMPER_SUPPLIER_ROUTES = [
+    seo_supplier("Bottle In A Box", "bottle-in-a-box", "Gift-ready wine boxes with corporate branding and multi-address delivery options.", "Strong fit for corporate wine hampers; confirm stock, dietary contents, branding lead time and the required delivery date.", "View corporate gift boxes"),
     seo_supplier("M&S Food & Drink Gifts", "marks-spencer-corporate", "Mainstream hampers for mixed recipient preferences.", "Useful fallback when wine tastes are unknown or food-and-drink variety is safer.", "View hampers"),
     seo_supplier("Fortnum & Mason", "fortnum-mason", "Premium hampers and presentation-led client gifts.", "Useful for senior clients, formal gifting and stronger perceived value.", "View hampers"),
     seo_supplier("John Lewis Hampers", "john-lewis-hampers", "Broad food and drink gifting.", "Useful for mainstream hamper comparison and non-specialist buyers.", "View hampers"),
@@ -9308,6 +9339,34 @@ for seo_slug, clickref in WINEBUYERS_GUIDE_PLACEMENTS.items():
     seo_page["supplier_routes"] = supplier_routes
 
 
+BOTTLE_IN_A_BOX_SEO_PLACEMENTS = {
+    "corporate-wine-gifts-uk",
+    "best-client-wine-gifts",
+    "best-wine-gifts-under-100",
+    "christmas-corporate-wine-gifts",
+    "wine-gift-hampers-uk",
+}
+for seo_slug in BOTTLE_IN_A_BOX_SEO_PLACEMENTS:
+    seo_page = SEO_PAGES.get(seo_slug)
+    if not seo_page:
+        continue
+    supplier_routes = [
+        route for route in seo_page.get("supplier_routes", [])
+        if route.get("name") != "Bottle In A Box"
+    ]
+    supplier_routes.insert(
+        0,
+        seo_supplier(
+            "Bottle In A Box",
+            "bottle-in-a-box",
+            "Gift-ready wine boxes, corporate orders and multi-address UK delivery.",
+            "Confirm stock, branding lead time, VAT, delivery dates and alcohol suitability directly.",
+            "View Bottle In A Box gifts",
+        ),
+    )
+    seo_page["supplier_routes"] = supplier_routes
+
+
 GUIDE_SLUG_REDIRECTS = {
     redirect_path.removeprefix("/guides/"): destination.removeprefix("/guides/")
     for redirect_path, destination in SEO_REDIRECTS.items()
@@ -9530,6 +9589,32 @@ for guide_slug, clickref in WINEBUYERS_GUIDE_CLICKREFS.items():
         if link.get("name") != "Winebuyers UK"
     ]
     guide["merchant_links"] = [winebuyers_link, *merchant_links]
+
+
+BOTTLE_IN_A_BOX_GUIDE_PLACEMENTS = {
+    "corporate-wine-gifts-uk",
+    "best-client-wine-gifts",
+    "best-wine-gifts-under-100",
+    "christmas-corporate-wine-gifts",
+    "wine-gift-hampers-uk",
+}
+for guide_slug in BOTTLE_IN_A_BOX_GUIDE_PLACEMENTS:
+    guide = GUIDES.get(guide_slug)
+    if not guide:
+        continue
+    bottle_link = {
+        "name": "Bottle In A Box",
+        "url": configured_supplier_url("bottle-in-a-box-wine-gifts"),
+        "note": "Gift-ready wine boxes and hampers, with a separate corporate route for branding and multi-address UK delivery; confirm live stock, lead times and alcohol suitability.",
+        "url_purpose": "Wine gifts and gift boxes",
+        "url_checked_date": "2026-11-19",
+        "is_affiliate": bool(configured_supplier_affiliate_url("bottle-in-a-box-wine-gifts")),
+    }
+    merchant_links = [
+        link for link in list(guide.get("merchant_links") or [])
+        if link.get("name") != "Bottle In A Box"
+    ]
+    guide["merchant_links"] = [bottle_link, *merchant_links]
 
 under_100_guide = GUIDES.get("best-wine-gifts-under-100")
 if under_100_guide:

@@ -300,6 +300,60 @@ def test_winebuyers_uk_affiliate_is_live_in_supplier_directory():
     ]
 
 
+def test_bottle_in_a_box_direct_affiliate_links_remain_exact():
+    code = (
+        "from data.supplier_links import supplier_url_with_clickref;"
+        "from data.suppliers import supplier_directory_entries;"
+        "item=next(item for item in supplier_directory_entries() if item['id']=='bottle-in-a-box');"
+        "print(supplier_url_with_clickref('bottle-in-a-box', 'cc_supplier_directory'));"
+        "print(item['primaryUrl']);"
+        "print(item['isAffiliate']);"
+        "print(item['category'])"
+    )
+    affiliate_url = "https://bottleinabox.co.uk/corporate-gifts?aff=4"
+    env = {**os.environ, "CLIENTCELLAR_AFFILIATE_URL_BOTTLE_IN_A_BOX": affiliate_url}
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.stdout.strip().splitlines() == [
+        affiliate_url,
+        affiliate_url,
+        "True",
+        "Corporate wine gifts / hampers",
+    ]
+
+
+def test_bottle_in_a_box_wine_link_is_used_in_relevant_guides():
+    code = (
+        "import main;"
+        "paths=('corporate-wine-gifts-uk','wine-gift-hampers-uk');"
+        "links=[next(link for link in main.GUIDES[path]['merchant_links'] "
+        "if link['name']=='Bottle In A Box') for path in paths];"
+        "print('\\n'.join(f\"{link['url']}|{link['is_affiliate']}\" for link in links))"
+    )
+    affiliate_url = "https://bottleinabox.co.uk/wine-gifts?aff=4"
+    env = {**os.environ, "CLIENTCELLAR_AFFILIATE_URL_BOTTLE_IN_A_BOX_WINE_GIFTS": affiliate_url}
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.stdout.strip().splitlines() == [
+        f"{affiliate_url}|True",
+        f"{affiliate_url}|True",
+    ]
+
+
 def test_winebuyers_uk_affiliate_uses_guide_specific_clickrefs():
     code = (
         "import main;"
@@ -963,6 +1017,8 @@ def test_supplier_link_config_covers_major_visible_suppliers():
         "great-wine-co",
         "king-country",
         "winebuyers-uk",
+        "bottle-in-a-box",
+        "bottle-in-a-box-wine-gifts",
     ]:
         link = getSupplierLink(supplier_id)
         assert link is not None
@@ -1337,6 +1393,27 @@ def test_winebuyers_uk_is_the_primary_marketplace_recommendation():
     assert response.status_code == 200
     supplier_ids = [supplier["supplier_id"] for supplier in response.json()["supplier_shortlist"]]
     assert "winebuyers-uk" in supplier_ids
+
+
+def test_bottle_in_a_box_surfaces_for_corporate_hamper_brief():
+    response = client.post(
+        "/api/gift-plan",
+        json={
+            "recipient_type": "clients",
+            "recipient_count": 30,
+            "budget_per_recipient": 55,
+            "occasion": "client thank-you",
+            "gift_style": "wine_hamper",
+            "tone": "premium",
+            "uk_only": True,
+            "international_needed": False,
+            "personal_message_needed": True,
+            "branding_needed": True,
+        },
+    )
+    assert response.status_code == 200
+    supplier_ids = [supplier["supplier_id"] for supplier in response.json()["supplier_shortlist"]]
+    assert "bottle-in-a-box" in supplier_ids
 
 
 def test_vintage_wine_gifts_can_surface_for_premium_sparkling_briefs():
