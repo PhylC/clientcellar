@@ -268,6 +268,69 @@ def test_king_country_affiliate_is_live_in_supplier_directory():
     ]
 
 
+def test_winebuyers_uk_affiliate_is_live_in_supplier_directory():
+    code = (
+        "from data.suppliers import supplier_directory_entries;"
+        "item=next(item for item in supplier_directory_entries() if item['id']=='winebuyers-uk');"
+        "print(item['primaryUrl']);"
+        "print(item['isAffiliate']);"
+        "print(item['category'])"
+    )
+    affiliate_url = (
+        "https://www.awin1.com/cread.php?awinmid=121644&awinaffid=199523&"
+        "ued=https%3A%2F%2Fwinebuyers.com%2Fen_GB%2Ftaxons%2Fgifts"
+    )
+    env = {
+        **os.environ,
+        "CLIENTCELLAR_AFFILIATE_URL_WINEBUYERS_UK": affiliate_url,
+    }
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.stdout.strip().splitlines() == [
+        f"{affiliate_url}&clickref=cc_supplier_directory",
+        "True",
+        "Wine marketplace",
+    ]
+
+
+def test_winebuyers_uk_affiliate_uses_guide_specific_clickrefs():
+    code = (
+        "import main;"
+        "paths=('corporate-wine-gifts-uk','best-client-wine-gifts');"
+        "links=[next(link for link in main.GUIDES[path]['merchant_links'] "
+        "if link['name']=='Winebuyers UK') for path in paths];"
+        "print('\\n'.join(f\"{link['url']}|{link['is_affiliate']}\" for link in links))"
+    )
+    affiliate_url = (
+        "https://www.awin1.com/cread.php?awinmid=121644&awinaffid=199523&"
+        "ued=https%3A%2F%2Fwinebuyers.com%2Fen_GB%2Ftaxons%2Fgifts"
+    )
+    env = {
+        **os.environ,
+        "CLIENTCELLAR_AFFILIATE_URL_WINEBUYERS_UK": affiliate_url,
+    }
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.stdout.strip().splitlines() == [
+        f"{affiliate_url}&clickref=cc_guide_corporate_wine_gifts_uk|True",
+        f"{affiliate_url}&clickref=cc_guide_best_client_wine_gifts|True",
+    ]
+
+
 def test_vintage_wine_gifts_affiliate_is_used_on_high_intent_guides():
     code = (
         "import main;"
@@ -900,6 +963,7 @@ def test_supplier_link_config_covers_major_visible_suppliers():
         "wine-direct",
         "great-wine-co",
         "king-country",
+        "winebuyers-uk",
     ]:
         link = getSupplierLink(supplier_id)
         assert link is not None
@@ -1038,6 +1102,8 @@ def test_supplier_directory_page_is_editorial_and_affiliate_ready():
     assert "View Vintage Wine Gifts corporate gifts" in response.text
     assert "King &amp; Country" in response.text
     assert "View King &amp; Country gin gifts" in response.text
+    assert "Winebuyers UK" in response.text
+    assert "Explore Winebuyers gifts" in response.text
     assert 'data-supplier-directory' in response.text
     assert 'data-supplier-card' in response.text
     assert "/images/clientcellar/supplier-corporate-gifts.webp" in response.text
@@ -1051,6 +1117,7 @@ def test_supplier_directory_page_is_editorial_and_affiliate_ready():
     assert "Majestic" in names
     assert "Great Wine Co." in names
     assert "King & Country" in names
+    assert "Winebuyers UK" in names
 
 
 def test_supplier_directory_aliases_redirect_to_canonical_page():
@@ -1250,6 +1317,27 @@ def test_king_country_surfaces_for_suitable_premium_open_brief():
     assert response.status_code == 200
     supplier_ids = [supplier["supplier_id"] for supplier in response.json()["supplier_shortlist"]]
     assert "king-country" in supplier_ids
+
+
+def test_winebuyers_uk_is_the_primary_marketplace_recommendation():
+    response = client.post(
+        "/api/gift-plan",
+        json={
+            "recipient_type": "clients",
+            "recipient_count": 20,
+            "budget_per_recipient": 55,
+            "occasion": "client thank-you",
+            "gift_style": "wine",
+            "tone": "safe",
+            "uk_only": True,
+            "international_needed": False,
+            "personal_message_needed": True,
+            "branding_needed": False,
+        },
+    )
+    assert response.status_code == 200
+    supplier_ids = [supplier["supplier_id"] for supplier in response.json()["supplier_shortlist"]]
+    assert "winebuyers-uk" in supplier_ids
 
 
 def test_vintage_wine_gifts_can_surface_for_premium_sparkling_briefs():

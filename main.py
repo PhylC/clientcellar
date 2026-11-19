@@ -2609,7 +2609,7 @@ def gift_supplier_route_cards(req: GiftPlanRequest) -> list[dict]:
     routes.append(supplier_route_card(
         "Corporate wine gifting supplier",
         "Good for case gifting, repeated orders and practical delivery.",
-        ["majestic", "laithwaites", "virgin-wines"],
+        ["majestic", "winebuyers-uk", "laithwaites", "virgin-wines"],
         "Can they support bulk orders, gift notes, delivery tracking and substitutions?",
         "/gift-planner",
     ))
@@ -2803,7 +2803,7 @@ def event_supplier_comparison_rows() -> list[dict]:
 
 def supplier_directory_sections() -> list[dict]:
     section_ids = {
-        "Wine merchants": ["majestic", "laithwaites", "virgin-wines", "waitrose-cellar"],
+        "Wine merchants": ["majestic", "winebuyers-uk", "laithwaites", "virgin-wines", "waitrose-cellar"],
         "Hampers and corporate gifting": ["fortnum-mason", "marks-spencer-corporate", "waitrose-cellar", "john-lewis-hampers"],
         "Premium spirits and gin gifts": ["king-country"],
         "Event wine and larger orders": ["majestic-commercial", "majestic", "virgin-wines", "laithwaites", "waitrose-cellar"],
@@ -2882,6 +2882,11 @@ def rank_gift_supplier(supplier: dict, req: GiftPlanRequest) -> int:
         score += 5
     if req.gift_style == "mixed_case" and supplier["category"] == "wine_merchant":
         score += 4
+    if supplier["id"] == "winebuyers-uk":
+        if req.gift_style in {"wine", "mixed_case"}:
+            score += 5
+        elif req.gift_style == "not_sure":
+            score += 2
     if req.recipient_type in {"clients", "prospects", "partners"} and supplier["corporate_gifting"]:
         score += 3
     if (
@@ -8174,6 +8179,7 @@ WINE_GIFT_SUPPLIER_ROUTES = [
     seo_supplier("Majestic Corporate Gifts", "majestic", "Corporate wine gifting, repeat orders and practical business buying.", "Useful first route for client lists, staff rewards and business wine gifts.", "View corporate gifts"),
     seo_supplier("Laithwaites Corporate Wine Gifts", "laithwaites", "Established corporate wine gifts and premium presentation.", "Useful comparison route for wine-only gifting and bulk gift conversations.", "View corporate wine gifts"),
     seo_supplier("Virgin Wines Corporate", "virgin-wines", "Approachable corporate gifts, staff rewards and mixed-case options.", "Useful where the gift should feel accessible rather than formal.", "View corporate gifts"),
+    seo_supplier("Winebuyers UK", "winebuyers-uk", "Wine gifts, mixed cases and independent merchant discovery in one marketplace.", "Useful for broad product discovery; confirm the named seller, delivery charge and parcel timing before using it for a business gift.", "Explore Winebuyers gifts", "cc_editorial_wine_routes"),
 ]
 
 HAMPER_SUPPLIER_ROUTES = [
@@ -8196,6 +8202,17 @@ def king_country_guide_route(clickref: str) -> dict:
         "Premium British gin gifts for clients, thank-yous and celebratory moments.",
         "A distinctive spirits alternative when gin suits the recipient; confirm gift packaging, business-order support and delivery directly.",
         "View King & Country gin gifts",
+        clickref,
+    )
+
+
+def winebuyers_guide_route(clickref: str) -> dict:
+    return seo_supplier(
+        "Winebuyers UK",
+        "winebuyers-uk",
+        "Wine gifts, mixed cases and independent merchant discovery in one marketplace.",
+        "A broad discovery route for suitable gifts; confirm the seller, bottle count, delivery charge and arrival timing before ordering.",
+        "Explore Winebuyers gifts",
         clickref,
     )
 
@@ -9266,6 +9283,29 @@ for seo_slug, clickref in KING_COUNTRY_GUIDE_PLACEMENTS.items():
         supplier_routes.insert(1, king_country_guide_route(clickref))
 
 
+# Give the approved Winebuyers marketplace a prominent but contextually honest
+# route on wine-gift discovery pages. Each page receives its own list copy so
+# placement-level Awin clickrefs do not leak between shared route collections.
+WINEBUYERS_GUIDE_PLACEMENTS = {
+    "corporate-wine-gifts-uk": "cc_guide_corporate_wine_gifts_uk",
+    "best-client-wine-gifts": "cc_guide_best_client_wine_gifts",
+    "best-wine-gifts-under-100": "cc_guide_wine_gifts_under_100",
+    "christmas-corporate-wine-gifts": "cc_guide_christmas_corporate_wine_gifts",
+    "wine-gifts-for-christmas": "cc_guide_wine_gifts_christmas",
+}
+for seo_slug, clickref in WINEBUYERS_GUIDE_PLACEMENTS.items():
+    seo_page = SEO_PAGES.get(seo_slug)
+    if not seo_page:
+        continue
+    supplier_routes = [
+        route
+        for route in seo_page.get("supplier_routes", [])
+        if route.get("name") != "Winebuyers UK"
+    ]
+    supplier_routes.insert(1, winebuyers_guide_route(clickref))
+    seo_page["supplier_routes"] = supplier_routes
+
+
 GUIDE_SLUG_REDIRECTS = {
     redirect_path.removeprefix("/guides/"): destination.removeprefix("/guides/")
     for redirect_path, destination in SEO_REDIRECTS.items()
@@ -9457,6 +9497,37 @@ for guide_slug, clickref in VINTAGE_WINE_GIFTS_GUIDE_CLICKREFS.items():
     merchant_links = list(guide.get("merchant_links") or [])
     if not any(link.get("name") == "Vintage Wine Gifts" for link in merchant_links):
         guide["merchant_links"] = [*merchant_links, vintage_wine_gifts_link]
+
+
+# Add the approved Winebuyers route to broad wine-gift discovery guides. The
+# marketplace caveat is kept in every placement because products can be sold
+# and fulfilled by different merchants.
+WINEBUYERS_GUIDE_CLICKREFS = {
+    "corporate-wine-gifts-uk": "cc_guide_corporate_wine_gifts_uk",
+    "best-client-wine-gifts": "cc_guide_best_client_wine_gifts",
+    "best-wine-gifts-under-100": "cc_guide_wine_gifts_under_100",
+    "wine-gifts-for-christmas": "cc_guide_wine_gifts_christmas",
+    "christmas-corporate-wine-gifts": "cc_guide_christmas_corporate_wine_gifts",
+}
+
+for guide_slug, clickref in WINEBUYERS_GUIDE_CLICKREFS.items():
+    guide = GUIDES.get(guide_slug)
+    if not guide:
+        continue
+    winebuyers_link = {
+        "name": "Winebuyers UK",
+        "url": configured_supplier_url_with_clickref("winebuyers-uk", clickref),
+        "note": "Wine gifts, mixed cases and independent merchant discovery; confirm the seller, delivery charge and parcel timing before ordering.",
+        "url_purpose": "UK gifts marketplace",
+        "url_checked_date": "2026-11-19",
+        "is_affiliate": bool(configured_supplier_affiliate_url("winebuyers-uk")),
+    }
+    merchant_links = [
+        link
+        for link in list(guide.get("merchant_links") or [])
+        if link.get("name") != "Winebuyers UK"
+    ]
+    guide["merchant_links"] = [winebuyers_link, *merchant_links]
 
 under_100_guide = GUIDES.get("best-wine-gifts-under-100")
 if under_100_guide:

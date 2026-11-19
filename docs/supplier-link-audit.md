@@ -2,7 +2,7 @@
 
 Internal audit for public supplier and retailer links used by ClientCellar.
 
-Updated: 2026-08-21
+Updated: 2026-11-19
 
 ClientCellar does not claim these suppliers are partners unless separately confirmed. Recommendations are editorially selected for now. Links are normal public supplier links unless an affiliate or tracked relationship is explicitly configured.
 
@@ -20,6 +20,8 @@ The canonical supplier URL source is `data/supplier_links.py`. Planner, guide an
 | Hay Wines | Yes | `https://haywines.co.uk/pages/company-gifts` | Company gifts page | Supplier directory and independent merchant routes | No | Good direct outreach candidate for bespoke/company gift and tasting positioning. |
 | Wine Direct | Yes | `https://www.winedirect.co.uk/info/corporate-wine-gifts` | Corporate wine gifts page | Supplier directory, premium comparisons and corporate gifting routes | No | High-fit supplier-direct candidate because the page is explicitly corporate. |
 | Vintage Wine Gifts | Yes | `https://www.vintagewinegifts.co.uk/acatalog/corporate_gifts.html` | Corporate gifts page | Supplier directory and premium wine/Champagne gift routes | Yes when `CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS` is set | Approved on Awin 2026-08-15. First accepted affiliate programme; use approved deeplink via production env var. |
+| Winebuyers UK | Yes | `https://winebuyers.com/en_GB/taxons/gifts` | Wine and drinks gifts marketplace | Supplier directory, planner recommendations and wine-gift guides | Yes when `CLIENTCELLAR_AFFILIATE_URL_WINEBUYERS_UK` is set | Approved on Awin 2026-11-19. Marketplace sellers can have separate delivery charges and parcels, so retain the delivery caveat in buyer copy. |
+| King & Country | Yes | `https://king-country.com/collections/gin` | British gin collection | Supplier directory, premium planner routes and suitable broad-gifting guides | Yes when `CLIENTCELLAR_AFFILIATE_URL_KING_COUNTRY` is set | Approved on Awin 2026-11-18. Confirm business-order support rather than implying a full corporate fulfilment programme. |
 | The Wine Society | Yes in directory config; inactive in legacy planner entries | `https://www.thewinesociety.com/buy/gifts/gift-cases-and-wine-hampers/` | Wine gifts page | Supplier directory where visible | No | Check membership suitability and current gift URL before using in stronger commercial copy. |
 | Berry Bros. & Rudd | No | None | Disabled supplier link | Not shown as an active outbound route | No | Kept inactive because there is no verified useful destination in the central config. |
 | Fortnum & Mason | Yes | `https://www.fortnumandmason.com/hampers/all-hampers/wine-hampers` | Wine hampers page | Gift planner premium route, premium packs, supplier directory, guides | No | Strong premium-hamper candidate; confirm category URL before campaign/affiliate migration. |
