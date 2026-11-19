@@ -190,14 +190,16 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/corporate-christmas-wine-gifts": "2026-11-18",
     "/corporate-gifting-ideas-uk": "2026-11-18",
     "/event-planner": "2026-11-18",
-    "/gift-planner": "2026-11-18",
+    "/gift-planner": "2026-11-19",
     "/premium-client-gifts-uk": "2026-11-18",
-    "/supplier-directory": "2026-11-18",
-    "/suppliers": "2026-11-18",
+    "/supplier-directory": "2026-11-19",
+    "/suppliers": "2026-11-19",
     "/thank-you-gifts-for-clients": "2026-11-18",
     "/guides/best-wine-accessories-for-gifts": "2026-11-18",
-    "/guides/best-wine-gifts-under-100": "2026-11-18",
-    "/guides/corporate-wine-gifts-uk": "2026-11-18",
+    "/guides/best-client-wine-gifts": "2026-11-19",
+    "/guides/best-wine-gifts-under-100": "2026-11-19",
+    "/guides/christmas-corporate-wine-gifts": "2026-11-19",
+    "/guides/corporate-wine-gifts-uk": "2026-11-19",
 }
 
 
