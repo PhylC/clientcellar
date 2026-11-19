@@ -9729,8 +9729,26 @@ if "christmas-corporate-wine-gifts" in GUIDES:
         "Alcohol-free alternatives",
     ]
     christmas_guide["commercial_note"] = "Looking for year-round corporate wine gifts? Use the main corporate wine gifts guide for client thank-yous, teams, events and bulk orders outside Christmas."
-    christmas_guide["secondary_cta"] = "View corporate wine gifts"
-    christmas_guide["secondary_cta_url"] = "/guides/corporate-wine-gifts-uk"
+    christmas_guide["secondary_cta"] = "See Christmas gift suppliers"
+    christmas_guide["secondary_cta_url"] = "#christmas-buying-options"
+    christmas_guide["last_updated"] = "November 2026"
+    christmas_guide["buying_options"] = [
+        {
+            "heading": "Bulk Christmas orders",
+            "text": "Buying for a client list? Confirm delivery to multiple addresses, VAT invoicing and the last order date.",
+            "supplier": seo_supplier("Laithwaites", "laithwaites", "", "", "View Laithwaites corporate gifts", "cc_christmas_bulk"),
+        },
+        {
+            "heading": "Branded gift boxes",
+            "text": "Ask about minimum quantities, branding proofs and the deadline for approving artwork.",
+            "supplier": seo_supplier("Bottle In A Box", "bottle-in-a-box", "", "", "View Bottle In A Box corporate gifts"),
+        },
+        {
+            "heading": "One-off client gifts",
+            "text": "Choose a gift-ready bottle or boxed set for one client. Check gift-message options and delivery dates.",
+            "supplier": seo_supplier("Bottle In A Box", "bottle-in-a-box-wine-gifts", "", "", "Browse Bottle In A Box wine gifts"),
+        },
+    ]
     christmas_guide["opening_heading"] = "Christmas client gifts need earlier decisions"
     christmas_guide["opening"] = [
         "Christmas Gifts for Clients: Corporate Wine and Hamper Ideas is still the practical job here: choose something timely, specific and easy to accept. These gifts fail when the recipient list is rushed, the message is generic, or the supplier cannot hit delivery windows.",

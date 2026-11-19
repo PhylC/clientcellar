@@ -720,8 +720,14 @@ def test_required_affiliate_ready_guides_load():
         assert response.status_code == 200
         assert "Disclosure: Some links may earn commission" in response.text
         assert "Written by ClientCellar editorial team" in response.text
-        expected_updated = "November 2026" if path == "/guides/best-wine-accessories-for-gifts" else "May 2026"
+        updated_guides = {"/guides/best-wine-accessories-for-gifts", "/guides/christmas-corporate-wine-gifts"}
+        expected_updated = "November 2026" if path in updated_guides else "May 2026"
         assert f"Last updated: {expected_updated}" in response.text
+        if path == "/guides/christmas-corporate-wine-gifts":
+            assert 'href="#christmas-buying-options"' in response.text
+            buying_options = response.text.split('id="christmas-buying-options"', 1)[1].split('id="opening"', 1)[0]
+            for label in ("Bulk Christmas orders", "Branded gift boxes", "One-off client gifts"):
+                assert label in buying_options
         assert "Planning note: ClientCellar provides guidance only" in response.text
         if path in enhanced_paths:
             assert "ClientCellar guide" in response.text

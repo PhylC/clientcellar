@@ -2846,6 +2846,14 @@ textarea {
   margin: 1rem 0 2.5rem;
 }
 
+.guide-hub-section.guide-buying-options {
+  width: min(100% - 2rem, 1120px);
+}
+
+.guide-buying-options .guide-intent-grid {
+  margin-bottom: 0;
+}
+
 .guide-intent-card {
   display: block;
   min-width: 0;
@@ -2879,6 +2887,11 @@ textarea {
   margin: 0;
   color: var(--muted);
   line-height: 1.45;
+}
+
+.guide-buying-options .guide-intent-card .text-link {
+  margin-top: 0.65rem;
+  color: var(--burgundy);
 }
 
 .guide-use-panel {

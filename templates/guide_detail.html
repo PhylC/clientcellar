@@ -52,6 +52,21 @@
   </div>
 </section>
 
+{% if guide.buying_options %}
+<section id="christmas-buying-options" class="guide-hub-section guide-buying-options" aria-labelledby="christmas-buying-heading">
+  <h2 id="christmas-buying-heading">Where to buy Christmas wine gifts</h2>
+  <div class="guide-intent-grid">
+    {% for option in guide.buying_options %}
+    <a class="guide-intent-card" href="{{ option.supplier.url }}" target="_blank" rel="noopener noreferrer{% if option.supplier.is_affiliate %} sponsored{% endif %}">
+      <strong>{{ option.heading }}</strong>
+      <span>{{ option.text }}</span>
+      <span class="text-link">{{ option.supplier.label }} &rarr;</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 <section class="guide-planning-note">
   Planning note: ClientCellar provides guidance only. We do not sell alcohol directly or verify live stock, pricing or delivery. Confirm details with the supplier. <a href="/responsible-drinking">Responsible drinking guidance</a>.
 </section>
