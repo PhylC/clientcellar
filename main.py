@@ -6303,8 +6303,8 @@ GUIDES.update(
             cta_text="Use ClientCellar to shape a simple wine gift brief around budget, recipient and occasion.",
         ),
         "best-wine-gifts-under-100": enhanced_guide(
-            title="Best Wine Gifts Under £100: Where Wine Gifting Gets Interesting",
-            h1="Best Wine Gifts Under £100: Where Wine Gifting Gets Interesting",
+            title="Best Wine Gifts Under £100 in the UK",
+            h1="Best Wine Gifts Under £100 in the UK",
             description="How to spend up to £100 well on wine gifts, from premium bottles and mixed cases to hampers and Champagne routes.",
             intro="£100 is where wine gifting gets interesting, because you have enough budget to choose properly. You also have enough budget to waste it.",
             hero_bullets=[
