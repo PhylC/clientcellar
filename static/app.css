@@ -5370,3 +5370,106 @@ textarea {
     gap: 0.36rem;
   }
 }
+
+.quote-form {
+  padding: 0;
+  gap: var(--grid-gap);
+}
+
+.quote-brief,
+.quote-panel {
+  min-width: 0;
+  margin: 0;
+}
+
+.quote-form legend {
+  padding: 0 0.45rem;
+  color: var(--ink);
+  font-size: 1.12rem;
+  font-weight: 750;
+}
+
+.quote-counts,
+.quote-inputs,
+.quote-columns,
+.quote-totals {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.quote-counts {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+}
+
+.quote-inputs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.quote-inputs label:has([name="vat_basis"]) {
+  grid-column: 1 / -1;
+}
+
+.quote-panel > label,
+.quote-panel .checks,
+.quote-totals {
+  margin-bottom: 0.8rem;
+}
+
+.quote-panel .checks {
+  margin-top: 1rem;
+}
+
+.quote-comparison [hidden] {
+  display: none;
+}
+
+.quote-fees-note,
+.quote-brief p,
+.quote-checklist p,
+.quote-verdict {
+  margin: 0;
+}
+
+.quote-brief p:not(:empty) {
+  margin-top: 0.75rem;
+}
+
+.quote-totals {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  padding-top: 0.8rem;
+}
+
+.quote-totals span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.quote-totals strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: var(--green);
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+}
+
+.quote-checklist ul {
+  margin: 0.25rem 0 0;
+  padding-inline-start: 1.2rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.quote-verdict {
+  font-weight: 700;
+}
+
+.quote-privacy {
+  margin: 1rem 0 2.5rem;
+}
+
+@media (min-width: 850px) {
+  .quote-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

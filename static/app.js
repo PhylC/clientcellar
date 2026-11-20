@@ -1305,6 +1305,8 @@ function renderMultiAddressGiftSuppliers(brief) {
   const alcoholFreeNote = brief.alcohol_free_count === null
     ? "Confirm whether you need alcohol-free gifts before requesting a quote."
     : `Alcohol-free gifts requested: ${escapeHtml(brief.alcohol_free_count)}.`;
+  const counts = new URLSearchParams({ recipients: brief.recipient_count, addresses: brief.address_count });
+  if (brief.alcohol_free_count !== null) counts.set("alcohol_free", brief.alcohol_free_count);
   return `
     <p><strong>Delivery addresses:</strong> ${escapeHtml(brief.address_count)}. ${alcoholFreeNote}</p>
     <div class="gift-recommendation-list">
@@ -1325,6 +1327,7 @@ function renderMultiAddressGiftSuppliers(brief) {
       `).join("")}
     </div>
     <p class="small-note"><a href="/uk-wine-gift-supplier-comparison#bulk-order-example">Compare the published supplier terms and sources</a>. Request a quote for your addresses and deadline.</p>
+    <a class="button secondary small" href="/gift-quote-comparison?${escapeHtml(counts.toString())}">Compare delivered costs once you have quotes</a>
   `;
 }
 

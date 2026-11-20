@@ -128,6 +128,7 @@ SITEMAP_STATIC_ROUTES = [
     "/example-premium-event-pack",
     "/faq",
     "/gift-planner",
+    "/gift-quote-comparison",
     "/guides",
     "/premium-client-gifts-uk",
     "/premium-pack",
@@ -195,6 +196,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/corporate-gifting-ideas-uk": "2026-11-18",
     "/event-planner": "2026-11-18",
     "/gift-planner": "2026-11-20",
+    "/gift-quote-comparison": "2026-11-20",
     "/premium-client-gifts-uk": "2026-11-18",
     "/supplier-directory": "2026-11-19",
     "/uk-wine-gift-supplier-comparison": BULK_GIFT_SUPPLIERS_CHECKED.isoformat(),
@@ -3267,6 +3269,7 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
     shortlist = bulk_gift_supplier_shortlist(req)
     if shortlist:
         plan["multi_address_gifts"] = {
+            "recipient_count": req.recipient_count,
             "address_count": req.delivery_address_count,
             "alcohol_free_count": req.alcohol_free_count,
             "suppliers": shortlist,
@@ -10136,6 +10139,16 @@ def gift_planner(request: Request):
         request, "gift_planner.html", "Corporate Wine Gift Planner",
         "Create a practical UK corporate wine gift plan with budget guidance and supplier enquiry copy.",
         bulk_example=example,
+    )
+
+
+@app.get("/gift-quote-comparison", response_class=HTMLResponse)
+def gift_quote_comparison(request: Request):
+    title = "Corporate Gift Quote Comparison"
+    return render(
+        request, "gift_quote_comparison.html", title,
+        "Compare two UK corporate gift quotes by total delivered cost and cost per recipient. Include VAT, delivery, fees and alcohol-free alternatives.",
+        structured_data=[breadcrumb_schema(request, [("Home", "/"), (title, "/gift-quote-comparison")])],
     )
 
 

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-shell quote-comparison">
+  <section class="page-intro">
+    <h1>Compare corporate gift quotes</h1>
+    <p class="lead">See the total delivered cost and cost per recipient for the same order. Enter the prices from each supplier’s quote.</p>
+    <button class="button secondary small" type="button" data-quote-example>Load sample quotes</button>
+    <p class="small-note" data-quote-example-note hidden>Sample prices are fictional.</p>
+  </section>
+
+  <div class="planner-form quote-form" data-gift-quote-comparison>
+    <fieldset class="card quote-brief">
+      <legend>Order details</legend>
+      <div class="quote-counts">
+        <label>Recipients
+          <input name="recipients" type="number" min="1" max="10000" step="1" inputmode="numeric">
+        </label>
+        <label>Delivery addresses
+          <input name="addresses" type="number" min="1" max="10000" step="1" inputmode="numeric">
+        </label>
+        <label>Alcohol-free gifts
+          <input name="alcohol_free" type="number" min="0" max="10000" step="1" inputmode="numeric">
+        </label>
+      </div>
+      <p class="small-note" data-quote-count-status></p>
+    </fieldset>
+
+    <p class="small-note quote-fees-note">Leave missing prices blank. Enter £0 only when the quote confirms there’s no separate charge. Use VAT-inclusive prices throughout, or enter prices before VAT and add the quoted VAT.</p>
+
+    <div class="quote-columns">
+      {% for label in ("Quote A", "Quote B") %}
+      <fieldset class="card quote-panel" data-quote-panel>
+        <legend>{{ label }}</legend>
+        <label>Supplier name (optional)
+          <input name="supplier" autocomplete="off" maxlength="80" placeholder="{{ label }}">
+        </label>
+
+        <div class="quote-inputs">
+          <label data-quote-standard>Standard gift (£ each)
+            <input name="standard" type="number" min="0" max="999999.99" step="0.01" inputmode="decimal">
+          </label>
+          <label data-quote-alcohol-free>Alcohol-free gift (£ each)
+            <input name="alcohol_free_price" type="number" min="0" max="999999.99" step="0.01" inputmode="decimal">
+          </label>
+          <label>Delivery charge (£)
+            <input name="delivery" type="number" min="0" max="999999.99" step="0.01" inputmode="decimal">
+          </label>
+          <label>Delivery charge is
+            <select name="delivery_basis">
+              <option value="per-address">Per address</option>
+              <option value="order">For the whole order</option>
+            </select>
+          </label>
+          <label>Other fees for the order (£)
+            <input name="fees" type="number" min="0" max="999999.99" step="0.01" inputmode="decimal">
+          </label>
+          <label>VAT on entered prices
+            <select name="vat_basis">
+              <option value="">Unconfirmed</option>
+              <option value="included">Included in all prices</option>
+              <option value="none">Supplier confirms no VAT charged</option>
+              <option value="amount">Excluded, add quoted VAT amount</option>
+              <option value="rate">Excluded, add one quoted VAT rate</option>
+            </select>
+          </label>
+          <label data-quote-vat-amount hidden>VAT amount for the order (£)
+            <input name="vat_amount" type="number" min="0" max="999999.99" step="0.01" inputmode="decimal" disabled>
+          </label>
+          <label data-quote-vat-rate hidden>VAT rate (%) on all charges
+            <input name="vat_rate" type="number" min="0" max="100" step="0.01" inputmode="decimal" disabled>
+          </label>
+        </div>
+
+        <div class="checks">
+          <label><input name="delivery_confirmed" type="checkbox"> Delivery date and coverage confirmed</label>
+          <label><input name="substitutions_confirmed" type="checkbox"> Substitution terms confirmed</label>
+        </div>
+
+        <div class="quote-totals">
+          <div><span>Total delivered cost</span><strong data-quote-total>—</strong></div>
+          <div><span>Cost per recipient</span><strong data-quote-per-recipient>—</strong></div>
+        </div>
+        <p class="small-note" data-quote-vat-summary hidden></p>
+        <div class="quote-checklist" data-quote-notes hidden>
+          <p>Still to confirm</p>
+          <ul data-quote-missing></ul>
+        </div>
+      </fieldset>
+      {% endfor %}
+    </div>
+
+    <p class="card quote-verdict" role="status" data-quote-verdict>Enter the same order details and both quotes to see the difference.</p>
+  </div>
+  <p class="small-note quote-privacy">Quote entries stay in this browser tab. Use the final written quote to confirm charges and delivery terms before ordering.</p>
+  <noscript><p class="quote-privacy">Enable JavaScript to compare quotes in your browser.</p></noscript>
+</div>
+<script type="module" src="{{ url_for('static', path='/gift-quote-comparison.mjs') }}?v=20261120"></script>
+{% endblock %}
