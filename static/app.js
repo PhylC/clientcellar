@@ -1747,6 +1747,10 @@ function bindAnalyticsTracking() {
     const href = link.getAttribute("href") || "";
     const text = link.textContent.trim().replace(/\s+/g, " ").slice(0, 120);
     const metadata = { link_text: text, link_url: href };
+    if (link.hasAttribute("data-gift-planner-click")) {
+      trackEvent("gift_planner_clicked", { report_type: "gift", metadata });
+      return;
+    }
     const isSupplier = link.hasAttribute("data-supplier-click") || href.includes("/out/supplier/") || link.closest(".supplier-table-action, .supplier-compact-head, .gift-route-actions, .event-route-actions, .supplier-card-grid, .recommendation-summary-card, .recommendation-alternative-row");
     if (isSupplier) {
       const reportType = currentReportTypeFromPage();

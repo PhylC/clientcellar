@@ -1873,6 +1873,7 @@ ANALYTICS_EVENT_ALLOWLIST = {
     "contact_click",
     "lead_submitted",
     "supplier_click",
+    "gift_planner_clicked",
     "gift_planner_started",
     "gift_free_report_generated",
     "gift_supplier_clicked",

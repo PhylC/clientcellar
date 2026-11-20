@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+{% set track_guide_clicks = slug == 'best-wine-gifts-under-100' %}
 {% if guide.enhanced %}
 <section class="guide-hero{% if guide.commercial_hero %} guide-hero--commercial{% endif %}">
   <div class="guide-hero-inner">
@@ -10,14 +11,14 @@
       <p>{{ guide.intro }}</p>
       {% if guide.commercial_hero or guide.hero_supplier_links %}
       <div class="hero-actions">
-        <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+        <a class="button primary" href="{{ guide.cta_url }}"{% if track_guide_clicks %} data-gift-planner-click{% endif %}>{{ guide.cta }}</a>
         <a class="button secondary" href="{{ guide.secondary_cta_url or '/supplier-directory' }}">{{ guide.secondary_cta or "Compare UK suppliers" }}</a>
       </div>
       {% if guide.hero_supplier_links %}
       <p class="guide-disclosure-line">
         Browse
         {% for supplier in guide.hero_supplier_links %}
-        {% if not loop.first %}or {% endif %}<a href="{{ supplier.url }}" target="_blank" rel="noopener noreferrer{% if supplier.is_affiliate %} sponsored{% endif %}">{{ supplier.name }}</a>{% if loop.last %}.{% endif %}
+        {% if not loop.first %}or {% endif %}<a href="{{ supplier.url }}" target="_blank" rel="noopener noreferrer{% if supplier.is_affiliate %} sponsored{% endif %}"{% if track_guide_clicks %} data-supplier-click data-supplier-name="{{ supplier.name }}"{% endif %}>{{ supplier.name }}</a>{% if loop.last %}.{% endif %}
         {% endfor %}
         Disclosure: Some links may earn commission. <a href="/editorial-policy">Read our editorial policy</a>.
       </p>
@@ -118,7 +119,7 @@
       <h3>{{ guide.featured_supplier.name }}</h3>
       <p>{{ guide.featured_supplier.text }}</p>
       <div class="guide-featured-supplier__actions">
-        <a class="button primary" href="{{ guide.featured_supplier.url }}" target="_blank" rel="noopener noreferrer{% if guide.featured_supplier.is_affiliate %} sponsored{% endif %}">{{ guide.featured_supplier.link_label }}</a>
+        <a class="button primary" href="{{ guide.featured_supplier.url }}" target="_blank" rel="noopener noreferrer{% if guide.featured_supplier.is_affiliate %} sponsored{% endif %}"{% if track_guide_clicks %} data-supplier-click data-supplier-name="{{ guide.featured_supplier.name }}"{% endif %}>{{ guide.featured_supplier.link_label }}</a>
         <a class="text-link" href="/supplier-directory">Compare more suppliers</a>
       </div>
       <p class="small-note">{{ guide.featured_supplier.disclosure }}</p>
@@ -191,7 +192,7 @@
           <h3>{{ merchant.name }}</h3>
           <p>{{ merchant.note }}</p>
           {% if merchant.url %}
-          <a class="button secondary small" href="{{ merchant.url }}" target="_blank" rel="noopener noreferrer{% if merchant.is_affiliate %} sponsored{% endif %}">View supplier</a>
+          <a class="button secondary small" href="{{ merchant.url }}" target="_blank" rel="noopener noreferrer{% if merchant.is_affiliate %} sponsored{% endif %}"{% if track_guide_clicks %} data-supplier-click data-supplier-name="{{ merchant.name }}"{% endif %}>View supplier</a>
           {% endif %}
         </article>
         {% endfor %}
@@ -220,7 +221,7 @@
       <p class="eyebrow">{% if guide.cta_url == "/event-planner" %}Plan this event{% else %}Plan this gift{% endif %}</p>
       <h2>{{ guide.rail_heading or "Turn this into a brief" }}</h2>
       <p>{{ guide.rail_text or "Use the free planner to shape budget, recipient details and supplier route." }}</p>
-      <a class="button primary full" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+      <a class="button primary full" href="{{ guide.cta_url }}"{% if track_guide_clicks %} data-gift-planner-click{% endif %}>{{ guide.cta }}</a>
     </div>
 
     <div class="guide-rail-card">
@@ -250,7 +251,7 @@
     <p>{{ guide.cta_text }}</p>
   </div>
   <div class="hero-actions compact-actions">
-    <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
+    <a class="button primary" href="{{ guide.cta_url }}"{% if track_guide_clicks %} data-gift-planner-click{% endif %}>{{ guide.cta }}</a>
     <a class="button secondary" href="/guides">View all guides</a>
   </div>
 </section>
@@ -263,7 +264,7 @@
   </div>
   <div class="hero-actions compact-actions">
     <a class="button secondary" href="/supplier-partnerships">Supplier enquiries</a>
-    <a class="button secondary" href="{% if guide.cta_url == '/event-planner' %}/event-planner{% else %}/gift-planner{% endif %}">{% if guide.cta_url == '/event-planner' %}Use Event Planner{% else %}Use Gift Planner{% endif %}</a>
+    <a class="button secondary" href="{% if guide.cta_url == '/event-planner' %}/event-planner{% else %}/gift-planner{% endif %}"{% if track_guide_clicks %} data-gift-planner-click{% endif %}>{% if guide.cta_url == '/event-planner' %}Use Event Planner{% else %}Use Gift Planner{% endif %}</a>
   </div>
 </section>
 

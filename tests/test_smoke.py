@@ -457,6 +457,30 @@ def test_under_100_guide_has_a_distinct_contextual_affiliate_route():
     assert "Affiliate link where tracking is available" in response.text
 
 
+def test_under_100_guide_tracks_planner_and_supplier_clicks_separately(monkeypatch):
+    path = "/guides/best-wine-gifts-under-100"
+    html = client.get(path).text
+    assert 'href="/gift-planner" data-gift-planner-click' in html
+    assert 'href="#supplier-links">Compare wine gift suppliers</a>' in html
+    for name in ("Bottle In A Box", "Vintage Wine Gifts"):
+        assert f'data-supplier-click data-supplier-name="{name}"' in html
+    assert 'data-gift-planner-click' not in client.get("/guides/best-wine-gifts-under-50").text
+
+    saved = []
+    monkeypatch.setattr(main, "store_analytics_event", saved.append)
+    for name in ("gift_planner_clicked", "gift_supplier_clicked"):
+        response = client.post("/api/analytics", json={
+            "event_name": name,
+            "page_path": path,
+            "report_type": "gift",
+        })
+        assert response.status_code == 204
+    assert [(event["event_name"], event["page_path"]) for event in saved] == [
+        ("gift_planner_clicked", path),
+        ("gift_supplier_clicked", path),
+    ]
+
+
 def test_vintage_wine_gifts_affiliate_is_used_on_christmas_page():
     code = (
         "import main;"
