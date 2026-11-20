@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import date
+
 
 GIFT_SUPPLIER_RECOMMENDATIONS: list[dict] = [
     {
@@ -209,3 +211,62 @@ def gift_supplier_comparison_rows() -> list[dict]:
             }
         )
     return rows
+
+
+BULK_GIFT_EXAMPLE = {
+    "recipient_count": 30,
+    "delivery_address_count": 30,
+    "alcohol_free_count": 5,
+}
+
+BULK_GIFT_SUPPLIERS_CHECKED = date(2026, 11, 20)
+
+BULK_GIFT_SUPPLIERS = [
+    {
+        "id": "bottle-in-a-box",
+        "name": "Bottle In A Box",
+        "fit": "Gift-ready boxes with wine and alcohol-free options in one bulk order.",
+        "advertised_range": (10, 1000),
+        "minimum": "Advertises corporate orders of 10–1,000 gift sets. Ask about any minimum per gift type.",
+        "delivery": "Uses a bulk order form for multiple UK addresses. Ask for the delivery charge by postcode.",
+        "alcohol_free": "Explicitly supports mixing alcoholic and non-alcoholic gift sets in the same bulk order.",
+        "lead_time": "Depends on order size and branding. Ask for the cut-off and delivery window for your addresses.",
+        "invoice": "Offers a single invoice for multiple orders. Ask for an itemised VAT invoice.",
+        "ask": "Request one quote for both gift types, with delivery by postcode, the order cut-off and an itemised VAT invoice.",
+        "sources": [
+            ("Corporate gifting terms", "https://bottleinabox.co.uk/corporate-gifts"),
+            ("Alcohol-free gift range", "https://bottleinabox.co.uk/non-alcoholic-gifts"),
+        ],
+    },
+    {
+        "id": "majestic",
+        "name": "Majestic",
+        "fit": "A good comparison if you want advice on which bottles to send.",
+        "minimum": "May apply a minimum total order value for corporate multi-address delivery. Ask what applies to the brief.",
+        "delivery": "Offers multiple mainland UK deliveries. Its published £7.95 charge for gift packages under £99 is listed with single-address terms. Ask for a multi-address quote.",
+        "alcohol_free": "Lists 0% sparkling wine. Ask whether it can be gift-packed alongside the wine in the same order.",
+        "lead_time": "Ask the corporate team for the bulk-order cut-off and delivery window by postcode.",
+        "invoice": "The corporate team manages invoicing. Confirm whether it can combine all addresses and itemise VAT.",
+        "ask": "Confirm the order minimum, multi-address delivery costs, alcohol-free packing, lead time and VAT invoice.",
+        "sources": [
+            ("Corporate gifting terms", "https://www.majestic.co.uk/services/corporate-gifting"),
+            ("0% sparkling wine example", "https://www.majestic.co.uk/sparkling-wines/noughty-org-spark-chard-0-23373"),
+        ],
+    },
+    {
+        "id": "slurp",
+        "name": "Slurp",
+        "fit": "A bottle-led option with an address spreadsheet and published delivery rates.",
+        "minimum": "No corporate order minimum is stated on the multi-recipient page. Ask whether any minimum applies to single-bottle gifts.",
+        "delivery": "Charges delivery per address. Its standard mainland delivery policy lists £7.95 for orders below £135, subject to postcode exceptions. Confirm the corporate rate for each address.",
+        "alcohol_free": "Lists 0.0% sparkling wine. Confirm mixed-order packing and gift presentation with the corporate team.",
+        "lead_time": "Offers next-working-day delivery on eligible standard orders. Ask for a dispatch schedule for the full corporate order.",
+        "invoice": "Offers tailored quotes and invoices. Confirm whether one itemised VAT invoice can cover all addresses.",
+        "ask": "Check the per-address rate for single bottles, 0.0% gift presentation, dispatch schedule and VAT invoicing.",
+        "sources": [
+            ("Multi-recipient orders", "https://www.slurp.co.uk/pages/send-to-multiple-recipients"),
+            ("Delivery policy", "https://www.slurp.co.uk/pages/delivery-policy"),
+            ("Alcohol-free sparkling example", "https://www.slurp.co.uk/products/nv-freixenet-0-0-alcohol-free-blanco-10601259"),
+        ],
+    },
+]

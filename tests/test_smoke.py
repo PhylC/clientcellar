@@ -1391,6 +1391,41 @@ def test_gift_plan_endpoint():
     assert "internal_approval_summary" in data
 
 
+def test_gift_plan_uses_bulk_supplier_evidence_for_uk_multi_address_orders():
+    brief = {
+        "recipient_type": "clients",
+        "recipient_count": 30,
+        "delivery_address_count": 30,
+        "alcohol_free_count": 5,
+        "budget_per_recipient": 45,
+        "occasion": "Client thank-you",
+        "gift_style": "not_sure",
+        "tone": "safe",
+    }
+    response = client.post("/api/gift-plan", json=brief)
+    assert response.status_code == 200
+    plan = response.json()
+    match = plan["multi_address_gifts"]
+    assert match["address_count"] == 30
+    assert match["alcohol_free_count"] == 5
+    assert [supplier["id"] for supplier in match["suppliers"]] == ["bottle-in-a-box", "majestic", "slurp"]
+    assert "Delivery addresses: 30" in plan["supplier_enquiry_email"]["body"]
+    assert "Alcohol-free gifts needed: 5" in plan["supplier_enquiry_email"]["body"]
+
+    small = client.post("/api/gift-plan", json={**brief, "recipient_count": 8, "delivery_address_count": 8}).json()
+    assert [supplier["id"] for supplier in small["multi_address_gifts"]["suppliers"]] == ["majestic", "slurp"]
+
+    single_address = client.post("/api/gift-plan", json={**brief, "delivery_address_count": 1}).json()
+    international = client.post("/api/gift-plan", json={**brief, "international_needed": True}).json()
+    assert "multi_address_gifts" not in single_address
+    assert "multi_address_gifts" not in international
+
+    for field in ("delivery_address_count", "alcohol_free_count"):
+        invalid = client.post("/api/gift-plan", json={**brief, field: 31})
+        assert invalid.status_code == 422
+        assert "cannot exceed the gift recipient count" in invalid.json()["message"]
+
+
 def test_king_country_surfaces_for_suitable_premium_open_brief():
     response = client.post(
         "/api/gift-plan",

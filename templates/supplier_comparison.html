@@ -16,6 +16,37 @@
   </div>
 </section>
 
+<section class="section" id="bulk-order-example" aria-labelledby="bulk-order-example-title">
+  <div class="section-heading">
+    <h2 id="bulk-order-example-title">{{ bulk_example.recipient_count }} client gifts to {{ bulk_example.delivery_address_count }} UK addresses</h2>
+    <p>This example includes {{ bulk_example.alcohol_free_count }} alcohol-free gifts, with one delivery per address. Start with Bottle In A Box for a single mixed order. Ask Majestic for a wine-led quote and Slurp for a bottle-by-bottle comparison.</p>
+    <p class="small-note">Supplier pages checked <time datetime="{{ checked_date.isoformat() }}">{{ checked_date.day }} {{ checked_date.strftime("%B %Y") }}</time>. Confirm current stock, minimums, delivery and VAT with a quote for your postcodes and deadline.</p>
+  </div>
+  <div class="card-grid three">
+    {% for supplier in bulk_suppliers %}
+    <article class="card">
+      <h3>{{ supplier.name }}</h3>
+      <p>{{ supplier.fit }}</p>
+      <ul class="feature-list">
+        <li><strong>Minimum order.</strong> {{ supplier.minimum }}</li>
+        <li><strong>Delivery.</strong> {{ supplier.delivery }}</li>
+        <li><strong>Alcohol-free options.</strong> {{ supplier.alcohol_free }}</li>
+        <li><strong>Lead time.</strong> {{ supplier.lead_time }}</li>
+        <li><strong>VAT invoicing.</strong> {{ supplier.invoice }}</li>
+      </ul>
+      <p class="small-note">
+        {% for label, url in supplier.sources %}
+          <a href="{{ url }}"{% if loop.first %} data-supplier-click data-supplier-name="{{ supplier.name }}"{% endif %}>{{ label }}</a>{% if not loop.last %} · {% endif %}
+        {% endfor %}
+      </p>
+    </article>
+    {% endfor %}
+  </div>
+  <div class="hero-actions">
+    <a class="button primary" href="/gift-planner?example=bulk-30#gift-form" data-gift-planner-click>Try this order in the Gift Planner</a>
+  </div>
+</section>
+
 <section class="section">
   <div class="section-heading">
     <p class="eyebrow">Routes to compare</p>

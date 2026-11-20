@@ -491,7 +491,7 @@ function formToJson(form) {
   }
 
   for (const number of form.querySelectorAll('input[type="number"]')) {
-    payload[number.name] = Number(number.value);
+    if (number.value !== "") payload[number.name] = Number(number.value);
   }
 
   for (const [key, value] of Object.entries(payload)) {
@@ -1301,6 +1301,33 @@ function renderLeadForm(interestedIn, sourcePage, contextType = "") {
   `;
 }
 
+function renderMultiAddressGiftSuppliers(brief) {
+  const alcoholFreeNote = brief.alcohol_free_count === null
+    ? "Confirm whether you need alcohol-free gifts before requesting a quote."
+    : `Alcohol-free gifts requested: ${escapeHtml(brief.alcohol_free_count)}.`;
+  return `
+    <p><strong>Delivery addresses:</strong> ${escapeHtml(brief.address_count)}. ${alcoholFreeNote}</p>
+    <div class="gift-recommendation-list">
+      ${brief.suppliers.map((supplier) => `
+        <article class="gift-recommendation-row">
+          <div class="gift-route-heading">
+            <h3>${escapeHtml(supplier.name)}</h3>
+            <p>${escapeHtml(supplier.fit)}</p>
+          </div>
+          <div class="gift-route-detail">
+            <p><strong>Ask:</strong> ${escapeHtml(supplier.ask)}</p>
+          </div>
+          <div class="gift-route-actions">
+            ${supplierPrimaryLink(supplier.id, `View ${supplier.name}`)}
+            ${supplier.is_affiliate ? '<span class="small-note">Affiliate link</span>' : ""}
+          </div>
+        </article>
+      `).join("")}
+    </div>
+    <p class="small-note"><a href="/uk-wine-gift-supplier-comparison#bulk-order-example">Compare the published supplier terms and sources</a>. Request a quote for your addresses and deadline.</p>
+  `;
+}
+
 function renderPlan(plan, type) {
   const routeList = plan.supplier_routes_to_check || [plan.supplier_category].filter(Boolean);
   const questions =
@@ -1363,8 +1390,10 @@ function renderPlan(plan, type) {
         ${list(plan.budget_guidance || [])}
       </div>
       <div class="result-block">
-        <h2>${type === "gift" ? "Recommended supplier routes" : "Recommended supplier routes"}</h2>
-        ${renderSupplierRouteCards(plan.supplier_route_cards, type)}
+        <h2>${plan.multi_address_gifts ? "Suppliers for multi-address UK gifts" : "Recommended supplier routes"}</h2>
+        ${plan.multi_address_gifts
+          ? renderMultiAddressGiftSuppliers(plan.multi_address_gifts)
+          : renderSupplierRouteCards(plan.supplier_route_cards, type)}
         ${type !== "gift" && !plan.supplier_route_cards?.length ? list(routeList) : ""}
         <p class="small-note">${escapeHtml(plan.supplier_links_note || "Supplier links are not required to use this plan. You can use the supplier route guidance to contact retailers or merchants directly.")}</p>
       </div>
@@ -1709,6 +1738,16 @@ function bindPlannerForms() {
   }
 
   for (const form of document.querySelectorAll("[data-plan-form]")) {
+    if (form.dataset.planForm === "gift") {
+      const recipients = form.elements.namedItem("recipient_count");
+      const addresses = form.elements.namedItem("delivery_address_count");
+      const alcoholFree = form.elements.namedItem("alcohol_free_count");
+      recipients.addEventListener("input", () => {
+        const max = recipients.value || "10000";
+        addresses.max = max;
+        alcoholFree.max = max;
+      });
+    }
     form.addEventListener("focusin", () => {
       const type = form.dataset.planForm || "gift";
       if (analyticsState.plannerStarted.has(type)) return;

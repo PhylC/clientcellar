@@ -42,12 +42,20 @@
     </label>
     <div class="form-row">
       <label>Recipient count
-        <input name="recipient_count" type="number" min="1" value="25" required>
+        <input name="recipient_count" type="number" min="1" max="10000" value="{{ bulk_example.recipient_count if bulk_example else 25 }}" required>
         <small>Use your best current estimate. You can confirm final addresses later.</small>
       </label>
       <label>Budget per recipient (£)
         <input name="budget_per_recipient" type="number" min="1" step="0.01" value="45" required>
         <small>Exclude delivery unless you already have a confirmed all-in budget.</small>
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Delivery addresses (optional)
+        <input name="delivery_address_count" type="number" min="1" max="{{ bulk_example.recipient_count if bulk_example else 25 }}"{% if bulk_example %} value="{{ bulk_example.delivery_address_count }}"{% endif %}>
+      </label>
+      <label>Alcohol-free gifts (optional)
+        <input name="alcohol_free_count" type="number" min="0" max="{{ bulk_example.recipient_count if bulk_example else 25 }}"{% if bulk_example %} value="{{ bulk_example.alcohol_free_count }}"{% endif %}>
       </label>
     </div>
     <label>Occasion

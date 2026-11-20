@@ -19,7 +19,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic_core import PydanticCustomError
 
 from data.supplier_links import (
     SUPPLIER_LINK_CONFIG,
@@ -30,6 +31,9 @@ from data.supplier_links import (
     supplier_url_with_clickref as configured_supplier_url_with_clickref,
 )
 from data.gift_recommendations import (
+    BULK_GIFT_EXAMPLE,
+    BULK_GIFT_SUPPLIERS,
+    BULK_GIFT_SUPPLIERS_CHECKED,
     gift_recommendation_routes,
     gift_recommendation_shortlist,
     gift_supplier_comparison_rows,
@@ -190,9 +194,10 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/corporate-christmas-wine-gifts": "2026-11-18",
     "/corporate-gifting-ideas-uk": "2026-11-18",
     "/event-planner": "2026-11-18",
-    "/gift-planner": "2026-11-19",
+    "/gift-planner": "2026-11-20",
     "/premium-client-gifts-uk": "2026-11-18",
     "/supplier-directory": "2026-11-19",
+    "/uk-wine-gift-supplier-comparison": BULK_GIFT_SUPPLIERS_CHECKED.isoformat(),
     "/suppliers": "2026-11-19",
     "/thank-you-gifts-for-clients": "2026-11-18",
     "/guides/best-wine-accessories-for-gifts": "2026-11-18",
@@ -1831,6 +1836,16 @@ class GiftPlanRequest(BaseModel):
     delivery_deadline: str | None = None
     known_preferences: str | None = None
     avoid: str | None = None
+    delivery_address_count: int | None = Field(default=None, ge=1, le=10000)
+    alcohol_free_count: int | None = Field(default=None, ge=0, le=10000)
+
+    @model_validator(mode="after")
+    def validate_recipient_counts(self):
+        if self.delivery_address_count is not None and self.delivery_address_count > self.recipient_count:
+            raise PydanticCustomError("recipient_count", "Delivery addresses cannot exceed the gift recipient count.")
+        if self.alcohol_free_count is not None and self.alcohol_free_count > self.recipient_count:
+            raise PydanticCustomError("recipient_count", "Alcohol-free gifts cannot exceed the gift recipient count.")
+        return self
 
 
 class EventPlanRequest(BaseModel):
@@ -3086,6 +3101,26 @@ def maybe_improve_plan(plan: dict, plan_type: str) -> dict:
     return plan
 
 
+def bulk_gift_supplier_shortlist(req: GiftPlanRequest) -> list[dict]:
+    if not req.uk_only or req.international_needed or (req.delivery_address_count or 0) < 2:
+        return []
+    matches = []
+    for supplier in BULK_GIFT_SUPPLIERS:
+        advertised_range = supplier.get("advertised_range")
+        if advertised_range and not (advertised_range[0] <= req.recipient_count <= advertised_range[1]):
+            continue
+        link = get_supplier_link(supplier["id"])
+        if link and link.url:
+            matches.append({
+                "id": supplier["id"],
+                "name": supplier["name"],
+                "fit": supplier["fit"],
+                "ask": supplier["ask"],
+                "is_affiliate": link.is_affiliate,
+            })
+    return matches
+
+
 def make_gift_plan(req: GiftPlanRequest) -> dict:
     total = req.recipient_count * req.budget_per_recipient
     label = budget_label(req.budget_per_recipient)
@@ -3118,6 +3153,12 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
     if req.recipient_type == "employees":
         templates_out.append("Thank you for your work and energy this year. Please choose the option that suits you best.")
 
+    delivery_details = ""
+    if req.delivery_address_count is not None:
+        delivery_details += f"Delivery addresses: {req.delivery_address_count}\n"
+    if req.alcohol_free_count is not None:
+        delivery_details += f"Alcohol-free gifts needed: {req.alcohol_free_count}\n"
+
     subject = f"Corporate wine gift enquiry for {req.recipient_count} recipients"
     body = (
         f"Hello,\n\nWe are planning {req.occasion} gifts for {req.recipient_count} {readable(req.recipient_type)}. "
@@ -3127,6 +3168,7 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         f"Branding needed: {'yes' if req.branding_needed else 'no'}\n"
         f"UK-only delivery: {'yes' if req.uk_only else 'no'}\n"
         f"International delivery needed: {'yes' if req.international_needed else 'no'}\n"
+        f"{delivery_details}"
         f"Delivery deadline: {req.delivery_deadline or 'to be confirmed'}\n"
         f"Known preferences: {req.known_preferences or 'not known'}\n"
         f"Avoid: {req.avoid or 'none stated'}\n\n"
@@ -3221,7 +3263,15 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         "next_steps": next_steps,
         "disclaimer": DISCLAIMER,
     }
-    return maybe_improve_plan(plan, "gift")
+    plan = maybe_improve_plan(plan, "gift")
+    shortlist = bulk_gift_supplier_shortlist(req)
+    if shortlist:
+        plan["multi_address_gifts"] = {
+            "address_count": req.delivery_address_count,
+            "alcohol_free_count": req.alcohol_free_count,
+            "suppliers": shortlist,
+        }
+    return plan
 
 
 def event_structure(req: EventPlanRequest) -> list[str]:
@@ -10081,7 +10131,12 @@ def index(request: Request):
 
 @app.get("/gift-planner", response_class=HTMLResponse)
 def gift_planner(request: Request):
-    return render(request, "gift_planner.html", "Corporate Wine Gift Planner", "Create a practical UK corporate wine gift plan with budget guidance and supplier enquiry copy.")
+    example = BULK_GIFT_EXAMPLE if request.query_params.get("example") == "bulk-30" else None
+    return render(
+        request, "gift_planner.html", "Corporate Wine Gift Planner",
+        "Create a practical UK corporate wine gift plan with budget guidance and supplier enquiry copy.",
+        bulk_example=example,
+    )
 
 
 @app.get("/event-planner", response_class=HTMLResponse)
@@ -10594,7 +10649,10 @@ def supplier_comparison_page(request: Request):
         request,
         "supplier_comparison.html",
         "UK Wine Gift Supplier Comparison",
-        "Compare UK wine gift suppliers by use case, budget, delivery complexity, corporate gifting support and presentation style.",
+        "Compare UK corporate wine gift suppliers for bulk orders, multiple delivery addresses and alcohol-free alternatives.",
+        bulk_example=BULK_GIFT_EXAMPLE,
+        bulk_suppliers=BULK_GIFT_SUPPLIERS,
+        checked_date=BULK_GIFT_SUPPLIERS_CHECKED,
     )
 
 
