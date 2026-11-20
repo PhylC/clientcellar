@@ -35,6 +35,7 @@ const PREMIUM_TEST_KEYS = [
 const premiumAccountMessage = "Premium Brief Pack features require a completed one-off purchase.";
 const ANALYTICS_SESSION_KEY = "clientcellar_analytics_session";
 const ANALYTICS_CONSENT_KEY = "clientcellar_analytics_consent";
+const PENDING_GIFT_PLANNER_CLICK = "clientcellar_pending_gift_planner_click";
 const LOCAL_WINE_MERCHANT_SEARCH_URL = "https://www.google.com/search?q=independent+wine+merchant+near+me";
 const analyticsState = {
   plannerStarted: new Set(),
@@ -115,14 +116,14 @@ function safeGa4EventParams(eventName, payload = {}) {
   return Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined && value !== ""));
 }
 
-function trackGa4Event(eventName, payload = {}) {
+function trackGa4Event(eventName, payload = {}, options = {}) {
   if (analyticsConsentChoice() !== "accepted" || typeof window.gtag !== "function") return;
-  window.gtag("event", eventName, safeGa4EventParams(eventName, payload));
+  window.gtag("event", eventName, { ...safeGa4EventParams(eventName, payload), ...options });
 }
 
-function trackEvent(eventName, payload = {}) {
+function trackEvent(eventName, payload = {}, { sendToGa4 = true } = {}) {
   if (!eventName) return;
-  trackGa4Event(eventName, payload);
+  if (sendToGa4) trackGa4Event(eventName, payload);
   const body = JSON.stringify({
     event_name: eventName,
     timestamp: new Date().toISOString(),
@@ -1724,6 +1725,23 @@ function bindPlannerForms() {
 function bindAnalyticsTracking() {
   updateGoogleAnalyticsConsent(analyticsConsentChoice());
   trackEvent("page_view", { report_type: currentReportTypeFromPage() || undefined });
+  if (window.location.pathname === "/gift-planner") {
+    try {
+      const pending = window.sessionStorage.getItem(PENDING_GIFT_PLANNER_CLICK);
+      if (pending) {
+        window.sessionStorage.removeItem(PENDING_GIFT_PLANNER_CLICK);
+        const { pagePath, clickedAt } = JSON.parse(pending);
+        if (Date.now() - clickedAt < 60_000) {
+          trackGa4Event("gift_planner_clicked", { report_type: "gift" }, {
+            page_path: pagePath,
+            page_location: window.location.origin + pagePath,
+          });
+        }
+      }
+    } catch (error) {
+      // Restricted storage must not interfere with opening the planner.
+    }
+  }
   if (window.location.pathname === "/example-premium-brief-pack") {
     trackEvent("example_gift_premium_viewed", { report_type: "gift", metadata: { is_example: true } });
   }
@@ -1748,7 +1766,23 @@ function bindAnalyticsTracking() {
     const text = link.textContent.trim().replace(/\s+/g, " ").slice(0, 120);
     const metadata = { link_text: text, link_url: href };
     if (link.hasAttribute("data-gift-planner-click")) {
-      trackEvent("gift_planner_clicked", { report_type: "gift", metadata });
+      const followsInSameTab = !event.defaultPrevented && event.button === 0
+        && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
+        && (!link.target || link.target === "_self");
+      let sendToGa4 = true;
+      if (followsInSameTab && analyticsConsentChoice() === "accepted") {
+        try {
+          // Send GA4 from the destination before the browser can cancel the outgoing request.
+          window.sessionStorage.setItem(PENDING_GIFT_PLANNER_CLICK, JSON.stringify({
+            pagePath: window.location.pathname,
+            clickedAt: Date.now(),
+          }));
+          sendToGa4 = false;
+        } catch (error) {
+          // Fall back to sending from the guide when storage is unavailable.
+        }
+      }
+      trackEvent("gift_planner_clicked", { report_type: "gift", metadata }, { sendToGa4 });
       return;
     }
     const isSupplier = link.hasAttribute("data-supplier-click") || href.includes("/out/supplier/") || link.closest(".supplier-table-action, .supplier-compact-head, .gift-route-actions, .event-route-actions, .supplier-card-grid, .recommendation-summary-card, .recommendation-alternative-row");
