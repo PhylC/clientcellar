@@ -9,7 +9,7 @@
       {% if guide.hero_eyebrow %}<span class="sr-only">ClientCellar guide</span>{% endif %}
       <h1>{{ guide.h1 }}</h1>
       <p>{{ guide.intro }}</p>
-      {% if guide.commercial_hero or guide.hero_supplier_links %}
+      {% if guide.commercial_hero or guide.hero_supplier_links or guide.bulk_order_checklist %}
       <div class="hero-actions">
         <a class="button primary" href="{{ guide.cta_url }}"{% if track_guide_clicks %} data-gift-planner-click{% endif %}>{{ guide.cta }}</a>
         <a class="button secondary" href="{{ guide.secondary_cta_url or '/supplier-directory' }}">{{ guide.secondary_cta or "Compare UK suppliers" }}</a>
@@ -49,7 +49,7 @@
         Disclosure: Some links may earn commission where available. These guides work as planning advice whether or not a supplier link is tracked. <a href="/editorial-policy">Read our editorial policy</a>.
       </p>
       {% endif %}
-      {% if not guide.commercial_hero and not guide.hero_supplier_links %}
+      {% if not (guide.commercial_hero or guide.hero_supplier_links or guide.bulk_order_checklist) %}
       <div class="hero-actions">
         <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
         <a class="button secondary" href="/guides">All guides</a>
@@ -89,6 +89,19 @@
       <h2>{{ guide.opening_heading }}</h2>
       {% for paragraph in guide.opening %}<p>{{ paragraph }}</p>{% endfor %}
     </section>
+
+    {% if guide.bulk_order_checklist %}
+    <section id="bulk-ordering-checklist" aria-labelledby="bulk-ordering-heading">
+      <h2 id="bulk-ordering-heading">Bulk-ordering checklist for client wine gifts</h2>
+      <ul>
+        {% for label, detail in guide.bulk_order_checklist %}
+        <li><strong>{{ label }}.</strong> {{ detail }}</li>
+        {% endfor %}
+      </ul>
+      <p>Use the free Gift Planner to turn your quantities, budget and delivery deadline into a brief you can use when comparing suppliers.</p>
+      <a class="button primary" href="{{ guide.cta_url }}" data-gift-planner-click>Plan a bulk wine gift order</a>
+    </section>
+    {% endif %}
 
     {% if guide.best_fit_table %}
     <section id="best-fit">

@@ -745,6 +745,7 @@ def test_required_affiliate_ready_guides_load():
         assert "Disclosure: Some links may earn commission" in response.text
         assert "Written by ClientCellar editorial team" in response.text
         updated_guides = {
+            "/guides/best-client-wine-gifts",
             "/guides/best-wine-accessories-for-gifts",
             "/guides/best-wine-gifts-under-100",
             "/guides/christmas-corporate-wine-gifts",
@@ -805,6 +806,9 @@ def test_gsc_query_led_guide_updates_render():
     assert best_client.status_code == 200
     assert "Best client wine gifts by situation" in best_client.text
     assert "Use the gift planner" in best_client.text
+    assert 'href="#bulk-ordering-checklist"' in best_client.text
+    assert 'id="bulk-ordering-checklist"' in best_client.text
+    assert 'href="/gift-planner" data-gift-planner-click>Plan a bulk wine gift order</a>' in best_client.text
 
     assert christmas.status_code == 200
     assert "Christmas Gifts for Clients: Corporate Wine and Hamper Ideas" in christmas.text

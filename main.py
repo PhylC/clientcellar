@@ -196,7 +196,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/suppliers": "2026-11-19",
     "/thank-you-gifts-for-clients": "2026-11-18",
     "/guides/best-wine-accessories-for-gifts": "2026-11-18",
-    "/guides/best-client-wine-gifts": "2026-11-19",
+    "/guides/best-client-wine-gifts": "2026-11-20",
     "/guides/best-wine-gifts-under-100": "2026-11-20",
     "/guides/christmas-corporate-wine-gifts": "2026-11-19",
     "/guides/corporate-wine-gifts-uk": "2026-11-19",
@@ -9680,6 +9680,15 @@ if "champagne-gifts-for-clients" in GUIDES:
 
 if "best-client-wine-gifts" in GUIDES:
     best_client_guide = GUIDES["best-client-wine-gifts"]
+    best_client_guide["last_updated"] = "November 2026"
+    best_client_guide["secondary_cta"] = "See the bulk-ordering checklist"
+    best_client_guide["secondary_cta_url"] = "#bulk-ordering-checklist"
+    best_client_guide["bulk_order_checklist"] = [
+        ("Count gifts and deliveries", "Confirm how many gifts you need, how many addresses are involved and which recipients need an alcohol-free option."),
+        ("Set a delivered budget", "Allow for VAT, packaging and delivery per address. Ask about minimum quantities and any bulk pricing."),
+        ("Check addresses and lead times", "Flag offices with limited opening hours or hard-to-reach addresses. Ask when the supplier needs the final list and when each delivery can arrive."),
+        ("Confirm the supplier’s terms", "Check stock, substitutions, VAT invoicing, gift notes and how the supplier handles missed or damaged deliveries."),
+    ]
     best_client_guide["h1"] = "Best Client Wine Gifts by Relationship, Budget and Occasion"
     best_client_guide["intro"] = "This page is for the moment when you know you should send something, but you do not want the gift to feel like a line item in account management. Use it to choose client wine gifts by relationship, occasion and risk level, then compare reliable merchant and supplier routes before ordering."
     best_client_guide["opening_heading"] = "Match the client gift to the relationship"
