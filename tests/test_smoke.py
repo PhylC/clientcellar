@@ -720,7 +720,11 @@ def test_required_affiliate_ready_guides_load():
         assert response.status_code == 200
         assert "Disclosure: Some links may earn commission" in response.text
         assert "Written by ClientCellar editorial team" in response.text
-        updated_guides = {"/guides/best-wine-accessories-for-gifts", "/guides/christmas-corporate-wine-gifts"}
+        updated_guides = {
+            "/guides/best-wine-accessories-for-gifts",
+            "/guides/best-wine-gifts-under-100",
+            "/guides/christmas-corporate-wine-gifts",
+        }
         expected_updated = "November 2026" if path in updated_guides else "May 2026"
         assert f"Last updated: {expected_updated}" in response.text
         if path == "/guides/christmas-corporate-wine-gifts":

@@ -197,7 +197,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/thank-you-gifts-for-clients": "2026-11-18",
     "/guides/best-wine-accessories-for-gifts": "2026-11-18",
     "/guides/best-client-wine-gifts": "2026-11-19",
-    "/guides/best-wine-gifts-under-100": "2026-11-19",
+    "/guides/best-wine-gifts-under-100": "2026-11-20",
     "/guides/christmas-corporate-wine-gifts": "2026-11-19",
     "/guides/corporate-wine-gifts-uk": "2026-11-19",
     "/guides/wine-gift-hampers-uk": "2026-11-19",
@@ -6305,7 +6305,7 @@ GUIDES.update(
         "best-wine-gifts-under-100": enhanced_guide(
             title="Best Wine Gifts Under £100 in the UK",
             h1="Best Wine Gifts Under £100 in the UK",
-            description="How to spend up to £100 well on wine gifts, from premium bottles and mixed cases to hampers and Champagne routes.",
+            description="Compare UK wine gifts under £100, from Champagne and premium bottles to mixed cases and hampers. Find suppliers or plan a gift around your budget.",
             intro="£100 is where wine gifting gets interesting, because you have enough budget to choose properly. You also have enough budget to waste it.",
             hero_bullets=[
                 "Best for: priority clients, senior stakeholders and polished Christmas gifts",
@@ -9628,6 +9628,14 @@ if under_100_guide:
         "is_affiliate": bool(configured_supplier_affiliate_url("vintage-wine-gifts")),
         "disclosure": "Affiliate link where tracking is available. Inclusion is editorial and does not guarantee price, stock or suitability.",
     }
+    under_100_guide["cta"] = "Plan a wine gift under £100"
+    under_100_guide["secondary_cta"] = "Compare wine gift suppliers"
+    under_100_guide["secondary_cta_url"] = "#supplier-links"
+    under_100_guide["last_updated"] = "November 2026"
+    under_100_guide["hero_supplier_links"] = [
+        *[link for link in under_100_guide["merchant_links"] if link["name"] == "Bottle In A Box"],
+        under_100_guide["featured_supplier"],
+    ]
 
 if "best-client-wine-gifts" in GUIDES:
     GUIDES["best-client-wine-gifts"]["title"] = "Best Client Wine Gifts: Reliable Merchant Routes & Safer Ideas"

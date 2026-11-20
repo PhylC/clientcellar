@@ -8,11 +8,20 @@
       {% if guide.hero_eyebrow %}<span class="sr-only">ClientCellar guide</span>{% endif %}
       <h1>{{ guide.h1 }}</h1>
       <p>{{ guide.intro }}</p>
-      {% if guide.commercial_hero %}
+      {% if guide.commercial_hero or guide.hero_supplier_links %}
       <div class="hero-actions">
         <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
         <a class="button secondary" href="{{ guide.secondary_cta_url or '/supplier-directory' }}">{{ guide.secondary_cta or "Compare UK suppliers" }}</a>
       </div>
+      {% if guide.hero_supplier_links %}
+      <p class="guide-disclosure-line">
+        Browse
+        {% for supplier in guide.hero_supplier_links %}
+        {% if not loop.first %}or {% endif %}<a href="{{ supplier.url }}" target="_blank" rel="noopener noreferrer{% if supplier.is_affiliate %} sponsored{% endif %}">{{ supplier.name }}</a>{% if loop.last %}.{% endif %}
+        {% endfor %}
+        Disclosure: Some links may earn commission. <a href="/editorial-policy">Read our editorial policy</a>.
+      </p>
+      {% endif %}
       {% if guide.trust_signals %}
       <ul class="guide-trust-strip" aria-label="Corporate gifting planning support">
         {% for signal in guide.trust_signals %}<li>{{ signal }}</li>{% endfor %}
@@ -34,10 +43,12 @@
         </div>
         {% endfor %}
       </div>
+      {% if not guide.hero_supplier_links %}
       <p class="guide-disclosure-line">
         Disclosure: Some links may earn commission where available. These guides work as planning advice whether or not a supplier link is tracked. <a href="/editorial-policy">Read our editorial policy</a>.
       </p>
-      {% if not guide.commercial_hero %}
+      {% endif %}
+      {% if not guide.commercial_hero and not guide.hero_supplier_links %}
       <div class="hero-actions">
         <a class="button primary" href="{{ guide.cta_url }}">{{ guide.cta }}</a>
         <a class="button secondary" href="/guides">All guides</a>
