@@ -194,7 +194,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/client-christmas-gifts-uk": "2026-11-21",
     "/corporate-christmas-wine-gifts": "2026-11-18",
     "/corporate-gifting-ideas-uk": "2026-11-18",
-    "/event-planner": "2026-11-18",
+    "/event-planner": "2026-11-21",
     "/gift-planner": "2026-11-21",
     "/gift-quote-comparison": "2026-11-20",
     "/premium-client-gifts-uk": "2026-11-18",
@@ -214,6 +214,10 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/corporate-wine-gifts": "2026-11-19",
     "/corporate-wine-gift-suppliers-uk": "2026-11-19",
     "/corporate-hamper-suppliers-uk": "2026-11-19",
+    "/guides/champagne-gifts-for-clients": "2026-11-21",
+    "/guides/client-thank-you-wine-gifts": "2026-11-21",
+    "/guides/corporate-wine-tasting-london": "2026-11-21",
+    "/guides/client-gifting-etiquette-uk": "2026-11-21",
 }
 
 
@@ -6984,12 +6988,19 @@ GUIDES.update(
             description="Plan London corporate wine tastings for client entertainment, team socials and hosted private events.",
             intro="London gives you plenty of wine tasting options. The challenge is not finding one. It is choosing a format that fits the guests, timing, transport and tone.",
             hero_bullets=["Best for: client entertainment, team socials and private tastings", "Typical budget: £60-£150+ per head", "Avoid: awkward locations, late finishes and overly technical sessions"],
-            opening_heading="Think about the evening after the tasting",
+            opening_heading="Compare three London corporate tasting formats",
             opening=[
                 "Transport matters when alcohol is involved. So does finish time, food, water, room layout and whether the format assumes everyone wants a wine lesson.",
                 "For client entertainment, keep it polished and paced. For teams, give people something fun to do without making beginners feel exposed.",
             ],
-            best_fit_table={"headers": ["Event type", "Better format", "Watch"], "rows": [["Client entertainment", "Hosted private room", "Tone and pacing"], ["Team social", "Blind tasting or relaxed host", "Beginner confidence"], ["Dinner add-on", "Food-pairing tasting", "Menu and service"], ["Premium group", "Merchant-led tasting", "Transport and finish time"]]},
+            best_fit_table={
+                "headers": ["London tasting format", "Choose it when", "Ask before booking"],
+                "rows": [
+                    ["Hosted tasting in a private venue", "You want a seated client event and the venue to handle service", "Room hire or minimum spend, nearest station, step-free access and alcohol-free pours."],
+                    ["Host who comes to your office", "You have a suitable room and want to avoid a separate venue hire", "Travel and setup fees, glassware, building access, clear-up and alcohol-free options."],
+                    ["Tasting with dinner", "The wines need to work with the meal and its pace", "Price per guest, pairing and dietary options, alcohol-free pairings and whether service is included."],
+                ],
+            },
             article_sections=[
                 {"id": "venue", "heading": "The venue is part of the recommendation", "paragraphs": ["A brilliant tasting in an awkward location is still awkward. Ask about transport, private space, food, water, accessibility and cancellation terms before getting excited about the wine list."]},
                 {"id": "brief", "heading": "Brief the supplier on the room, not just the wine", "paragraphs": ["Tell them who is attending, how formal the event should feel, whether clients are present, and how much wine knowledge the group is likely to have. That is how you avoid the lecture nobody asked for."]},
@@ -7003,6 +7014,7 @@ GUIDES.update(
             cta_heading="Need a clearer tasting brief?",
             cta_text="Use the event planner to shape format, guest count and supplier questions.",
             cta_url="/event-planner",
+            last_updated="November 2026",
         ),
         "wine-tasting-team-building": enhanced_guide(
             title="Wine Tasting Team Building",
@@ -7347,9 +7359,16 @@ GUIDES.update(
             description="UK client gifting etiquette for wine gifts, hampers and thank-you presents.",
             intro="Client gifting etiquette is mostly about not making the recipient uncomfortable. The gift should feel appreciative, not loaded.",
             hero_bullets=["Best for: client thank-yous, Christmas gifts and professional relationships", "Typical budget: £25-£100", "Avoid: pressure, excess and assumptions about alcohol"],
-            opening_heading="The gift should be easy to accept",
+            opening_heading="Should you send, check or wait?",
             opening=["There is a fine line between generous and awkward. Cross it, and the recipient has to decide whether the gift is appropriate before they can enjoy it.", "Keep value proportionate, timing sensible and wording human. If alcohol is uncertain, provide an equal-quality alternative."],
-            best_fit_table={"headers": ["Etiquette question", "Safer answer", "Reason"], "rows": [["When?", "After a real moment", "Avoids pressure"], ["How much?", "Proportionate", "Keeps it comfortable"], ["What?", "Useful and suitable", "Avoids assumptions"], ["Where?", "Office unless home is appropriate", "Reduces awkwardness"]]},
+            best_fit_table={
+                "headers": ["Situation", "What to do", "Next step"],
+                "rows": [
+                    ["The project is complete and both gift policies allow it", "Send", "Choose a modest gift and explain exactly what you are thanking them for."],
+                    ["You do not know the policy or the recipient’s preferences", "Check", "Ask whether gifts are accepted and whether food or alcohol-free options would suit."],
+                    ["A tender, renewal or contract decision is in progress", "Wait", "Hold the gift and check with the relevant policy owner before reconsidering."],
+                ],
+            },
             article_sections=[
                 {"id": "not-legal", "heading": "This is judgement, not theatre", "paragraphs": ["This is not legal advice, but where the value is meaningful or the relationship is commercially sensitive, it is sensible to check internal gift policies. A modest, well-timed gift is often stronger than a lavish one."]},
                 {"id": "message", "heading": "Tone matters", "paragraphs": ["Avoid language that sounds like a sales nudge. Thank them for the work, relationship, project or support, and then stop. The note does not need to earn a copywriting award."]},
@@ -7358,7 +7377,8 @@ GUIDES.update(
             related=["business-gift-wine-etiquette", "client-gift-policy-checklist", "client-wine-gifts"],
             cta="Plan an appropriate client gift",
             cta_heading="Want to avoid an awkward gift?",
-            cta_text="Use ClientCellar to compare safer gift routes before ordering.",
+            cta_text="Use ClientCellar to compare suitable gift routes before ordering.",
+            last_updated="November 2026",
         ),
         "corporate-gifting-recipient-csv-template": enhanced_guide(
             title="Corporate Gifting Recipient CSV Template",
@@ -7904,12 +7924,19 @@ GUIDES.update(
             description="A practical guide to thank-you wine gifts for clients and business contacts, including budget, timing, message wording and safer alternatives.",
             intro="A thank-you wine gift should feel connected to the thing you are thanking the client for. Without that connection, even a polished bottle can feel like a standard dispatch.",
             hero_bullets=["Best for: project completions, referrals, partner help and post-event appreciation", "Typical budget: £25-£100", "Avoid: vague notes, sensitive timing and excessive gestures"],
-            opening_heading="Say what the thanks is for",
+            opening_heading="Match the thank-you gift and message to the occasion",
             opening=[
                 "Was it a referral, a project delivered under pressure, a useful introduction or a long-running relationship? Put that in the note before worrying about the bottle.",
                 "If the recipient is a group, make the gift shareable. If alcohol is uncertain, choose a food or alcohol-free route with the same care.",
             ],
-            best_fit_table={"headers": ["Thank-you moment", "Better route", "Tone"], "rows": [["Referral", "Smart bottle or compact hamper", "Grateful and proportionate"], ["Project completion", "Sparkling wine or bottle pair", "Specific and warm"], ["Senior support", "Restrained premium bottle or hamper", "Polished"], ["Client team", "Mixed case or shareable hamper", "Inclusive"], ["Event follow-up", "Modest bottle or alcohol-free gift", "Connected to the event"]]},
+            best_fit_table={
+                "headers": ["Thank-you moment", "Gift to consider", "Message to adapt"],
+                "rows": [
+                    ["Referral", "One bottle or an alcohol-free gift", "Thanks for introducing us to the team. I appreciate you thinking of us."],
+                    ["Project completion", "Sparkling wine or a bottle pair", "Thank you for helping get the project over the line. We appreciated how quickly you pulled the teams together."],
+                    ["Client team", "A shareable food hamper or mixed case", "Thank you to everyone who helped with the launch. We appreciate the work that went into it."],
+                ],
+            },
             article_sections=[
                 {"id": "budget", "heading": "Budget and timing", "paragraphs": ["Many thank-you gifts sit comfortably between £25 and £100. Go higher only when the relationship, policy and reason justify it. Avoid sending gifts during live decisions or procurement moments."]},
                 {"id": "messages", "heading": "Message wording that feels human", "messages": [{"label": "Referral", "text": "A small thank-you for the introduction. We really appreciate you thinking of us."}, {"label": "Project", "text": "Thank you for helping get the project over the line. We appreciated the collaboration and pace."}, {"label": "Partner", "text": "Thank you for your support and reliability. It has made a real difference."}]},
@@ -7920,6 +7947,7 @@ GUIDES.update(
             cta="Plan a thank-you gift",
             cta_heading="Want the thank-you to feel specific?",
             cta_text="Use the planner to match the gift route to the reason, recipient and budget.",
+            last_updated="November 2026",
         ),
         "wine-gifts-for-thank-you": enhanced_guide(
             title="Wine Gifts for Thank-You Moments: Client Gift Guide",
@@ -9758,6 +9786,21 @@ if "champagne-gifts-for-clients" in GUIDES:
         {"label": "Typical budget", "text": "£45-£150, depending on brand, packaging and relationship"},
         {"label": "Safer alternatives", "text": "English sparkling, wine hampers, mixed cases or premium alcohol-free gifts"},
     ]
+    champagne_guide["last_updated"] = "November 2026"
+    champagne_guide["opening_heading"] = "Choose Champagne by occasion and delivered budget"
+    champagne_guide["opening"] = [
+        "Start with the reason for sending it and the amount you can spend including delivery and packaging. If £60 is your cap and shipping costs £8, you have £52 for the gift and any box.",
+        "For a major milestone, look for a bottle of Champagne when you know it will be welcome. For a modest thank-you, look at English sparkling or another quality sparkling wine. If you do not know whether they drink, choose a food gift or alcohol-free sparkling.",
+    ]
+    champagne_guide["best_fit_heading"] = "Champagne and alternatives by recipient"
+    champagne_guide["best_fit_table"] = {
+        "headers": ["Occasion", "Planning budget including delivery", "What to choose"],
+        "rows": [
+            ["Client milestone", "£55–£90", "One bottle of Champagne with a short, specific note if the policy allows it."],
+            ["Modest thank-you", "£30–£55", "English sparkling or another sparkling bottle when you know their preference."],
+            ["Preference unknown", "£25–£50", "A small food gift or alcohol-free sparkling. Check dietary needs and delivery."],
+        ],
+    }
     champagne_guide.setdefault("article_sections", []).insert(
         0,
         {

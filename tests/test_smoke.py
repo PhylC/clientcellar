@@ -750,6 +750,9 @@ def test_required_affiliate_ready_guides_load():
             "/guides/best-wine-gifts-under-25",
             "/guides/best-wine-gifts-under-100",
             "/guides/christmas-corporate-wine-gifts",
+            "/guides/champagne-gifts-for-clients",
+            "/guides/client-thank-you-wine-gifts",
+            "/guides/client-gifting-etiquette-uk",
         }
         expected_updated = "November 2026" if path in updated_guides else "May 2026"
         assert f"Last updated: {expected_updated}" in response.text
@@ -765,7 +768,12 @@ def test_required_affiliate_ready_guides_load():
             if path != "/guides/champagne-gifts-for-clients":
                 assert "Quick answer" not in response.text
             assert "guide-quick-answer" not in response.text
-            assert "Best fit comparison" in response.text
+            comparison_heading = (
+                "Champagne and alternatives by recipient"
+                if path == "/guides/champagne-gifts-for-clients"
+                else "Best fit comparison"
+            )
+            assert comparison_heading in response.text
             assert "Supplier routes to consider" in response.text
             assert "Editorial policy" in response.text
             assert "<built-in method copy" not in response.text
