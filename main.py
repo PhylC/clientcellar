@@ -191,6 +191,14 @@ SITEMAP_GUIDE_SLUGS = [
 # Leaving unchanged URLs without <lastmod> is more accurate than stamping the
 # entire sitemap with the request date on every fetch.
 SITEMAP_LASTMOD_BY_PATH = {
+    "/guides/luxury-wine-hampers-uk": "2026-11-21",
+    "/guides/wine-gifts-for-law-firms": "2026-11-21",
+    "/guides/wine-gifts-for-accountancy-firms": "2026-11-21",
+    "/guides/wine-gifts-for-sales-teams": "2026-11-21",
+    "/guides/wine-gifts-for-new-business": "2026-11-21",
+    "/guides/wine-gifts-for-events": "2026-11-21",
+    "/guides/wine-tasting-team-building": "2026-11-21",
+    "/christmas-client-gift-suppliers": "2026-11-21",
     "/guides/wine-gifts-for-agencies": "2026-11-21",
     "/guides/white-wine-gifts-for-clients": "2026-11-21",
     "/guides/luxury-corporate-wine-gifts": "2026-11-21",
@@ -232,7 +240,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/guides/wine-gift-hampers-uk": "2026-11-21",
     "/corporate-hampers-uk": "2026-11-21",
     "/corporate-wine-gifts": "2026-11-19",
-    "/corporate-wine-gift-suppliers-uk": "2026-11-19",
+    "/corporate-wine-gift-suppliers-uk": "2026-11-21",
     "/corporate-hamper-suppliers-uk": "2026-11-21",
     "/guides/champagne-gifts-for-clients": "2026-11-21",
     "/guides/client-thank-you-wine-gifts": "2026-11-21",
@@ -7088,6 +7096,14 @@ GUIDES.update(
             ],
             best_fit_table={"headers": ["Team need", "Format", "Why"], "rows": [["New team", "Relaxed hosted tasting", "Gives structure"], ["Established team", "Blind tasting", "Adds energy"], ["Premium away day", "Food pairing", "Feels complete"], ["Remote team", "Virtual packs", "Works across locations"]]},
             article_sections=[
+                {
+                    "id": "buyer-example",
+                    "heading": "Plan a tasting in which everyone can take part",
+                    "paragraphs": [
+                        "For a small team, ask the host for one shared activity: compare aromas, describe an unfamiliar sample and vote on a food pairing. Start with a short example before asking groups to share what they noticed.",
+                        "Ask the host to give the alcohol-free samples equal time in the same activities and to explain practical substitutions. Check whether glassware, pack delivery and instructions are included in the booking.",
+                    ],
+                },
                 {"id": "inclusive", "heading": "Do not make non-drinkers spectators", "paragraphs": ["Offer alcohol-free options, keep pour sizes modest, include food and water, and avoid language that makes drinking sound compulsory. Inclusion is not a footnote; it is part of the event design."]},
                 {"id": "host", "heading": "Choose the host carefully", "paragraphs": ["A good host can make ordinary wines fun. A bad host can make expensive wines feel like homework. Ask suppliers how they handle mixed-knowledge groups before booking."]},
             ],
@@ -7100,6 +7116,7 @@ GUIDES.update(
             cta_heading="Want a team tasting that feels relaxed?",
             cta_text="Use the event planner to shape format, budget and supplier questions.",
             cta_url="/event-planner",
+            last_updated="November 2026",
         ),
     }
 )
@@ -7257,6 +7274,14 @@ GUIDES.update(
             opening=["If one person gets a better gift than another, there should be a clear reason. If everyone gets the same thing, make sure it is suitable enough for the group.", "Choice is often the best way to avoid awkwardness: wine, hamper or alcohol-free route. That does not make it less thoughtful; it makes it more usable."],
             best_fit_table={"headers": ["Moment", "Gift route", "Watch"], "rows": [["Quarter close", "Bottle or small hamper", "Fairness"], ["Top performers", "Tiered premium route", "Clear criteria"], ["Whole team", "Choice-led gift", "Alcohol suitability"], ["Remote team", "Supplier delivery", "Address handling"]]},
             article_sections=[
+                {
+                    "id": "buyer-example",
+                    "heading": "Set the recognition criteria before choosing the gifts",
+                    "paragraphs": [
+                        "For a team milestone, decide who contributed before ordering. Include the people who supported the sale, such as operations and customer service, if the recognition is for the whole project.",
+                        "Use one delivered value across the group and offer equally presented choices. Tell each person what the team is being recognised for and which deadline applies if they want a gift delivered.",
+                    ],
+                },
                 {"id": "message", "heading": "Do not make the note sound like a leaderboard", "paragraphs": ["A recognition message should thank people for effort, outcome or persistence without turning the gift into a public ranking unless that is the point of the incentive."]},
                 {"id": "operations", "heading": "Delivery is part of the employee experience", "paragraphs": ["Failed deliveries and awkward address collection can take the shine off a reward. Confirm supplier file formats, lead times and alternatives before announcing the gift."]},
             ],
@@ -7265,6 +7290,7 @@ GUIDES.update(
             cta="Plan sales team gifts",
             cta_heading="Need a recognition gift that feels fair?",
             cta_text="Use the planner to compare team gift routes and alternatives.",
+            last_updated="November 2026",
         ),
         "wine-gifts-for-agencies": enhanced_guide(
             title="Corporate Wine Gifts for Agencies",
@@ -7304,6 +7330,14 @@ GUIDES.update(
             opening=["This is not the place for gimmicks, trophy bottles or over-familiar notes. A calm bottle pair, refined hamper or sparkling gift can work well when the timing and policy context are right.", "If a matter, decision or procurement process is live, be careful. Appreciation should not look like pressure."],
             best_fit_table={"headers": ["Scenario", "Better route", "Watch"], "rows": [["Post-matter thanks", "Elegant bottle pair", "Timing"], ["Referral", "Modest hamper", "Gift limits"], ["Christmas", "Refined case or hamper", "Office closures"], ["Senior contact", "Restrained premium gift", "Policy approval"]]},
             article_sections=[
+                {
+                    "id": "buyer-example",
+                    "heading": "Check timing and approval before sending a law-firm gift",
+                    "paragraphs": [
+                        "If a matter has closed and you want to thank a client team, check who can receive the gift and whether it needs approval. Describe the occasion in general terms so the note does not disclose confidential matter details.",
+                        "When a tender, appointment or approval is pending, pause the order and ask the appropriate internal contact for guidance. A personal thank-you note is an option while the gift request is being considered.",
+                    ],
+                },
                 {"id": "policy", "heading": "Policy first, gift second", "paragraphs": ["This is not legal advice, but where the value is meaningful or the relationship is commercially sensitive, it is sensible to check internal gift policies and keep a record of the reason and value."], "editorial_note": "If the gift is hard to explain, choose a smaller route or wait."},
                 {"id": "message", "heading": "Keep the note precise", "paragraphs": ["Thank the recipient for the relationship, project or support without being effusive. In professional services, understated usually reads better."]},
             ],
@@ -7312,6 +7346,7 @@ GUIDES.update(
             cta="Plan a professional gift",
             cta_heading="Need a policy-aware gift route?",
             cta_text="Use the planner to shape a careful brief before contacting suppliers.",
+            last_updated="November 2026",
         ),
         "wine-gifts-for-accountancy-firms": enhanced_guide(
             title="Corporate Wine Gifts for Accountancy Firms",
@@ -7323,6 +7358,14 @@ GUIDES.update(
             opening=["A modest wine gift with a clear note can be stronger than an expensive-looking hamper with no reason behind it. For professional relationships, calm usually beats dramatic.", "Timing matters around renewals, referrals and sensitive advisory work. Send thanks for something that has happened, not to influence what might happen next."],
             best_fit_table={"headers": ["Recipient", "Gift route", "Reason"], "rows": [["Client", "Bottle pair or compact hamper", "Professional and useful"], ["Referral partner", "Sparkling or hamper", "Warm but not heavy"], ["Client team", "Mixed case", "Shareable"], ["Senior contact", "Restrained premium option", "Polished"]]},
             article_sections=[
+                {
+                    "id": "buyer-example",
+                    "heading": "Plan an accountancy client thank-you after the work closes",
+                    "paragraphs": [
+                        "For a completed year-end project, ask whether the thank-you is for one client contact or the wider finance team. If it is for the team, confirm the office is staffed and that the gift is easy to share.",
+                        "Record the purpose, intended recipient and delivered cost for your firm’s approval. If there is an active appointment or procurement decision, check the situation with the relevant approver before placing the order.",
+                    ],
+                },
                 {"id": "note", "heading": "The note should be specific", "messages": [{"label": "Client", "text": "Thank you for trusting us this year. We really value the relationship and look forward to continuing to support you."}, {"label": "Referral", "text": "A small thank-you for the introduction. We really appreciate you thinking of us."}]},
                 {"id": "checks", "heading": "The sensible checks", "paragraphs": ["Confirm gift value, delivery address, VAT invoice needs, substitutions and whether the recipient organisation has gift acceptance limits. None of this is glamorous. All of it matters."]},
             ],
@@ -7331,6 +7374,7 @@ GUIDES.update(
             cta="Plan accountancy client gifts",
             cta_heading="Need a gift that feels professional?",
             cta_text="Use the planner to compare restrained wine and hamper routes.",
+            last_updated="November 2026",
         ),
         "luxury-wine-gifts-for-clients": enhanced_guide(
             title="Luxury Wine Gifts for Clients",
@@ -7634,6 +7678,14 @@ GUIDES.update(
             opening=["A speaker thank-you, VIP follow-up or hosted-tasting pack can feel thoughtful when the message connects back to the event. A generic bottle sent two weeks later can feel confusing.", "Address handling, alcohol suitability and timing matter more here than in ordinary gifting because event lists are often messier."],
             best_fit_table={"headers": ["Event use", "Gift route", "Watch"], "rows": [["Speaker thank-you", "Bottle pair or hamper", "Policy"], ["VIP attendee", "Sparkling or compact gift", "Consent"], ["Post-event follow-up", "Modest bottle", "Timing"], ["Tasting pack", "Supplier-led delivery", "Lead time"]]},
             article_sections=[
+                {
+                    "id": "buyer-example",
+                    "heading": "Choose between a speaker thank-you and a delegate gift",
+                    "paragraphs": [
+                        "For a speaker, check whether they are travelling immediately after the event. If a bottle is awkward to carry, send a note on the day and offer a later delivery or an alcohol-free choice.",
+                        "For delegates receiving gifts, check the event registration process and collect only the details needed for the chosen delivery method. Agree one delivered budget and who will manage late changes.",
+                    ],
+                },
                 {"id": "data", "heading": "Do not treat attendee data casually", "paragraphs": ["Confirm whether you have the right basis and expectation for sending physical gifts. Keep address handling tight and avoid sharing spreadsheets more widely than needed."]},
                 {"id": "message", "heading": "Make the event connection explicit", "messages": [{"label": "Speaker", "text": "Thank you again for joining us and giving the session such useful energy. A small thank-you from the team."}, {"label": "VIP attendee", "text": "Thank you for being part of the event. We appreciated your time and hope this gives you something enjoyable to open afterwards."}]},
             ],
@@ -7642,6 +7694,7 @@ GUIDES.update(
             cta="Plan event gifts",
             cta_heading="Need event gifts that feel connected?",
             cta_text="Use the planner to shape an event gift or follow-up route.",
+            last_updated="November 2026",
         ),
         "wine-gifts-for-new-business": enhanced_guide(
             title="Wine Gifts for New Business",
@@ -7653,6 +7706,14 @@ GUIDES.update(
             opening=["A gift before a decision can feel like pressure. A gift after the relationship is agreed can feel like welcome. That difference matters.", "Keep the value modest unless policy and context clearly support more. The gift should mark the beginning of the relationship, not try to buy it."],
             best_fit_table={"headers": ["Moment", "Better route", "Why"], "rows": [["Post-signature", "Modest bottle or pair", "Welcoming"], ["Onboarding", "Compact hamper", "Useful and warm"], ["Partner introduction", "Sparkling or food gift", "Celebratory"], ["During negotiation", "No gift yet", "Avoid pressure"]]},
             article_sections=[
+                {
+                    "id": "buyer-example",
+                    "heading": "Decide when to send a new-client thank-you",
+                    "paragraphs": [
+                        "If a prospect is still choosing a supplier, record the occasion and hold the gift. A short message recognising the conversation is enough while a decision is pending.",
+                        "After the project starts, check both companies’ policies and agree the timing and delivered value before ordering. If a gift is declined, keep the thank-you personal by naming the work you appreciated.",
+                    ],
+                },
                 {"id": "record", "heading": "Record the reason", "paragraphs": ["For new relationships, keep a clear note of why the gift was sent, approximate value and timing. This is boring until someone asks."]},
                 {"id": "message", "heading": "Keep the note about the relationship", "messages": [{"label": "Welcome", "text": "We are looking forward to working together. A small welcome from the team."}, {"label": "Partner", "text": "Thank you for the introduction and the early conversations. We appreciate the trust."}]},
             ],
@@ -7661,6 +7722,7 @@ GUIDES.update(
             cta="Plan a new-client gift",
             cta_heading="Need a careful welcome gift?",
             cta_text="Use the planner to choose a proportionate route and avoid awkward timing.",
+            last_updated="November 2026",
         ),
         "wine-gifts-for-thank-you": enhanced_guide(
             title="Wine Gifts for Thank You",
@@ -7970,6 +8032,14 @@ GUIDES.update(
             ],
             best_fit_table={"headers": ["Hamper route", "Best for", "Budget", "Watch"], "rows": [["Wine-led hamper", "Known wine-friendly client", "£75-£150", "Food may feel secondary."], ["Food-and-wine hamper", "Client teams or offices", "£60-£150", "Allergens and shareability."], ["Champagne hamper", "Celebration or Christmas", "£100-£250+", "Can feel showy."], ["Alcohol-free luxury hamper", "Mixed suitability", "£50-£150", "Must be equal quality."]]},
             article_sections=[
+                {
+                    "id": "buyer-example",
+                    "heading": "Check that the premium hamper contents justify the quote",
+                    "paragraphs": [
+                        "Compare two hampers that fit the delivered budget. Ask for the named wine and bottle size, quantities of food, available allergen information and what packaging is included.",
+                        "Agree in advance which substitutions you would accept. Ask whether fragile components are packed separately and who handles a replacement if a delivery arrives damaged.",
+                    ],
+                },
                 {"id": "when-they-work", "heading": "When luxury wine hampers work", "paragraphs": ["They work when the gift may be shared, when taste is unknown, or when you want something more complete than one bottle. They are especially useful for Christmas, senior relationships and office-based teams."]},
                 {"id": "what-to-include", "heading": "What a good hamper should include", "bullets": ["Wine with clear provenance or style.", "Food that makes sense with the wine.", "Clear allergen information.", "Packaging that protects the contents.", "A gift note that explains the reason for sending."]},
                 {"id": "what-to-avoid", "heading": "What to avoid", "paragraphs": ["Avoid vague wine descriptions, too many tiny filler items, unclear substitutions and packaging that looks impressive but travels badly."], "editorial_note": "Do not buy the basket. Buy the gift."},
@@ -7979,6 +8049,7 @@ GUIDES.update(
             cta="Plan a luxury hamper",
             cta_heading="Want a hamper that earns the word luxury?",
             cta_text="Use the planner to compare wine hamper, mixed case and alcohol-free premium routes.",
+            last_updated="November 2026",
         ),
         "non-alcoholic-client-gifts": enhanced_guide(
             title="Non-Alcoholic Client Gifts: When Wine Is Not Right",
@@ -8748,6 +8819,13 @@ HIGH_INTENT_SEO_PAGES = {
 SUPPLIER_INTENT_SEO_PAGES = {
     "corporate-wine-gift-suppliers-uk": {
         "title": "Corporate Wine Gift Suppliers UK: How to Shortlist Better Options",
+        "worked_example": {
+            "heading": "Compare quotes for one order before building your shortlist",
+            "paragraphs": [
+                "For a sample order of 30 recipients across office and home addresses, ask each supplier to quote the same gift mix and destination list. Confirm which minimums apply by product, recipient or order.",
+                "Ask for two totals: the confirmed order price and the charges that would apply to amendments or failed deliveries. Keep the assumptions with the quote so you can compare suppliers on the same basis.",
+            ],
+        },
         "h1": "Corporate wine gift suppliers in the UK",
         "description": "Compare what matters when choosing UK corporate wine gift suppliers, from budgets and delivery to presentation, personalisation and client suitability.",
         "intro": "This page is for business buyers who need a better supplier shortlist before they start sending enquiry emails. ClientCellar does not sell wine directly or pretend every supplier is a partner; use this as a practical way to compare routes and ask better questions.",
@@ -8911,6 +8989,13 @@ SUPPLIER_INTENT_SEO_PAGES = {
     },
     "christmas-client-gift-suppliers": {
         "title": "Christmas Client Gift Suppliers: UK Shortlisting Guide",
+        "worked_example": {
+            "heading": "Work backwards from the last staffed delivery day",
+            "paragraphs": [
+                "Ask when each office will last be staffed, then request delivery no later than that day. Work backwards through the supplier’s transit time, dispatch slot, artwork proof and recipient-file deadline.",
+                "If a supplier cannot commit to the window, agree what to do with late addresses and unavailable gifts before approval. A neutral January thank-you can suit recipients you cannot reach in December.",
+            ],
+        },
         "h1": "Christmas client gift suppliers",
         "description": "A practical guide to finding Christmas client gift suppliers, avoiding late ordering problems and choosing gifts that feel appropriate.",
         "intro": "Christmas client gifting is where supplier choice becomes operational. The gift still needs taste and judgement, but order cut-offs, clean data and substitutions decide whether it lands well.",

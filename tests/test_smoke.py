@@ -765,6 +765,9 @@ def test_required_affiliate_ready_guides_load():
             "/guides/food-and-wine-hampers",
             "/guides/luxury-corporate-wine-gifts",
             "/guides/white-wine-gifts-for-clients",
+            "/guides/luxury-wine-hampers-uk",
+            "/guides/wine-gifts-for-new-business",
+            "/guides/wine-gifts-for-events",
         }
         expected_updated = "November 2026" if path in updated_guides else "May 2026"
         assert f"Last updated: {expected_updated}" in response.text
