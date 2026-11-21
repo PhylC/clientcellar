@@ -211,7 +211,14 @@
     </dl>
   </header>
 
-  {{ premium_recommendation_summary(preview) }}
+  {% if is_example_pack and preview.pack_type == "event" %}
+<section class="pack-section">
+  <h2>Use the sample event brief to compare venue quotes</h2>
+  <p>Replace the sample location, date, guest count and service window with your own. Ask venues to quote the same format and confirm glassware, staffing, alcohol-free drinks and corkage where applicable.</p>
+  <p>Record which services each quote covers and what changes if attendance moves. Use the pack’s comparison to keep the assumptions visible for whoever approves the booking.</p>
+</section>
+{% endif %}
+{{ premium_recommendation_summary(preview) }}
 
   {% if preview.document_sections %}
   {% if preview.fallback_note %}

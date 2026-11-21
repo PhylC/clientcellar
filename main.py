@@ -191,6 +191,13 @@ SITEMAP_GUIDE_SLUGS = [
 # Leaving unchanged URLs without <lastmod> is more accurate than stamping the
 # entire sitemap with the request date on every fetch.
 SITEMAP_LASTMOD_BY_PATH = {
+    "/corporate-wine-tasting-events": "2026-11-21",
+    "/guides/staff-wine-gifts": "2026-11-21",
+    "/guides/corporate-wine-hampers": "2026-11-21",
+    "/pricing": "2026-11-21",
+    "/example-premium-brief-pack": "2026-11-21",
+    "/example-premium-event-pack": "2026-11-21",
+    "/client-gift-suppliers-uk": "2026-11-21",
     "/guides/luxury-wine-hampers-uk": "2026-11-21",
     "/guides/wine-gifts-for-law-firms": "2026-11-21",
     "/guides/wine-gifts-for-accountancy-firms": "2026-11-21",
@@ -220,12 +227,12 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/guides/corporate-gifting-recipient-csv-template": "2026-11-21",
     "/event-wine-planning-uk": "2026-11-21",
     "/client-christmas-gifts-uk": "2026-11-21",
-    "/corporate-christmas-wine-gifts": "2026-11-18",
+    "/corporate-christmas-wine-gifts": "2026-11-21",
     "/corporate-gifting-ideas-uk": "2026-11-18",
     "/event-planner": "2026-11-21",
     "/gift-planner": "2026-11-21",
     "/gift-quote-comparison": "2026-11-21",
-    "/premium-client-gifts-uk": "2026-11-18",
+    "/premium-client-gifts-uk": "2026-11-21",
     "/supplier-directory": "2026-11-21",
     "/uk-wine-gift-supplier-comparison": BULK_GIFT_SUPPLIERS_CHECKED.isoformat(),
     "/suppliers": "2026-11-19",
@@ -6936,6 +6943,14 @@ GUIDES.update(
             ],
             best_fit_table={"headers": ["Team situation", "Better route", "Watch"], "rows": [["Small team", "Choice of bottle, hamper or alcohol-free", "Preference handling"], ["Large staff list", "Simple tiered options", "Address data and delivery"], ["Remote team", "Supplier fulfilment", "Failed delivery"], ["Mixed preferences", "Food or choice-led gift", "Alcohol assumptions"]]},
             article_sections=[
+                {
+                    "id": "buying-choices",
+                    "heading": "Offer staff the same choice at collection or delivery",
+                    "paragraphs": [
+                        "For a mixed team, offer the same gift choice in one message with separate collection and delivery instructions. Ask staff to confirm only the option and fulfilment details needed for their order.",
+                        "Before ordering, check how to handle colleagues on leave or working remotely. Agree where uncollected office gifts can be kept and who can arrange a later collection.",
+                    ],
+                },
                 {"id": "practical", "heading": "The practical stuff is the kindness", "paragraphs": ["Confirm headcount, budget including delivery, address handling and HR policy before choosing the supplier. A gift that arrives cleanly and lets people choose is often more appreciated than a clever bottle."], "editorial_note": "A good staff gift should not create admin for the person receiving it."},
                 {"id": "message", "heading": "Keep the message collective", "paragraphs": ["Staff gift notes work best when they are simple and sincere. Thank the team for the year, the effort or the specific moment. Avoid performance-review language dressed up as warmth."]},
             ],
@@ -6947,6 +6962,7 @@ GUIDES.update(
             cta="Plan staff gifts",
             cta_heading="Planning gifts for a team?",
             cta_text="Use the gift planner to compare wine, hamper and alcohol-free routes before speaking to suppliers.",
+            last_updated="November 2026",
         ),
         "client-thank-you-wine-gifts": enhanced_guide(
             title="Client Thank-You Wine Gifts",
@@ -6986,6 +7002,14 @@ GUIDES.update(
             ],
             best_fit_table={"headers": ["Use case", "Hamper style", "Watch"], "rows": [["Client team", "Shareable wine-and-food hamper", "Dietary needs"], ["Christmas", "Seasonal but not novelty", "Delivery cut-offs"], ["Staff gift", "Choice-led hamper", "Alcohol alternatives"], ["VIP recipient", "Premium restrained hamper", "Policy limits"]]},
             article_sections=[
+                {
+                    "id": "buying-choices",
+                    "heading": "Compare branding options on a corporate hamper proof",
+                    "paragraphs": [
+                        "For a client campaign, ask to see the same name and message on a note, a removable sleeve and the proposed box. Check that the recipient can see who sent it and that names and accents fit without crowding.",
+                        "Compare the setup charge, minimum order and proof deadline for each option. A gift note may suit a short run, while a sleeve can be useful when you need consistent presentation across several batches.",
+                    ],
+                },
                 {"id": "supplier", "heading": "Questions worth asking", "paragraphs": ["Ask what is fixed, what may be substituted, whether allergens are clearly listed, whether alcohol-free versions exist and what happens when delivery fails. These questions reveal more about the supplier than the product photo does."], "editorial_note": "Do not buy the hamper image. Buy the actual contents list."},
                 {"id": "branding", "heading": "Branding should be quiet", "paragraphs": ["A gift note, sleeve or insert can be useful. Heavy branding can make the gift feel more like a campaign than a thank-you, especially for senior clients."]},
             ],
@@ -6997,6 +7021,7 @@ GUIDES.update(
             cta="Plan wine hampers",
             cta_heading="Need a hamper route that feels useful?",
             cta_text="Build a quick brief and compare hamper, wine case and alcohol-free routes.",
+            last_updated="November 2026",
         ),
         "corporate-champagne-gifts": enhanced_guide(
             title="Corporate Champagne Gifts",
@@ -8937,6 +8962,13 @@ SUPPLIER_INTENT_SEO_PAGES = {
     },
     "client-gift-suppliers-uk": {
         "title": "Client Gift Suppliers UK: Better Ways to Shortlist Business Gifts",
+        "worked_example": {
+            "heading": "Choose a supplier route by recipient and order size",
+            "paragraphs": [
+                "For a single thank-you, compare merchants by the gift note, delivery date and recipient’s preference. For recurring multi-address gifts, ask about recipient file checks, delivery reporting and a regular order contact.",
+                "If the list mixes single bottles with food or alcohol-free options, ask whether one supplier can fulfil the whole order. Compare the delivered totals and delivery windows before adding another supplier.",
+            ],
+        },
         "h1": "Client gift suppliers in the UK",
         "description": "How to compare client gift suppliers in the UK, including budgets, delivery, brand fit, alcohol policies and premium options.",
         "intro": "Client gift suppliers are not interchangeable. The right choice depends on relationship value, recipient suitability, delivery risk, budget and whether the gift should feel personal, scalable or premium.",
@@ -9154,6 +9186,13 @@ SEO_PAGES.update(
         },
         "corporate-wine-tasting-events": {
             "title": "Corporate Wine Tasting Events | ClientCellar",
+            "worked_example": {
+                "heading": "Pick a format before asking for tasting quotes",
+                "paragraphs": [
+                    "If guests are seated for dinner, ask for a short guided tasting that fits between courses. If guests arrive at different times, consider a tasting station and ask how the host keeps queues and instructions manageable.",
+                    "Give suppliers the guest count, service window and room layout. Ask them to confirm staffing, glassware, alcohol-free participation and the number of guests each host can support.",
+                ],
+            },
             "h1": "Corporate wine tasting events",
             "description": "Plan corporate wine tasting events for clients and teams with practical guidance on format, suppliers, inclusion and event logistics.",
             "intro": "A good corporate tasting should feel social, relaxed and properly hosted. A bad one feels like a lecture with glasses.",
@@ -9296,6 +9335,13 @@ SEO_PAGES.update(
         },
         "corporate-christmas-wine-gifts": {
             "title": "Corporate Christmas Wine Gifts | ClientCellar",
+            "worked_example": {
+                "heading": "Plan separate Christmas gift routes for clients and staff",
+                "paragraphs": [
+                    "For two client offices and a remote staff team, separate the order by recipient group before asking for quotes. Confirm the offices are staffed to receive and share a hamper, then give remote colleagues an individual gift choice at a consistent delivered value.",
+                    "Use one approval note for the overall budget and keep separate delivery lists. Give each group a message that explains why you are thanking them and agree an alternative if an address or gift choice is missing.",
+                ],
+            },
             "h1": "Corporate Christmas wine gifts",
             "description": "Plan corporate Christmas wine gifts for clients and staff with practical guidance on supplier timing, messages and alternatives.",
             "intro": "Christmas wine gifting is where good intentions often get swallowed by December admin. The best gifts still feel like they came from a person.",
@@ -9655,6 +9701,13 @@ SEO_PAGES.update(
         },
         "premium-client-gifts-uk": {
             "title": "Premium Client Gifts UK | ClientCellar",
+            "worked_example": {
+                "heading": "Prepare a premium client gift request for approval",
+                "paragraphs": [
+                    "For a completed project, write one sentence explaining why a premium gift is appropriate and who it is for. Confirm whether it is for one person or a wider team before comparing bottles and hampers.",
+                    "Give the approver the delivered cost, proposed gift note and a suitable alternative. Record the recipient’s policy check where applicable and agree a response if they decline the gift.",
+                ],
+            },
             "h1": "Premium client gifts UK",
             "description": "Plan premium client gifts in the UK with guidance on wine, hampers, VIP tiers, supplier checks and approval-ready briefs.",
             "intro": "Premium client gifts should feel calm, considered and proportionate. Loud is not the same as generous.",
