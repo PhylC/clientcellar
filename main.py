@@ -191,6 +191,13 @@ SITEMAP_GUIDE_SLUGS = [
 # Leaving unchanged URLs without <lastmod> is more accurate than stamping the
 # entire sitemap with the request date on every fetch.
 SITEMAP_LASTMOD_BY_PATH = {
+    "/guides/wine-gifts-for-agencies": "2026-11-21",
+    "/guides/white-wine-gifts-for-clients": "2026-11-21",
+    "/guides/luxury-corporate-wine-gifts": "2026-11-21",
+    "/guides/food-and-wine-hampers": "2026-11-21",
+    "/guides/wine-gifts-for-customers": "2026-11-21",
+    "/guides/english-sparkling-corporate-gifts": "2026-11-21",
+    "/guides/red-wine-gifts-for-clients": "2026-11-21",
     "/guides/virtual-wine-tasting-for-teams": "2026-11-21",
     "/guides/personalised-wine-gifts": "2026-11-21",
     "/guides/corporate-event-wine-planning": "2026-11-21",
@@ -6550,6 +6557,14 @@ GUIDES.update(
             },
             article_sections=[
                 {
+                    "id": "worked-selection",
+                    "heading": "Pilot a customer wine gift campaign before sending in bulk",
+                    "paragraphs": [
+                        "Pilot a small batch before booking a large send. Give recipients a clear way to choose an alcohol-free option and confirm the delivery details they want you to use. Set a per-recipient delivered cap for the whole pilot.",
+                        "Record the quoted cost, the number of address corrections and whether parcels arrived as expected. Use that information to decide how many gifts to order, which alternatives to include and how much time to allow for the next batch.",
+                    ],
+                },
+                {
                     "id": "difference",
                     "heading": "Client gift or customer campaign?",
                     "paragraphs": [
@@ -6576,6 +6591,7 @@ GUIDES.update(
             cta="Plan customer wine gifts",
             cta_heading="Thinking about wine gifts for customers?",
             cta_text="Use ClientCellar to shape the route and questions before you contact suppliers.",
+            last_updated="November 2026",
         ),
         "luxury-corporate-wine-gifts": enhanced_guide(
             title="Luxury Corporate Wine Gifts: How to Look Generous Without Looking Ridiculous",
@@ -6603,6 +6619,14 @@ GUIDES.update(
             },
             article_sections=[
                 {
+                    "id": "worked-selection",
+                    "heading": "Decide what is worth paying for in a luxury wine gift",
+                    "paragraphs": [
+                        "Ask the merchant to name the producer and specify the bottle size, included packaging and delivery service. For a flagship client milestone, compare these line items with an option that uses simpler packaging but gives more of the budget to the wine.",
+                        "Check if the supplier can hold a specific bottle and what happens if it is unavailable. For a premium gift sent to several addresses, get the delivered amount and replacement terms before you request approval.",
+                    ],
+                },
+                {
                     "id": "restraint",
                     "heading": "Restraint is not underspending",
                     "paragraphs": [
@@ -6629,6 +6653,7 @@ GUIDES.update(
             cta="Plan a luxury wine gift",
             cta_heading="Need a premium gift that still feels appropriate?",
             cta_text="Use the planner to shape a clear brief before approaching suppliers.",
+            last_updated="November 2026",
         ),
         "thank-you-wine-gifts": enhanced_guide(
             title="Thank You Wine Gifts: Better Ways to Say Thanks Than a Random Bottle",
@@ -7148,6 +7173,14 @@ GUIDES.update(
             opening=["This is a good route when you want the gift to feel current, thoughtful and a little less obvious. It can work especially well for UK businesses, local relationships or Christmas gifts where Champagne feels too automatic.", "Do not sell it as almost-Champagne. Let it be its own choice."],
             best_fit_table={"headers": ["Use case", "Why it fits", "Watch"], "rows": [["Client milestone", "Celebratory but distinctive", "Recipient recognition"], ["Christmas gift", "Polished and seasonal", "Delivery cut-offs"], ["Local relationship", "UK relevance", "Supplier coverage"], ["Mixed group", "Pair with food or alternatives", "Alcohol suitability"]]},
             article_sections=[
+                {
+                    "id": "worked-selection",
+                    "heading": "When English sparkling fits a corporate gift",
+                    "paragraphs": [
+                        "For a UK project launch or team milestone, English sparkling can make the occasion feel specific. Ask the recipient or organiser whether sparkling wine is welcome before choosing the bottle.",
+                        "Check the producer’s description for sweetness and how the bottle is presented. Compare the total including a gift note, any box and delivery. If the recipient prefers a still wine or a non-alcoholic gift, keep the note about the milestone and choose that option instead.",
+                    ],
+                },
                 {"id": "positioning", "heading": "How to position it", "paragraphs": ["English sparkling works when the note is confident and simple. You do not need a lecture on production methods. A short line about celebration, thanks or the year is enough."]},
                 {"id": "fit", "heading": "When not to use it", "paragraphs": ["If the recipient expects a globally recognised luxury signal, Champagne may be clearer. If alcohol suitability is unclear, use an alcohol-free sparkling or food-led option instead."]},
             ],
@@ -7156,6 +7189,7 @@ GUIDES.update(
             cta="Plan English sparkling gifts",
             cta_heading="Want a sparkling route with more character?",
             cta_text="Use the planner to compare sparkling wine and hamper options.",
+            last_updated="November 2026",
         ),
         "red-wine-gifts-for-clients": enhanced_guide(
             title="Red Wine Gifts for Clients",
@@ -7167,6 +7201,14 @@ GUIDES.update(
             opening=["If you know the recipient enjoys red wine, this can be a warm and confident route. If you do not, a mixed pair or case is often smarter.", "The aim is not to impress with obscurity. It is to send something the recipient can open without thinking too hard."],
             best_fit_table={"headers": ["Recipient", "Better red route", "Watch"], "rows": [["Known red drinker", "Classic region or merchant pick", "Overly niche styles"], ["Unknown taste", "Red/white pair", "More choice"], ["Winter gift", "Food-friendly red", "Alcohol strength"], ["Team gift", "Mixed case", "Not everyone wants red"]]},
             article_sections=[
+                {
+                    "id": "worked-selection",
+                    "heading": "Choose red wine by the recipient’s usual style",
+                    "paragraphs": [
+                        "Ask whether the recipient usually chooses a lighter red or a fuller one. If they mention Pinot Noir, look for a lighter style. If they mention Malbec or Cabernet Sauvignon, look for a fuller style and ask the merchant to match what they already enjoy.",
+                        "For a client dinner, check whether the bottle is a gift to take home or something for the table. If it is for the table, ask the venue about the menu and wine service. When preferences are unknown, offer a choice or choose a gift that does not depend on knowing their wine taste.",
+                    ],
+                },
                 {"id": "styles", "heading": "Familiar is not boring", "paragraphs": ["Rioja, Rhône-style reds, claret-style blends and other food-friendly classics can be safer business gifts than rare bottles with a story only the buyer understands."]},
                 {"id": "note", "heading": "Do not make the wine the whole personality", "paragraphs": ["If the red is part of a thank-you, say why you are sending it. A good note makes a safe bottle feel considered rather than generic."], "editorial_note": "Most people would rather receive something enjoyable than something technically impressive."},
             ],
@@ -7175,6 +7217,7 @@ GUIDES.update(
             cta="Plan red wine gifts",
             cta_heading="Know they like red wine?",
             cta_text="Use the planner to shape a safer bottle, pair or case brief.",
+            last_updated="November 2026",
         ),
         "white-wine-gifts-for-clients": enhanced_guide(
             title="White Wine Gifts for Clients",
@@ -7186,6 +7229,14 @@ GUIDES.update(
             opening=["For summer gifting, host thank-yous or lighter client gestures, white wine can feel more natural than a heavy red. It is also a good part of a mixed pair or case when taste is uncertain.", "The trick is not to choose something too sharp, sweet or obscure unless you know the recipient likes that style."],
             best_fit_table={"headers": ["Situation", "Better route", "Why"], "rows": [["Summer thank-you", "Crisp white or white pair", "Easy to enjoy"], ["Unknown taste", "Red/white pair", "Gives choice"], ["Food gift", "White with savoury hamper", "Useful pairing"], ["Premium client", "Merchant-selected white", "More thoughtful"]]},
             article_sections=[
+                {
+                    "id": "worked-selection",
+                    "heading": "Build a white wine pair around a known preference",
+                    "paragraphs": [
+                        "If a recipient likes fresh, citrus-led whites, ask for two examples of that style, such as a Sauvignon Blanc and a dry Riesling. If they favour a rounder style, ask about a fuller Chardonnay and check whether they enjoy oak.",
+                        "For a pair that offers variety, put the known favourite first and ask for a second bottle with a different texture. Check that both bottles fit the boxed and delivered budget before ordering.",
+                    ],
+                },
                 {"id": "pairing", "heading": "A white wine gift often works better as a pair", "paragraphs": ["A single white bottle can feel a little light for some business gifts. Pairing it with a red, sparkling or food item gives the recipient more flexibility and makes the gift feel more complete."]},
                 {"id": "avoid", "heading": "Avoid the extremes", "paragraphs": ["Very sweet, very oaky or very sharp whites can be divisive. For business gifting, broad appeal usually matters more than showing off range."]},
             ],
@@ -7194,6 +7245,7 @@ GUIDES.update(
             cta="Plan white wine gifts",
             cta_heading="Need a lighter wine gift route?",
             cta_text="Use the planner to compare white wine, mixed pair and hamper options.",
+            last_updated="November 2026",
         ),
         "wine-gifts-for-sales-teams": enhanced_guide(
             title="Wine Gifts for Sales Teams",
@@ -7224,6 +7276,14 @@ GUIDES.update(
             opening=["A good agency gift often connects to the project, relationship or launch. It does not need a joke label or a box full of brand colour.", "If the relationship is warm, a personal note can do more than custom packaging. If the gift is for a team, make it shareable."],
             best_fit_table={"headers": ["Agency moment", "Better route", "Why"], "rows": [["Project launch", "Sparkling or mixed pair", "Celebratory"], ["Retainer thank-you", "Mixed case", "Relationship-led"], ["Referral", "Compact hamper", "Warm and practical"], ["Christmas", "Seasonal case or hamper", "Easy to share"]]},
             article_sections=[
+                {
+                    "id": "worked-selection",
+                    "heading": "Plan a thank-you for an agency project team",
+                    "paragraphs": [
+                        "After a campaign closes, ask the agency lead whether the team would prefer one shared office gift or individual gifts. Confirm who is still working on the account and when people are likely to be in the office.",
+                        "Keep the gift note specific to the work, for example thanking the team for turning around a difficult launch week. If the project team is spread across locations, price individual fulfilment and include a choice for people who do not drink.",
+                    ],
+                },
                 {"id": "branding", "heading": "Keep branding restrained", "paragraphs": ["A tasteful insert or note is usually enough. Heavy branding can make the gift feel like another piece of campaign output rather than a thank-you."]},
                 {"id": "tone", "heading": "Use the project in the message", "messages": [{"label": "Launch", "text": "A small thank-you for all the energy around the launch. We really enjoyed bringing it to life with you."}, {"label": "Retainer", "text": "Thank you for the trust and collaboration this year. We have loved working with your team."}]},
             ],
@@ -7232,6 +7292,7 @@ GUIDES.update(
             cta="Plan agency client gifts",
             cta_heading="Need a client gift with the right tone?",
             cta_text="Use the planner to shape a gift route around project, budget and relationship.",
+            last_updated="November 2026",
         ),
         "wine-gifts-for-law-firms": enhanced_guide(
             title="Corporate Wine Gifts for Law Firms",
@@ -7463,6 +7524,14 @@ GUIDES.update(
             opening=["The best hampers are edited. Good wine, sensible food, clear contents, clear delivery. The worst ones are big, beige and full of tiny things nobody would choose separately.", "If dietary needs or alcohol suitability are unclear, ask for alternatives before you order."],
             best_fit_table={"headers": ["Recipient", "Hamper route", "Watch"], "rows": [["Client team", "Shareable savoury and wine", "Allergens"], ["Staff", "Choice-led hamper", "Alcohol-free versions"], ["Senior client", "Restrained premium hamper", "Filler"], ["Christmas", "Seasonal food-and-wine", "Cut-offs"]]},
             article_sections=[
+                {
+                    "id": "worked-selection",
+                    "heading": "Check whether a food and wine hamper can be shared",
+                    "paragraphs": [
+                        "For an office of six, ask how many portions the main food items provide and whether each product is individually labelled. Confirm a practical alternative for any dietary needs and whether the supplier can keep substitutions within the same requirements.",
+                        "Ask which items need refrigeration, how long they can wait after delivery and whether the hamper can be delivered while someone is available to put it away. If you cannot arrange that, choose shelf-stable contents.",
+                    ],
+                },
                 {"id": "contents", "heading": "The contents list tells the truth", "paragraphs": ["Read it closely. If the wine is vague, the food looks generic, or substitutions are broad, the hamper may be weaker than the photograph suggests."]},
                 {"id": "delivery", "heading": "Food creates delivery questions", "paragraphs": ["Ask about shelf life, perishable items, delivery windows, failed deliveries and whether the hamper can be sent to home or office addresses."]},
             ],
@@ -7471,6 +7540,7 @@ GUIDES.update(
             cta="Plan a hamper gift",
             cta_heading="Need a hamper that feels properly chosen?",
             cta_text="Use the planner to compare hamper, wine and alcohol-free routes.",
+            last_updated="November 2026",
         ),
         "how-much-to-spend-on-client-gifts": enhanced_guide(
             title="How Much to Spend on Client Gifts",
