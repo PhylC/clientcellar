@@ -755,6 +755,10 @@ def test_required_affiliate_ready_guides_load():
             "/guides/client-gifting-etiquette-uk",
             "/guides/non-alcoholic-client-gifts",
             "/guides/wine-gift-hampers-uk",
+            "/guides/corporate-gift-ideas-for-clients",
+            "/guides/how-much-to-spend-on-client-gifts",
+            "/guides/corporate-event-wine-planning",
+            "/guides/personalised-wine-gifts",
         }
         expected_updated = "November 2026" if path in updated_guides else "May 2026"
         assert f"Last updated: {expected_updated}" in response.text

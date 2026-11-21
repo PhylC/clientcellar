@@ -191,6 +191,12 @@ SITEMAP_GUIDE_SLUGS = [
 # Leaving unchanged URLs without <lastmod> is more accurate than stamping the
 # entire sitemap with the request date on every fetch.
 SITEMAP_LASTMOD_BY_PATH = {
+    "/guides/virtual-wine-tasting-for-teams": "2026-11-21",
+    "/guides/personalised-wine-gifts": "2026-11-21",
+    "/guides/corporate-event-wine-planning": "2026-11-21",
+    "/guides/how-much-to-spend-on-client-gifts": "2026-11-21",
+    "/guides/corporate-gift-ideas-for-clients": "2026-11-21",
+    "/supplier-partnerships": "2026-11-21",
     "/guides/client-gift-policy-checklist": "2026-11-21",
     "/staff-wine-gifts": "2026-11-21",
     "/guides": "2026-11-21",
@@ -220,7 +226,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/corporate-hampers-uk": "2026-11-21",
     "/corporate-wine-gifts": "2026-11-19",
     "/corporate-wine-gift-suppliers-uk": "2026-11-19",
-    "/corporate-hamper-suppliers-uk": "2026-11-19",
+    "/corporate-hamper-suppliers-uk": "2026-11-21",
     "/guides/champagne-gifts-for-clients": "2026-11-21",
     "/guides/client-thank-you-wine-gifts": "2026-11-21",
     "/guides/corporate-wine-tasting-london": "2026-11-21",
@@ -6485,6 +6491,11 @@ GUIDES.update(
             },
             article_sections=[
                 {
+                    "id": "gift-ideas-by-occasion",
+                    "heading": "Choose a gift by the reason you are sending it",
+                    "paragraphs": ["A project thank-you can be a small food or wine gift with a note naming the work you appreciated. For a shared milestone, ask how many people will actually share the gift before choosing an office hamper.", "For several recipients with different preferences, set one delivered budget and offer a choice of gifts at that value. Use a neutral gift and a handwritten note if you have little information about an individual’s preferences."],
+                },
+                {
                     "id": "gift-routes",
                     "heading": "What gifts are actually useful?",
                     "paragraphs": [
@@ -6511,6 +6522,7 @@ GUIDES.update(
             cta="Plan a client gift",
             cta_heading="Need a gift route that fits the client?",
             cta_text="Use the planner to shape a practical brief around recipient, budget and occasion.",
+            last_updated="November 2026",
         ),
         "wine-gifts-for-customers": enhanced_guide(
             title="Wine Gifts for Customers: When It Works, When It Does Not, and How to Keep It Appropriate",
@@ -6759,6 +6771,11 @@ GUIDES.update(
             },
             article_sections=[
                 {
+                    "id": "check-venue-charge-basis",
+                    "heading": "Compare a venue drinks package with an external quote",
+                    "paragraphs": ["Set one brief before requesting prices. Give both suppliers the same guest count, duration, glass size, alcohol-free provision and expected service. Ask the venue whether the package is charged per guest or on consumption.", "For an external order, add delivery, chilling, glass hire, staffing and corkage where applicable. Ask which items are included and what the venue charges for a late guest-count change. Confirm the final quantities with the venue or supplier."],
+                },
+                {
                     "id": "walkthrough",
                     "heading": "A simple event walk-through",
                     "paragraphs": [
@@ -6786,6 +6803,7 @@ GUIDES.update(
             cta_heading="Planning wine for a corporate event?",
             cta_text="Use the event planner to estimate quantities, supplier questions and logistics.",
             cta_url="/event-planner",
+            last_updated="November 2026",
         ),
         "wine-tasting-corporate-event": enhanced_guide(
             title="Wine Tasting Corporate Events: How to Make It Fun Without Making It Forced",
@@ -7502,6 +7520,11 @@ GUIDES.update(
             opening=["A gift note is often the safest and strongest form of personalisation. Custom labels, sleeves and boxes add lead time, proofing risk and minimum order questions.", "If branding helps the recipient understand the context, use it quietly. If it mainly helps you feel visible, rethink it."],
             best_fit_table={"headers": ["Personalisation", "Best for", "Watch"], "rows": [["Gift note", "Most client gifts", "Message quality"], ["Branded insert", "Campaigns", "Tone"], ["Custom sleeve", "Larger orders", "Lead time"], ["Bottle label", "Informal gifts", "Novelty risk"]]},
             article_sections=[
+                {
+                    "id": "sign-off-personalisation",
+                    "heading": "Check a personalisation proof before the order goes to print",
+                    "paragraphs": ["For a batch with individual names, send one approved message plus a list of the allowed changes per row. Ask for a proof of the longest name and a proof showing the actual box or label, then check spelling, line breaks and colour.", "Confirm the final proof deadline, minimum order and cost to replace a mistake. Approve the final artwork once and keep a copy alongside the subset of orders that use it."],
+                },
                 {"id": "proofing", "heading": "Proofing is where delays happen", "paragraphs": ["Ask suppliers for artwork requirements, proof deadlines, minimum orders and fallback plain packaging. Personalisation that misses the occasion is not a better gift."]},
                 {"id": "tone", "heading": "Personal does not mean overfamiliar", "paragraphs": ["Use the project, milestone or relationship in the message. Avoid names, jokes or design choices that could feel too intimate for a business gift."]},
             ],
@@ -7510,6 +7533,7 @@ GUIDES.update(
             cta="Plan personalised gifts",
             cta_heading="Need personalisation without the risk?",
             cta_text="Use the planner to shape a gift route before asking suppliers about branding.",
+            last_updated="November 2026",
         ),
         "wine-gift-baskets-uk": enhanced_guide(
             title="Wine Gift Baskets UK",
@@ -7844,6 +7868,11 @@ GUIDES.update(
                 ],
             },
             article_sections=[
+                {
+                    "id": "worked-delivered-budget",
+                    "heading": "Work back from the delivered cost per recipient",
+                    "paragraphs": ["Example: a £480 budget for 12 people is £40 each. If delivery is £6 per address and gift packaging is £2 each, the gift itself can cost up to £32 per person at 12 addresses. Use the same VAT basis for all figures.", "If several recipients share an address, ask whether the supplier can charge once for that address before revising the gift allowance. Check the recipient’s policy and your approval before committing."],
+                },
                 {"id": "all-in-cost", "heading": "Budget all-in, not just the gift", "paragraphs": ["Include VAT, delivery, gift messages, packaging, substitutions and any multi-address handling. The real cost of client gifting is rarely just the listed product price."]},
                 {"id": "when-to-go-higher", "heading": "When to go higher", "paragraphs": ["A higher budget can make sense for a senior relationship, a major milestone, a team gift or a long-running client. It should not be used to make a vague message feel more meaningful."]},
                 {"id": "when-to-hold-back", "heading": "When to hold back", "paragraphs": ["If there is an active procurement process, renewal conversation or sensitive decision, choose a smaller route or wait. Good timing protects the gesture."]},
@@ -7856,6 +7885,7 @@ GUIDES.update(
             cta="Set a gift budget",
             cta_heading="Need a budget that feels proportionate?",
             cta_text="Use the planner to shape a sensible gift route by recipient, occasion and value.",
+            last_updated="November 2026",
         ),
         "luxury-wine-hampers-uk": enhanced_guide(
             title="Luxury Wine Hampers UK: Uses, Budgets & Client Tips",
@@ -7952,6 +7982,11 @@ GUIDES.update(
             opening=["A good supplier handles delivery, host quality, instructions, alcohol-free options and contingency plans. A good organiser sets expectations early so nobody is surprised by address collection, timings or the amount of wine involved."],
             best_fit_table={"headers": ["Format", "Best for", "Watch"], "rows": [["Hosted tasting", "Mixed confidence teams", "Host quality matters."], ["Blind tasting", "Lighter team energy", "Needs clear instructions."], ["Food pairing", "Premium client or team event", "Delivery complexity."], ["Alcohol-free tasting", "Inclusive teams", "Needs equal quality."], ["Client tasting", "Relationship-building", "Keep tone polished."]]},
             article_sections=[
+                {
+                    "id": "remote-tasting-run-sheet",
+                    "heading": "A delivery run sheet for a remote team tasting",
+                    "paragraphs": ["For a fictional 20-person session, ask attendees for their preferred pack and the minimum delivery details the supplier needs. Share a response deadline ahead of the supplier’s dispatch cut-off.", "Ask who checks failed deliveries and what the host can offer if an attendee’s pack arrives late. Confirm the host’s plan for alcohol-free packs and share access instructions with the whole team before the event."],
+                },
                 {"id": "supplier", "heading": "How to choose a virtual tasting supplier", "bullets": ["Ask who hosts the session and how experienced they are.", "Confirm pack contents, delivery coverage and missed-delivery process.", "Check alcohol-free packs are available from the start.", "Ask whether the tone suits clients, staff or both.", "Confirm cancellation terms and minimum numbers."]},
                 {"id": "delivery", "heading": "Delivery is the event risk", "paragraphs": ["Collect addresses early, explain privacy handling and leave time for replacements. Remote tastings fail quietly when packs arrive late or unevenly."]},
                 {"id": "invite", "heading": "Set expectations in the invite", "paragraphs": ["Tell people what is arriving, how long the tasting lasts, whether food is needed and that drinking is optional. Clarity makes the event feel more relaxed before it starts."]},
@@ -7962,6 +7997,7 @@ GUIDES.update(
             cta_heading="Planning a remote team tasting?",
             cta_text="Use the event planner to shape the format, supplier questions, delivery timing and guest experience.",
             cta_url="/event-planner",
+            last_updated="November 2026",
         ),
         "client-thank-you-wine-gifts": enhanced_guide(
             title="Thank-You Wine Gifts for Clients: What to Send and When",
@@ -8694,6 +8730,13 @@ SUPPLIER_INTENT_SEO_PAGES = {
     },
     "corporate-hamper-suppliers-uk": {
         "title": "Corporate Hamper Suppliers UK: What to Check Before Ordering",
+        "worked_example": {
+            "heading": "Shortlist hamper suppliers using one delivery brief",
+            "paragraphs": [
+                "For a repeat order to 20 addresses, tell each supplier the gift count, delivery regions, deadline, dietary requirements and whether the gift note varies by recipient.",
+                "Ask for an itemised quote covering minimum order, delivery, packaging, substitutions and a failed delivery. Compare the total and confirm who owns address corrections before dispatch.",
+            ],
+        },
         "h1": "Corporate hamper suppliers in the UK",
         "description": "A practical guide to choosing UK corporate hamper suppliers for client gifts, team rewards and Christmas gifting.",
         "intro": "Corporate hampers can be the safest route for mixed recipients, but only when the contents, delivery and supplier process stand up. This page helps you compare hamper suppliers before the order turns into a late-season scramble.",
