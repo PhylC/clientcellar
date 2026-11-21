@@ -203,7 +203,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/suppliers": "2026-11-19",
     "/thank-you-gifts-for-clients": "2026-11-18",
     "/guides/best-wine-accessories-for-gifts": "2026-11-18",
-    "/guides/best-client-wine-gifts": "2026-11-20",
+    "/guides/best-client-wine-gifts": "2026-11-21",
     "/guides/best-wine-gifts-under-100": "2026-11-21",
     "/guides/christmas-corporate-wine-gifts": "2026-11-19",
     "/guides/corporate-wine-gifts-uk": "2026-11-19",
@@ -9699,7 +9699,7 @@ if under_100_guide:
 
 if "best-client-wine-gifts" in GUIDES:
     GUIDES["best-client-wine-gifts"]["title"] = "Best Client Wine Gifts: Reliable Merchant Routes & Safer Ideas"
-    GUIDES["best-client-wine-gifts"]["description"] = "Choose client wine gifts by relationship, occasion and budget. Compare reliable merchant routes, Champagne, hampers and safer alternatives before ordering."
+    GUIDES["best-client-wine-gifts"]["description"] = "Choose wine gifts for clients by occasion and budget. Compare UK suppliers for bulk orders, multiple addresses and alcohol-free gifts."
 
 if "champagne-gifts-for-clients" in GUIDES:
     champagne_guide = GUIDES["champagne-gifts-for-clients"]
@@ -9742,6 +9742,7 @@ if "best-client-wine-gifts" in GUIDES:
     best_client_guide["last_updated"] = "November 2026"
     best_client_guide["secondary_cta"] = "See the bulk-ordering checklist"
     best_client_guide["secondary_cta_url"] = "#bulk-ordering-checklist"
+    best_client_guide["bulk_order_suppliers"] = BULK_GIFT_SUPPLIERS
     best_client_guide["bulk_order_checklist"] = [
         ("Count gifts and deliveries", "Confirm how many gifts you need, how many addresses are involved and which recipients need an alcohol-free option."),
         ("Set a delivered budget", "Allow for VAT, packaging and delivery per address. Ask about minimum quantities and any bulk pricing."),
@@ -9749,7 +9750,7 @@ if "best-client-wine-gifts" in GUIDES:
         ("Confirm the supplier’s terms", "Check stock, substitutions, VAT invoicing, gift notes and how the supplier handles missed or damaged deliveries."),
     ]
     best_client_guide["h1"] = "Best Client Wine Gifts by Relationship, Budget and Occasion"
-    best_client_guide["intro"] = "This page is for the moment when you know you should send something, but you do not want the gift to feel like a line item in account management. Use it to choose client wine gifts by relationship, occasion and risk level, then compare reliable merchant and supplier routes before ordering."
+    best_client_guide["intro"] = "For a client who enjoys wine, choose a polished bottle, a pair or a hamper the team can share. For a bulk order, compare the UK suppliers below by how they handle quantities, multiple addresses and alcohol-free alternatives."
     best_client_guide["opening_heading"] = "Match the client gift to the relationship"
     best_client_guide["opening"] = [
         "The best client wine gift depends less on the bottle and more on the relationship. A new client, a senior decision maker, a client team and a long-standing advocate should not automatically receive the same thing.",

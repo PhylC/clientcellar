@@ -90,6 +90,28 @@
       {% for paragraph in guide.opening %}<p>{{ paragraph }}</p>{% endfor %}
     </section>
 
+    {% if guide.bulk_order_suppliers %}
+    <section id="bulk-order-suppliers" aria-labelledby="bulk-order-suppliers-heading">
+      <h2 id="bulk-order-suppliers-heading">UK wine gift suppliers for bulk orders</h2>
+      <div class="guide-comparison">
+        <table>
+          <thead><tr><th scope="col">Supplier</th><th scope="col">Good fit</th><th scope="col">Quantities and delivery</th><th scope="col">What to confirm</th></tr></thead>
+          <tbody>
+            {% for supplier in guide.bulk_order_suppliers %}
+            <tr>
+              <th scope="row">{{ supplier.name }}</th>
+              <td>{{ supplier.fit }}</td>
+              <td>{{ supplier.minimum }} {{ supplier.delivery }}</td>
+              <td>{{ supplier.ask }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p>Ask for a written quote for your quantities and postcodes. <a href="/uk-wine-gift-supplier-comparison#bulk-order-example">Compare the suppliers for a worked 30-address order</a>.</p>
+    </section>
+    {% endif %}
+
     {% if guide.bulk_order_checklist %}
     <section id="bulk-ordering-checklist" aria-labelledby="bulk-ordering-heading">
       <h2 id="bulk-ordering-heading">Bulk-ordering checklist for client wine gifts</h2>
@@ -100,7 +122,7 @@
       </ul>
       <p>Use the free Gift Planner to turn your quantities, budget and delivery deadline into a brief you can use when comparing suppliers.</p>
       <a class="button primary" href="{{ guide.cta_url }}" data-gift-planner-click>Plan a bulk wine gift order</a>
-      <p><a href="/uk-wine-gift-supplier-comparison#bulk-order-example">Compare three suppliers for a 30-address order</a>.</p>
+
     </section>
     {% endif %}
 
