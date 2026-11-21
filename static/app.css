@@ -4752,6 +4752,7 @@ textarea {
   .guide-comparison table,
   .guide-comparison tbody,
   .guide-comparison tr,
+  .guide-comparison tbody th[scope="row"],
   .guide-comparison td {
     display: block;
     width: 100%;
