@@ -191,22 +191,23 @@ SITEMAP_GUIDE_SLUGS = [
 # Leaving unchanged URLs without <lastmod> is more accurate than stamping the
 # entire sitemap with the request date on every fetch.
 SITEMAP_LASTMOD_BY_PATH = {
-    "/client-christmas-gifts-uk": "2026-11-18",
+    "/client-christmas-gifts-uk": "2026-11-21",
     "/corporate-christmas-wine-gifts": "2026-11-18",
     "/corporate-gifting-ideas-uk": "2026-11-18",
     "/event-planner": "2026-11-18",
-    "/gift-planner": "2026-11-20",
+    "/gift-planner": "2026-11-21",
     "/gift-quote-comparison": "2026-11-20",
     "/premium-client-gifts-uk": "2026-11-18",
-    "/supplier-directory": "2026-11-19",
+    "/supplier-directory": "2026-11-21",
     "/uk-wine-gift-supplier-comparison": BULK_GIFT_SUPPLIERS_CHECKED.isoformat(),
     "/suppliers": "2026-11-19",
     "/thank-you-gifts-for-clients": "2026-11-18",
     "/guides/best-wine-accessories-for-gifts": "2026-11-21",
     "/guides/best-client-wine-gifts": "2026-11-21",
     "/guides/best-wine-gifts-under-100": "2026-11-21",
-    "/guides/christmas-corporate-wine-gifts": "2026-11-19",
-    "/guides/corporate-wine-gifts-uk": "2026-11-19",
+    "/guides/best-wine-gifts-under-50": "2026-11-21",
+    "/guides/christmas-corporate-wine-gifts": "2026-11-21",
+    "/guides/corporate-wine-gifts-uk": "2026-11-21",
     "/guides/wine-gift-hampers-uk": "2026-11-19",
     "/corporate-hampers-uk": "2026-11-19",
     "/corporate-wine-gifts": "2026-11-19",
@@ -7830,13 +7831,20 @@ GUIDES.update(
             h1="Best Wine Gifts Under £50 That Still Feel Premium",
             description="Wine gift ideas under £50 for clients, colleagues and business contacts, with practical tips on packaging, delivery and when to choose something else.",
             intro="£50 is enough for a client-friendly wine gift if you spend it on the thing that matters. It is not enough to fake luxury, so keep the route focused: a good bottle, a clean pair, sparkling wine or a compact hamper with genuinely useful contents.",
-            hero_bullets=["Best for: smaller client thank-yous, colleagues and polished low-risk gifts", "Typical budget: £30-£50", "Avoid: fake luxury packaging, novelty extras and weak wine in heavy boxes"],
-            opening_heading="Simple and well chosen beats loud and padded",
+            hero_bullets=["Best for: smaller client thank-yous, colleagues and polished low-risk gifts", "Planning budget: £25–£50", "Avoid: fake luxury packaging, novelty extras and weak wine in heavy boxes"],
+            opening_heading="Wine gift ideas from £25 to £50",
             opening=[
                 "Under £50, the best gift usually has one clear idea. A sparkling bottle says celebration. A red-and-white pair gives choice. A compact wine-and-food gift can feel complete if the contents are strong.",
-                "If alcohol suitability is uncertain, choose a premium food, coffee, tea or alcohol-free sparkling route instead of forcing the wine gift.",
+                "If £50 is the delivered limit, subtract delivery and packaging first. For example, £6 delivery leaves £44 for the gift. Treat the table as planning guidance and confirm current prices with the supplier.",
             ],
-            best_fit_table={"headers": ["Gift idea", "Best for", "Watch"], "rows": [["English sparkling", "Celebrations and Christmas", "Presentation matters."], ["Two-bottle pair", "Unknown taste", "Keep both bottles broadly useful."], ["Good single bottle", "Known recipient preference", "Taste risk."], ["Compact hamper", "Slightly warmer gifts", "Avoid filler."], ["Merchant pick", "Less generic client gift", "Check delivery and gift notes."]]},
+            best_fit_table={
+                "headers": ["Planning budget", "Gift idea", "When to choose it"],
+                "rows": [
+                    ["£25–£35", "One good bottle with a note", "A thank-you when you know the recipient’s taste"],
+                    ["£35–£45", "English sparkling or a red-and-white pair", "A celebration, or when you want to offer a choice"],
+                    ["£45–£50", "A compact wine-and-food gift", "A slightly more substantial gesture. Check contents and delivery against the cap."],
+                ],
+            },
             article_sections=[
                 {"id": "packaging", "heading": "Packaging should support the gift, not hide it", "paragraphs": ["Clean packaging, safe delivery and a proper note matter. Heavy boxes and novelty accessories can make an under-£50 gift look like it is pretending to be something else."]},
                 {"id": "client-use", "heading": "When under £50 works for clients", "paragraphs": ["This budget is strongest for modest thank-yous, early relationships, colleagues, hosts and smaller festive gestures. For senior stakeholders, it may still work if the note is specific and the gift is restrained."]},
@@ -9066,7 +9074,9 @@ SEO_PAGES.update(
             "title": "Christmas Gifts for Clients UK | Wine, Hampers & Ideas",
             "h1": "Christmas gifts for clients: UK wine, hamper and corporate gift ideas",
             "description": "Choose Christmas gifts for clients in the UK with practical wine, hamper and alcohol-free ideas, budget bands, supplier routes and delivery checks.",
-            "intro": "Good Christmas gifts for clients are appropriate, easy to receive and specific enough not to feel like a mass send. Compare wine, sparkling, hamper and alcohol-free routes by recipient, budget and delivery risk before choosing a supplier.",
+            "intro": "For one client, budget £25–£40 for a bottle or a small food gift. For a client team, budget £50–£100 for a hamper or mixed case to share. If you're sending to several addresses, count deliveries and alcohol-free gifts before asking for quotes.",
+            "hero_jump": ("See Christmas gift ideas by budget", "#christmas-gift-ideas"),
+            "decision_id": "christmas-gift-ideas",
             "last_updated": "November 2026",
             "editorial_label": "Quick answer",
             "editorial_heading": "What makes a good Christmas gift for a client?",
@@ -9524,10 +9534,10 @@ if "corporate-wine-gifts-uk" in GUIDES:
         {
             "commercial_hero": True,
             "hero_eyebrow": "UK corporate wine gifting",
-            "title": "Corporate Wine Gifts UK: Client Wine Gifts, Hampers & Suppliers",
-            "description": "Choose corporate wine gifts for UK clients, teams and business events. Compare client wine, Champagne, hampers, supplier routes, bulk delivery and alcohol-free alternatives.",
-            "h1": "Corporate Wine Gifts UK: Client Wine, Hampers and Supplier Routes",
-            "intro": "Use this UK corporate wine gift guide when you need a client gift that feels appropriate, not generic. Compare wine, Champagne, hamper and alcohol-free routes, then turn budget, recipient count and delivery timing into a supplier-ready plan.",
+            "title": "How to Choose Corporate Wine Gifts for UK Clients",
+            "description": "A UK buyer’s guide to choosing corporate wine gifts by recipient, gift policy, all-in budget and delivery needs, with practical examples for clients and teams.",
+            "h1": "How to choose corporate wine gifts for UK clients",
+            "intro": "Start with the recipient and their gift policy. Pick a format that fits the occasion, then reserve part of the budget for VAT, packaging and delivery. Use this guide to make those decisions before you compare suppliers.",
             "hero_summary": [
                 {"label": "Best for", "text": "client wine gifts, corporate Christmas gifts, team thank-yous and senior contacts"},
                 {"label": "Typical budget", "text": "£25-£150+, with delivery, VAT, packaging and notes included"},
@@ -9827,23 +9837,23 @@ if "christmas-corporate-wine-gifts" in GUIDES:
     christmas_guide["buying_options"] = [
         {
             "heading": "Bulk Christmas orders",
-            "text": "Buying for a client list? Confirm delivery to multiple addresses, VAT invoicing and the last order date.",
+            "text": "Ask when the supplier needs your final address list, what the last order date is for those postcodes and whether the quote includes delivery and VAT.",
             "supplier": seo_supplier("Laithwaites", "laithwaites", "", "", "View Laithwaites corporate gifts", "cc_christmas_bulk"),
         },
         {
             "heading": "Branded gift boxes",
-            "text": "Ask about minimum quantities, branding proofs and the deadline for approving artwork.",
+            "text": "Confirm the minimum quantity, the deadline for approving artwork and the dispatch date after approval. Ask when the final delivery list is due.",
             "supplier": seo_supplier("Bottle In A Box", "bottle-in-a-box", "", "", "View Bottle In A Box corporate gifts"),
         },
         {
             "heading": "One-off client gifts",
-            "text": "Choose a gift-ready bottle or boxed set for one client. Check gift-message options and delivery dates.",
+            "text": "Check the last dispatch date for the recipient’s postcode and whether the delivery day and gift note can be confirmed before you pay.",
             "supplier": seo_supplier("Bottle In A Box", "bottle-in-a-box-wine-gifts", "", "", "Browse Bottle In A Box wine gifts"),
         },
     ]
     christmas_guide["opening_heading"] = "Christmas client gifts need earlier decisions"
     christmas_guide["opening"] = [
-        "Christmas Gifts for Clients: Corporate Wine and Hamper Ideas is still the practical job here: choose something timely, specific and easy to accept. These gifts fail when the recipient list is rushed, the message is generic, or the supplier cannot hit delivery windows.",
+        "Work backwards from the date the recipient can accept the gift. Ask the supplier to confirm the delivery window, the last day to order and, for a bulk order, the deadline for your final address list.",
         "Use wine, Champagne and hampers as routes rather than defaults. Senior contacts may suit sparkling or a refined hamper. Client teams may need something shareable. Mixed lists need alcohol-free and food-led alternatives alongside wine.",
     ]
     christmas_guide.setdefault("article_sections", []).insert(
@@ -9852,7 +9862,7 @@ if "christmas-corporate-wine-gifts" in GUIDES:
             "id": "client-christmas-gift-ideas",
             "heading": "Christmas gifts for clients: what works best",
             "paragraphs": [
-                "The highest-impression Christmas queries are broad, so the page needs to answer the bigger question before narrowing into wine. Good client Christmas gifts are timely, easy to accept and specific enough not to feel like a mass send.",
+                "A bottle pair works when you know what the recipient drinks. For a client team, choose a hamper or mixed case they can share. For deliveries to several addresses, confirm the schedule before selecting the gift.",
                 "Wine can work well, but it should sit alongside hampers, sparkling gifts, alcohol-free choices and policy-safe alternatives when the recipient list is mixed.",
             ],
             "bullets": [
@@ -10160,6 +10170,7 @@ def gift_planner(request: Request):
         request, "gift_planner.html", "Corporate Wine Gift Planner",
         "Create a practical UK corporate wine gift plan with budget guidance and supplier enquiry copy.",
         bulk_example=example,
+        example_brief=BULK_GIFT_EXAMPLE,
     )
 
 

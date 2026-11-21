@@ -15,6 +15,9 @@
     <span>Supplier routes included</span>
     <span>No live stock or price guessing</span>
   </div>
+  {% if not bulk_example %}
+  <p class="small-note"><a href="/gift-planner?example=bulk-30#gift-form">Load a worked example</a> for {{ example_brief.recipient_count }} client gifts to {{ example_brief.delivery_address_count }} UK addresses, including {{ example_brief.alcohol_free_count }} alcohol-free gifts. Add your budget and delivery date before generating the plan.</p>
+  {% endif %}
   <p class="small-note">Create a free plan first. Upgrade to a supplier-ready Premium Brief Pack only if useful.</p>
   <div class="planner-preview-cta">
     <div>

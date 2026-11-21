@@ -811,7 +811,8 @@ def test_gsc_query_led_guide_updates_render():
     assert 'href="/gift-planner" data-gift-planner-click>Plan a bulk wine gift order</a>' in best_client.text
 
     assert christmas.status_code == 200
-    assert "Christmas Gifts for Clients: Corporate Wine and Hamper Ideas" in christmas.text
+    assert "Corporate Christmas Wine Gifts for Clients" in christmas.text
+    assert "deadline for your final address list" in christmas.text
     assert "Christmas gifts for clients: what works best" in christmas.text
 
 
