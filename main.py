@@ -191,6 +191,10 @@ SITEMAP_GUIDE_SLUGS = [
 # Leaving unchanged URLs without <lastmod> is more accurate than stamping the
 # entire sitemap with the request date on every fetch.
 SITEMAP_LASTMOD_BY_PATH = {
+    "/guides/client-gift-policy-checklist": "2026-11-21",
+    "/staff-wine-gifts": "2026-11-21",
+    "/guides": "2026-11-21",
+    "/": "2026-11-21",
     "/guides/non-alcoholic-client-gifts": "2026-11-21",
     "/guides/corporate-gifting-recipient-csv-template": "2026-11-21",
     "/event-wine-planning-uk": "2026-11-21",
@@ -212,7 +216,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/guides/best-wine-gifts-under-50": "2026-11-21",
     "/guides/christmas-corporate-wine-gifts": "2026-11-21",
     "/guides/corporate-wine-gifts-uk": "2026-11-21",
-    "/guides/wine-gift-hampers-uk": "2026-11-19",
+    "/guides/wine-gift-hampers-uk": "2026-11-21",
     "/corporate-hampers-uk": "2026-11-21",
     "/corporate-wine-gifts": "2026-11-19",
     "/corporate-wine-gift-suppliers-uk": "2026-11-19",
@@ -6222,6 +6226,14 @@ GUIDES.update(
             },
             article_sections=[
                 {
+                    "id": "compare-hamper-quotes",
+                    "heading": "Compare two hampers on a £60 delivered budget",
+                    "paragraphs": [
+                        "In a fictional comparison, a £48 hamper plus £9 delivery costs £57. A £55 hamper with delivery included costs £55. Both fit a £60 cap. Confirm whether the quotes include VAT, a gift note and any surcharge for the destination postcode.",
+                        "Compare the contents line by line. Ask for the wine bottle size, food weights, allergen information and the supplier’s substitution policy. If delivery is time-sensitive, ask what happens when a recipient is out and whether a second attempt costs extra.",
+                    ],
+                },
+                {
                     "id": "filler",
                     "heading": "The filler problem",
                     "paragraphs": [
@@ -6256,6 +6268,7 @@ GUIDES.update(
             cta="Build my wine gift brief",
             cta_heading="Need a wine hamper that does not feel generic?",
             cta_text="Use ClientCellar to create a quick gift brief and compare whether a hamper, mixed case or single bottle is the better fit.",
+            last_updated="November 2026",
         ),
         "best-client-wine-gifts": enhanced_guide(
             title="Best Client Wine Gifts: Ideas That Feel Thoughtful, Not Transactional",
@@ -7347,6 +7360,14 @@ GUIDES.update(
             opening=["This is not legal advice, but where the value is meaningful or the relationship is commercially sensitive, it is sensible to check internal gift policies.", "The aim is simple: the gift should be proportionate, explainable and easy for the recipient to accept."],
             best_fit_table={"headers": ["Check", "Why it matters", "What to do"], "rows": [["Value", "Approval and perception", "Set tiers"], ["Timing", "Avoid pressure", "Send after milestones"], ["Alcohol", "Suitability", "Offer alternatives"], ["Record", "Audit trail", "Keep reason and cost"]]},
             article_sections=[
+                {
+                    "id": "sample-gift-approval",
+                    "heading": "What to put in a client gift approval request",
+                    "paragraphs": [
+                        "Example internal note: Thank-you for a completed project. Recipient is the client’s project team. Proposed gift is a shared alcohol-free food hamper at £55 delivered. No buying decision is known to be pending. Recipient’s policy and internal approval are still to be confirmed.",
+                        "Log the final value and the decision with its date and owner. If the recipient’s policy or the approval outcome is unclear, hold the order and send a thank-you note while you check.",
+                    ],
+                },
                 {"id": "judgement", "heading": "Most policy issues are judgement issues", "paragraphs": ["If the gift would be hard to explain in an email, lower the value, change the timing or choose a safer route. The best gifts are easy to defend because they are proportionate to the relationship."]},
                 {"id": "checklist", "heading": "The practical approval note", "paragraphs": ["Record who the gift is for, why it is being sent, approximate value, supplier route, delivery method and whether alcohol-free alternatives are available. That small note can save a lot of reconstruction later."], "editorial_note": "A good gift should not create a compliance problem for either side."},
             ],
@@ -7355,6 +7376,7 @@ GUIDES.update(
             cta="Create a policy-aware plan",
             cta_heading="Need a gift you can explain clearly?",
             cta_text="Use the planner to shape a practical, policy-aware gift route.",
+            last_updated="November 2026",
         ),
         "client-gifting-etiquette-uk": enhanced_guide(
             title="Client Gifting Etiquette UK",
@@ -9025,6 +9047,14 @@ SEO_PAGES.update(
         "staff-wine-gifts": {
             "title": "Staff Wine Gifts | ClientCellar",
             "h1": "Staff wine gifts and employee recognition",
+            "worked_example": {
+                "heading": "Plan equal-value gifts for office and remote staff",
+                "paragraphs": [
+                    "For 20 people on a fictional £35 delivered budget, set a £700 total. Offer each person a wine, alcohol-free drink or food option at the same gift-value target and check whether packaging and remote delivery fit the cap.",
+                    "If home delivery costs more, price those addresses before picking the gifts. Check whether office collection is practical, or arrange the delivery budget separately so remote colleagues can choose from the same gifts.",
+                    "Use a private form to collect each person’s choice and only the delivery details the supplier needs. Give staff the same deadline and describe every option in the same invitation.",
+                ],
+            },
             "description": "Plan staff wine gifts and employee recognition with practical guidance on suitability, alternatives, budgets and delivery.",
             "intro": "Staff wine gifts need more care than client gifts because fairness, alcohol suitability and delivery experience all affect how the gift lands.",
             "editorial_heading": "Recognition should not create a problem",
@@ -10261,7 +10291,7 @@ def index(request: Request):
         "index.html",
         "Corporate Wine Gifts & Event Drinks Planning",
         "Plan better corporate wine gifts, client hampers and event drinks with ClientCellar’s free planning tools, UK supplier directory and practical wine gifting guides.",
-        page_title="ClientCellar | Corporate Wine Gifts & Event Drinks Planning",
+        page_title="UK Corporate Wine Gifts & Event Planning | ClientCellar",
         structured_data=[website_schema(request), web_app_schema(request)],
     )
 
@@ -11031,8 +11061,8 @@ def guides_index(request: Request):
     return render(
         request,
         "guides.html",
-        "Wine Gift & Corporate Event Guides UK",
-        "Practical UK guides for corporate wine gifts, client gifting, hampers, Christmas gifts and event wine planning — written to help you choose something more thoughtful.",
+        "UK Corporate Wine Gifting & Event Guides",
+        "Find UK corporate wine gifting guides by recipient, occasion and budget. Compare alcohol-free client gifts, hampers, bulk delivery and event wine options.",
         guides=GUIDES,
         seo_pages=SEO_PAGES,
     )

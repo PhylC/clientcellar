@@ -754,6 +754,7 @@ def test_required_affiliate_ready_guides_load():
             "/guides/client-thank-you-wine-gifts",
             "/guides/client-gifting-etiquette-uk",
             "/guides/non-alcoholic-client-gifts",
+            "/guides/wine-gift-hampers-uk",
         }
         expected_updated = "November 2026" if path in updated_guides else "May 2026"
         assert f"Last updated: {expected_updated}" in response.text
@@ -880,9 +881,11 @@ def test_guides_start_here_renders_as_structured_cards():
         "I have a fixed budget",
         "I am buying for a team",
         "I am planning an event",
+        "I need to send gifts to multiple addresses",
+        "I need alcohol-free gift ideas",
         "I need etiquette advice",
     ]
-    assert parser.card_count == 6
+    assert parser.card_count == len(expected_labels)
     assert parser.labels == expected_labels
     assert parser.grid_parent_is_paragraph is False
 
@@ -1154,7 +1157,7 @@ def test_homepage_has_structured_data_and_conversion_links():
     response = client.get("/")
     assert response.status_code == 200
     assert 'application/ld+json' in response.text
-    assert "Better wine gifts and event drinks, without the guesswork" in response.text
+    assert "Plan UK corporate wine gifts and event drinks" in response.text
     assert "/images/clientcellar/homepage-wine-gift-hero.webp" in response.text
     assert "Corporate wine gift box with bottle, glass and thank-you card" in response.text
     assert "ClientCellar recommendations are editorially selected" in response.text
