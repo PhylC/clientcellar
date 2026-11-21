@@ -1332,6 +1332,7 @@ function renderMultiAddressGiftSuppliers(brief) {
 }
 
 function renderPlan(plan, type) {
+  const giftOrder = type === "gift" ? plan.gift_order_summary : null;
   const routeList = plan.supplier_routes_to_check || [plan.supplier_category].filter(Boolean);
   const questions =
     plan.questions_to_ask_suppliers ||
@@ -1381,6 +1382,14 @@ function renderPlan(plan, type) {
       <p class="eyebrow">Generated plan</p>
       <h2>${escapeHtml(plan.headline)}</h2>
       <p class="result-meta">${escapeHtml(plan.summary)}</p>
+      ${giftOrder ? `
+        <div class="gift-order-summary">
+          <p><strong>Gift budget:</strong> ${escapeHtml(giftOrder.gift_budget)} for the gifts (${escapeHtml(giftOrder.recipient_count)} × ${escapeHtml(giftOrder.budget_per_gift)}). Delivery, other fees and any VAT excluded from the gift prices are separate.</p>
+          <p><strong>Delivery deadline:</strong> ${escapeHtml(giftOrder.delivery_deadline || "To be confirmed")}</p>
+          <p><strong>Next step:</strong> Ask for an itemised quote showing the costs of gifts, VAT, delivery and any fees. Confirm whether the supplier can meet your deadline.</p>
+          <a class="button secondary small" href="#gift-supplier-routes">See suppliers to ask</a>
+        </div>
+      ` : ""}
       <p class="small-note">This is planning guidance, not a confirmed quote. Check stock, pricing, delivery, age restrictions and suitability directly with your chosen supplier.</p>
       <div class="result-block">
         <h2>${type === "event" ? "Event summary" : "Summary"}</h2>
@@ -1392,7 +1401,7 @@ function renderPlan(plan, type) {
         <p><strong>Estimated budget:</strong> ${escapeHtml(plan.estimated_total_budget)}</p>
         ${list(plan.budget_guidance || [])}
       </div>
-      <div class="result-block">
+      <div class="result-block"${type === "gift" ? ' id="gift-supplier-routes"' : ""}>
         <h2>${plan.multi_address_gifts ? "Suppliers for multi-address UK gifts" : "Recommended supplier routes"}</h2>
         ${plan.multi_address_gifts
           ? renderMultiAddressGiftSuppliers(plan.multi_address_gifts)
@@ -1525,6 +1534,9 @@ async function submitPlan(form, type) {
     plannerState[type] = { input: formToJson(form), output: plan };
     target.innerHTML = renderPlan(plan, type);
     target.dataset.csv = plan.recipient_csv_template || "";
+    if (type === "gift" && window.matchMedia("(max-width: 719px)").matches) {
+      target.scrollIntoView({ block: "start" });
+    }
     trackEvent(`${type}_free_report_generated`, { report_type: type });
   } catch (error) {
     target.innerHTML = '<div class="empty-state">Sorry, the plan could not be generated. Check the form and try again. If the issue continues, refresh the page.</div>';

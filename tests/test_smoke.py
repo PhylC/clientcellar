@@ -1369,8 +1369,9 @@ def test_gift_plan_endpoint():
         json={
             "recipient_type": "clients",
             "recipient_count": 12,
-            "budget_per_recipient": 45,
+            "budget_per_recipient": 75,
             "occasion": "Christmas thank-you",
+            "delivery_deadline": "12 December 2026",
             "gift_style": "not_sure",
             "tone": "safe",
             "uk_only": True,
@@ -1381,6 +1382,14 @@ def test_gift_plan_endpoint():
     )
     assert response.status_code == 200
     data = response.json()
+    assert data["gift_order_summary"] == {
+        "recipient_count": 12,
+        "budget_per_gift": "£75",
+        "gift_budget": "£900",
+        "delivery_deadline": "12 December 2026",
+    }
+    assert "before delivery" in data["estimated_total_budget"]
+    assert "any VAT not already included" in data["estimated_total_budget"]
     assert "supplier_shortlist" in data
     assert "supplier_category" in data
     assert data["supplier_shortlist"]
@@ -1405,6 +1414,7 @@ def test_gift_plan_uses_bulk_supplier_evidence_for_uk_multi_address_orders():
     response = client.post("/api/gift-plan", json=brief)
     assert response.status_code == 200
     plan = response.json()
+    assert plan["gift_order_summary"]["delivery_deadline"] is None
     match = plan["multi_address_gifts"]
     assert match["address_count"] == 30
     assert match["alcohol_free_count"] == 5

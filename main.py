@@ -3125,6 +3125,8 @@ def bulk_gift_supplier_shortlist(req: GiftPlanRequest) -> list[dict]:
 
 def make_gift_plan(req: GiftPlanRequest) -> dict:
     total = req.recipient_count * req.budget_per_recipient
+    per_gift_budget = f"£{req.budget_per_recipient:,.2f}".removesuffix(".00")
+    gift_budget = f"£{total:,.2f}".removesuffix(".00")
     label = budget_label(req.budget_per_recipient)
     active_suppliers = [supplier for supplier in SUPPLIERS if supplier.get("active", True)]
     ranked = sorted(active_suppliers, key=lambda supplier: rank_gift_supplier(supplier, req), reverse=True)
@@ -3214,8 +3216,8 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         "Keep a written record of quote assumptions, substitutions, delivery terms and approval notes.",
     ]
     budget_guidance = [
-        f"Planning budget: {money(req.budget_per_recipient)} per recipient, around {money(total)} total before supplier-confirmed extras.",
-        "This should cover the gift item or pack direction, but VAT, delivery, fulfilment, gift notes, branding and substitutions need confirming directly.",
+        f"Gift budget: {req.recipient_count} × {per_gift_budget} = {gift_budget}. This is the allowance for the gifts themselves.",
+        "Confirm which prices include VAT. Ask for separate delivery, packaging, fulfilment and other charges, and request the full delivered total including VAT.",
         "Ask suppliers about minimum order quantities, recipient data format and delivery cut-offs before seeking internal approval.",
     ]
     internal_approval_summary = (
@@ -3238,8 +3240,8 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
 
     plan = {
         "headline": f"{PRODUCT_NAME} gift plan: {label} {readable(req.recipient_type)} gifting",
-        "summary": f"Plan {req.recipient_count} {readable(req.recipient_type)} gifts for {req.occasion} at around {money(req.budget_per_recipient)} each.",
-        "estimated_total_budget": f"{money(total)} before confirmed delivery, VAT, packaging or fulfilment extras.",
+        "summary": f"Plan gifts for {req.recipient_count} {readable(req.recipient_type)} at around {per_gift_budget} each for {req.occasion}.",
+        "estimated_total_budget": f"{gift_budget} for the gifts, before delivery, other fees and any VAT not already included in the gift prices.",
         "recommended_direction": strategy,
         "recipient_occasion_fit": recipient_occasion_fit,
         "suggested_gift_direction": strategy,
@@ -3266,6 +3268,12 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         "disclaimer": DISCLAIMER,
     }
     plan = maybe_improve_plan(plan, "gift")
+    plan["gift_order_summary"] = {
+        "recipient_count": req.recipient_count,
+        "budget_per_gift": per_gift_budget,
+        "gift_budget": gift_budget,
+        "delivery_deadline": (req.delivery_deadline or "").strip() or None,
+    }
     shortlist = bulk_gift_supplier_shortlist(req)
     if shortlist:
         plan["multi_address_gifts"] = {

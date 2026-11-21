@@ -1315,6 +1315,24 @@ textarea {
   padding-top: 1rem;
 }
 
+#gift-results,
+#gift-supplier-routes {
+  scroll-margin-top: 6rem;
+}
+
+.gift-order-summary {
+  margin: 0.9rem 0;
+  padding: 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--burgundy-soft);
+  overflow-wrap: anywhere;
+}
+
+.gift-order-summary p {
+  margin: 0 0 0.65rem;
+}
+
 .premium-hero {
   align-items: center;
 }
