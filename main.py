@@ -191,6 +191,12 @@ SITEMAP_GUIDE_SLUGS = [
 # Leaving unchanged URLs without <lastmod> is more accurate than stamping the
 # entire sitemap with the request date on every fetch.
 SITEMAP_LASTMOD_BY_PATH = {
+    "/about": "2026-11-21",
+    "/guides/business-gift-wine-etiquette": "2026-11-21",
+    "/wine-gift-suppliers-for-businesses": "2026-11-21",
+    "/premium-pack": "2026-11-21",
+    "/faq": "2026-11-21",
+    "/client-wine-gifts": "2026-11-21",
     "/corporate-wine-tasting-events": "2026-11-21",
     "/guides/staff-wine-gifts": "2026-11-21",
     "/guides/corporate-wine-hampers": "2026-11-21",
@@ -228,15 +234,15 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/event-wine-planning-uk": "2026-11-21",
     "/client-christmas-gifts-uk": "2026-11-21",
     "/corporate-christmas-wine-gifts": "2026-11-21",
-    "/corporate-gifting-ideas-uk": "2026-11-18",
+    "/corporate-gifting-ideas-uk": "2026-11-21",
     "/event-planner": "2026-11-21",
     "/gift-planner": "2026-11-21",
     "/gift-quote-comparison": "2026-11-21",
     "/premium-client-gifts-uk": "2026-11-21",
     "/supplier-directory": "2026-11-21",
     "/uk-wine-gift-supplier-comparison": BULK_GIFT_SUPPLIERS_CHECKED.isoformat(),
-    "/suppliers": "2026-11-19",
-    "/thank-you-gifts-for-clients": "2026-11-18",
+    "/suppliers": "2026-11-21",
+    "/thank-you-gifts-for-clients": "2026-11-21",
     "/guides/best-wine-accessories-for-gifts": "2026-11-21",
     "/guides/best-client-wine-gifts": "2026-11-21",
     "/guides/best-wine-gifts-under-100": "2026-11-21",
@@ -246,7 +252,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/guides/corporate-wine-gifts-uk": "2026-11-21",
     "/guides/wine-gift-hampers-uk": "2026-11-21",
     "/corporate-hampers-uk": "2026-11-21",
-    "/corporate-wine-gifts": "2026-11-19",
+    "/corporate-wine-gifts": "2026-11-21",
     "/corporate-wine-gift-suppliers-uk": "2026-11-21",
     "/corporate-hamper-suppliers-uk": "2026-11-21",
     "/guides/champagne-gifts-for-clients": "2026-11-21",
@@ -6758,6 +6764,14 @@ GUIDES.update(
             },
             article_sections=[
                 {
+                    "id": "offer-a-choice",
+                    "heading": "How to offer wine without putting someone on the spot",
+                    "paragraphs": [
+                        "If you know the company allows gifts but are unsure about wine, ask whether they would prefer a wine, alcohol-free or food option. Offer them together in the same message and avoid asking why someone chooses an alternative.",
+                        "If you cannot get a preference without spoiling the occasion, choose something that does not depend on knowing whether they drink. Keep the message about the work or occasion you appreciate.",
+                    ],
+                },
+                {
                     "id": "adult",
                     "heading": "The adult-in-the-room checks",
                     "paragraphs": [
@@ -6784,6 +6798,7 @@ GUIDES.update(
             cta="Create a policy-aware gift plan",
             cta_heading="Want to avoid an awkward gift?",
             cta_text="Use ClientCellar to shape a more careful gift route before buying.",
+            last_updated="November 2026",
         ),
         "corporate-event-wine-planning": enhanced_guide(
             title="Corporate Event Wine Planning: How Much to Buy and What to Serve",
@@ -9080,6 +9095,13 @@ SUPPLIER_INTENT_SEO_PAGES = {
     },
     "wine-gift-suppliers-for-businesses": {
         "title": "Wine Gift Suppliers for Businesses: What to Look For",
+        "worked_example": {
+            "heading": "Check how a supplier handles your next repeat order",
+            "paragraphs": [
+                "For a repeat programme, ask which details the supplier can retain, such as packaging and a standard gift note, and when you need to send a fresh recipient file.",
+                "Ask who handles a late address change and how you receive an updated delivery report. Confirm whether minimum orders or quoted terms are different when you place a smaller follow-up order.",
+            ],
+        },
         "h1": "Wine gift suppliers for businesses",
         "description": "How businesses should choose wine gift suppliers for clients, stakeholders, teams and corporate events.",
         "intro": "Business wine gifts need more than a good bottle. The supplier has to support the way companies buy: clear pricing, VAT invoices, delivery confidence, presentation and sensible alternatives.",
@@ -9140,6 +9162,13 @@ SEO_PAGES.update(
     {
         "corporate-wine-gifts": {
             "title": "Corporate Wine Gifts | ClientCellar",
+            "worked_example": {
+                "heading": "Set up one corporate wine order with several gift types",
+                "paragraphs": [
+                    "For a list that includes individual bottles, alcohol-free choices and two team hampers, group the order by gift type and confirm how many separate addresses each group needs.",
+                    "Ask for a quote on one consistent delivered basis. Keep the gift allowance separate from postage and personalisation so you can make changes without losing track of the total.",
+                ],
+            },
             "h1": "Corporate wine gifts for UK businesses",
             "description": "Plan UK corporate wine gifts with practical budget guidance, supplier routes and links to ClientCellar's gift planner.",
             "intro": "Corporate wine gifts are easy to buy and surprisingly easy to get wrong. The useful question is not which bottle looks smartest; it is whether the gift fits the recipient, the relationship and the delivery reality.",
@@ -9239,6 +9268,13 @@ SEO_PAGES.update(
         },
         "client-wine-gifts": {
             "title": "Client Wine Gifts | ClientCellar",
+            "worked_example": {
+                "heading": "Match the client gift to what you are thanking them for",
+                "paragraphs": [
+                    "For an individual thank-you, choose an option you know the recipient would welcome and name the reason in the message. For a project completed by several people, check who should share the gift and whether they will be in the office together.",
+                    "For an ongoing relationship, confirm whether the company accepts gifts and whether a decision is pending. Use one delivered budget that includes the note, packaging and postage.",
+                ],
+            },
             "h1": "Client wine gifts and customer thank-you gifts",
             "description": "Practical UK planning advice for client wine gifts, customer thank-yous, supplier routes and gift message tone.",
             "intro": "Client wine gifts should feel warm, useful and proportionate. They should not feel like a bribe, a flex, or an apology.",
@@ -9524,6 +9560,13 @@ SEO_PAGES.update(
         },
         "corporate-gifting-ideas-uk": {
             "title": "Corporate Gifting Ideas UK | ClientCellar",
+            "worked_example": {
+                "heading": "Choose a corporate gift around how it will be used",
+                "paragraphs": [
+                    "A team gift should have enough portions and clear labelling. An individual gift should be straightforward to receive, especially at a home address. For a limited budget, a small item with a specific note can be easier to deliver than several loosely related items.",
+                    "Before you shortlist suppliers, write down the recipient, occasion and delivered cap. Then choose whether the order needs separate options, addresses or messages.",
+                ],
+            },
             "h1": "Corporate gifting ideas UK",
             "description": "Useful UK corporate gifting ideas across wine, hampers, food, coffee, experiences and alcohol-free alternatives, with practical planning guidance.",
             "intro": "Most corporate gifts are forgettable because they are chosen by category, not by context. Wine can be right, but it should not be the automatic answer.",
@@ -9619,6 +9662,13 @@ SEO_PAGES.update(
         },
         "thank-you-gifts-for-clients": {
             "title": "Thank You Gifts for Clients | ClientCellar",
+            "worked_example": {
+                "heading": "Write a specific note for a client thank-you",
+                "paragraphs": [
+                    "For an individual, mention what they did and how it helped, for example, “Thank you for pulling together the figures so quickly. They helped us finish the review on time.”",
+                    "For a team, use the project as the shared reference and ask the main contact to pass on your thanks. If the gift is delayed or approval is pending, send the note while the occasion is still fresh.",
+                ],
+            },
             "h1": "Thank-you gifts for clients",
             "description": "Plan thank-you gifts for UK clients with wine, hamper and premium supplier route guidance from ClientCellar.",
             "intro": "A thank-you gift should not feel like a random bottle looking for a reason. The reason comes first.",

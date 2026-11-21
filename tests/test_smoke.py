@@ -768,6 +768,7 @@ def test_required_affiliate_ready_guides_load():
             "/guides/luxury-wine-hampers-uk",
             "/guides/wine-gifts-for-new-business",
             "/guides/wine-gifts-for-events",
+            "/guides/business-gift-wine-etiquette",
         }
         expected_updated = "November 2026" if path in updated_guides else "May 2026"
         assert f"Last updated: {expected_updated}" in response.text
@@ -1019,7 +1020,7 @@ def test_sitemap_includes_public_seo_and_excludes_checkout_pages():
             f"<loc>https://clientcellar.co.uk{path}</loc><lastmod>{lastmod}</lastmod>"
             in text
         )
-    assert "<loc>https://clientcellar.co.uk/about</loc><lastmod>" not in text
+    assert "<loc>https://clientcellar.co.uk/affiliate-disclosure</loc><lastmod>" not in text
     assert "https://clientcellar.co.uk/" in text
     assert "https://clientcellar.co.uk/gift-planner" in text
     assert "https://clientcellar.co.uk/event-planner" in text
