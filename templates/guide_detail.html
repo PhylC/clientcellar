@@ -172,6 +172,9 @@
       </aside>
       {% endif %}
       {% for paragraph in section.paragraphs or [] %}<p>{{ paragraph }}</p>{% endfor %}
+      {% if section.download %}
+      <p><a class="button secondary small" href="{{ section.download.href }}" download>{{ section.download.label }}</a></p>
+      {% endif %}
       {% if section.bullets %}
       <ul>
         {% for item in section.bullets %}<li>{{ item }}</li>{% endfor %}

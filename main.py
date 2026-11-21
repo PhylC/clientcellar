@@ -191,12 +191,15 @@ SITEMAP_GUIDE_SLUGS = [
 # Leaving unchanged URLs without <lastmod> is more accurate than stamping the
 # entire sitemap with the request date on every fetch.
 SITEMAP_LASTMOD_BY_PATH = {
+    "/guides/non-alcoholic-client-gifts": "2026-11-21",
+    "/guides/corporate-gifting-recipient-csv-template": "2026-11-21",
+    "/event-wine-planning-uk": "2026-11-21",
     "/client-christmas-gifts-uk": "2026-11-21",
     "/corporate-christmas-wine-gifts": "2026-11-18",
     "/corporate-gifting-ideas-uk": "2026-11-18",
     "/event-planner": "2026-11-21",
     "/gift-planner": "2026-11-21",
-    "/gift-quote-comparison": "2026-11-20",
+    "/gift-quote-comparison": "2026-11-21",
     "/premium-client-gifts-uk": "2026-11-18",
     "/supplier-directory": "2026-11-21",
     "/uk-wine-gift-supplier-comparison": BULK_GIFT_SUPPLIERS_CHECKED.isoformat(),
@@ -210,7 +213,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/guides/christmas-corporate-wine-gifts": "2026-11-21",
     "/guides/corporate-wine-gifts-uk": "2026-11-21",
     "/guides/wine-gift-hampers-uk": "2026-11-19",
-    "/corporate-hampers-uk": "2026-11-19",
+    "/corporate-hampers-uk": "2026-11-21",
     "/corporate-wine-gifts": "2026-11-19",
     "/corporate-wine-gift-suppliers-uk": "2026-11-19",
     "/corporate-hamper-suppliers-uk": "2026-11-19",
@@ -7390,6 +7393,16 @@ GUIDES.update(
             opening=["A clean recipient list saves supplier back-and-forth, failed deliveries and awkward follow-ups. It also helps you spot alcohol-free needs, office closures and duplicate recipients before the order is placed.", "This is not glamorous work. It is the difference between a smooth gifting campaign and a week of courier emails."],
             best_fit_table={"headers": ["Field", "Why it matters", "Watch"], "rows": [["Name", "Gift note and delivery", "Spelling"], ["Address", "Successful delivery", "Office closures"], ["Preference", "Suitability", "Privacy"], ["Message", "Personalisation", "Length limits"]]},
             article_sections=[
+                {
+                    "id": "recipient-csv",
+                    "heading": "Download the blank recipient CSV",
+                    "paragraphs": [
+                        "Start with one row per recipient and confirm the supplier’s required column names and delivery format before uploading. Leave optional fields blank when they are not needed.",
+                        "Fictional example row: Alex Example,Unit 4,Example Works,Sampletown,ZZ1 1ZZ,Food gift,Thanks for your help this year.",
+                        "Put the chosen gift option in the gift route column. Keep private reasons or medical information out of the supplier’s CSV.",
+                    ],
+                    "download": {"href": "/static/corporate-gifting-recipient-template.csv", "label": "Download the blank CSV"},
+                },
                 {"id": "format", "heading": "Ask the supplier before building the file", "paragraphs": ["Some suppliers want one address per row. Some need phone numbers. Some have message character limits. Get their required format early so you do not rebuild the sheet twice."]},
                 {"id": "privacy", "heading": "Handle addresses carefully", "paragraphs": ["Only collect what you need, store it sensibly, and avoid forwarding spreadsheets around casually. For home delivery, be especially careful about who has access."]},
             ],
@@ -7398,6 +7411,7 @@ GUIDES.update(
             cta="Plan a bulk gift order",
             cta_heading="Need a cleaner recipient brief?",
             cta_text="Use the planner to shape the order before you prepare supplier data.",
+            last_updated="November 2026",
         ),
         "food-and-wine-hampers": enhanced_guide(
             title="Food and Wine Hampers",
@@ -7857,6 +7871,14 @@ GUIDES.update(
             ],
             best_fit_table={"headers": ["Route", "Best for", "Watch"], "rows": [["Premium food hamper", "Broad client gifting and teams", "Allergens and dietary needs."], ["Coffee or tea gift", "Workplace-safe individual gifts", "Quality and presentation."], ["Alcohol-free sparkling", "Celebrations", "Do not choose tokenistic alternatives."], ["Experience or voucher", "Known recipient preference", "Choice and admin."], ["Choice-led gift", "Unknown preferences", "Supplier workflow and privacy."]]},
             article_sections=[
+                {
+                    "id": "delivered-budget",
+                    "heading": "Choose an alcohol-free client gift within a delivered budget",
+                    "paragraphs": [
+                        "For a celebration where the recipient welcomes a drinks gift, consider a sparkling drink labelled 0.0% and check the label and the recipient’s policy. If preferences are unknown, a coffee or tea gift avoids a wine-themed choice. For a team sharing a gift, consider a food hamper with clearly listed ingredients and allergens.",
+                        "On a fictional £45 delivered budget, set aside £7 for postage and £3 for packaging if charged separately. That leaves £35 for the gift. Ask suppliers for the delivered total including VAT and use the same £45 cap for every recipient option.",
+                    ],
+                },
                 {"id": "why-it-matters", "heading": "This is not just inclusivity theatre", "paragraphs": ["Alcohol-free options protect the recipient from awkward disclosure and protect the sender from making assumptions. They also widen the range of gifts that can be accepted under stricter policies."]},
                 {"id": "premium-options", "heading": "Better non-alcoholic client gift ideas", "bullets": ["Specialist coffee or tea with strong packaging.", "Premium food hampers with clear allergens.", "Alcohol-free sparkling for celebration moments.", "Local produce boxes or bakery-led gifts.", "Choice-led gifts where the recipient can select a suitable route."]},
                 {"id": "avoid", "heading": "What to avoid", "paragraphs": ["Do not pair a polished wine option with a visibly weaker alternative. If the budget is £75 for wine, the alcohol-free route should feel like a £75 gift too."]},
@@ -7866,6 +7888,7 @@ GUIDES.update(
             cta="Plan an alcohol-free route",
             cta_heading="Need a safer client gift?",
             cta_text="Use the planner to compare premium alcohol-free, hamper and wine routes without making assumptions.",
+            last_updated="November 2026",
         ),
         "best-wine-gifts-under-50": enhanced_guide(
             title="Best Wine Gifts Under £50: Premium Client Ideas",
@@ -9180,6 +9203,14 @@ SEO_PAGES.update(
             "editorial_intro": ["Hampers work well for mixed tastes, teams and Christmas gifting because they offer more than one way to enjoy the gift.", "The danger is buying the basket rather than the contents. Big is not automatically generous."],
             "decision": {"heading": "Hamper or wine case?", "headers": ["Situation", "Better choice", "Reason"], "rows": [["Client team", "Shareable hamper", "Food and drink variety helps"], ["Known wine lover", "Mixed wine case", "More value in the wine"], ["Christmas list", "Hamper with clear contents", "Seasonal and easy to share"], ["Senior client", "Premium restrained hamper", "Presentation without gimmicks"]]},
             "advisory": {"heading": "Read the contents list like a sceptic", "paragraphs": ["Look for exact items, allergen clarity, alcohol contents, substitutions and delivery protection. Tiny jars, vague wine descriptions and oversized packaging are signs the hamper may photograph better than it feels."], "note": "Do not buy the packaging. Buy the gift."},
+            "worked_example": {
+                "heading": "One shared office hamper or individual gifts?",
+                "paragraphs": [
+                    "For an eight-person client team that is usually in the office together, ask for one hamper with at least eight shareable portions, clear allergen labels and a delivery date when someone can receive it.",
+                    "If the same team is spread across eight addresses, ask for eight individual gifts and eight delivery charges. Compare the total including packaging and VAT, then divide by eight to check the per-person budget.",
+                    "Give the supplier a list of acceptable substitutions and ask for approval before anything with different allergens or alcohol content is sent.",
+                ],
+            },
             "supplier_routes": HAMPER_SUPPLIER_ROUTES,
             "faqs": [
                 {"q": "Are corporate hampers better than wine gifts?", "a": "They can be better for mixed recipient groups or unknown preferences, but wine may suit known wine-friendly clients."},
@@ -9249,6 +9280,14 @@ SEO_PAGES.update(
             "editorial_intro": ["Start with guest count, format, food, pacing and venue rules. A reception, dinner, client evening and tasting all need different assumptions.", "Non-drinkers, glassware, chilling, delivery access and corkage are not afterthoughts. They are the event working properly."],
             "decision": {"heading": "Event wine route finder", "headers": ["Event moment", "Better route", "Watch"], "rows": [["Reception", "Sparkling plus white-led mix", "Service speed"], ["Dinner", "Food-led red and white split", "Menu and pacing"], ["Client event", "Polished mainstream supplier route", "Professional tone"], ["Tasting", "Hosted supplier or merchant", "Inclusive format"], ["Mixed audience", "Adult alcohol-free options", "Equal quality"]]},
             "advisory": {"heading": "What hosts forget", "paragraphs": ["Ask who receives the delivery, who chills the wine, who provides glassware, who handles leftovers and what substitutions may be made. These practical questions shape the guest experience more than the label on the bottle.", "Use planning ranges, then confirm final quantities with the supplier, caterer or venue."], "note": "Event wine is hospitality plus logistics. Treat both seriously."},
+            "worked_example": {
+                "heading": "A sample supplier brief for a 50-guest reception",
+                "paragraphs": [
+                    "Brief both suppliers on the same event: 50 guests, a 90-minute standing reception with canapés, and a welcoming alcohol-free option available throughout. Ask each supplier to itemise their proposed alcoholic and alcohol-free quantities, serving sizes and allowance for unopened reserve stock.",
+                    "For a venue package, ask which drinks, glasses and staff are included and how extra stock is charged. For an outside supplier, add delivery, chilling, service and any corkage the venue charges. Confirm who signs for the delivery and what happens to unopened bottles.",
+                    "If the format changes to a seated dinner, brief suppliers again with the menu, length of service and number of courses so they can explain the change in quantities and cost.",
+                ],
+            },
             "supplier_routes": EVENT_SUPPLIER_ROUTES,
             "faqs": [
                 {"q": "How much wine do I need for a corporate event?", "a": "It depends on format, duration, food and guest profile. Use the event planner for an estimate and confirm with suppliers or the venue."},

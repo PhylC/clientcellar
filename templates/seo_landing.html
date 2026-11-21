@@ -79,6 +79,15 @@
 </section>
 {% endif %}
 
+{% if page.worked_example %}
+<section class="seo-editorial planning-section">
+  <h2>{{ page.worked_example.heading }}</h2>
+  {% for paragraph in page.worked_example.paragraphs %}
+  <p>{{ paragraph }}</p>
+  {% endfor %}
+</section>
+{% endif %}
+
 {% if page.advisory %}
 <section class="seo-editorial seo-advisory planning-section">
   <p class="eyebrow">{{ page.advisory.label or "ClientCellar view" }}</p>

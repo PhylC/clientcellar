@@ -753,6 +753,7 @@ def test_required_affiliate_ready_guides_load():
             "/guides/champagne-gifts-for-clients",
             "/guides/client-thank-you-wine-gifts",
             "/guides/client-gifting-etiquette-uk",
+            "/guides/non-alcoholic-client-gifts",
         }
         expected_updated = "November 2026" if path in updated_guides else "May 2026"
         assert f"Last updated: {expected_updated}" in response.text
