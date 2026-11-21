@@ -9522,6 +9522,13 @@ SEO_PAGES.update(
                 ],
                 "note": "A standardised gift can still feel thoughtful when the route fits the recipient and the message says what the relationship meant this year.",
             },
+            "worked_example": {
+                "heading": "What to send when Christmas delivery is uncertain",
+                "paragraphs": [
+                    "If the office will be staffed and the supplier confirms the delivery slot, choose a ready-to-ship gift with a simple note. Check which postcode, delivery date and gift options the supplier has actually confirmed before ordering.",
+                    "If you cannot confirm a staffed delivery date, send a specific thank-you message before the break and arrange a January delivery if the recipient welcomes it. Set the date and delivered budget first, then choose a gift that fits.",
+                ],
+            },
             "supplier_routes": [*WINE_GIFT_SUPPLIER_ROUTES[:2], *HAMPER_SUPPLIER_ROUTES[:2]],
             "supplier_heading": "Supplier routes for Christmas client gifts",
             "faqs": [
