@@ -747,6 +747,7 @@ def test_required_affiliate_ready_guides_load():
         updated_guides = {
             "/guides/best-client-wine-gifts",
             "/guides/best-wine-accessories-for-gifts",
+            "/guides/best-wine-gifts-under-25",
             "/guides/best-wine-gifts-under-100",
             "/guides/christmas-corporate-wine-gifts",
         }

@@ -230,6 +230,9 @@
           {% if merchant.url %}
           <a class="button secondary small" href="{{ merchant.url }}" target="_blank" rel="noopener noreferrer{% if merchant.is_affiliate %} sponsored{% endif %}"{% if track_guide_clicks %} data-supplier-click data-supplier-name="{{ merchant.name }}"{% endif %}>View supplier</a>
           {% endif %}
+          {% if merchant.details_url %}
+          <p><a class="text-link" href="{{ merchant.details_url }}">{{ merchant.details_label }}</a></p>
+          {% endif %}
         </article>
         {% endfor %}
       </div>
