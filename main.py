@@ -191,6 +191,11 @@ SITEMAP_GUIDE_SLUGS = [
 # Leaving unchanged URLs without <lastmod> is more accurate than stamping the
 # entire sitemap with the request date on every fetch.
 SITEMAP_LASTMOD_BY_PATH = {
+    "/contact": "2026-11-21",
+    "/editorial-policy": "2026-11-21",
+    "/submit-supplier": "2026-11-21",
+    "/guides/corporate-wine-gifts-under-100": "2026-11-21",
+    "/guides/corporate-wine-gifts-under-50": "2026-11-21",
     "/about": "2026-11-21",
     "/guides/business-gift-wine-etiquette": "2026-11-21",
     "/wine-gift-suppliers-for-businesses": "2026-11-21",
@@ -240,7 +245,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/gift-quote-comparison": "2026-11-21",
     "/premium-client-gifts-uk": "2026-11-21",
     "/supplier-directory": "2026-11-21",
-    "/uk-wine-gift-supplier-comparison": BULK_GIFT_SUPPLIERS_CHECKED.isoformat(),
+    "/uk-wine-gift-supplier-comparison": "2026-11-21",
     "/suppliers": "2026-11-21",
     "/thank-you-gifts-for-clients": "2026-11-21",
     "/guides/best-wine-accessories-for-gifts": "2026-11-21",
@@ -7173,6 +7178,14 @@ GUIDES.update(
             opening=["A single good bottle, a sparkling option, a two-bottle pair or a compact wine-and-food gift can all work. The danger is spreading £50 across too many parts until none of them feel strong.", "Do not buy the box first. Buy the thing the recipient will actually open."],
             best_fit_table={"headers": ["Route", "Why it works", "Watch"], "rows": [["Sparkling bottle", "Feels celebratory", "Avoid novelty labels"], ["Two-bottle pair", "Gives choice", "Presentation still matters"], ["Compact hamper", "More complete gift", "Check filler"], ["Merchant pick", "Feels less generic", "Delivery may be simpler locally"]]},
             article_sections=[
+                {
+                    "id": "delivered-budget-example",
+                    "heading": "Build a £50 delivered gift for several addresses",
+                    "paragraphs": [
+                        "A £50 delivered cap across 12 recipients is a £600 total. In a fictional quote, £7 delivery and £3 packaging per address leave £40 for each gift. Check whether all quote lines use the same VAT basis.",
+                        "Ask the supplier to quote any remote-postcode surcharge separately. If one address changes the average, check the individual delivered cap and adjust the gift or delivery route before approval.",
+                    ],
+                },
                 {"id": "trade-off", "heading": "The honest trade-off", "paragraphs": ["At this budget, choose clarity over size. If the recipient is a close client, a better bottle with a thoughtful note can feel more personal than a small hamper padded with average snacks."], "editorial_note": "A modest gift is fine. A modest gift pretending to be luxury is where it starts to feel awkward."},
                 {"id": "supplier", "heading": "Ask before ordering", "paragraphs": ["Confirm gift messages, delivery timing, substitutions and whether VAT invoices are available. Those practical details make a small gift feel much more professional."]},
             ],
@@ -7181,6 +7194,7 @@ GUIDES.update(
             cta="Find a wine gift under £50",
             cta_heading="Need a polished gift within budget?",
             cta_text="Use the planner to compare sensible under-£50 routes before choosing a supplier.",
+            last_updated="November 2026",
         ),
         "corporate-wine-gifts-under-100": enhanced_guide(
             title="Corporate Wine Gifts Under £100",
@@ -7192,6 +7206,14 @@ GUIDES.update(
             opening=["At £100, you can choose a direction. One strong bottle says confidence. A pair says choice. A mixed case says usefulness. A hamper says sharing.", "The mistake is buying size for its own sake. Bigger packaging can make the gift feel less premium, not more."],
             best_fit_table={"headers": ["Choice", "Use it when", "Risk"], "rows": [["Premium bottle", "Taste is known", "Higher taste risk"], ["Bottle pair", "Taste is partly unknown", "Less dramatic"], ["Mixed case", "Recipient is wine-friendly", "Delivery weight"], ["Compact hamper", "Gift may be shared", "Filler"]]},
             article_sections=[
+                {
+                    "id": "delivered-budget-example",
+                    "heading": "Choose how much of a £100 budget goes to the gift",
+                    "paragraphs": [
+                        "With a fictional £100 delivered budget, £9 for delivery and £6 for packaging leave £85 for the contents. Ask for one quote that puts that amount into the bottle or pair and one that uses the same limit for a shareable hamper.",
+                        "Compare the contents, gift message and delivery promise against the intended recipient. Choose around what they will use and check any gift-policy limit before ordering.",
+                    ],
+                },
                 {"id": "spend", "heading": "Where I would spend the money", "paragraphs": ["Put the budget into contents, delivery reliability and a proper note. If the supplier can support gift messages, VAT invoices and clear substitutions, that often matters more than a heavier box."], "editorial_note": "Premium should feel calm. It does not need to announce the price."},
                 {"id": "fit", "heading": "Choose the route by recipient", "paragraphs": ["A senior individual may suit sparkling or a better bottle. A team usually needs a case or hamper. If alcohol is uncertain, use a food-led or alcohol-free route with the same budget respect."]},
             ],
@@ -7200,6 +7222,7 @@ GUIDES.update(
             cta="Plan a stronger wine gift",
             cta_heading="Want to use the budget well?",
             cta_text="Build a quick brief before choosing between bottle, case and hamper routes.",
+            last_updated="November 2026",
         ),
         "champagne-gifts-for-clients": enhanced_guide(
             title="Champagne Gifts for Clients",
