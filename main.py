@@ -105,6 +105,17 @@ SEO_REDIRECTS = {
     "/supplier-application": "/submit-supplier",
 }
 
+
+def related_guide_href(slug: str) -> str:
+    path = f"/guides/{slug}"
+    if slug == "corporate-champagne-gifts":
+        return "/guides/champagne-gifts-for-clients"
+    return SEO_REDIRECTS.get(path, path)
+
+
+templates.env.globals["related_guide_href"] = related_guide_href
+
+
 SITEMAP_STATIC_ROUTES = [
     "/",
     "/about",
@@ -138,6 +149,7 @@ SITEMAP_STATIC_ROUTES = [
     "/staff-wine-gifts",
     "/submit-supplier",
     "/supplier-directory",
+    "/suppliers/join",
     "/supplier-partnerships",
     "/suppliers",
     "/terms",
@@ -191,6 +203,7 @@ SITEMAP_GUIDE_SLUGS = [
 # Leaving unchanged URLs without <lastmod> is more accurate than stamping the
 # entire sitemap with the request date on every fetch.
 SITEMAP_LASTMOD_BY_PATH = {
+    "/suppliers/join": "2026-11-21",
     "/contact": "2026-11-21",
     "/editorial-policy": "2026-11-21",
     "/submit-supplier": "2026-11-21",
