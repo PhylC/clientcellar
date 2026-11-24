@@ -12,6 +12,7 @@ import urllib.request
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Literal
+from uuid import NAMESPACE_URL, uuid5
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -610,10 +611,15 @@ def store_analytics_event(payload: dict | None) -> bool:
     settings = supabase_settings()
     if not settings["service_configured"]:
         return False
+    deduplicate = "id" in payload
     try:
         admin = get_supabase_admin()
         if admin is not None:
-            admin.table("analytics_events").insert(payload).execute()
+            table = admin.table("analytics_events")
+            if deduplicate:
+                table.upsert(payload, on_conflict="id", ignore_duplicates=True).execute()
+            else:
+                table.insert(payload).execute()
             return True
     except Exception as error:
         print("Supabase analytics insert failed; trying REST fallback:", str(error))
@@ -624,7 +630,7 @@ def store_analytics_event(payload: dict | None) -> bool:
             headers={
                 "apikey": settings["service_role_key"],
                 "Authorization": f"Bearer {settings['service_role_key']}",
-                "Prefer": "return=minimal",
+                "Prefer": "return=minimal,resolution=ignore-duplicates" if deduplicate else "return=minimal",
             },
             payload=payload,
             timeout=4,
@@ -635,9 +641,12 @@ def store_analytics_event(payload: dict | None) -> bool:
         return False
 
 
-def track_server_event(event_name: str, request: Request | None = None, **kwargs) -> None:
+def track_server_event(event_name: str, request: Request | None = None, *, dedupe_key: str | None = None, **kwargs) -> None:
     try:
-        store_analytics_event(build_analytics_payload(event_name, request, **kwargs))
+        payload = build_analytics_payload(event_name, request, **kwargs)
+        if payload is not None and dedupe_key:
+            payload["id"] = str(uuid5(NAMESPACE_URL, f"{CANONICAL_ORIGIN}/analytics/{event_name}/{dedupe_key}"))
+        store_analytics_event(payload)
     except Exception as error:
         print("Analytics tracking failed:", str(error))
 
@@ -1961,6 +1970,9 @@ ANALYTICS_EVENT_ALLOWLIST = {
     "gift_supplier_clicked",
     "gift_upgrade_clicked",
     "gift_checkout_started",
+    "shortlist_homepage_button_click",
+    "shortlist_homepage_checkout_click",
+    "shortlist_homepage_booking_paid",
     "gift_premium_viewed",
     "event_planner_started",
     "event_free_report_generated",
@@ -4063,6 +4075,7 @@ def send_email(
 
 CHRISTMAS_SHORTLIST_CHECKOUT_URL = "https://buy.stripe.com/6oU14n97f0wd8d58Q4dEs00"
 CHRISTMAS_SHORTLIST_PAYMENT_LINK = "plink_1UfQBYG5Y4RuGSVT6q6RxIDi"
+SHORTLIST_HOMEPAGE_REFERENCE = "cc_christmas_shortlist_homepage"
 
 
 def send_christmas_shortlist_booking(session):
@@ -4075,6 +4088,18 @@ def send_christmas_shortlist_booking(session):
         or stripe_obj_get(session, "currency") != "gbp"
     ):
         raise HTTPException(status_code=422, detail="Christmas shortlist booking details could not be verified.")
+
+    if (
+        stripe_obj_get(session, "livemode") is True
+        and stripe_obj_get(session, "client_reference_id") == SHORTLIST_HOMEPAGE_REFERENCE
+    ):
+        track_server_event(
+            "shortlist_homepage_booking_paid",
+            page_path="/client-christmas-gifts-uk",
+            report_type="gift",
+            checkout_session_id=session_id,
+            dedupe_key=session_id,
+        )
 
     brief = []
     for field in stripe_obj_get(session, "custom_fields", []) or []:
@@ -11728,7 +11753,7 @@ def admin_summary(request: Request):
     }
 
 
-def fetch_analytics_events(days: int = 30, limit: int = 10000) -> list[dict]:
+def fetch_analytics_events(days: int = 30, limit: int = 10000, *, event_names: tuple[str, ...] = ()) -> list[dict]:
     settings = supabase_settings()
     if not settings["service_configured"]:
         return []
@@ -11741,6 +11766,8 @@ def fetch_analytics_events(days: int = 30, limit: int = 10000) -> list[dict]:
         f"?select=created_at,event_name,session_id,page_path,device_type,report_type,supplier_name,supplier_url,checkout_session_id"
         f"&created_at=gte.{since_value}&order=created_at.desc&limit={limit}"
     )
+    if event_names:
+        url += f"&event_name=in.({','.join(event_names)})"
     try:
         data = _supabase_json_request(
             url,
@@ -11775,6 +11802,25 @@ def analytics_group_count(rows: list[dict], key: str, event_names: set[str] | No
 
 def analytics_summary_for_days(days: int) -> dict:
     rows = fetch_analytics_events(days)
+    shortlist_events = (
+        "shortlist_homepage_button_click",
+        "shortlist_homepage_checkout_click",
+        "shortlist_homepage_booking_paid",
+    )
+    shortlist_rows = fetch_analytics_events(days, event_names=shortlist_events)
+    shortlist_button, shortlist_checkout, shortlist_booking = shortlist_events
+    button_sessions = {
+        row["session_id"] for row in shortlist_rows
+        if row.get("event_name") == shortlist_button and row.get("session_id")
+    }
+    checkout_sessions = {
+        row["session_id"] for row in shortlist_rows
+        if row.get("event_name") == shortlist_checkout and row.get("session_id")
+    }
+    paid_bookings = {
+        row["checkout_session_id"] for row in shortlist_rows
+        if row.get("event_name") == shortlist_booking and row.get("checkout_session_id")
+    }
     free_reports = analytics_count(rows, {"gift_free_report_generated", "event_free_report_generated"})
     upgrade_clicks = analytics_count(rows, {"gift_upgrade_clicked", "event_upgrade_clicked", "example_upgrade_clicked"})
     checkout_starts = analytics_count(rows, {"gift_checkout_started", "event_checkout_started"})
@@ -11783,6 +11829,13 @@ def analytics_summary_for_days(days: int) -> dict:
         "days": days,
         "analytics_configured": supabase_settings()["service_configured"],
         "event_count": len(rows),
+        "christmas_shortlist_homepage": {
+            "button_clicks": analytics_count(shortlist_rows, {shortlist_button}),
+            "button_sessions": len(button_sessions),
+            "checkout_clicks": analytics_count(shortlist_rows, {shortlist_checkout}),
+            "checkout_click_sessions": len(checkout_sessions),
+            "paid_bookings": len(paid_bookings),
+        },
         "visits_by_page": analytics_group_count(rows, "page_path", {"page_view"}),
         "planner_starts": {
             "gift": analytics_count(rows, {"gift_planner_started"}),
@@ -11842,7 +11895,7 @@ def analytics_summary_for_days(days: int) -> dict:
 
 @app.post("/api/analytics")
 def analytics_event(req: AnalyticsEventRequest, request: Request):
-    if req.event_name not in ANALYTICS_EVENT_ALLOWLIST:
+    if req.event_name not in ANALYTICS_EVENT_ALLOWLIST or req.event_name == "shortlist_homepage_booking_paid":
         return Response(status_code=204)
     payload = build_analytics_payload(
         req.event_name,

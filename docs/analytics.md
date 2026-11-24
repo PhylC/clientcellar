@@ -66,6 +66,8 @@ With `ADMIN_PASSWORD` set, fetch:
 
 The JSON response includes last 7 and 30 day summaries for visits by page, planner starts, free reports, upgrade clicks, checkout starts, successful payments, supplier clicks, conversion rates, gift/event comparison, mobile/desktop comparison, top clicked suppliers and the pages producing free reports, upgrade clicks, checkout starts and supplier clicks.
 
+The `christmas_shortlist_homepage` section counts homepage button clicks, checkout link clicks from that route, distinct browser sessions at each click step, and paid bookings. The click events respect analytics consent. The checkout link passes a fixed homepage source tag to Stripe. The signed live payment webhook records a booking once per Stripe Checkout Session. The source tag contains no visitor identifier. A checkout click shows intent to open Stripe.
+
 ## Example SQL Queries
 
 Top pages in the last 30 days:

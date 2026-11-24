@@ -36,6 +36,7 @@ const premiumAccountMessage = "Premium Brief Pack features require a completed o
 const ANALYTICS_SESSION_KEY = "clientcellar_analytics_session";
 const ANALYTICS_CONSENT_KEY = "clientcellar_analytics_consent";
 const PENDING_GIFT_PLANNER_CLICK = "clientcellar_pending_gift_planner_click";
+const SHORTLIST_HOMEPAGE_REFERENCE = "cc_christmas_shortlist_homepage";
 const LOCAL_WINE_MERCHANT_SEARCH_URL = "https://www.google.com/search?q=independent+wine+merchant+near+me";
 const analyticsState = {
   plannerStarted: new Set(),
@@ -1825,6 +1826,29 @@ function bindAnalyticsTracking() {
     const href = link.getAttribute("href") || "";
     const text = link.textContent.trim().replace(/\s+/g, " ").slice(0, 120);
     const metadata = { link_text: text, link_url: href };
+    if (link.hasAttribute("data-shortlist-homepage-click")) {
+      const destination = new URL(link.href);
+      if (analyticsConsentChoice() === "accepted") {
+        destination.searchParams.set("shortlist_source", "homepage");
+        trackEvent("shortlist_homepage_button_click", { report_type: "gift" });
+      } else {
+        destination.searchParams.delete("shortlist_source");
+      }
+      link.href = destination.href;
+      return;
+    }
+    if (link.hasAttribute("data-shortlist-checkout-click")) {
+      const destination = new URL(link.href);
+      const source = new URLSearchParams(window.location.search).get("shortlist_source");
+      if (source === "homepage" && analyticsConsentChoice() === "accepted") {
+        destination.searchParams.set("client_reference_id", SHORTLIST_HOMEPAGE_REFERENCE);
+        trackEvent("shortlist_homepage_checkout_click", { report_type: "gift" });
+      } else {
+        destination.searchParams.delete("client_reference_id");
+      }
+      link.href = destination.href;
+      return;
+    }
     if (link.hasAttribute("data-gift-planner-click")) {
       const followsInSameTab = !event.defaultPrevented && event.button === 0
         && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
