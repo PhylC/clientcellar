@@ -204,6 +204,13 @@
         {% endfor %}
       </div>
       {% endif %}
+      {% if christmas_shortlist_available and section.id == 'timing' %}
+      <aside class="guide-editorial-note" aria-label="Christmas gifting shortlist">
+        <strong>Need to compare suppliers for several UK addresses?</strong>
+        <p>For £99, we’ll compare two suppliers against your brief and email you a recommendation within one UK working day of receiving the details.</p>
+        <a class="button secondary small" href="/client-christmas-gifts-uk#christmas-gifting-shortlist">See the sample and book · £99</a>
+      </aside>
+      {% endif %}
       {% if section.note %}
       <aside class="guide-human-aside">{{ section.note }}</aside>
       {% endif %}

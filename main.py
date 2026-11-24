@@ -10706,6 +10706,7 @@ def gift_planner(request: Request):
         "Create a practical UK corporate wine gift plan with budget guidance and supplier enquiry copy.",
         bulk_example=example,
         example_brief=BULK_GIFT_EXAMPLE,
+        christmas_shortlist_available=bool(CHRISTMAS_SHORTLIST_CHECKOUT_URL),
     )
 
 
@@ -11516,6 +11517,7 @@ def guide_detail(request: Request, slug: str):
         guide=guide,
         guides=GUIDES,
         slug=slug,
+        christmas_shortlist_available=bool(CHRISTMAS_SHORTLIST_CHECKOUT_URL) and slug == "christmas-corporate-wine-gifts",
         og_type="article",
         structured_data=[
             article_schema(request, guide, slug),

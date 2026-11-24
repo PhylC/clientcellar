@@ -1331,8 +1331,12 @@ function renderMultiAddressGiftSuppliers(brief) {
   `;
 }
 
-function renderPlan(plan, type) {
+function renderPlan(plan, type, input) {
   const giftOrder = type === "gift" ? plan.gift_order_summary : null;
+  const christmasShortlistOffer = type === "gift" && input.uk_only && !input.international_needed
+    && /\b(christmas|xmas)\b/i.test(input.occasion || "")
+    ? document.getElementById("gift-christmas-shortlist-cta")?.innerHTML || ""
+    : "";
   const routeList = plan.supplier_routes_to_check || [plan.supplier_category].filter(Boolean);
   const questions =
     plan.questions_to_ask_suppliers ||
@@ -1390,6 +1394,7 @@ function renderPlan(plan, type) {
           <a class="button secondary small" href="#gift-supplier-routes">See suppliers to ask</a>
         </div>
       ` : ""}
+      ${christmasShortlistOffer}
       <p class="small-note">This is planning guidance, not a confirmed quote. Check stock, pricing, delivery, age restrictions and suitability directly with your chosen supplier.</p>
       <div class="result-block">
         <h2>${type === "event" ? "Event summary" : "Summary"}</h2>
@@ -1515,6 +1520,7 @@ async function submitPlan(form, type) {
   const submitButton = form.querySelector('button[type="submit"]');
   const originalLabel = submitButton?.dataset.submitLabel || submitButton?.textContent || "Create plan";
   if (!form.reportValidity()) return;
+  const input = formToJson(form);
   if (submitButton) {
     submitButton.disabled = true;
     submitButton.textContent = submitButton.dataset.loadingLabel || "Creating your plan...";
@@ -1525,14 +1531,14 @@ async function submitPlan(form, type) {
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formToJson(form)),
+      body: JSON.stringify(input),
     });
     if (!response.ok) {
       throw new Error("Planner request failed");
     }
     const plan = await response.json();
-    plannerState[type] = { input: formToJson(form), output: plan };
-    target.innerHTML = renderPlan(plan, type);
+    plannerState[type] = { input, output: plan };
+    target.innerHTML = renderPlan(plan, type, input);
     target.dataset.csv = plan.recipient_csv_template || "";
     if (type === "gift" && window.matchMedia("(max-width: 719px)").matches) {
       target.scrollIntoView({ block: "start" });

@@ -867,6 +867,11 @@ def test_christmas_shortlist_offer_is_scoped_to_christmas_page(monkeypatch):
     assert f'href="{link}">Book a shortlist for £99' in christmas.text
     assert "Limited to three bookings." in christmas.text
     assert "one UK working day" in christmas.text
+    assert "Fictional brief." in christmas.text
+    assert "£588 delivered" in christmas.text and "£612 delivered" in christmas.text
+    guide = client.get("/guides/christmas-corporate-wine-gifts")
+    assert 'href="/client-christmas-gifts-uk#christmas-gifting-shortlist">See the sample and book · £99' in guide.text
+    assert 'id="gift-christmas-shortlist-cta"' in client.get("/gift-planner").text
     assert link not in client.get("/corporate-wine-gifts").text
 
 
