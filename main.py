@@ -11557,6 +11557,7 @@ def supplier_comparison_page(request: Request):
         bulk_example=BULK_GIFT_EXAMPLE,
         bulk_suppliers=BULK_GIFT_SUPPLIERS,
         checked_date=BULK_GIFT_SUPPLIERS_CHECKED,
+        christmas_shortlist_available=bool(CHRISTMAS_SHORTLIST_CHECKOUT_URL),
     )
 
 

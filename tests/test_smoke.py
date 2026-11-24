@@ -934,7 +934,11 @@ def test_christmas_shortlist_offer_is_scoped_to_christmas_page(monkeypatch):
     assert christmas.status_code == 200
     assert 'id="christmas-shortlist-example"' in christmas.text
     assert christmas.text.index('class="seo-suppliers planning-section"') < christmas.text.index('id="christmas-gifting-shortlist"')
-    assert f'href="{link}" data-shortlist-checkout-click>Book a shortlist for £99' in christmas.text
+    checkout_cta = f'href="{link}" data-shortlist-checkout-click>Book a shortlist for £99'
+    sample_position = christmas.text.index('id="christmas-shortlist-example"')
+    assert christmas.text.count(checkout_cta) == 2
+    assert christmas.text.index(checkout_cta) < sample_position < christmas.text.rindex(checkout_cta)
+    assert 'href="#christmas-shortlist-example">Read the sample' in christmas.text[:sample_position]
     assert "Limited to three bookings." in christmas.text
     assert "one UK working day" in christmas.text
     assert "Fictional brief." in christmas.text
@@ -945,7 +949,12 @@ def test_christmas_shortlist_offer_is_scoped_to_christmas_page(monkeypatch):
     assert 'href="/client-christmas-gifts-uk#christmas-gifting-shortlist">See the sample and book · £99' in guide.text
     assert 'id="gift-christmas-shortlist-cta"' in client.get("/gift-planner").text
     assert link not in client.get("/corporate-wine-gifts").text
+    comparison_path = "/uk-wine-gift-supplier-comparison"
+    comparison_cta = 'href="/client-christmas-gifts-uk#christmas-shortlist-example">See a sample of the £99 shortlist'
+    comparison = client.get(comparison_path).text
+    assert comparison.index("Compare quotes for this order") < comparison.index(comparison_cta)
     monkeypatch.setattr(main, "CHRISTMAS_SHORTLIST_CHECKOUT_URL", "")
+    assert comparison_cta not in client.get(comparison_path).text
     assert home_cta not in client.get("/").text
     assert pricing_cta not in client.get("/pricing").text
 
