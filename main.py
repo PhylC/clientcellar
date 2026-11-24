@@ -77,6 +77,7 @@ DISCLAIMER = (
 CANONICAL_ORIGIN = "https://clientcellar.co.uk"
 CANONICAL_HOST = "clientcellar.co.uk"
 WWW_HOST = "www.clientcellar.co.uk"
+CHRISTMAS_GIFTS_HERO_PLACEMENT = "christmas_gifts_hero"
 
 app = FastAPI(title=PRODUCT_NAME)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
@@ -2002,6 +2003,7 @@ ANALYTICS_EVENT_ALLOWLIST = {
 ANALYTICS_METADATA_ALLOWLIST = {
     "link_text",
     "link_url",
+    "supplier_placement",
     "source",
     "source_page",
     "status",
@@ -11514,6 +11516,10 @@ def render_seo_landing(request: Request, slug: str):
     page = SEO_PAGES.get(slug)
     if not page:
         raise HTTPException(status_code=404, detail="Page not found.")
+    christmas_supplier_url = (
+        configured_supplier_affiliate_url("bottle-in-a-box")
+        if slug == "client-christmas-gifts-uk" else None
+    )
     return render(
         request,
         "seo_landing.html",
@@ -11521,6 +11527,8 @@ def render_seo_landing(request: Request, slug: str):
         page["description"],
         page=page,
         slug=slug,
+        christmas_hero_supplier_url=christmas_supplier_url,
+        christmas_hero_supplier_placement=CHRISTMAS_GIFTS_HERO_PLACEMENT,
         christmas_shortlist_url=CHRISTMAS_SHORTLIST_CHECKOUT_URL if slug == "client-christmas-gifts-uk" else "",
         guides=GUIDES,
         structured_data=[
@@ -11761,7 +11769,11 @@ def admin_summary(request: Request):
     }
 
 
-def fetch_analytics_events(days: int = 30, limit: int = 10000, *, event_names: tuple[str, ...] = ()) -> list[dict]:
+def fetch_analytics_events(
+    days: int = 30, limit: int = 10000, *,
+    event_names: tuple[str, ...] = (),
+    supplier_placement: str | None = None,
+) -> list[dict]:
     settings = supabase_settings()
     if not settings["service_configured"]:
         return []
@@ -11776,6 +11788,9 @@ def fetch_analytics_events(days: int = 30, limit: int = 10000, *, event_names: t
     )
     if event_names:
         url += f"&event_name=in.({','.join(event_names)})"
+    if supplier_placement:
+        filters = urllib.parse.urlencode({"metadata->>supplier_placement": f"eq.{supplier_placement}"})
+        url += f"&{filters}"
     try:
         data = _supabase_json_request(
             url,
@@ -11836,6 +11851,9 @@ def shortlist_analytics_summary(rows: list[dict], source: str) -> dict:
 def analytics_summary_for_days(days: int) -> dict:
     rows = fetch_analytics_events(days)
     shortlist_rows = fetch_analytics_events(days, event_names=SHORTLIST_ANALYTICS_EVENTS)
+    christmas_hero_clicks = fetch_analytics_events(
+        days, event_names=("gift_supplier_clicked",), supplier_placement=CHRISTMAS_GIFTS_HERO_PLACEMENT,
+    )
     free_reports = analytics_count(rows, {"gift_free_report_generated", "event_free_report_generated"})
     upgrade_clicks = analytics_count(rows, {"gift_upgrade_clicked", "event_upgrade_clicked", "example_upgrade_clicked"})
     checkout_starts = analytics_count(rows, {"gift_checkout_started", "event_checkout_started"})
@@ -11844,6 +11862,7 @@ def analytics_summary_for_days(days: int) -> dict:
         "days": days,
         "analytics_configured": supabase_settings()["service_configured"],
         "event_count": len(rows),
+        "christmas_gifts_hero_supplier_clicks": len(christmas_hero_clicks),
         **{
             f"christmas_shortlist_{source}": shortlist_analytics_summary(shortlist_rows, source)
             for source in SHORTLIST_ANALYTICS_SOURCES

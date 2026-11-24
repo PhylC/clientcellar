@@ -11,6 +11,9 @@
         <p class="small-note">ClientCellar provides planning guidance and does not sell alcohol directly. Recommendations are editorially selected; some supplier links may earn commission where available. <a href="/editorial-policy">Read our editorial policy</a>.</p>
         <div class="hero-actions">
           <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
+          {% if christmas_hero_supplier_url %}
+          <a class="button secondary" href="{{ christmas_hero_supplier_url }}" target="_blank" rel="noopener noreferrer sponsored" data-supplier-click data-supplier-name="Bottle In A Box" data-supplier-placement="{{ christmas_hero_supplier_placement }}">Browse Bottle In A Box gift boxes · Affiliate link</a>
+          {% endif %}
           {% if page.hero_jump %}
           <a class="button secondary" href="{{ page.hero_jump[1] }}">{{ page.hero_jump[0] }}</a>
           {% endif %}

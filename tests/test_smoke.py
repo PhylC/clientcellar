@@ -859,6 +859,34 @@ def test_client_christmas_landing_matches_broad_seasonal_query():
     assert 'href="/client-christmas-gifts-uk"' in supporting_guide.text
 
 
+def test_christmas_gift_hero_uses_the_approved_affiliate_link_and_placement(monkeypatch):
+    path = "/client-christmas-gifts-uk"
+    affiliate_url = "https://bottleinabox.co.uk/corporate-gifts?aff=4"
+    placement = "christmas_gifts_hero"
+
+    monkeypatch.setattr(main, "configured_supplier_affiliate_url", lambda supplier: None)
+    assert f'data-supplier-placement="{placement}"' not in client.get(path).text
+    monkeypatch.setattr(main, "configured_supplier_affiliate_url",
+                        lambda supplier: affiliate_url if supplier == "bottle-in-a-box" else None)
+    page = client.get(path).text
+    assert page.index("Create a Christmas gift plan") < page.index(f'data-supplier-placement="{placement}"')
+    assert f'href="{affiliate_url}" target="_blank" rel="noopener noreferrer sponsored"' in page
+    assert "Browse Bottle In A Box gift boxes · Affiliate link" in page
+    assert f'data-supplier-placement="{placement}"' not in client.get("/corporate-wine-gifts").text
+
+    saved = []
+    monkeypatch.setattr(main, "store_analytics_event", saved.append)
+    response = client.post("/api/analytics", json={
+        "event_name": "gift_supplier_clicked",
+        "page_path": path,
+        "supplier_name": "Bottle In A Box",
+        "supplier_url": affiliate_url,
+        "metadata": {"supplier_placement": placement},
+    })
+    assert response.status_code == 204
+    assert saved[0]["metadata"] == {"supplier_placement": placement}
+
+
 def test_christmas_shortlist_offer_is_scoped_to_christmas_page(monkeypatch):
     link = "https://buy.stripe.com/shortlist-fixture"
     monkeypatch.setattr(main, "CHRISTMAS_SHORTLIST_CHECKOUT_URL", link)
@@ -979,8 +1007,12 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
         {"event_name": "shortlist_pricing_booking_paid", "checkout_session_id": "pricing-checkout"},
     ]
 
-    def fetch_analytics_events(days, *, event_names=()):
+    def fetch_analytics_events(days, *, event_names=(), supplier_placement=None):
         assert days in (7, 30)
+        if supplier_placement:
+            assert supplier_placement == "christmas_gifts_hero"
+            assert event_names == ("gift_supplier_clicked",)
+            return [{"event_name": "gift_supplier_clicked"}]
         assert not event_names or set(event_names) == {row["event_name"] for row in shortlist_rows}
         return shortlist_rows if event_names else []
 
@@ -997,6 +1029,7 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
     response = client.get("/api/admin/analytics-summary?password=test-summary-password")
     assert response.status_code == 200
     for period in ("last_7_days", "last_30_days"):
+        assert response.json()[period]["christmas_gifts_hero_supplier_clicks"] == 1
         assert response.json()[period]["christmas_shortlist_homepage"] == {
             "button_clicks": 3,
             "button_sessions": 2,

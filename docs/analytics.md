@@ -68,6 +68,8 @@ The JSON response includes last 7 and 30 day summaries for visits by page, plann
 
 The `christmas_shortlist_homepage` and `christmas_shortlist_pricing` sections report button clicks, clicks through to Stripe, distinct browser sessions at each click step, and paid bookings by placement. The click events respect analytics consent. The checkout link passes a fixed source tag to Stripe with no visitor identifier. The signed live payment webhook records each booking once per Stripe Checkout Session. A checkout click shows intent to open Stripe.
 
+`christmas_gifts_hero_supplier_clicks` counts consented Bottle In A Box clicks beside the free Christmas gift planner. These remain `gift_supplier_clicked` events and carry `metadata.supplier_placement = christmas_gifts_hero` for placement reporting.
+
 ## Example SQL Queries
 
 Top pages in the last 30 days:

@@ -107,6 +107,7 @@ function safeGa4EventParams(eventName, payload = {}) {
   if (eventName.includes("supplier")) {
     params.supplier_name = payload.supplier_name || undefined;
     params.supplier_host = ga4SupplierHost(payload.supplier_url);
+    params.supplier_placement = payload.metadata?.supplier_placement;
   }
   if (eventName === "contact_click" || eventName === "nav_click" || eventName === "example_upgrade_clicked") {
     params.link_text = payload.metadata?.link_text || undefined;
@@ -1872,6 +1873,9 @@ function bindAnalyticsTracking() {
     }
     const isSupplier = link.hasAttribute("data-supplier-click") || href.includes("/out/supplier/") || link.closest(".supplier-table-action, .supplier-compact-head, .gift-route-actions, .event-route-actions, .supplier-card-grid, .recommendation-summary-card, .recommendation-alternative-row");
     if (isSupplier) {
+      const placement = link.dataset.supplierPlacement;
+      if (placement && analyticsConsentChoice() !== "accepted") return;
+      if (placement) metadata.supplier_placement = placement;
       const reportType = currentReportTypeFromPage();
       const eventName = reportType === "event" ? "event_supplier_clicked" : reportType === "gift" ? "gift_supplier_clicked" : "supplier_click";
       trackEvent(eventName, {
