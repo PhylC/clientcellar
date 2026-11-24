@@ -39,6 +39,10 @@ const PENDING_GIFT_PLANNER_CLICK = "clientcellar_pending_gift_planner_click";
 const SHORTLIST_SOURCES = new Set(["homepage", "pricing"]);
 const LOCAL_WINE_MERCHANT_SEARCH_URL = "https://www.google.com/search?q=independent+wine+merchant+near+me";
 const GIFT_BUDGET_MODULE_URL = "/static/gift-order-budget.mjs?v=20261124";
+const GIFT_PLANNER_ANALYTICS_ROUTES = new Set([
+  "online_checkout", "grouped_delivery", "bulk_quote",
+  "confirm_delivery", "international_quote", "review_budget",
+]);
 const analyticsState = {
   plannerStarted: new Set(),
 };
@@ -109,6 +113,9 @@ function safeGa4EventParams(eventName, payload = {}) {
     params.supplier_name = payload.supplier_name || undefined;
     params.supplier_host = ga4SupplierHost(payload.supplier_url);
     params.supplier_placement = payload.metadata?.supplier_placement;
+  }
+  if (eventName === "gift_free_report_generated") {
+    params.gift_planner_route = payload.metadata?.gift_planner_route;
   }
   if (eventName === "contact_click" || eventName === "nav_click" || eventName === "example_upgrade_clicked") {
     params.link_text = payload.metadata?.link_text || undefined;
@@ -1643,7 +1650,13 @@ async function submitPlan(form, type) {
     if (type === "gift" && window.matchMedia("(max-width: 719px)").matches) {
       target.scrollIntoView({ block: "start" });
     }
-    trackEvent(`${type}_free_report_generated`, { report_type: type });
+    const reportEvent = { report_type: type };
+    const recommendation = type === "gift" ? plan.gift_order_recommendation : null;
+    if (recommendation && analyticsConsentChoice() === "accepted") {
+      const route = recommendation.gift_budget_per_recipient === 0 ? "review_budget" : recommendation.route;
+      if (GIFT_PLANNER_ANALYTICS_ROUTES.has(route)) reportEvent.metadata = { gift_planner_route: route };
+    }
+    trackEvent(`${type}_free_report_generated`, reportEvent);
   } catch (error) {
     target.innerHTML = '<div class="empty-state">Sorry, the plan could not be generated. Check the form and try again. If the issue continues, refresh the page.</div>';
   } finally {

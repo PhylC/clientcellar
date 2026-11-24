@@ -9,7 +9,7 @@ import sqlite3
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Literal
 from uuid import NAMESPACE_URL, uuid5
@@ -557,6 +557,10 @@ def safe_analytics_metadata(metadata: dict[str, Any] | None, client_timestamp: s
     if isinstance(metadata, dict):
         for key, value in metadata.items():
             if key not in ANALYTICS_METADATA_ALLOWLIST:
+                continue
+            if key == "gift_planner_route" and (
+                not isinstance(value, str) or value not in GIFT_PLANNER_ANALYTICS_ROUTES
+            ):
                 continue
             if isinstance(value, bool) or value is None:
                 safe[key] = value
@@ -1987,6 +1991,17 @@ SHORTLIST_BOOKING_EVENTS = {
     f"cc_christmas_shortlist_{source}": f"shortlist_{source}_booking_paid"
     for source in SHORTLIST_ANALYTICS_SOURCES
 }
+GIFT_PLANNER_ANALYTICS_ROUTES = (
+    "online_checkout",
+    "grouped_delivery",
+    "bulk_quote",
+    "confirm_delivery",
+    "international_quote",
+    "review_budget",
+)
+GIFT_PLANNER_SUPPLIER_PLACEMENTS = {
+    f"gift_planner_{route}": route for route in GIFT_PLANNER_ANALYTICS_ROUTES
+}
 
 ANALYTICS_EVENT_ALLOWLIST = {
     "page_view",
@@ -2022,6 +2037,7 @@ ANALYTICS_METADATA_ALLOWLIST = {
     "link_text",
     "link_url",
     "supplier_placement",
+    "gift_planner_route",
     "source",
     "source_page",
     "status",
@@ -12042,34 +12058,23 @@ def admin_summary(request: Request):
     }
 
 
-def fetch_analytics_events(
-    days: int = 30, limit: int = 10000, *,
-    event_names: tuple[str, ...] = (),
-    supplier_placements: tuple[str, ...] = (),
-) -> list[dict]:
+def read_analytics_events(days: int, limit: int, fields: str, filters: dict[str, str]) -> list[dict] | None:
     settings = supabase_settings()
     if not settings["service_configured"]:
-        return []
+        return None
     days = max(1, min(days, 90))
     limit = max(1, min(limit, 10000))
-    since_dt = datetime.utcnow().replace(microsecond=0) - timedelta(days=days)
-    since_value = urllib.parse.quote(since_dt.isoformat() + "Z", safe=":-TZ")
-    fields = "created_at,event_name,session_id,page_path,device_type,report_type,supplier_name,supplier_url,checkout_session_id"
-    if supplier_placements:
-        fields += ",metadata"
-    url = (
-        f"{settings['url']}/rest/v1/analytics_events"
-        f"?select={fields}"
-        f"&created_at=gte.{since_value}&order=created_at.desc&limit={limit}"
-    )
-    if event_names:
-        url += f"&event_name=in.({','.join(event_names)})"
-    if supplier_placements:
-        filters = urllib.parse.urlencode({"metadata->>supplier_placement": f"in.({','.join(supplier_placements)})"})
-        url += f"&{filters}"
+    since_dt = datetime.now(timezone.utc).replace(microsecond=0) - timedelta(days=days)
+    query = urllib.parse.urlencode({
+        "select": fields,
+        "created_at": f"gte.{since_dt.isoformat()}",
+        "order": "created_at.desc",
+        "limit": limit,
+        **filters,
+    })
     try:
         data = _supabase_json_request(
-            url,
+            f"{settings['url']}/rest/v1/analytics_events?{query}",
             headers={
                 "apikey": settings["service_role_key"],
                 "Authorization": f"Bearer {settings['service_role_key']}",
@@ -12078,8 +12083,39 @@ def fetch_analytics_events(
         )
     except Exception as error:
         print("Supabase analytics summary fetch failed:", str(error))
-        return []
-    return data if isinstance(data, list) else []
+        return None
+    return data if isinstance(data, list) else None
+
+
+def fetch_analytics_events(
+    days: int = 30, limit: int = 10000, *,
+    event_names: tuple[str, ...] = (),
+    supplier_placements: tuple[str, ...] = (),
+) -> list[dict]:
+    fields = "created_at,event_name,session_id,page_path,device_type,report_type,supplier_name,supplier_url,checkout_session_id"
+    filters = {}
+    if event_names:
+        filters["event_name"] = f"in.({','.join(event_names)})"
+    if supplier_placements:
+        fields += ",metadata"
+        filters["metadata->>supplier_placement"] = f"in.({','.join(supplier_placements)})"
+    return read_analytics_events(days, limit, fields, filters) or []
+
+
+def fetch_gift_planner_funnel_events(days: int) -> list[dict] | None:
+    routes = ",".join(GIFT_PLANNER_ANALYTICS_ROUTES)
+    placements = ",".join(GIFT_PLANNER_SUPPLIER_PLACEMENTS)
+    return read_analytics_events(
+        days, 10000, "created_at,event_name,session_id,page_path,metadata",
+        {
+            "page_path": "eq./gift-planner",
+            "session_id": "not.is.null",
+            "or": (
+                f"(and(event_name.eq.gift_free_report_generated,metadata->>gift_planner_route.in.({routes})),"
+                f"and(event_name.eq.gift_supplier_clicked,metadata->>supplier_placement.in.({placements})))"
+            ),
+        },
+    )
 
 
 def analytics_count(rows: list[dict], event_names: set[str]) -> int:
@@ -12124,6 +12160,52 @@ def shortlist_analytics_summary(rows: list[dict], source: str) -> dict:
     }
 
 
+def gift_planner_recommendation_funnel(rows: list[dict] | None) -> dict | None:
+    if rows is None:
+        return None
+    first_recommendation = {route: {} for route in GIFT_PLANNER_ANALYTICS_ROUTES}
+    supplier_clicks = []
+    for row in rows:
+        session_id = row.get("session_id")
+        metadata = row.get("metadata")
+        timestamp = row.get("created_at")
+        if row.get("page_path") != "/gift-planner" or not session_id or not isinstance(metadata, dict):
+            continue
+        if not isinstance(timestamp, str):
+            continue
+        try:
+            recorded_at = datetime.fromisoformat(timestamp)
+        except ValueError:
+            continue
+        if recorded_at.tzinfo is None:
+            continue
+        if row.get("event_name") == "gift_free_report_generated":
+            route = metadata.get("gift_planner_route")
+            if route in GIFT_PLANNER_ANALYTICS_ROUTES:
+                sessions = first_recommendation[route]
+                sessions[session_id] = min(sessions.get(session_id, recorded_at), recorded_at)
+        elif row.get("event_name") == "gift_supplier_clicked":
+            placement = metadata.get("supplier_placement")
+            if isinstance(placement, str) and placement in GIFT_PLANNER_SUPPLIER_PLACEMENTS:
+                supplier_clicks.append((GIFT_PLANNER_SUPPLIER_PLACEMENTS[placement], session_id, recorded_at))
+
+    click_sessions = {route: set() for route in GIFT_PLANNER_ANALYTICS_ROUTES}
+    click_counts = dict.fromkeys(GIFT_PLANNER_ANALYTICS_ROUTES, 0)
+    for route, session_id, recorded_at in supplier_clicks:
+        recommended_at = first_recommendation[route].get(session_id)
+        if recommended_at is not None and recommended_at <= recorded_at:
+            click_sessions[route].add(session_id)
+            click_counts[route] += 1
+    return {
+        route: {
+            "recommendation_sessions": len(first_recommendation[route]),
+            "supplier_click_sessions": len(click_sessions[route]),
+            "supplier_clicks": click_counts[route],
+        }
+        for route in GIFT_PLANNER_ANALYTICS_ROUTES
+    }
+
+
 def analytics_summary_for_days(days: int) -> dict:
     rows = fetch_analytics_events(days)
     shortlist_rows = fetch_analytics_events(days, event_names=SHORTLIST_ANALYTICS_EVENTS)
@@ -12149,6 +12231,7 @@ def analytics_summary_for_days(days: int) -> dict:
         "days": days,
         "analytics_configured": supabase_settings()["service_configured"],
         "event_count": len(rows),
+        "gift_planner_recommendation_funnel": gift_planner_recommendation_funnel(fetch_gift_planner_funnel_events(days)),
         "christmas_gifts_hero_supplier_clicks": placement_clicks[CHRISTMAS_GIFTS_HERO_PLACEMENT],
         "christmas_gifts_online_supplier_clicks": placement_clicks[CHRISTMAS_GIFTS_ONLINE_PLACEMENT],
         "champagne_guide_supplier_clicks": placement_clicks[CHAMPAGNE_GUIDE_SUPPLIER_PLACEMENT],

@@ -68,6 +68,8 @@ The JSON response includes last 7 and 30 day summaries for visits by page, plann
 
 The `christmas_shortlist_homepage` and `christmas_shortlist_pricing` sections report button clicks, clicks through to Stripe, distinct browser sessions at each click step, and paid bookings by placement. The click events respect analytics consent. The checkout link passes a fixed source tag to Stripe with no visitor identifier. The signed live payment webhook records each booking once per Stripe Checkout Session. A checkout click shows intent to open Stripe.
 
+`gift_planner_recommendation_funnel` counts consented browser sessions by the recommendation shown on `/gift-planner`. A rendered gift plan carries `metadata.gift_planner_route` on `gift_free_report_generated`. Supplier-card clicks carry `metadata.supplier_placement = gift_planner_<route>` on `gift_supplier_clicked`. A click is attributed when the same session received that recommendation earlier in the reporting window. Repeated plans count once per session within each route, and one session can appear under more than one route.
+
 `christmas_gifts_hero_supplier_clicks` counts consented Bottle In A Box bulk-order clicks beside the free Christmas gift planner. `christmas_gifts_online_supplier_clicks` counts clicks to Bottle In A Box's online Christmas hamper range. Both use `gift_supplier_clicked` with `metadata.supplier_placement` set to `christmas_gifts_hero` for bulk orders or `christmas_gifts_online` for online shopping.
 
 `supplier_directory_shortcut_clicks` reports consented `supplier_click` events separately for corporate gift boxes, milestone wine gifts and mixed gift ideas. Awin links also carry the matching placement reference. The Bottle In A Box shortcut uses its programme-issued link.

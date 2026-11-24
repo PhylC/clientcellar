@@ -1104,6 +1104,79 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
         }
 
 
+def test_gift_planner_analytics_stores_only_fixed_recommendation_labels(monkeypatch):
+    events = []
+    monkeypatch.setattr(main, "store_analytics_event", events.append)
+    for value in ("online_checkout", "review_budget", "buyer@example.com", False, {"email": "buyer@example.com"}):
+        response = client.post("/api/analytics", json={
+            "event_name": "gift_free_report_generated",
+            "page_path": "/gift-planner",
+            "session_id": "browser-a",
+            "metadata": {"gift_planner_route": value, "budget": "£99"},
+        })
+        assert response.status_code == 204
+    assert [row["metadata"] for row in events] == [
+        {"gift_planner_route": "online_checkout"},
+        {"gift_planner_route": "review_budget"},
+        {},
+        {},
+        {},
+    ]
+
+
+def test_gift_planner_route_funnel_counts_ordered_sessions(monkeypatch):
+    def event(kind, route, session, minute, page="/gift-planner"):
+        name = "gift_free_report_generated" if kind == "plan" else "gift_supplier_clicked"
+        key = "gift_planner_route" if kind == "plan" else "supplier_placement"
+        value = route if kind == "plan" or not route else f"gift_planner_{route}"
+        return {
+            "created_at": f"2026-11-24T17:{minute:02d}:00+00:00",
+            "event_name": name,
+            "page_path": page,
+            "session_id": session,
+            "metadata": {key: value},
+        }
+
+    rows = [
+        event("click", "online_checkout", "browser-a", 9),
+        event("click", "online_checkout", "browser-a", 8),
+        event("click", "bulk_quote", "browser-a", 7),
+        event("click", "online_checkout", "browser-b", 7),
+        event("plan", "online_checkout", "browser-b", 8),
+        event("plan", "online_checkout", "browser-a", 8),
+        event("plan", "online_checkout", "browser-a", 5),
+        event("plan", "review_budget", "browser-a", 6),
+        event("plan", "grouped_delivery", "", 5),
+        event("plan", "grouped_delivery", "browser-a", 5, "/supplier-directory"),
+        event("plan", None, "browser-a", 5),
+    ]
+    monkeypatch.setattr(main, "fetch_analytics_events", lambda *args, **kwargs: [])
+    monkeypatch.setattr(main, "fetch_gift_planner_funnel_events", lambda days: rows if days == 7 else None)
+    monkeypatch.setenv("ADMIN_PASSWORD", "test-summary-password")
+
+    response = client.get("/api/admin/analytics-summary?password=test-summary-password")
+    assert response.status_code == 200
+    result = response.json()
+    funnel = result["last_7_days"]["gift_planner_recommendation_funnel"]
+    assert set(funnel) == set(main.GIFT_PLANNER_ANALYTICS_ROUTES)
+    assert funnel["online_checkout"] == {
+        "recommendation_sessions": 2,
+        "supplier_click_sessions": 1,
+        "supplier_clicks": 2,
+    }
+    assert funnel["review_budget"] == {
+        "recommendation_sessions": 1,
+        "supplier_click_sessions": 0,
+        "supplier_clicks": 0,
+    }
+    assert funnel["bulk_quote"] == funnel["grouped_delivery"] == {
+        "recommendation_sessions": 0,
+        "supplier_click_sessions": 0,
+        "supplier_clicks": 0,
+    }
+    assert result["last_30_days"]["gift_planner_recommendation_funnel"] is None
+
+
 def test_duplicate_seo_urls_redirect_permanently():
     redirect_client = TestClient(app, follow_redirects=False)
     redirects = {
