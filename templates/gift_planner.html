@@ -6,7 +6,7 @@
     <div>
       <p class="eyebrow">Gift planner</p>
       <h1>Plan corporate wine gifts</h1>
-      <p>Create a practical gift plan for clients, staff or partners — with planning direction, budget starting point, recipient guidance and supplier routes to check.</p>
+      <p>Decide what to send, how to order it and how much you can spend after delivery.</p>
     </div>
     <img src="/images/clientcellar/gift-planner-header.webp" width="310" height="295" alt="Wine gift box with ribbon and thank-you card" loading="lazy" decoding="async">
   </div>
@@ -18,7 +18,7 @@
   {% if not bulk_example %}
   <p class="small-note"><a href="/gift-planner?example=bulk-30#gift-form">Load a worked example</a> for {{ example_brief.recipient_count }} client gifts to {{ example_brief.delivery_address_count }} UK addresses, including {{ example_brief.alcohol_free_count }} alcohol-free gifts. Add your budget and delivery date before generating the plan.</p>
   {% endif %}
-  <p class="small-note">Create a free plan first. Upgrade to a supplier-ready Premium Brief Pack only if useful.</p>
+  <p class="small-note">Create a free plan for clients, staff or partners.</p>
   <div class="planner-preview-cta">
     <div>
       <strong>See an example premium gift brief</strong>
@@ -49,18 +49,56 @@
         <input name="recipient_count" type="number" min="1" max="10000" value="{{ bulk_example.recipient_count if bulk_example else 25 }}" required>
         <small>Use your best current estimate. You can confirm final addresses later.</small>
       </label>
-      <label>Budget per recipient (£)
-        <input name="budget_per_recipient" type="number" min="1" step="0.01" value="45" required>
-        <small>Enter the amount for the gift itself. Keep delivery separate and check whether prices include VAT.</small>
-      </label>
-    </div>
-    <div class="form-row">
       <label>Delivery addresses (optional)
         <input name="delivery_address_count" type="number" min="1" max="{{ bulk_example.recipient_count if bulk_example else 25 }}"{% if bulk_example %} value="{{ bulk_example.delivery_address_count }}"{% endif %}>
+        <small>Count one office as one address, even if several gifts go there.</small>
       </label>
+    </div>
+    <fieldset class="gift-planner-budget" id="gift-budget">
+      <legend>Budget</legend>
+      <label>What does your budget cover?
+        <select data-gift-budget-mode>
+          <option value="gifts">Gifts only</option>
+          <option value="all-in">Whole order, including delivery</option>
+        </select>
+      </label>
+      <label data-gift-only-budget>Budget per gift (£)
+        <input name="budget_per_recipient" type="number" min="1" max="10000" step="0.01" value="45" required>
+      </label>
+      <div class="gift-budget-assumptions" data-gift-all-in-budget hidden>
+        <label>Total budget including VAT (£)
+          <input name="all_in_budget" type="number" min="0.01" max="100000000" step="0.01" disabled required>
+        </label>
+        <div class="form-row">
+          <label>Estimated delivery charge (£)
+            <input name="estimated_delivery_charge" type="number" min="0" max="100000000" step="0.01" disabled>
+          </label>
+          <label>Delivery charged
+            <select name="estimated_delivery_basis" disabled>
+              <option value="per-address">Per address</option>
+              <option value="order">For the whole order</option>
+            </select>
+          </label>
+        </div>
+        <label>Estimated other charges for the order (£)
+          <input name="estimated_other_fees" type="number" min="0" max="100000000" step="0.01" disabled>
+        </label>
+        <p class="small-note">Include VAT in your estimates. Leave unknown charges blank and enter £0 for any charge you know won't apply.</p>
+        <p class="gift-budget-preview" data-gift-budget-preview role="status" hidden></p>
+      </div>
+    </fieldset>
+    <div class="form-row">
       <label>Alcohol-free gifts (optional)
         <input name="alcohol_free_count" type="number" min="0" max="{{ bulk_example.recipient_count if bulk_example else 25 }}"{% if bulk_example %} value="{{ bulk_example.alcohol_free_count }}"{% endif %}>
+        <small>Enter 0 if none are needed.</small>
       </label>
+      <label>Gift policy limit per recipient (£, optional)
+        <input name="gift_policy_cap_per_recipient" type="number" min="0" max="10000" step="0.01">
+        <small>Enter the maximum gift value including VAT, before delivery.</small>
+      </label>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" name="gift_policy_alcohol_free"> All gifts must be alcohol-free</label>
     </div>
     <label>Occasion
       <input name="occasion" value="Christmas thank-you" required>
@@ -109,13 +147,7 @@
   <div id="gift-results" class="results-panel planner-results-card" aria-live="polite">
     <div class="empty-state">
       <h2>Your gift plan will appear here</h2>
-      <p>Complete the form and we’ll create a practical gift strategy, supplier route guidance and enquiry email.</p>
-      <ul>
-        <li>Budget estimate</li>
-        <li>Gift strategy</li>
-        <li>Recommended supplier routes</li>
-        <li>Supplier enquiry email</li>
-      </ul>
+      <p>Enter the order details to see how to buy, what your budget covers and which suppliers fit.</p>
     </div>
   </div>
 </section>

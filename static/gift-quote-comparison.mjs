@@ -1,4 +1,5 @@
-const pounds = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
+import { formatGiftMoney as money, parseGiftMoney } from "./gift-order-budget.mjs?v=20261124";
+
 const absent = "—";
 
 function countValue(value) {
@@ -10,10 +11,6 @@ function pennies(value) {
   if (!value || !/^\d{0,6}(\.\d{1,2})?$/.test(value)) return null;
   const [whole, fraction = ""] = value.split(".");
   return BigInt(whole || "0") * 100n + BigInt(fraction.padEnd(2, "0"));
-}
-
-function money(amount) {
-  return pounds.format(Number(amount) / 100);
 }
 
 function roundRatio(numerator, denominator) {
@@ -92,7 +89,15 @@ function showField(panel, key, visible) {
   label.querySelector("input").disabled = !visible;
 }
 
-function renderQuote(panel, controls, order) {
+export function quoteBudgetMessage(total, cap) {
+  if (total === null || cap === null || cap === 0n) return "";
+  const difference = cap - total;
+  if (difference === 0n) return "Exactly on your all-in budget.";
+  if (difference < 0n) return `${money(-difference)} over your all-in budget.`;
+  return `${money(difference)} under your all-in budget.`;
+}
+
+function renderQuote(panel, controls, order, cap) {
   const quote = controlValues(controls);
   const name = quote.supplier.trim() || panel.querySelector("legend").textContent;
   const result = calculateQuote(quote, order);
@@ -117,6 +122,10 @@ function renderQuote(panel, controls, order) {
   vatSummary.hidden = result.total === null;
   panel.querySelector("[data-quote-total]").textContent = result.total === null ? absent : money(result.total);
   panel.querySelector("[data-quote-per-recipient]").textContent = result.total === null ? absent : money(result.perRecipient);
+  const budgetStatus = panel.querySelector("[data-quote-budget-status]");
+  const budgetMessage = quoteBudgetMessage(result.total, cap);
+  budgetStatus.textContent = budgetMessage;
+  budgetStatus.hidden = !budgetMessage;
   return { name, total: result.total };
 }
 
@@ -135,16 +144,21 @@ function bindComparison(root) {
   const counts = root.querySelector("[data-quote-count-status]");
   const verdict = root.querySelector("[data-quote-verdict]");
   const query = new URLSearchParams(location.search);
-  for (const [key, field] of Object.entries(orderControls)) {
+  for (const key of ["recipients", "addresses", "alcohol_free"]) {
     const value = query.get(key);
-    if (value !== null && countValue(value) !== null) field.value = value;
+    if (value !== null && countValue(value) !== null) orderControls[key].value = value;
   }
+  const budget = query.get("budget");
+  const startingCap = parseGiftMoney(budget);
+  if (startingCap !== null && startingCap > 0n) orderControls.budget.value = budget;
 
   function update() {
-    const order = readOrder(controlValues(orderControls));
+    const values = controlValues(orderControls);
+    const order = readOrder(values);
+    const cap = parseGiftMoney(values.budget);
     counts.textContent = order.message ||
       `${order.standard} standard gifts and ${order.alcoholFree} alcohol-free gifts across ${order.addresses} addresses.`;
-    const [first, second] = panels.map(([panel, controls]) => renderQuote(panel, controls, order));
+    const [first, second] = panels.map(([panel, controls]) => renderQuote(panel, controls, order, cap));
     const message = order.message
       ? "Enter the same order details and both quotes to see the difference."
       : comparisonMessage(first, second);

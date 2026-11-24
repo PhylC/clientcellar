@@ -20,7 +20,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic import BaseModel, EmailStr, Field, ValidationError, field_validator, model_validator
 from pydantic_core import PydanticCustomError
 
 from data.supplier_links import (
@@ -40,6 +40,8 @@ from data.gift_recommendations import (
     gift_recommendation_shortlist,
     gift_supplier_comparison_rows,
 )
+from data.gift_order_planning import gift_alcohol_free_count, gift_budget_allowance, gift_order_route
+from data.gift_order_suppliers import gift_order_supplier_choices
 from data.suppliers import (
     SUPPLIER_ENTRIES,
     featured_supplier_directory_entries,
@@ -1910,7 +1912,13 @@ normalise_suppliers()
 class GiftPlanRequest(BaseModel):
     recipient_type: Literal["clients", "employees", "suppliers", "prospects", "partners", "mixed"]
     recipient_count: int = Field(gt=0, le=10000)
-    budget_per_recipient: float = Field(gt=0, le=10000)
+    budget_per_recipient: float | None = Field(default=None, gt=0, le=10000)
+    all_in_budget: float | None = Field(default=None, gt=0, le=100_000_000)
+    estimated_delivery_charge: float | None = Field(default=None, ge=0, le=100_000_000)
+    estimated_delivery_basis: Literal["per-address", "order"] = "per-address"
+    estimated_other_fees: float | None = Field(default=None, ge=0, le=100_000_000)
+    gift_policy_cap_per_recipient: float | None = Field(default=None, ge=0, le=10000)
+    gift_policy_alcohol_free: bool = False
     occasion: str = Field(min_length=1, max_length=160)
     gift_style: Literal["wine", "wine_hamper", "sparkling", "mixed_case", "not_sure"]
     tone: Literal["safe", "premium", "impressive", "warm", "low_risk"]
@@ -1925,7 +1933,9 @@ class GiftPlanRequest(BaseModel):
     alcohol_free_count: int | None = Field(default=None, ge=0, le=10000)
 
     @model_validator(mode="after")
-    def validate_recipient_counts(self):
+    def validate_gift_brief(self):
+        if self.budget_per_recipient is None and self.all_in_budget is None:
+            raise PydanticCustomError("gift_budget", "Enter a gift budget per recipient or an all-in budget.")
         if self.delivery_address_count is not None and self.delivery_address_count > self.recipient_count:
             raise PydanticCustomError("recipient_count", "Delivery addresses cannot exceed the gift recipient count.")
         if self.alcohol_free_count is not None and self.alcohol_free_count > self.recipient_count:
@@ -3103,6 +3113,46 @@ def gift_types(req: GiftPlanRequest) -> list[str]:
     return list(dict.fromkeys(options))
 
 
+def alcohol_free_gift_types(budget: float) -> list[str]:
+    if budget < 20:
+        return ["Small food gift with alcohol-free ingredients", "An alcohol-free drink in gift packaging"]
+    return [
+        "Alcohol-free sparkling gift with suitable food pairings",
+        "Food hamper with alcohol-free ingredients",
+        "A non-food gift if dietary requirements are unknown",
+    ]
+
+
+def gift_order_groups(req: GiftPlanRequest) -> list[dict]:
+    if req.budget_per_recipient <= 0:
+        return []
+    groups = []
+    alcohol_free_count = req.alcohol_free_count
+    if alcohol_free_count is None:
+        return [{
+            "kind": "unconfirmed",
+            "label": "Confirm the gift split",
+            "count": req.recipient_count,
+            "options": ["Confirm how many gifts must be alcohol-free before choosing products."],
+        }]
+    if alcohol_free_count < req.recipient_count:
+        standard_count = req.recipient_count - alcohol_free_count
+        groups.append({
+            "kind": "standard",
+            "label": "Standard gift" if standard_count == 1 else "Standard gifts",
+            "count": standard_count,
+            "options": gift_types(req),
+        })
+    if alcohol_free_count > 0:
+        groups.append({
+            "kind": "alcohol_free",
+            "label": "Alcohol-free gift" if alcohol_free_count == 1 else "Alcohol-free gifts",
+            "count": alcohol_free_count,
+            "options": alcohol_free_gift_types(req.budget_per_recipient),
+        })
+    return groups
+
+
 def build_supplier_shortlist(items: list[dict], why_prefix: str, budget: float) -> list[dict]:
     shortlist = []
     for supplier in items:
@@ -3220,13 +3270,69 @@ def bulk_gift_supplier_shortlist(req: GiftPlanRequest) -> list[dict]:
 
 
 def make_gift_plan(req: GiftPlanRequest) -> dict:
-    total = req.recipient_count * req.budget_per_recipient
-    per_gift_budget = f"£{req.budget_per_recipient:,.2f}".removesuffix(".00")
-    gift_budget = f"£{total:,.2f}".removesuffix(".00")
+    address_count = req.delivery_address_count
+    if address_count is None and req.recipient_count == 1 and req.uk_only and not req.international_needed:
+        address_count = 1
+    alcohol_free_count = gift_alcohol_free_count(
+        req.recipient_count,
+        req.alcohol_free_count,
+        req.gift_policy_alcohol_free,
+        f"{req.avoid or ''}\n{req.known_preferences or ''}",
+    )
+    allowance = gift_budget_allowance(
+        recipient_count=req.recipient_count,
+        address_count=address_count,
+        budget_per_recipient=req.budget_per_recipient,
+        all_in_budget=req.all_in_budget,
+        delivery_charge=req.estimated_delivery_charge,
+        delivery_basis=req.estimated_delivery_basis,
+        other_fees=req.estimated_other_fees,
+        gift_policy_cap=req.gift_policy_cap_per_recipient,
+    )
+    req = req.model_copy(update={
+        "budget_per_recipient": float(allowance.per_gift),
+        "delivery_address_count": address_count,
+        "alcohol_free_count": alcohol_free_count,
+    })
+    all_alcohol_free = alcohol_free_count == req.recipient_count
+    has_gift_budget = allowance.per_gift > 0
+    order = gift_order_route(
+        recipient_count=req.recipient_count,
+        address_count=address_count,
+        uk_only=req.uk_only,
+        international_needed=req.international_needed,
+        branding_needed=req.branding_needed,
+    )
+    if not has_gift_budget:
+        order["title"] = "Review the available gift budget"
+        order["reason"] = "The stated budget and policy leave no spend available per gift."
+        order["next_action"] = "Check the budget and gift policy before selecting any gifts."
+    per_gift_budget = f"£{allowance.per_gift:,.2f}".removesuffix(".00")
+    gift_budget = f"£{allowance.total:,.2f}".removesuffix(".00")
+    if req.all_in_budget is not None:
+        all_in = f"£{req.all_in_budget:,.2f}".removesuffix(".00")
+        budget_note = f"Up to {gift_budget} for gifts within the {all_in} all-in budget."
+        if allowance.unknown_charges:
+            budget_note += " Confirm any missing VAT-inclusive charges to finalise the allowance."
+        brief_budget = f"Our all-in budget is {all_in}, including VAT, delivery and fees."
+    else:
+        budget_note = f"{gift_budget} for the gifts, before delivery, other fees and any VAT not already included in the gift prices."
+        brief_budget = f"Our budget for the gifts themselves is {per_gift_budget} per recipient."
+    if req.gift_policy_cap_per_recipient is not None:
+        cap = f"£{req.gift_policy_cap_per_recipient:,.2f}".removesuffix(".00")
+        cap_note = f"Gift policy limits each gift to {cap} including VAT, before delivery."
+        budget_note += f" {cap_note}"
+        brief_budget += f" {cap_note}"
     label = budget_label(req.budget_per_recipient)
     active_suppliers = [supplier for supplier in SUPPLIERS if supplier.get("active", True)]
+    if all_alcohol_free:
+        active_suppliers = [supplier for supplier in active_suppliers if supplier["category"] == "non_alcoholic"]
+    if req.gift_policy_cap_per_recipient is not None or req.all_in_budget is not None:
+        active_suppliers = [
+            supplier for supplier in active_suppliers if supplier["typical_budget_min"] <= req.budget_per_recipient
+        ]
     ranked = sorted(active_suppliers, key=lambda supplier: rank_gift_supplier(supplier, req), reverse=True)
-    shortlist = build_supplier_shortlist(ranked, "Good fit for this brief.", req.budget_per_recipient)
+    shortlist = build_supplier_shortlist(ranked, "Good fit for this brief.", req.budget_per_recipient) if has_gift_budget else []
 
     strategy = {
         "tight": "Keep the brief simple: prioritise fulfilment, inclusive alternatives and a recognisable option over impressive packaging.",
@@ -3234,13 +3340,23 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         "strong": "Use a wine hamper, English sparkling, Champagne alternative or mixed case to balance polish with low taste risk.",
         "premium": "Use a fine wine merchant or premium corporate gifting supplier, and spend effort on presentation, message quality and delivery control.",
     }[label]
+    recommended_types = gift_types(req)
+    if all_alcohol_free:
+        strategy = "Choose alcohol-free gifts for every recipient and confirm the ingredients before ordering."
+        recommended_types = alcohol_free_gift_types(req.budget_per_recipient)
+    elif alcohol_free_count:
+        strategy = f"Plan {alcohol_free_count} alcohol-free gifts as a separate group. {strategy}"
+        recommended_types += alcohol_free_gift_types(req.budget_per_recipient)
+    if not has_gift_budget:
+        strategy = "There is no gift spend available under the stated limits."
+        recommended_types = []
 
     avoid = [
         "Avoid obscure or divisive bottles for clients, prospects and mixed groups.",
         "Avoid assuming every recipient drinks alcohol; include an alcohol-free route.",
         "Avoid promising delivery dates, stock or personalised packaging until the supplier confirms in writing.",
     ]
-    if req.international_needed:
+    if req.international_needed and not all_alcohol_free:
         avoid.append("Avoid sending alcohol internationally without checking customs, tax, age verification and courier rules by country.")
     if req.avoid:
         avoid.append(f"Respect the stated avoid list: {req.avoid}.")
@@ -3259,18 +3375,20 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
     if req.alcohol_free_count is not None:
         delivery_details += f"Alcohol-free gifts needed: {req.alcohol_free_count}\n"
 
-    subject = f"Corporate wine gift enquiry for {req.recipient_count} recipients"
+    subject = f"Corporate gift enquiry for {req.recipient_count} recipients"
+    preferred_style = "Alcohol-free for every recipient" if all_alcohol_free else readable(req.gift_style)
+    preferences_label = "Known preferences (subject to the alcohol-free requirement)" if all_alcohol_free else "Known preferences"
     body = (
         f"Hello,\n\nWe are planning {req.occasion} gifts for {req.recipient_count} {readable(req.recipient_type)}. "
-        f"Our planning budget is {money(req.budget_per_recipient)} per recipient, excluding any delivery or fulfilment charges unless you advise otherwise.\n\n"
-        f"Preferred style: {readable(req.gift_style)}\nTone: {readable(req.tone)}\n"
+        f"{brief_budget}\n\n"
+        f"Preferred style: {preferred_style}\nTone: {readable(req.tone)}\n"
         f"Personal messages needed: {'yes' if req.personal_message_needed else 'no'}\n"
         f"Branding needed: {'yes' if req.branding_needed else 'no'}\n"
         f"UK-only delivery: {'yes' if req.uk_only else 'no'}\n"
         f"International delivery needed: {'yes' if req.international_needed else 'no'}\n"
         f"{delivery_details}"
         f"Delivery deadline: {req.delivery_deadline or 'to be confirmed'}\n"
-        f"Known preferences: {req.known_preferences or 'not known'}\n"
+        f"{preferences_label}: {req.known_preferences or 'not known'}\n"
         f"Avoid: {req.avoid or 'none stated'}\n\n"
         "Could you confirm suitable options, current pricing, lead times, delivery coverage, minimum order quantities and any recipient data format you require?\n\n"
         "Kind regards"
@@ -3286,21 +3404,36 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
     if req.gift_style == "sparkling" or req.budget_per_recipient >= 75:
         supplier_routes.append("Champagne/sparkling wine specialist")
     preference_text = f"{req.known_preferences or ''} {req.avoid or ''}".lower()
-    if req.recipient_type in {"employees", "mixed"} or "alcohol" in preference_text or "non-alcohol" in preference_text:
+    if req.recipient_type in {"employees", "mixed"} or alcohol_free_count or "alcohol" in preference_text:
         supplier_routes.append("Non-alcoholic gifting supplier")
     supplier_routes = list(dict.fromkeys(supplier_routes))
+    route_cards = gift_supplier_route_cards(req)
+    if all_alcohol_free:
+        supplier_category = "Alcohol-free gift supplier"
+        supplier_routes = [supplier_category]
+        route_cards = [supplier_route_card(
+            supplier_category,
+            "Every recipient requires an alcohol-free gift.",
+            ["noughty-thomson-scott", "dry-drinker"],
+            "Can you confirm every item is alcohol-free and deliver the full order by the deadline?",
+            "/gift-planner",
+        )] if req.gift_policy_cap_per_recipient is None else []
+    if not has_gift_budget:
+        supplier_routes = []
+        route_cards = []
     supplier_questions = [
         "Can you deliver to one address or multiple addresses?",
         "Can you include gift messages?",
         "Can you provide VAT invoices?",
         "What happens if a product is out of stock?",
         "What is the cut-off date for delivery?",
-        "Are non-alcoholic or dietary alternatives available?",
+        ("Can you confirm every gift and its food ingredients are alcohol-free?"
+         if all_alcohol_free else "Are non-alcoholic or dietary alternatives available?"),
         "Do you support bulk or corporate orders?",
     ]
     if req.branding_needed:
         supplier_questions.append("What artwork format, proofing timeline and branding minimums apply?")
-    if req.international_needed:
+    if req.international_needed and not all_alcohol_free:
         supplier_questions.append("Which countries can you deliver alcohol to, and what customs or age-verification rules apply?")
     recipient_occasion_fit = [
         f"{readable(req.recipient_type).title()} gifts should be broad-appeal, policy-aware and easy to fulfil at this volume.",
@@ -3312,15 +3445,14 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         "Keep a written record of quote assumptions, substitutions, delivery terms and approval notes.",
     ]
     budget_guidance = [
-        f"Gift budget: {req.recipient_count} × {per_gift_budget} = {gift_budget}. This is the allowance for the gifts themselves.",
+        budget_note,
         "Confirm which prices include VAT. Ask for separate delivery, packaging, fulfilment and other charges, and request the full delivered total including VAT.",
         "Ask suppliers about minimum order quantities, recipient data format and delivery cut-offs before seeking internal approval.",
     ]
     internal_approval_summary = (
         f"Approval requested to approach {supplier_category.lower()} options for {req.recipient_count} "
-        f"{readable(req.recipient_type)} gifts for {req.occasion}. Planning budget is "
-        f"{money(req.budget_per_recipient)} per recipient, subject to supplier quotes, VAT, delivery, "
-        "lead times, substitution policy, alcohol suitability and company gifting rules."
+        f"{readable(req.recipient_type)} gifts for {req.occasion}. {budget_note} "
+        "Confirm supplier quotes, lead times, substitution policy and suitability before approval."
     )
 
     next_steps = [
@@ -3336,17 +3468,17 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
 
     plan = {
         "headline": f"{PRODUCT_NAME} gift plan: {label} {readable(req.recipient_type)} gifting",
-        "summary": f"Plan gifts for {req.recipient_count} {readable(req.recipient_type)} at around {per_gift_budget} each for {req.occasion}.",
-        "estimated_total_budget": f"{gift_budget} for the gifts, before delivery, other fees and any VAT not already included in the gift prices.",
+        "summary": f"Plan gifts for {req.recipient_count} {readable(req.recipient_type)} for {req.occasion}. {budget_note}",
+        "estimated_total_budget": budget_note,
         "recommended_direction": strategy,
         "recipient_occasion_fit": recipient_occasion_fit,
         "suggested_gift_direction": strategy,
         "budget_guidance": budget_guidance,
         "supplier_category": supplier_category,
         "supplier_routes_to_check": supplier_routes,
-        "supplier_route_cards": gift_supplier_route_cards(req),
+        "supplier_route_cards": route_cards,
         "recommended_strategy": strategy,
-        "recommended_gift_types": gift_types(req),
+        "recommended_gift_types": recommended_types,
         "supplier_shortlist": shortlist,
         "suppliers": shortlist,
         "supplier_recommendations": shortlist,
@@ -3363,14 +3495,38 @@ def make_gift_plan(req: GiftPlanRequest) -> dict:
         "next_steps": next_steps,
         "disclaimer": DISCLAIMER,
     }
-    plan = maybe_improve_plan(plan, "gift")
+    if alcohol_free_count is None and req.all_in_budget is None and req.gift_policy_cap_per_recipient is None:
+        plan = maybe_improve_plan(plan, "gift")
     plan["gift_order_summary"] = {
         "recipient_count": req.recipient_count,
         "budget_per_gift": per_gift_budget,
         "gift_budget": gift_budget,
         "delivery_deadline": (req.delivery_deadline or "").strip() or None,
     }
-    shortlist = bulk_gift_supplier_shortlist(req)
+    supplier_choices = gift_order_supplier_choices(
+        route=order["route"],
+        recipient_count=req.recipient_count,
+        delivery_address_count=address_count,
+        alcohol_free_count=alcohol_free_count,
+        occasion=req.occasion,
+        budget_per_gift=req.budget_per_recipient,
+        branding_needed=req.branding_needed,
+        gift_policy_cap_per_recipient=req.gift_policy_cap_per_recipient,
+        gift_style=req.gift_style,
+        tone=req.tone,
+    ) if has_gift_budget else []
+    plan["gift_order_recommendation"] = {
+        **order,
+        "recipient_count": req.recipient_count,
+        "delivery_address_count": address_count,
+        "alcohol_free_count": alcohol_free_count,
+        "gift_policy_cap_per_recipient": req.gift_policy_cap_per_recipient,
+        "gift_budget_per_recipient": req.budget_per_recipient,
+        "gift_budget_is_upper_bound": allowance.unknown_charges,
+        "gift_groups": gift_order_groups(req),
+        "suppliers": supplier_choices,
+    }
+    shortlist = bulk_gift_supplier_shortlist(req) if has_gift_budget and not all_alcohol_free else []
     if shortlist:
         plan["multi_address_gifts"] = {
             "recipient_count": req.recipient_count,
@@ -3614,12 +3770,23 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
     is_gift = req.pack_type == "gift"
     count = int((planner_input.get("recipient_count") if is_gift else planner_input.get("attendee_count")) or 0)
     unit_budget = float((planner_input.get("budget_per_recipient") if is_gift else planner_input.get("budget_per_person")) or 0)
+    gift_order = output.get("gift_order_recommendation") if is_gift else None
+    if not isinstance(gift_order, dict):
+        gift_order = {}
+    gift_allowance = gift_order.get("gift_budget_per_recipient")
+    if isinstance(gift_allowance, (int, float)) and 0 <= gift_allowance <= 100_000_000:
+        unit_budget = gift_allowance
+    all_in_budget = planner_input.get("all_in_budget") if gift_order else None
+    policy_cap = gift_order.get("gift_policy_cap_per_recipient")
+    all_alcohol_free = bool(gift_order and count and gift_order.get("alcohol_free_count") == count)
     planned_spend = count * unit_budget
     contingency = planned_spend * 0.1
     supplier_shortlist = output.get("supplier_shortlist", [])
     deadline = planner_input.get("delivery_deadline") or planner_input.get("date") or "to be confirmed"
 
     def gift_route() -> str:
+        if all_alcohol_free:
+            return "Alcohol-free corporate gifts"
         style = planner_input.get("gift_style", "not_sure")
         return {
             "wine_hamper": "Classic wine hamper",
@@ -3681,9 +3848,26 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
 
     if is_gift:
         route = gift_route()
+        budget_per_recipient = money(unit_budget)
+        budget_requirement = f"Around {budget_per_recipient} per recipient, plus VAT/delivery/personalisation where applicable"
+        if gift_order:
+            budget_per_recipient = f"£{unit_budget:,.2f}".removesuffix(".00")
+            budget_requirement = f"{budget_per_recipient} per gift, before delivery and fees"
+        if isinstance(all_in_budget, (int, float)) and math.isfinite(all_in_budget):
+            all_in_label = f"£{all_in_budget:,.2f}".removesuffix(".00")
+            budget_requirement = f"Keep the delivered total within {all_in_label}, including VAT and all fees."
+            base_budget = [
+                {"label": "All-in budget", "amount": all_in_label, "note": "Include VAT, delivery and other fees."},
+                {"label": "Gift allowance per recipient", "amount": budget_per_recipient,
+                 "note": "The maximum for gifts based on available charges. Confirm any missing charges against the written quote."},
+            ]
+        if isinstance(policy_cap, (int, float)) and math.isfinite(policy_cap):
+            policy_cap_label = f"£{policy_cap:,.2f}".removesuffix(".00")
+            budget_requirement += f" Gift policy caps each gift at {policy_cap_label} including VAT, before delivery."
+            base_budget.append({"label": "Gift policy cap per gift", "amount": policy_cap_label, "note": "Includes VAT and excludes delivery."})
         supplier_brief = {
             "Recipient count": str(count or "To be confirmed"),
-            "Budget per recipient": money(unit_budget),
+            "Budget per recipient": budget_per_recipient,
             "Occasion": planner_input.get("occasion", "To be confirmed"),
             "Delivery deadline": deadline,
             "Required delivery coverage": "UK-only" if planner_input.get("uk_only") else "Confirm UK and any international requirements",
@@ -3694,6 +3878,17 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
             "Decision timeline": "Quote and options needed within 24-48 hours where possible",
             "Required quote format": "Itemised quote showing unit price, VAT, delivery, packaging, personalisation, substitutions and lead time",
         }
+        if gift_order:
+            if all_in_budget is not None or policy_cap is not None:
+                supplier_brief["Budget requirements"] = budget_requirement
+            if gift_order.get("delivery_address_count") is not None:
+                supplier_brief["Delivery addresses"] = gift_order["delivery_address_count"]
+            if gift_order.get("alcohol_free_count") is not None:
+                supplier_brief["Alcohol-free gifts"] = gift_order["alcohol_free_count"]
+        alcohol_free_requirement = (
+            f"- Alcohol-free gifts required: {supplier_brief['Alcohol-free gifts']}\n"
+            if "Alcohol-free gifts" in supplier_brief else ""
+        )
         email_body = (
             "Hi [Supplier Name],\n\n"
             f"We are preparing a corporate gifting order for {count or 'the planned number of'} recipients and would like a written quote and recommendation.\n\n"
@@ -3701,7 +3896,8 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
             f"- Recommended route: {route}\n"
             f"- Occasion: {supplier_brief['Occasion']}\n"
             f"- Recipient count: {count or 'to confirm'}\n"
-            f"- Budget range: around {money(unit_budget)} per recipient, plus VAT/delivery/personalisation where applicable\n"
+            f"- Budget: {budget_requirement}\n"
+            f"{alcohol_free_requirement}"
             f"- Delivery deadline: {deadline}\n"
             f"- Delivery coverage: {supplier_brief['Required delivery coverage']}\n"
             f"- Messages: {supplier_brief['Message requirements']}\n"
@@ -3742,6 +3938,49 @@ def make_premium_pack_preview(req: PremiumPackPreviewRequest) -> dict:
             "print_note": "Use the print/save, copy and download actions on this page for internal approval records.",
             "disclaimer": DISCLAIMER,
         }
+        if gift_order:
+            preview["internal_approval_note"] = f"Approval requested to progress {route.lower()} for {count or 'the planned number of'} recipients. {budget_requirement}"
+            preview["internal_update"] = f"I’ve prepared a supplier-ready gifting brief for {count or 'the planned number of'} recipients. Recommended route: {route}. {budget_requirement} Next step is to request itemised supplier quotes for approval."
+        if all_in_budget is not None or policy_cap is not None:
+            advisory = premium_executive_recommendation("gift", unit_budget, count)
+            advisory[1] = {"label": "Budget requirements", "value": budget_requirement}
+            preview["supplier_executive_recommendation"] = advisory
+        if all_alcohol_free:
+            cards = []
+            try:
+                brief = GiftPlanRequest.model_validate(planner_input)
+            except ValidationError:
+                brief = None
+            if brief and unit_budget > 0:
+                cards = gift_order_supplier_choices(
+                    route=str(gift_order.get("route", "confirm_delivery")),
+                    recipient_count=count,
+                    delivery_address_count=brief.delivery_address_count,
+                    alcohol_free_count=count,
+                    occasion=brief.occasion,
+                    budget_per_gift=unit_budget,
+                    branding_needed=brief.branding_needed,
+                    gift_policy_cap_per_recipient=brief.gift_policy_cap_per_recipient,
+                )
+            preview["supplier_comparison"] = [{
+                "supplier_id": card["supplier_id"], "supplier": card["name"],
+                "best_for": card["fit"], "recommendation": card["published"], "hidden_watchouts": card["confirm"],
+                "contact_url": card["url"], "contact_label": card["action_label"],
+                "is_affiliate": card["is_affiliate"], "typical_spend": "Confirm price against the gift budget.",
+            } for card in cards]
+            preview["recommended_shortlist"] = [
+                {"rank": "Option", "supplier": card["name"], "reason": card["fit"]} for card in cards
+            ]
+            preview["decision_recommendation"]["suits"] = "This brief requires alcohol-free options for every recipient."
+            preview["decision_recommendation"]["may_not_suit"] = "Suppliers unable to confirm the ingredients and fulfilment."
+            preview["supplier_executive_recommendation"] = [
+                {"label": "Gift requirement", "value": "Alcohol-free gifts for every recipient."},
+                {"label": "Budget", "value": budget_requirement},
+            ]
+            preview["what_we_would_do"] = [
+                "Confirm both drinks and food ingredients are alcohol-free.",
+                "Confirm delivered prices, cut-offs and substitutions for the full order.",
+            ]
     else:
         event_format = output.get("recommended_format", "Hosted corporate wine tasting")
         supplier_brief = {

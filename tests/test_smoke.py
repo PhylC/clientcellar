@@ -1740,6 +1740,56 @@ def test_gift_plan_uses_bulk_supplier_evidence_for_uk_multi_address_orders():
         assert "cannot exceed the gift recipient count" in invalid.json()["message"]
 
 
+def test_gift_plan_recommends_how_to_order_and_applies_gift_policy():
+    brief = {
+        "recipient_type": "clients",
+        "recipient_count": 30,
+        "delivery_address_count": 30,
+        "alcohol_free_count": 5,
+        "all_in_budget": 1350,
+        "estimated_delivery_charge": 6,
+        "estimated_delivery_basis": "per-address",
+        "estimated_other_fees": 0,
+        "occasion": "Christmas thank-you",
+        "gift_style": "wine",
+        "tone": "safe",
+    }
+
+    def plan_for(**changes):
+        response = client.post("/api/gift-plan", json=brief | changes)
+        assert response.status_code == 200, response.json()
+        return response.json()
+
+    bulk_plan = plan_for()
+    bulk_order = bulk_plan["gift_order_recommendation"]
+    assert bulk_order["route"] == "bulk_quote"
+    assert bulk_plan["gift_order_summary"]["budget_per_gift"] == "£39"
+    assert {group["kind"]: group["count"] for group in bulk_order["gift_groups"]} == {
+        "standard": 25,
+        "alcohol_free": 5,
+    }
+    assert 2 <= len(bulk_order["suppliers"]) <= 3
+
+    grouped_order = plan_for(delivery_address_count=1)["gift_order_recommendation"]
+    assert grouped_order["route"] == "grouped_delivery"
+
+    online_order = plan_for(
+        recipient_count=1, delivery_address_count=None, alcohol_free_count=0,
+        all_in_budget=45,
+    )["gift_order_recommendation"]
+    assert online_order["route"] == "online_checkout"
+    assert online_order["delivery_address_count"] == 1
+    assert 2 <= len(online_order["suppliers"]) <= 3
+    assert all(supplier["source_url"].startswith("https://") for supplier in online_order["suppliers"])
+
+    policy_plan = plan_for(gift_policy_alcohol_free=True, gift_policy_cap_per_recipient=30)
+    policy_order = policy_plan["gift_order_recommendation"]
+    assert policy_plan["gift_order_summary"]["budget_per_gift"] == "£30"
+    assert policy_order["alcohol_free_count"] == 30
+    assert [(g["kind"], g["count"]) for g in policy_order["gift_groups"]] == [("alcohol_free", 30)]
+    assert "Alcohol-free gifts needed: 30" in policy_plan["supplier_enquiry_email"]["body"]
+
+
 def test_king_country_surfaces_for_suitable_premium_open_brief():
     response = client.post(
         "/api/gift-plan",

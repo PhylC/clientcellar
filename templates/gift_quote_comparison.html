@@ -32,6 +32,10 @@
         </label>
       </div>
       <p class="small-note" data-quote-count-status></p>
+      <label>All-in budget for the order (£, optional)
+        <input name="budget" type="number" min="0.01" max="100000000" step="0.01" inputmode="decimal">
+        <small>Include gifts, delivery, any other fees and VAT.</small>
+      </label>
     </fieldset>
 
     <p class="small-note quote-fees-note">Leave missing prices blank. Enter £0 only when the quote confirms there’s no separate charge. Use VAT-inclusive prices throughout, or enter prices before VAT and add the quoted VAT.</p>
@@ -89,6 +93,7 @@
           <div><span>Total delivered cost</span><strong data-quote-total>—</strong></div>
           <div><span>Cost per recipient</span><strong data-quote-per-recipient>—</strong></div>
         </div>
+        <p class="small-note" data-quote-budget-status hidden></p>
         <p class="small-note" data-quote-vat-summary hidden></p>
         <div class="quote-checklist" data-quote-notes hidden>
           <p>Still to confirm</p>
@@ -103,5 +108,5 @@
   <p class="small-note quote-privacy">Quote entries stay in this browser tab. Use the final written quote to confirm charges and delivery terms before ordering.</p>
   <noscript><p class="quote-privacy">Enable JavaScript to compare quotes in your browser.</p></noscript>
 </div>
-<script type="module" src="{{ url_for('static', path='/gift-quote-comparison.mjs') }}?v=20261120"></script>
+<script type="module" src="{{ url_for('static', path='/gift-quote-comparison.mjs') }}?v=20261124"></script>
 {% endblock %}

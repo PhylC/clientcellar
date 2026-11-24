@@ -38,6 +38,7 @@ const ANALYTICS_CONSENT_KEY = "clientcellar_analytics_consent";
 const PENDING_GIFT_PLANNER_CLICK = "clientcellar_pending_gift_planner_click";
 const SHORTLIST_SOURCES = new Set(["homepage", "pricing"]);
 const LOCAL_WINE_MERCHANT_SEARCH_URL = "https://www.google.com/search?q=independent+wine+merchant+near+me";
+const GIFT_BUDGET_MODULE_URL = "/static/gift-order-budget.mjs?v=20261124";
 const analyticsState = {
   plannerStarted: new Set(),
 };
@@ -489,11 +490,11 @@ function formToJson(form) {
   }
 
   for (const checkbox of form.querySelectorAll('input[type="checkbox"]')) {
-    payload[checkbox.name] = checkbox.checked;
+    if (!checkbox.matches(":disabled")) payload[checkbox.name] = checkbox.checked;
   }
 
   for (const number of form.querySelectorAll('input[type="number"]')) {
-    if (number.value !== "") payload[number.name] = Number(number.value);
+    if (!number.matches(":disabled") && number.value !== "") payload[number.name] = Number(number.value);
   }
 
   for (const [key, value] of Object.entries(payload)) {
@@ -1333,8 +1334,93 @@ function renderMultiAddressGiftSuppliers(brief) {
   `;
 }
 
-function renderPlan(plan, type, input) {
+function giftBudgetAllowance(result, formatMoney) {
+  if (result.overBudget) {
+    return `Known charges already exceed your budget by ${formatMoney(result.shortfall)}.`;
+  }
+  if (result.perRecipient === null) return "";
+  const qualifier = result.unknown.length ? "Up to " : "";
+  return `${qualifier}${formatMoney(result.perRecipient)} per gift${result.policyLimited ? " within your gift policy" : ""}.`;
+}
+
+function renderGiftOrder(plan, input, budget) {
+  const order = plan.gift_order_recommendation;
+  const budgetInputs = {
+    ...input,
+    recipient_count: order.recipient_count,
+    delivery_address_count: order.delivery_address_count,
+    alcohol_free_count: order.alcohol_free_count,
+  };
+  const estimate = budget.calculateGiftBudget(budgetInputs);
+  const quoteParams = budget.giftQuoteParams(budgetInputs).toString();
+  const money = budget.formatGiftMoney;
+  const uncertainCosts = estimate.unknown.some(key => ["delivery", "fees", "addresses"].includes(key));
+  const giftsOnly = plan.gift_order_summary;
+  const checkedDate = order.suppliers?.[0]?.source_checked_date;
+  const estimatedCharge = value => value === null ? "To be confirmed" : money(value);
+  const supplierCards = (order.suppliers || []).map(supplier => {
+    const source = supplier.source_url?.startsWith("https://")
+      ? `<a href="${escapeHtml(supplier.source_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(supplier.source_label || "Supplier source")}</a>`
+      : "";
+    const action = supplier.url?.startsWith("https://")
+      ? `<a class="button secondary small" href="${escapeHtml(supplier.url)}" target="_blank" rel="noopener noreferrer${supplier.is_affiliate ? " sponsored" : ""}" data-supplier-click data-supplier-name="${escapeHtml(supplier.name)}" data-supplier-placement="${escapeHtml(supplier.placement || ("gift_planner_" + order.route))}">${escapeHtml(supplier.action_label)}${supplier.is_affiliate ? " · Ad" : ""}</a>`
+      : "";
+    return `
+      <article class="gift-order-supplier">
+        <h3>${escapeHtml(supplier.name)}</h3>
+        <p>${escapeHtml(supplier.fit)}</p>
+        <dl>
+          <div><dt>Published by the supplier</dt><dd>${escapeHtml(supplier.published)}${source ? ` ${source}` : ""}</dd></div>
+          <div><dt>Before ordering</dt><dd>${escapeHtml(supplier.confirm)}</dd></div>
+        </dl>
+        ${action}
+      </article>`;
+  }).join("");
+
+  return `
+    <section class="gift-order-summary" aria-labelledby="gift-order-title" data-gift-order-route="${escapeHtml(order.route)}">
+      <h2 id="gift-order-title">${escapeHtml(order.title)}</h2>
+      <p>${escapeHtml(order.reason)}</p>
+      ${order.delivery_address_count ? `<p class="small-note">${escapeHtml(order.recipient_count)} ${order.recipient_count === 1 ? "gift" : "gifts"} · ${escapeHtml(order.delivery_address_count)} delivery ${order.delivery_address_count === 1 ? "address" : "addresses"}</p>` : ""}
+      ${(order.gift_groups || []).map(group => `
+        <div class="gift-order-group">
+          <h3>${escapeHtml(group.kind === "unconfirmed" ? group.label : `${group.count} ${group.label.toLowerCase()}`)}</h3>
+          ${group.options?.length ? list(group.options) : ""}
+        </div>`).join("")}
+      <p><strong>Delivery deadline</strong> ${escapeHtml(giftsOnly.delivery_deadline || "To be confirmed")}</p>
+      <p><strong>Next step</strong> ${escapeHtml(order.next_action)}</p>
+    </section>
+    <section class="result-block" aria-labelledby="gift-budget-title">
+      <h2 id="gift-budget-title">What you can spend</h2>
+      ${estimate.cap !== null ? `
+        <dl class="gift-budget-breakdown">
+          <div><dt>Whole-order budget</dt><dd>${money(estimate.cap)}</dd></div>
+          <div><dt>Estimated delivery</dt><dd>${estimatedCharge(estimate.deliveryTotal)}</dd></div>
+          <div><dt>Estimated other charges</dt><dd>${estimatedCharge(estimate.fees)}</dd></div>
+          <div><dt>${uncertainCosts ? "Maximum left for gifts so far" : "Left for gifts"}</dt><dd>${money(estimate.remaining)}</dd></div>
+        </dl>
+        <p><strong data-gift-budget-allowance>${escapeHtml(giftBudgetAllowance(estimate, money))}</strong></p>
+        <p class="small-note">${uncertainCosts ? "Unknown charges may reduce this allowance." : "Based on your estimates, including VAT where applicable."}</p>
+        <a class="text-link" href="#gift-budget">Edit budget assumptions</a>
+      ` : `
+        <p><strong>${escapeHtml(giftsOnly.gift_budget)}</strong> for ${escapeHtml(giftsOnly.recipient_count)} gifts at ${escapeHtml(giftsOnly.budget_per_gift)} per gift.</p>
+        <p class="small-note">Add delivery, other charges and any VAT excluded from the gift prices.</p>
+      `}
+      ${order.gift_policy_cap_per_recipient !== null && order.gift_policy_cap_per_recipient !== undefined
+        ? `<p class="small-note">Gift policy limit: ${escapeHtml(new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(order.gift_policy_cap_per_recipient))} per recipient.</p>`
+        : ""}
+    </section>
+    <section class="result-block" id="gift-supplier-routes" aria-labelledby="gift-supplier-title">
+      <h2 id="gift-supplier-title">${supplierCards ? "Suppliers to consider" : "Supplier and quote checks"}</h2>
+      ${supplierCards ? `<div class="gift-order-suppliers">${supplierCards}</div>` : ""}
+      ${checkedDate ? `<p class="small-note">Supplier pages checked <time datetime="${escapeHtml(checkedDate)}">${escapeHtml(new Intl.DateTimeFormat("en-GB", { dateStyle: "long", timeZone: "UTC" }).format(new Date(checkedDate)))}</time>.</p>` : ""}
+      <a class="button secondary small" href="/gift-quote-comparison${quoteParams ? "?" + escapeHtml(quoteParams) : ""}">Compare delivered costs once you have quotes</a>
+    </section>`;
+}
+
+function renderPlan(plan, type, input, budget) {
   const giftOrder = type === "gift" ? plan.gift_order_summary : null;
+  const tailoredGiftOrder = giftOrder && plan.gift_order_recommendation && budget;
   const christmasShortlistOffer = type === "gift" && input.uk_only && !input.international_needed
     && /\b(christmas|xmas)\b/i.test(input.occasion || "")
     ? document.getElementById("gift-christmas-shortlist-cta")?.innerHTML || ""
@@ -1385,6 +1471,7 @@ function renderPlan(plan, type, input) {
 
   return `
     <article class="plan-result">
+      ${tailoredGiftOrder ? renderGiftOrder(plan, input, budget) : `
       <p class="eyebrow">Generated plan</p>
       <h2>${escapeHtml(plan.headline)}</h2>
       <p class="result-meta">${escapeHtml(plan.summary)}</p>
@@ -1415,7 +1502,12 @@ function renderPlan(plan, type, input) {
         ${type !== "gift" && !plan.supplier_route_cards?.length ? list(routeList) : ""}
         <p class="small-note">${escapeHtml(plan.supplier_links_note || "Supplier links are not required to use this plan. You can use the supplier route guidance to contact retailers or merchants directly.")}</p>
       </div>
-      ${christmasShortlistOffer}
+      `}
+      ${christmasShortlistOffer && (!tailoredGiftOrder || (
+        plan.gift_order_recommendation.gift_budget_per_recipient > 0
+        && ["bulk_quote", "grouped_delivery"].includes(plan.gift_order_recommendation.route)
+      )) ? christmasShortlistOffer : ""}
+      ${tailoredGiftOrder ? '<details class="gift-plan-checks result-block"><summary>Planning checks and next steps</summary>' : ""}
       <div class="result-block">
         <h2>Questions to ask ${type === "event" ? "event wine suppliers" : "suppliers"}</h2>
         ${list(questions)}
@@ -1428,6 +1520,7 @@ function renderPlan(plan, type, input) {
         <h2>Next steps</h2>
         ${list(plan.next_steps || [])}
       </div>
+      ${tailoredGiftOrder ? "</details>" : ""}
       <div class="premium-cta-card">
         <p class="eyebrow">Premium Brief Pack</p>
         <h2>Want the documents to actually send?</h2>
@@ -1535,12 +1628,17 @@ async function submitPlan(form, type) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
     });
+    const plan = await response.json();
     if (!response.ok) {
+      if (response.status === 422) {
+        target.textContent = plan.message || "Check the form and try again.";
+        return;
+      }
       throw new Error("Planner request failed");
     }
-    const plan = await response.json();
+    const budget = type === "gift" ? await import(GIFT_BUDGET_MODULE_URL) : null;
     plannerState[type] = { input, output: plan };
-    target.innerHTML = renderPlan(plan, type, input);
+    target.innerHTML = renderPlan(plan, type, input, budget);
     target.dataset.csv = plan.recipient_csv_template || "";
     if (type === "gift" && window.matchMedia("(max-width: 719px)").matches) {
       target.scrollIntoView({ block: "start" });
@@ -1748,6 +1846,48 @@ function bindPackAccessForm() {
   });
 }
 
+function bindGiftPlannerBudget(form) {
+  const recipients = form.elements.namedItem("recipient_count");
+  const addresses = form.elements.namedItem("delivery_address_count");
+  const alcoholFree = form.elements.namedItem("alcohol_free_count");
+  const alcoholFreePolicy = form.elements.namedItem("gift_policy_alcohol_free");
+  const mode = form.querySelector("[data-gift-budget-mode]");
+  const giftsOnly = form.querySelector("[data-gift-only-budget]");
+  const allIn = form.querySelector("[data-gift-all-in-budget]");
+  const preview = form.querySelector("[data-gift-budget-preview]");
+  let budget;
+
+  function update() {
+    const max = recipients.value || "10000";
+    addresses.max = max;
+    alcoholFree.max = max;
+    alcoholFree.disabled = alcoholFreePolicy.checked;
+    const wholeOrder = mode.value === "all-in";
+    giftsOnly.hidden = wholeOrder;
+    giftsOnly.querySelector("input").disabled = wholeOrder;
+    allIn.hidden = !wholeOrder;
+    for (const field of allIn.querySelectorAll("input, select")) field.disabled = !wholeOrder;
+    if (!wholeOrder || !budget) {
+      preview.hidden = true;
+      return;
+    }
+    const estimate = budget.calculateGiftBudget(formToJson(form));
+    const message = giftBudgetAllowance(estimate, budget.formatGiftMoney);
+    if (preview.textContent !== message) preview.textContent = message;
+    preview.hidden = !message;
+  }
+
+  form.addEventListener("input", update);
+  form.addEventListener("change", update);
+  update();
+  import(GIFT_BUDGET_MODULE_URL).then(module => {
+    budget = module;
+    update();
+  }).catch(() => {
+    // The normal submit flow retries loading the budget module.
+  });
+}
+
 function bindPlannerForms() {
   const message = new URLSearchParams(window.location.search).get("message");
   if (message === "create-plan-first") {
@@ -1761,16 +1901,7 @@ function bindPlannerForms() {
   }
 
   for (const form of document.querySelectorAll("[data-plan-form]")) {
-    if (form.dataset.planForm === "gift") {
-      const recipients = form.elements.namedItem("recipient_count");
-      const addresses = form.elements.namedItem("delivery_address_count");
-      const alcoholFree = form.elements.namedItem("alcohol_free_count");
-      recipients.addEventListener("input", () => {
-        const max = recipients.value || "10000";
-        addresses.max = max;
-        alcoholFree.max = max;
-      });
-    }
+    if (form.dataset.planForm === "gift") bindGiftPlannerBudget(form);
     form.addEventListener("focusin", () => {
       const type = form.dataset.planForm || "gift";
       if (analyticsState.plannerStarted.has(type)) return;

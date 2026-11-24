@@ -5,6 +5,8 @@ __pycache__/
 .DS_Store
 data/*
 !data/__init__.py
+!data/gift_order_planning.py
+!data/gift_order_suppliers.py
 !data/suppliers.py
 *.db
 .pytest_cache/

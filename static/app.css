@@ -1333,6 +1333,7 @@ textarea {
 }
 
 #gift-results,
+#gift-budget,
 #gift-supplier-routes,
 #christmas-gifting-shortlist,
 #supplier-gift-shortcuts,
@@ -1351,6 +1352,104 @@ textarea {
 
 .gift-order-summary p {
   margin: 0 0 0.65rem;
+}
+
+.gift-order-summary p:last-child {
+  margin-bottom: 0;
+}
+
+.gift-planner-budget,
+.gift-budget-assumptions,
+.gift-order-suppliers {
+  display: grid;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.gift-planner-budget {
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.gift-planner-budget legend,
+.gift-plan-checks summary {
+  font-weight: 750;
+}
+
+.gift-planner-budget [hidden] {
+  display: none;
+}
+
+.gift-budget-assumptions p,
+.gift-order-supplier p {
+  margin: 0;
+}
+
+.gift-budget-preview {
+  color: var(--burgundy);
+  font-weight: 750;
+}
+
+.gift-order-group {
+  margin: 0.7rem 0;
+  border-top: 1px solid var(--line);
+  padding-top: 0.6rem;
+}
+
+.gift-order-group h3,
+.gift-order-supplier h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.gift-order-group ul {
+  margin: 0.25rem 0 0;
+}
+
+.gift-budget-breakdown {
+  margin: 0.65rem 0;
+}
+
+.gift-budget-breakdown > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 0.8rem;
+  padding: 0.38rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.gift-budget-breakdown dd,
+.gift-order-supplier dd {
+  margin: 0;
+}
+
+.gift-budget-breakdown dd,
+.gift-order-supplier dt {
+  font-weight: 700;
+}
+
+.gift-order-suppliers {
+  margin: 0.75rem 0;
+}
+
+.gift-order-supplier {
+  display: grid;
+  justify-items: start;
+  gap: 0.45rem;
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  overflow-wrap: anywhere;
+}
+
+.gift-order-supplier dl {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.15rem 0;
+  font-size: 0.9rem;
 }
 
 .premium-hero {
