@@ -78,6 +78,7 @@ CANONICAL_ORIGIN = "https://clientcellar.co.uk"
 CANONICAL_HOST = "clientcellar.co.uk"
 WWW_HOST = "www.clientcellar.co.uk"
 CHRISTMAS_GIFTS_HERO_PLACEMENT = "christmas_gifts_hero"
+CHAMPAGNE_GUIDE_SUPPLIER_PLACEMENT = "champagne_guide_recommendation"
 SUPPLIER_DIRECTORY_SHORTCUTS = (
     ("directory_corporate_gift_boxes", "bottle-in-a-box", "Corporate gift boxes"),
     ("directory_milestone_wine_gifts", "vintage-wine-gifts", "Milestone wine gifts"),
@@ -10311,6 +10312,19 @@ if "champagne-gifts-for-clients" in GUIDES:
             ["Preference unknown", "£25–£50", "A small food gift or alcohol-free sparkling. Check dietary needs and delivery."],
         ],
     }
+    if configured_supplier_affiliate_url("vintage-wine-gifts"):
+        champagne_guide["featured_supplier"] = {
+            "heading": "Where to browse for a milestone gift",
+            "name": "Vintage Wine Gifts",
+            "text": "Compare vintage Champagne for a client milestone. Check whether the bottle comes in a gift box, what delivery costs and when it can arrive.",
+            "url": configured_supplier_url_with_clickref(
+                "vintage-wine-gifts", f"cc_{CHAMPAGNE_GUIDE_SUPPLIER_PLACEMENT}",
+            ),
+            "link_label": "Browse Vintage Wine Gifts",
+            "is_affiliate": True,
+            "disclosure": "Affiliate link. ClientCellar may earn a commission if you buy through it.",
+            "placement": CHAMPAGNE_GUIDE_SUPPLIER_PLACEMENT,
+        }
     champagne_guide.setdefault("article_sections", []).insert(
         0,
         {
@@ -11871,7 +11885,9 @@ def analytics_summary_for_days(days: int) -> dict:
     rows = fetch_analytics_events(days)
     shortlist_rows = fetch_analytics_events(days, event_names=SHORTLIST_ANALYTICS_EVENTS)
     directory_placements = tuple(placement for placement, _, _ in SUPPLIER_DIRECTORY_SHORTCUTS)
-    placement_clicks = dict.fromkeys((CHRISTMAS_GIFTS_HERO_PLACEMENT, *directory_placements), 0)
+    placement_clicks = dict.fromkeys(
+        (CHRISTMAS_GIFTS_HERO_PLACEMENT, CHAMPAGNE_GUIDE_SUPPLIER_PLACEMENT, *directory_placements), 0,
+    )
     supplier_rows = fetch_analytics_events(
         days,
         event_names=("gift_supplier_clicked", "supplier_click"),
@@ -11890,6 +11906,7 @@ def analytics_summary_for_days(days: int) -> dict:
         "analytics_configured": supabase_settings()["service_configured"],
         "event_count": len(rows),
         "christmas_gifts_hero_supplier_clicks": placement_clicks[CHRISTMAS_GIFTS_HERO_PLACEMENT],
+        "champagne_guide_supplier_clicks": placement_clicks[CHAMPAGNE_GUIDE_SUPPLIER_PLACEMENT],
         "supplier_directory_shortcut_clicks": {placement: placement_clicks[placement] for placement in directory_placements},
         **{
             f"christmas_shortlist_{source}": shortlist_analytics_summary(shortlist_rows, source)

@@ -150,12 +150,16 @@
 
     {% if guide.featured_supplier %}
     <section id="featured-supplier" class="guide-featured-supplier">
+      {% if guide.featured_supplier.eyebrow %}
       <p class="eyebrow">{{ guide.featured_supplier.eyebrow }}</p>
+      {% endif %}
       <h2>{{ guide.featured_supplier.heading }}</h2>
       <h3>{{ guide.featured_supplier.name }}</h3>
       <p>{{ guide.featured_supplier.text }}</p>
       <div class="guide-featured-supplier__actions">
-        <a class="button primary" href="{{ guide.featured_supplier.url }}" target="_blank" rel="noopener noreferrer{% if guide.featured_supplier.is_affiliate %} sponsored{% endif %}"{% if track_guide_clicks %} data-supplier-click data-supplier-name="{{ guide.featured_supplier.name }}"{% endif %}>{{ guide.featured_supplier.link_label }}</a>
+        <a class="button primary" href="{{ guide.featured_supplier.url }}" target="_blank" rel="noopener noreferrer{% if guide.featured_supplier.is_affiliate %} sponsored{% endif %}"
+           {% if track_guide_clicks or guide.featured_supplier.placement %}data-supplier-click data-supplier-name="{{ guide.featured_supplier.name }}"{% endif %}
+           {% if guide.featured_supplier.placement %}data-supplier-placement="{{ guide.featured_supplier.placement }}"{% endif %}>{{ guide.featured_supplier.link_label }}</a>
         <a class="text-link" href="/supplier-directory">Compare more suppliers</a>
       </div>
       <p class="small-note">{{ guide.featured_supplier.disclosure }}</p>

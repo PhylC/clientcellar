@@ -72,6 +72,8 @@ The `christmas_shortlist_homepage` and `christmas_shortlist_pricing` sections re
 
 `supplier_directory_shortcut_clicks` reports consented `supplier_click` events separately for corporate gift boxes, milestone wine gifts and mixed gift ideas. Awin links also carry the matching placement reference. The Bottle In A Box shortcut uses its programme-issued link.
 
+`champagne_guide_supplier_clicks` reports consented Vintage Wine Gifts clicks beside the recommendation in the Champagne guide. The first-party event carries `metadata.supplier_placement = champagne_guide_recommendation` and the Awin link carries `cc_champagne_guide_recommendation`.
+
 ## Example SQL Queries
 
 Top pages in the last 30 days:

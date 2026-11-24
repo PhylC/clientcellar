@@ -485,6 +485,33 @@ def test_under_100_guide_tracks_planner_and_supplier_clicks_separately(monkeypat
     ]
 
 
+def test_champagne_guide_affiliate_sits_after_recommendation_with_a_distinct_reference():
+    code = """
+import main
+from fastapi.testclient import TestClient
+
+client = TestClient(main.app)
+html = client.get('/guides/champagne-gifts-for-clients').text
+assert html.index('Champagne and alternatives by recipient') < html.index('id="featured-supplier"')
+assert 'data-supplier-placement="champagne_guide_recommendation"' in html
+assert 'awinmid=806&amp;clickref=cc_champagne_guide_recommendation' in html
+assert 'rel="noopener noreferrer sponsored"' in html
+assert 'Affiliate link. ClientCellar may earn a commission' in html
+assert 'champagne_guide_recommendation' not in client.get('/guides/best-wine-gifts-under-100').text
+"""
+    subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=Path(__file__).resolve().parents[1],
+        env={
+            **os.environ,
+            "CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS": "https://www.awin1.com/cread.php?awinmid=806",
+        },
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
 def test_vintage_wine_gifts_affiliate_is_used_on_christmas_page():
     code = (
         "import main;"
@@ -1013,6 +1040,7 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
         if supplier_placements:
             assert supplier_placements == (
                 "christmas_gifts_hero",
+                "champagne_guide_recommendation",
                 "directory_corporate_gift_boxes",
                 "directory_milestone_wine_gifts",
                 "directory_mixed_gift_ideas",
@@ -1020,7 +1048,12 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
             assert event_names == ("gift_supplier_clicked", "supplier_click")
             return [
                 {"metadata": {"supplier_placement": placement}}
-                for placement in ("christmas_gifts_hero", "directory_mixed_gift_ideas", "directory_mixed_gift_ideas")
+                for placement in (
+                    "christmas_gifts_hero",
+                    "champagne_guide_recommendation",
+                    "directory_mixed_gift_ideas",
+                    "directory_mixed_gift_ideas",
+                )
             ]
         assert not event_names or set(event_names) == {row["event_name"] for row in shortlist_rows}
         return shortlist_rows if event_names else []
@@ -1039,6 +1072,7 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
     assert response.status_code == 200
     for period in ("last_7_days", "last_30_days"):
         assert response.json()[period]["christmas_gifts_hero_supplier_clicks"] == 1
+        assert response.json()[period]["champagne_guide_supplier_clicks"] == 1
         assert response.json()[period]["supplier_directory_shortcut_clicks"] == {
             "directory_corporate_gift_boxes": 0,
             "directory_milestone_wine_gifts": 0,
