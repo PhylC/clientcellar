@@ -78,6 +78,11 @@ CANONICAL_ORIGIN = "https://clientcellar.co.uk"
 CANONICAL_HOST = "clientcellar.co.uk"
 WWW_HOST = "www.clientcellar.co.uk"
 CHRISTMAS_GIFTS_HERO_PLACEMENT = "christmas_gifts_hero"
+SUPPLIER_DIRECTORY_SHORTCUTS = (
+    ("directory_corporate_gift_boxes", "bottle-in-a-box", "Corporate gift boxes"),
+    ("directory_milestone_wine_gifts", "vintage-wine-gifts", "Milestone wine gifts"),
+    ("directory_mixed_gift_ideas", "winebuyers-uk", "Mixed gift ideas"),
+)
 
 app = FastAPI(title=PRODUCT_NAME)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
@@ -11233,6 +11238,16 @@ def supplier_directory(request: Request):
 @app.get("/supplier-directory", response_class=HTMLResponse)
 def supplier_directory_page(request: Request):
     directory_suppliers = supplier_directory_entries()
+    gift_shortcuts = []
+    for placement, supplier_id, label in SUPPLIER_DIRECTORY_SHORTCUTS:
+        supplier = get_supplier_link(supplier_id)
+        if supplier and supplier.is_affiliate:
+            gift_shortcuts.append({
+                "placement": placement,
+                "label": label,
+                "name": supplier.name,
+                "url": configured_supplier_url_with_clickref(supplier_id, f"cc_{placement}"),
+            })
     categories = sorted({supplier["category"] for supplier in directory_suppliers})
     best_use_filters = [
         "Corporate gifts",
@@ -11249,6 +11264,7 @@ def supplier_directory_page(request: Request):
         "UK Wine Gift Supplier Directory",
         "Compare UK wine gift suppliers for corporate gifting, client hampers, event drinks and business thank-you gifts. Editorially selected by ClientCellar.",
         suppliers=directory_suppliers,
+        gift_shortcuts=gift_shortcuts,
         featured_suppliers=featured_supplier_directory_entries(),
         categories=categories,
         best_use_filters=best_use_filters,
@@ -11772,7 +11788,7 @@ def admin_summary(request: Request):
 def fetch_analytics_events(
     days: int = 30, limit: int = 10000, *,
     event_names: tuple[str, ...] = (),
-    supplier_placement: str | None = None,
+    supplier_placements: tuple[str, ...] = (),
 ) -> list[dict]:
     settings = supabase_settings()
     if not settings["service_configured"]:
@@ -11781,15 +11797,18 @@ def fetch_analytics_events(
     limit = max(1, min(limit, 10000))
     since_dt = datetime.utcnow().replace(microsecond=0) - timedelta(days=days)
     since_value = urllib.parse.quote(since_dt.isoformat() + "Z", safe=":-TZ")
+    fields = "created_at,event_name,session_id,page_path,device_type,report_type,supplier_name,supplier_url,checkout_session_id"
+    if supplier_placements:
+        fields += ",metadata"
     url = (
         f"{settings['url']}/rest/v1/analytics_events"
-        f"?select=created_at,event_name,session_id,page_path,device_type,report_type,supplier_name,supplier_url,checkout_session_id"
+        f"?select={fields}"
         f"&created_at=gte.{since_value}&order=created_at.desc&limit={limit}"
     )
     if event_names:
         url += f"&event_name=in.({','.join(event_names)})"
-    if supplier_placement:
-        filters = urllib.parse.urlencode({"metadata->>supplier_placement": f"eq.{supplier_placement}"})
+    if supplier_placements:
+        filters = urllib.parse.urlencode({"metadata->>supplier_placement": f"in.({','.join(supplier_placements)})"})
         url += f"&{filters}"
     try:
         data = _supabase_json_request(
@@ -11851,9 +11870,17 @@ def shortlist_analytics_summary(rows: list[dict], source: str) -> dict:
 def analytics_summary_for_days(days: int) -> dict:
     rows = fetch_analytics_events(days)
     shortlist_rows = fetch_analytics_events(days, event_names=SHORTLIST_ANALYTICS_EVENTS)
-    christmas_hero_clicks = fetch_analytics_events(
-        days, event_names=("gift_supplier_clicked",), supplier_placement=CHRISTMAS_GIFTS_HERO_PLACEMENT,
+    directory_placements = tuple(placement for placement, _, _ in SUPPLIER_DIRECTORY_SHORTCUTS)
+    placement_clicks = dict.fromkeys((CHRISTMAS_GIFTS_HERO_PLACEMENT, *directory_placements), 0)
+    supplier_rows = fetch_analytics_events(
+        days,
+        event_names=("gift_supplier_clicked", "supplier_click"),
+        supplier_placements=tuple(placement_clicks),
     )
+    for row in supplier_rows:
+        placement = (row.get("metadata") or {}).get("supplier_placement")
+        if placement in placement_clicks:
+            placement_clicks[placement] += 1
     free_reports = analytics_count(rows, {"gift_free_report_generated", "event_free_report_generated"})
     upgrade_clicks = analytics_count(rows, {"gift_upgrade_clicked", "event_upgrade_clicked", "example_upgrade_clicked"})
     checkout_starts = analytics_count(rows, {"gift_checkout_started", "event_checkout_started"})
@@ -11862,7 +11889,8 @@ def analytics_summary_for_days(days: int) -> dict:
         "days": days,
         "analytics_configured": supabase_settings()["service_configured"],
         "event_count": len(rows),
-        "christmas_gifts_hero_supplier_clicks": len(christmas_hero_clicks),
+        "christmas_gifts_hero_supplier_clicks": placement_clicks[CHRISTMAS_GIFTS_HERO_PLACEMENT],
+        "supplier_directory_shortcut_clicks": {placement: placement_clicks[placement] for placement in directory_placements},
         **{
             f"christmas_shortlist_{source}": shortlist_analytics_summary(shortlist_rows, source)
             for source in SHORTLIST_ANALYTICS_SOURCES

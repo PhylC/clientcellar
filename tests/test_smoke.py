@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 import time
+from dataclasses import replace
 from pathlib import Path
 from html.parser import HTMLParser
 
@@ -1007,12 +1008,20 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
         {"event_name": "shortlist_pricing_booking_paid", "checkout_session_id": "pricing-checkout"},
     ]
 
-    def fetch_analytics_events(days, *, event_names=(), supplier_placement=None):
+    def fetch_analytics_events(days, *, event_names=(), supplier_placements=()):
         assert days in (7, 30)
-        if supplier_placement:
-            assert supplier_placement == "christmas_gifts_hero"
-            assert event_names == ("gift_supplier_clicked",)
-            return [{"event_name": "gift_supplier_clicked"}]
+        if supplier_placements:
+            assert supplier_placements == (
+                "christmas_gifts_hero",
+                "directory_corporate_gift_boxes",
+                "directory_milestone_wine_gifts",
+                "directory_mixed_gift_ideas",
+            )
+            assert event_names == ("gift_supplier_clicked", "supplier_click")
+            return [
+                {"metadata": {"supplier_placement": placement}}
+                for placement in ("christmas_gifts_hero", "directory_mixed_gift_ideas", "directory_mixed_gift_ideas")
+            ]
         assert not event_names or set(event_names) == {row["event_name"] for row in shortlist_rows}
         return shortlist_rows if event_names else []
 
@@ -1030,6 +1039,11 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
     assert response.status_code == 200
     for period in ("last_7_days", "last_30_days"):
         assert response.json()[period]["christmas_gifts_hero_supplier_clicks"] == 1
+        assert response.json()[period]["supplier_directory_shortcut_clicks"] == {
+            "directory_corporate_gift_boxes": 0,
+            "directory_milestone_wine_gifts": 0,
+            "directory_mixed_gift_ideas": 2,
+        }
         assert response.json()[period]["christmas_shortlist_homepage"] == {
             "button_clicks": 3,
             "button_sessions": 2,
@@ -1398,6 +1412,34 @@ def test_king_country_is_in_relevant_curated_guides_only():
         response = client.get(path)
         assert response.status_code == 200
         assert "View King &amp; Country gin gifts" not in response.text
+
+
+def test_supplier_directory_shortcuts_use_approved_links_and_separate_references(monkeypatch):
+    affiliate_urls = {
+        "bottle-in-a-box": "https://bottleinabox.co.uk/corporate-gifts?aff=4",
+        "vintage-wine-gifts": "https://www.awin1.com/cread.php?awinmid=806",
+        "winebuyers-uk": "https://www.awin1.com/cread.php?awinmid=121644",
+    }
+    for supplier_id in affiliate_urls:
+        supplier = main.SUPPLIER_LINK_CONFIG[supplier_id]
+        monkeypatch.setitem(main.SUPPLIER_LINK_CONFIG, supplier_id, replace(supplier, affiliate_url=None))
+    assert 'id="supplier-gift-shortcuts"' not in client.get("/supplier-directory").text
+
+    for supplier_id, url in affiliate_urls.items():
+        supplier = main.SUPPLIER_LINK_CONFIG[supplier_id]
+        monkeypatch.setitem(main.SUPPLIER_LINK_CONFIG, supplier_id, replace(supplier, affiliate_url=url))
+    html = client.get("/supplier-directory").text
+    start = html.index('id="supplier-gift-shortcuts"')
+    assert start < html.index('class="supplier-directory-disclosure"')
+    shortcuts = html[start:html.index("</section>", start)]
+    assert shortcuts.count('rel="noopener noreferrer sponsored"') == 3
+    assert shortcuts.count("Affiliate link") == 3
+    assert "https://bottleinabox.co.uk/corporate-gifts?aff=4" in shortcuts
+    assert "awinmid=806&amp;clickref=cc_directory_milestone_wine_gifts" in shortcuts
+    assert "awinmid=121644&amp;clickref=cc_directory_mixed_gift_ideas" in shortcuts
+    for placement, _, label in main.SUPPLIER_DIRECTORY_SHORTCUTS:
+        assert f'data-supplier-placement="{placement}"' in shortcuts
+        assert f"<strong>{label}</strong>" in shortcuts
 
 
 def test_supplier_directory_page_is_editorial_and_affiliate_ready():

@@ -10,6 +10,9 @@
       <div class="hero-actions">
         <a class="button primary" href="/gift-planner">Use the free gift planner</a>
         <a class="button secondary" href="/uk-wine-gift-supplier-comparison#bulk-order-example">Compare bulk and multi-address suppliers</a>
+        {% if gift_shortcuts %}
+        <a class="text-link" href="#supplier-gift-shortcuts">Browse gifts by type</a>
+        {% endif %}
         <a class="text-link" href="#supplier-options">Browse suppliers by budget or gift type</a>
       </div>
     </div>
@@ -18,6 +21,21 @@
 </section>
 
 <section class="section supplier-directory-page" data-supplier-directory>
+  {% if gift_shortcuts %}
+  <section class="supplier-directory-section" id="supplier-gift-shortcuts" aria-labelledby="supplier-gift-shortcuts-heading">
+    <h2 id="supplier-gift-shortcuts-heading">Browse gifts by type</h2>
+    <div class="card-grid three">
+      {% for shortcut in gift_shortcuts %}
+      <a class="guide-intent-card" href="{{ shortcut.url }}" target="_blank" rel="noopener noreferrer sponsored"
+         data-supplier-click data-supplier-name="{{ shortcut.name }}" data-supplier-placement="{{ shortcut.placement }}">
+        <strong>{{ shortcut.label }}</strong>
+        <span>{{ shortcut.name }} · Affiliate link</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
   <aside class="supplier-directory-disclosure">
     <div>
       <p class="eyebrow">How this directory works</p>
