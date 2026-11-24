@@ -342,6 +342,19 @@ def supplier_affiliate_url(supplier_id: str) -> str | None:
     return link.affiliate_url if link else None
 
 
+def bottle_in_a_box_christmas_affiliate_url(affiliate_url: str | None) -> str | None:
+    """Reuse the configured SliceWP referral on the merchant's Christmas range."""
+    if not affiliate_url:
+        return None
+    parts = urlsplit(affiliate_url)
+    if parts.scheme != "https" or parts.netloc not in {"bottleinabox.co.uk", "www.bottleinabox.co.uk"}:
+        return None
+    referrals = [value for key, value in parse_qsl(parts.query, keep_blank_values=True) if key == "aff"]
+    if len(referrals) != 1 or not referrals[0]:
+        return None
+    return urlunsplit(("https", "bottleinabox.co.uk", "/christmas-hampers", urlencode({"aff": referrals[0]}), ""))
+
+
 def has_live_affiliate_links() -> bool:
     return any(link.is_affiliate for link in SUPPLIER_LINK_CONFIG.values())
 

@@ -887,32 +887,38 @@ def test_client_christmas_landing_matches_broad_seasonal_query():
     assert 'href="/client-christmas-gifts-uk"' in supporting_guide.text
 
 
-def test_christmas_gift_hero_uses_the_approved_affiliate_link_and_placement(monkeypatch):
+def test_christmas_gift_hero_tracks_bulk_and_online_affiliate_links_separately(monkeypatch):
     path = "/client-christmas-gifts-uk"
-    affiliate_url = "https://bottleinabox.co.uk/corporate-gifts?aff=4"
-    placement = "christmas_gifts_hero"
+    placements = {
+        "christmas_gifts_hero": "https://bottleinabox.co.uk/corporate-gifts?aff=4",
+        "christmas_gifts_online": "https://bottleinabox.co.uk/christmas-hampers?aff=4",
+    }
 
     monkeypatch.setattr(main, "configured_supplier_affiliate_url", lambda supplier: None)
-    assert f'data-supplier-placement="{placement}"' not in client.get(path).text
+    page_without_affiliate = client.get(path).text
     monkeypatch.setattr(main, "configured_supplier_affiliate_url",
-                        lambda supplier: affiliate_url if supplier == "bottle-in-a-box" else None)
+                        lambda supplier: placements["christmas_gifts_hero"] if supplier == "bottle-in-a-box" else None)
     page = client.get(path).text
-    assert page.index("Create a Christmas gift plan") < page.index(f'data-supplier-placement="{placement}"')
-    assert f'href="{affiliate_url}" target="_blank" rel="noopener noreferrer sponsored"' in page
-    assert "Browse Bottle In A Box gift boxes · Affiliate link" in page
-    assert f'data-supplier-placement="{placement}"' not in client.get("/corporate-wine-gifts").text
-
+    other_page = client.get("/corporate-wine-gifts").text
+    assert "Bottle In A Box bulk orders · Ad" in page
+    assert "Shop Bottle In A Box Christmas hampers · Ad" in page
     saved = []
     monkeypatch.setattr(main, "store_analytics_event", saved.append)
-    response = client.post("/api/analytics", json={
-        "event_name": "gift_supplier_clicked",
-        "page_path": path,
-        "supplier_name": "Bottle In A Box",
-        "supplier_url": affiliate_url,
-        "metadata": {"supplier_placement": placement},
-    })
-    assert response.status_code == 204
-    assert saved[0]["metadata"] == {"supplier_placement": placement}
+    for placement, affiliate_url in placements.items():
+        placement_attr = f'data-supplier-placement="{placement}"'
+        assert placement_attr not in page_without_affiliate
+        assert placement_attr not in other_page
+        assert page.index("Create a Christmas gift plan") < page.index(placement_attr)
+        assert f'href="{affiliate_url}" target="_blank" rel="noopener noreferrer sponsored"' in page
+        response = client.post("/api/analytics", json={
+            "event_name": "gift_supplier_clicked",
+            "page_path": path,
+            "supplier_name": "Bottle In A Box",
+            "supplier_url": affiliate_url,
+            "metadata": {"supplier_placement": placement},
+        })
+        assert response.status_code == 204
+        assert saved[-1]["metadata"] == {"supplier_placement": placement}
 
 
 def test_christmas_shortlist_offer_is_scoped_to_christmas_page(monkeypatch):
@@ -1040,6 +1046,7 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
         if supplier_placements:
             assert supplier_placements == (
                 "christmas_gifts_hero",
+                "christmas_gifts_online",
                 "champagne_guide_recommendation",
                 "directory_corporate_gift_boxes",
                 "directory_milestone_wine_gifts",
@@ -1050,6 +1057,8 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
                 {"metadata": {"supplier_placement": placement}}
                 for placement in (
                     "christmas_gifts_hero",
+                    "christmas_gifts_online",
+                    "christmas_gifts_online",
                     "champagne_guide_recommendation",
                     "directory_mixed_gift_ideas",
                     "directory_mixed_gift_ideas",
@@ -1072,6 +1081,7 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
     assert response.status_code == 200
     for period in ("last_7_days", "last_30_days"):
         assert response.json()[period]["christmas_gifts_hero_supplier_clicks"] == 1
+        assert response.json()[period]["christmas_gifts_online_supplier_clicks"] == 2
         assert response.json()[period]["champagne_guide_supplier_clicks"] == 1
         assert response.json()[period]["supplier_directory_shortcut_clicks"] == {
             "directory_corporate_gift_boxes": 0,

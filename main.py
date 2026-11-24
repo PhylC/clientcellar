@@ -25,6 +25,7 @@ from pydantic_core import PydanticCustomError
 
 from data.supplier_links import (
     SUPPLIER_LINK_CONFIG,
+    bottle_in_a_box_christmas_affiliate_url,
     get_supplier_link,
     has_live_affiliate_links,
     supplier_affiliate_url as configured_supplier_affiliate_url,
@@ -78,6 +79,7 @@ CANONICAL_ORIGIN = "https://clientcellar.co.uk"
 CANONICAL_HOST = "clientcellar.co.uk"
 WWW_HOST = "www.clientcellar.co.uk"
 CHRISTMAS_GIFTS_HERO_PLACEMENT = "christmas_gifts_hero"
+CHRISTMAS_GIFTS_ONLINE_PLACEMENT = "christmas_gifts_online"
 CHAMPAGNE_GUIDE_SUPPLIER_PLACEMENT = "champagne_guide_recommendation"
 SUPPLIER_DIRECTORY_SHORTCUTS = (
     ("directory_corporate_gift_boxes", "bottle-in-a-box", "Corporate gift boxes"),
@@ -11557,6 +11559,8 @@ def render_seo_landing(request: Request, slug: str):
         page["description"],
         page=page,
         slug=slug,
+        christmas_online_supplier_url=bottle_in_a_box_christmas_affiliate_url(christmas_supplier_url),
+        christmas_online_supplier_placement=CHRISTMAS_GIFTS_ONLINE_PLACEMENT,
         christmas_hero_supplier_url=christmas_supplier_url,
         christmas_hero_supplier_placement=CHRISTMAS_GIFTS_HERO_PLACEMENT,
         christmas_shortlist_url=CHRISTMAS_SHORTLIST_CHECKOUT_URL if slug == "client-christmas-gifts-uk" else "",
@@ -11886,7 +11890,8 @@ def analytics_summary_for_days(days: int) -> dict:
     shortlist_rows = fetch_analytics_events(days, event_names=SHORTLIST_ANALYTICS_EVENTS)
     directory_placements = tuple(placement for placement, _, _ in SUPPLIER_DIRECTORY_SHORTCUTS)
     placement_clicks = dict.fromkeys(
-        (CHRISTMAS_GIFTS_HERO_PLACEMENT, CHAMPAGNE_GUIDE_SUPPLIER_PLACEMENT, *directory_placements), 0,
+        (CHRISTMAS_GIFTS_HERO_PLACEMENT, CHRISTMAS_GIFTS_ONLINE_PLACEMENT,
+         CHAMPAGNE_GUIDE_SUPPLIER_PLACEMENT, *directory_placements), 0,
     )
     supplier_rows = fetch_analytics_events(
         days,
@@ -11906,6 +11911,7 @@ def analytics_summary_for_days(days: int) -> dict:
         "analytics_configured": supabase_settings()["service_configured"],
         "event_count": len(rows),
         "christmas_gifts_hero_supplier_clicks": placement_clicks[CHRISTMAS_GIFTS_HERO_PLACEMENT],
+        "christmas_gifts_online_supplier_clicks": placement_clicks[CHRISTMAS_GIFTS_ONLINE_PLACEMENT],
         "champagne_guide_supplier_clicks": placement_clicks[CHAMPAGNE_GUIDE_SUPPLIER_PLACEMENT],
         "supplier_directory_shortcut_clicks": {placement: placement_clicks[placement] for placement in directory_placements},
         **{
