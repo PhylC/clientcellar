@@ -862,8 +862,11 @@ def test_client_christmas_landing_matches_broad_seasonal_query():
 def test_christmas_shortlist_offer_is_scoped_to_christmas_page(monkeypatch):
     link = "https://buy.stripe.com/shortlist-fixture"
     monkeypatch.setattr(main, "CHRISTMAS_SHORTLIST_CHECKOUT_URL", link)
+    home_cta = 'href="/client-christmas-gifts-uk#christmas-shortlist-example">See the sample · £99'
+    assert home_cta in client.get("/").text
     christmas = client.get("/client-christmas-gifts-uk")
     assert christmas.status_code == 200
+    assert 'id="christmas-shortlist-example"' in christmas.text
     assert f'href="{link}">Book a shortlist for £99' in christmas.text
     assert "Limited to three bookings." in christmas.text
     assert "one UK working day" in christmas.text
@@ -875,6 +878,8 @@ def test_christmas_shortlist_offer_is_scoped_to_christmas_page(monkeypatch):
     assert 'href="/client-christmas-gifts-uk#christmas-gifting-shortlist">See the sample and book · £99' in guide.text
     assert 'id="gift-christmas-shortlist-cta"' in client.get("/gift-planner").text
     assert link not in client.get("/corporate-wine-gifts").text
+    monkeypatch.setattr(main, "CHRISTMAS_SHORTLIST_CHECKOUT_URL", "")
+    assert home_cta not in client.get("/").text
 
 
 def test_christmas_shortlist_webhook_notifies_operator_and_buyer(monkeypatch):

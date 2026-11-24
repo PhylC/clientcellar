@@ -640,6 +640,23 @@ main {
   font-weight: 800;
 }
 
+.home-shortlist-callout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
+  margin-top: 1rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--burgundy-soft);
+}
+
+.home-shortlist-callout p {
+  margin: 0;
+}
+
 .home-hero-visual,
 .premium-example-visual {
   margin: 0;
@@ -1316,7 +1333,8 @@ textarea {
 }
 
 #gift-results,
-#gift-supplier-routes {
+#gift-supplier-routes,
+#christmas-shortlist-example {
   scroll-margin-top: 6rem;
 }
 

@@ -10695,6 +10695,7 @@ def index(request: Request):
         "Plan better corporate wine gifts, client hampers and event drinks with ClientCellar’s free planning tools, UK supplier directory and practical wine gifting guides.",
         page_title="UK Corporate Wine Gifts & Event Planning | ClientCellar",
         structured_data=[website_schema(request), web_app_schema(request)],
+        christmas_shortlist_available=bool(CHRISTMAS_SHORTLIST_CHECKOUT_URL),
     )
 
 
