@@ -4016,7 +4016,14 @@ def render_email_html(text_body: str) -> str:
     """
 
 
-def send_email(recipient_email: str, subject: str, text_body: str, html_body: str | None = None) -> dict:
+def send_email(
+    recipient_email: str,
+    subject: str,
+    text_body: str,
+    html_body: str | None = None,
+    *,
+    idempotency_key: str | None = None,
+) -> dict:
     """Send transactional email with Resend. Requires verified sending domain in Resend dashboard."""
     from_email = os.getenv("EMAIL_FROM", "ClientCellar <hello@clientcellar.co.uk>")
     resend_api_key = os.getenv("RESEND_API_KEY")
@@ -4038,21 +4045,72 @@ def send_email(recipient_email: str, subject: str, text_body: str, html_body: st
             subject,
             from_email,
         )
-        response = resend.Emails.send(
-            {
-                "from": from_email,
-                "to": [recipient_email],
-                "subject": subject,
-                "html": html_body or render_email_html(text_body),
-                "text": text_body,
-            }
-        )
+        params = {
+            "from": from_email,
+            "to": [recipient_email],
+            "subject": subject,
+            "html": html_body or render_email_html(text_body),
+            "text": text_body,
+        }
+        response = resend.Emails.send(params, {"idempotency_key": idempotency_key}) if idempotency_key else resend.Emails.send(params)
         response_id = response.get("id") if isinstance(response, dict) else getattr(response, "id", None)
         logger.info("REQUEST_ACCESS_EMAIL_SENT resend_id=%s recipient=%s subject=%s", response_id, recipient_email, subject)
         return {"sent": True, "provider": "resend", "id": response_id}
     except Exception as exc:
         logger.exception("REQUEST_ACCESS_EMAIL_FAILED error=%s recipient=%s subject=%s", repr(exc), recipient_email, subject)
         return {"sent": False, "provider": "resend", "error": str(exc)}
+
+
+CHRISTMAS_SHORTLIST_CHECKOUT_URL = "https://buy.stripe.com/6oU14n97f0wd8d58Q4dEs00"
+CHRISTMAS_SHORTLIST_PAYMENT_LINK = "plink_1UfQBYG5Y4RuGSVT6q6RxIDi"
+
+
+def send_christmas_shortlist_booking(session):
+    customer = stripe_obj_get(session, "customer_details", {}) or {}
+    customer_email = stripe_obj_get(customer, "email")
+    session_id = stripe_obj_get(session, "id")
+    if (
+        not customer_email or not session_id
+        or stripe_obj_get(session, "amount_total") != 9900
+        or stripe_obj_get(session, "currency") != "gbp"
+    ):
+        raise HTTPException(status_code=422, detail="Christmas shortlist booking details could not be verified.")
+
+    brief = []
+    for field in stripe_obj_get(session, "custom_fields", []) or []:
+        label = stripe_obj_get(stripe_obj_get(field, "label", {}), "custom")
+        field_type = stripe_obj_get(field, "type")
+        if field_type not in {"text", "numeric"}:
+            continue
+        value = stripe_obj_get(stripe_obj_get(field, field_type, {}), "value")
+        if label and value:
+            brief.append(f"{label}: {value}")
+
+    contact = "hello@clientcellar.co.uk"
+    brief_text = "\n".join(brief) or "No brief details were included in the Stripe event. Check the payment in Stripe."
+    owner_email = send_email(
+        contact,
+        "New £99 Christmas gifting shortlist booking",
+        f"A ClientCellar Christmas gifting shortlist slot has been paid.\n\n"
+        f"Buyer: {customer_email}\nStripe checkout: {session_id}\n\n{brief_text}\n\n"
+        "Send two supplier options and one recommendation within one UK working day of receiving the complete brief.",
+        idempotency_key=f"christmas-shortlist-owner/{session_id}",
+    )
+    if not owner_email.get("sent"):
+        raise HTTPException(status_code=503, detail="Christmas shortlist booking notification could not be sent.")
+
+    buyer_email = send_email(
+        customer_email,
+        "Your ClientCellar Christmas gifting shortlist is booked",
+        "Thanks for booking your £99 Christmas gifting shortlist.\n\n"
+        "We’ll email you two supplier options and a recommendation within one UK working day of receiving your complete brief.\n\n"
+        f"To share delivery regions, alcohol-free or dietary needs, or gift preferences, email {contact} from the address you used to book. "
+        "A region or postcode area is enough. Please keep full addresses and recipient names for the supplier you choose.\n\n"
+        "You’ll buy any gifts directly from the supplier once it confirms stock, pricing and delivery.",
+        idempotency_key=f"christmas-shortlist-buyer/{session_id}",
+    )
+    if not buyer_email.get("sent"):
+        raise HTTPException(status_code=503, detail="Christmas shortlist booking confirmation could not be sent.")
 
 
 def build_premium_pack_email(request: Request, customer_email: str | None, pack_token: str) -> dict | None:
@@ -11428,6 +11486,7 @@ def render_seo_landing(request: Request, slug: str):
         page["description"],
         page=page,
         slug=slug,
+        christmas_shortlist_url=CHRISTMAS_SHORTLIST_CHECKOUT_URL if slug == "client-christmas-gifts-uk" else "",
         guides=GUIDES,
         structured_data=[
             breadcrumb_schema(request, [("Home", "/"), ("Guides", "/guides"), (page["h1"], f"/{slug}")]),
@@ -12013,6 +12072,14 @@ async def handle_stripe_webhook(request: Request):
 
     event_type = stripe_obj_get(event, "type")
     data_obj = stripe_obj_get(stripe_obj_get(event, "data", {}), "object", {})
+    if (
+        event_type in {"checkout.session.completed", "checkout.session.async_payment_succeeded"}
+        and CHRISTMAS_SHORTLIST_PAYMENT_LINK
+        and stripe_obj_get(data_obj, "payment_link") == CHRISTMAS_SHORTLIST_PAYMENT_LINK
+    ):
+        if stripe_obj_get(data_obj, "payment_status") == "paid":
+            send_christmas_shortlist_booking(data_obj)
+        return {"received": True}
     metadata = stripe_obj_get(data_obj, "metadata", {}) or {}
     pack_token = stripe_obj_get(metadata, "pack_token")
     print("Stripe webhook event:", event_type)

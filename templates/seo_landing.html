@@ -10,7 +10,10 @@
         <p>{{ page.intro }}</p>
         <p class="small-note">ClientCellar provides planning guidance and does not sell alcohol directly. Recommendations are editorially selected; some supplier links may earn commission where available. <a href="/editorial-policy">Read our editorial policy</a>.</p>
         <div class="hero-actions">
-          <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
+          {% if christmas_shortlist_url %}
+          <a class="button primary" href="#christmas-gifting-shortlist">Christmas gifting shortlist · £99</a>
+          {% endif %}
+          <a class="button {{ 'secondary' if christmas_shortlist_url else 'primary' }}" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
           {% if page.hero_jump %}
           <a class="button secondary" href="{{ page.hero_jump[1] }}">{{ page.hero_jump[0] }}</a>
           {% endif %}
@@ -27,6 +30,20 @@
       {% endif %}
     </div>
   </section>
+
+{% if christmas_shortlist_url %}
+<section class="planning-section" id="christmas-gifting-shortlist" aria-labelledby="christmas-shortlist-title">
+  <article class="card">
+    <h2 id="christmas-shortlist-title">Christmas gifting shortlist</h2>
+    <p><strong>£99 one-off, paid upfront. Limited to three bookings.</strong></p>
+    <p>Get two supplier options for one UK business gifting brief, matched to your budget, delivery addresses and deadline. We’ll recommend one and flag what to confirm before ordering.</p>
+    <p>Enter your gift budget, address count and deadline at checkout. We’ll email the shortlist within one UK working day of receiving your complete brief.</p>
+    <p class="small-note">The £99 covers the shortlist. You order and pay for gifts directly with your chosen supplier. Stock and delivery dates are subject to supplier confirmation.</p>
+    <a class="button primary" href="{{ christmas_shortlist_url }}">Book a shortlist for £99</a>
+    <p class="small-note"><a href="/terms">Terms</a> · <a href="/privacy-policy">Privacy</a> · <a href="mailto:hello@clientcellar.co.uk">Questions about booking</a></p>
+  </article>
+</section>
+{% endif %}
 
 <section class="seo-editorial planning-section">
   <p class="eyebrow">{{ page.editorial_label or "What this page is really for" }}</p>

@@ -1,9 +1,12 @@
 import json
+import hashlib
+import hmac
 import importlib.util
 import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 from html.parser import HTMLParser
 
@@ -854,6 +857,67 @@ def test_client_christmas_landing_matches_broad_seasonal_query():
     supporting_guide = client.get("/guides/christmas-corporate-wine-gifts")
     assert supporting_guide.status_code == 200
     assert 'href="/client-christmas-gifts-uk"' in supporting_guide.text
+
+
+def test_christmas_shortlist_offer_is_scoped_to_christmas_page(monkeypatch):
+    link = "https://buy.stripe.com/shortlist-fixture"
+    monkeypatch.setattr(main, "CHRISTMAS_SHORTLIST_CHECKOUT_URL", link)
+    christmas = client.get("/client-christmas-gifts-uk")
+    assert christmas.status_code == 200
+    assert f'href="{link}">Book a shortlist for £99' in christmas.text
+    assert "Limited to three bookings." in christmas.text
+    assert "one UK working day" in christmas.text
+    assert link not in client.get("/corporate-wine-gifts").text
+
+
+def test_christmas_shortlist_webhook_notifies_operator_and_buyer(monkeypatch):
+    secret = "whsec_christmas_shortlist_fixture"
+    link = "plink_christmas_shortlist_fixture"
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", secret)
+    monkeypatch.setattr(main, "CHRISTMAS_SHORTLIST_PAYMENT_LINK", link)
+    sent = []
+
+    def send_email(recipient, subject, text, *, idempotency_key):
+        sent.append((recipient, subject, text, idempotency_key))
+        return {"sent": True}
+
+    monkeypatch.setattr(main, "send_email", send_email)
+
+    def post_payment(status, amount=9900):
+        body = json.dumps({
+            "id": "evt_christmas_shortlist_fixture",
+            "object": "event",
+            "type": "checkout.session.completed",
+            "data": {"object": {
+                "id": "cs_test_christmas_shortlist",
+                "object": "checkout.session",
+                "payment_link": link,
+                "payment_status": status,
+                "amount_total": amount,
+                "currency": "gbp",
+                "customer_details": {"email": "buyer@example.com"},
+                "custom_fields": [
+                    {"label": {"custom": "Total gift budget incl. delivery (£)"}, "type": "text", "text": {"value": "£500"}},
+                    {"label": {"custom": "Number of UK delivery addresses"}, "type": "text", "text": {"value": "12"}},
+                    {"label": {"custom": "Delivery deadline (DD/MM/YYYY)"}, "type": "text", "text": {"value": "15/12/2026"}},
+                ],
+            }},
+        })
+        timestamp = int(time.time())
+        signature = hmac.new(secret.encode(), f"{timestamp}.{body}".encode(), hashlib.sha256).hexdigest()
+        return client.post("/stripe/webhook", content=body, headers={"Stripe-Signature": f"t={timestamp},v1={signature}"})
+
+    assert post_payment("unpaid").status_code == 200
+    assert post_payment("paid", 2999).status_code == 422
+    assert not sent
+    assert post_payment("paid").status_code == 200
+    assert [recipient for recipient, *_ in sent] == ["hello@clientcellar.co.uk", "buyer@example.com"]
+    assert all(value in sent[0][2] for value in ["£500", "12", "15/12/2026"])
+    assert "one UK working day" in sent[1][2]
+    assert [entry[3] for entry in sent] == [
+        "christmas-shortlist-owner/cs_test_christmas_shortlist",
+        "christmas-shortlist-buyer/cs_test_christmas_shortlist",
+    ]
 
 
 def test_duplicate_seo_urls_redirect_permanently():
