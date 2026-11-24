@@ -1958,6 +1958,17 @@ class PremiumPackPreviewRequest(BaseModel):
     planner_output: dict
 
 
+SHORTLIST_ANALYTICS_SOURCES = ("homepage", "pricing")
+SHORTLIST_ANALYTICS_EVENTS = tuple(
+    f"shortlist_{source}_{step}"
+    for source in SHORTLIST_ANALYTICS_SOURCES
+    for step in ("button_click", "checkout_click", "booking_paid")
+)
+SHORTLIST_BOOKING_EVENTS = {
+    f"cc_christmas_shortlist_{source}": f"shortlist_{source}_booking_paid"
+    for source in SHORTLIST_ANALYTICS_SOURCES
+}
+
 ANALYTICS_EVENT_ALLOWLIST = {
     "page_view",
     "nav_click",
@@ -1970,9 +1981,7 @@ ANALYTICS_EVENT_ALLOWLIST = {
     "gift_supplier_clicked",
     "gift_upgrade_clicked",
     "gift_checkout_started",
-    "shortlist_homepage_button_click",
-    "shortlist_homepage_checkout_click",
-    "shortlist_homepage_booking_paid",
+    *SHORTLIST_ANALYTICS_EVENTS,
     "gift_premium_viewed",
     "event_planner_started",
     "event_free_report_generated",
@@ -4075,7 +4084,6 @@ def send_email(
 
 CHRISTMAS_SHORTLIST_CHECKOUT_URL = "https://buy.stripe.com/6oU14n97f0wd8d58Q4dEs00"
 CHRISTMAS_SHORTLIST_PAYMENT_LINK = "plink_1UfQBYG5Y4RuGSVT6q6RxIDi"
-SHORTLIST_HOMEPAGE_REFERENCE = "cc_christmas_shortlist_homepage"
 
 
 def send_christmas_shortlist_booking(session):
@@ -4089,12 +4097,11 @@ def send_christmas_shortlist_booking(session):
     ):
         raise HTTPException(status_code=422, detail="Christmas shortlist booking details could not be verified.")
 
-    if (
-        stripe_obj_get(session, "livemode") is True
-        and stripe_obj_get(session, "client_reference_id") == SHORTLIST_HOMEPAGE_REFERENCE
-    ):
+    reference = stripe_obj_get(session, "client_reference_id")
+    booking_event = SHORTLIST_BOOKING_EVENTS.get(reference) if isinstance(reference, str) else None
+    if booking_event and stripe_obj_get(session, "livemode") is True:
         track_server_event(
-            "shortlist_homepage_booking_paid",
+            booking_event,
             page_path="/client-christmas-gifts-uk",
             report_type="gift",
             checkout_session_id=session_id,
@@ -10759,6 +10766,7 @@ def pricing(request: Request):
         "Pricing",
         "Compare the free ClientCellar planner with the £29.99 Premium Brief Pack.",
         structured_data=[premium_pack_product_schema(request)],
+        christmas_shortlist_available=bool(CHRISTMAS_SHORTLIST_CHECKOUT_URL),
     )
 
 
@@ -11800,27 +11808,34 @@ def analytics_group_count(rows: list[dict], key: str, event_names: set[str] | No
     ]
 
 
-def analytics_summary_for_days(days: int) -> dict:
-    rows = fetch_analytics_events(days)
-    shortlist_events = (
-        "shortlist_homepage_button_click",
-        "shortlist_homepage_checkout_click",
-        "shortlist_homepage_booking_paid",
-    )
-    shortlist_rows = fetch_analytics_events(days, event_names=shortlist_events)
-    shortlist_button, shortlist_checkout, shortlist_booking = shortlist_events
+def shortlist_analytics_summary(rows: list[dict], source: str) -> dict:
+    button = f"shortlist_{source}_button_click"
+    checkout = f"shortlist_{source}_checkout_click"
+    booking = f"shortlist_{source}_booking_paid"
     button_sessions = {
-        row["session_id"] for row in shortlist_rows
-        if row.get("event_name") == shortlist_button and row.get("session_id")
+        row["session_id"] for row in rows
+        if row.get("event_name") == button and row.get("session_id")
     }
     checkout_sessions = {
-        row["session_id"] for row in shortlist_rows
-        if row.get("event_name") == shortlist_checkout and row.get("session_id")
+        row["session_id"] for row in rows
+        if row.get("event_name") == checkout and row.get("session_id")
     }
     paid_bookings = {
-        row["checkout_session_id"] for row in shortlist_rows
-        if row.get("event_name") == shortlist_booking and row.get("checkout_session_id")
+        row["checkout_session_id"] for row in rows
+        if row.get("event_name") == booking and row.get("checkout_session_id")
     }
+    return {
+        "button_clicks": analytics_count(rows, {button}),
+        "button_sessions": len(button_sessions),
+        "checkout_clicks": analytics_count(rows, {checkout}),
+        "checkout_click_sessions": len(checkout_sessions),
+        "paid_bookings": len(paid_bookings),
+    }
+
+
+def analytics_summary_for_days(days: int) -> dict:
+    rows = fetch_analytics_events(days)
+    shortlist_rows = fetch_analytics_events(days, event_names=SHORTLIST_ANALYTICS_EVENTS)
     free_reports = analytics_count(rows, {"gift_free_report_generated", "event_free_report_generated"})
     upgrade_clicks = analytics_count(rows, {"gift_upgrade_clicked", "event_upgrade_clicked", "example_upgrade_clicked"})
     checkout_starts = analytics_count(rows, {"gift_checkout_started", "event_checkout_started"})
@@ -11829,12 +11844,9 @@ def analytics_summary_for_days(days: int) -> dict:
         "days": days,
         "analytics_configured": supabase_settings()["service_configured"],
         "event_count": len(rows),
-        "christmas_shortlist_homepage": {
-            "button_clicks": analytics_count(shortlist_rows, {shortlist_button}),
-            "button_sessions": len(button_sessions),
-            "checkout_clicks": analytics_count(shortlist_rows, {shortlist_checkout}),
-            "checkout_click_sessions": len(checkout_sessions),
-            "paid_bookings": len(paid_bookings),
+        **{
+            f"christmas_shortlist_{source}": shortlist_analytics_summary(shortlist_rows, source)
+            for source in SHORTLIST_ANALYTICS_SOURCES
         },
         "visits_by_page": analytics_group_count(rows, "page_path", {"page_view"}),
         "planner_starts": {
@@ -11895,7 +11907,7 @@ def analytics_summary_for_days(days: int) -> dict:
 
 @app.post("/api/analytics")
 def analytics_event(req: AnalyticsEventRequest, request: Request):
-    if req.event_name not in ANALYTICS_EVENT_ALLOWLIST or req.event_name == "shortlist_homepage_booking_paid":
+    if req.event_name not in ANALYTICS_EVENT_ALLOWLIST or req.event_name in SHORTLIST_BOOKING_EVENTS.values():
         return Response(status_code=204)
     payload = build_analytics_payload(
         req.event_name,

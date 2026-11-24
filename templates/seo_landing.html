@@ -10,10 +10,7 @@
         <p>{{ page.intro }}</p>
         <p class="small-note">ClientCellar provides planning guidance and does not sell alcohol directly. Recommendations are editorially selected; some supplier links may earn commission where available. <a href="/editorial-policy">Read our editorial policy</a>.</p>
         <div class="hero-actions">
-          {% if christmas_shortlist_url %}
-          <a class="button primary" href="#christmas-gifting-shortlist">Christmas gifting shortlist · £99</a>
-          {% endif %}
-          <a class="button {{ 'secondary' if christmas_shortlist_url else 'primary' }}" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
+          <a class="button primary" href="{{ page.primary_cta[1] }}">{{ page.primary_cta[0] }}</a>
           {% if page.hero_jump %}
           <a class="button secondary" href="{{ page.hero_jump[1] }}">{{ page.hero_jump[0] }}</a>
           {% endif %}
@@ -21,6 +18,9 @@
           <a class="button secondary" href="{{ page.full_guide[1] }}">{{ page.full_guide[0] }}</a>
           {% endif %}
           <a class="button secondary" href="{{ page.example_url or '/example-premium-brief-pack' }}">View premium example</a>
+          {% if christmas_shortlist_url %}
+          <a class="text-link" href="#christmas-gifting-shortlist">Christmas gifting shortlist · £99</a>
+          {% endif %}
         </div>
       </div>
       {% if page.image %}
@@ -30,46 +30,6 @@
       {% endif %}
     </div>
   </section>
-
-{% if christmas_shortlist_url %}
-<section class="planning-section" id="christmas-gifting-shortlist" aria-labelledby="christmas-shortlist-title">
-  <article class="card">
-    <h2 id="christmas-shortlist-title">Christmas gifting shortlist</h2>
-    <p><strong>£99 one-off, paid upfront. Limited to three bookings.</strong></p>
-    <p>Get two supplier options for one UK business gifting brief, matched to your budget, delivery addresses and deadline. We’ll recommend one and flag what to confirm before ordering.</p>
-    <p>Enter your gift budget, address count and deadline at checkout. We’ll email the shortlist within one UK working day of receiving your complete brief.</p>
-    <section class="result-block" id="christmas-shortlist-example" aria-labelledby="christmas-shortlist-example-title">
-      <h3 id="christmas-shortlist-example-title">Sample shortlist</h3>
-      <p><strong>Fictional brief.</strong> Send 18 alcohol-free food hampers to 13 offices and five homes, including one in the Scottish Highlands. All gifts must arrive by 18 December, and three offices close their reception desks at noon that day. The budget is £850 for gifts and delivery, including VAT and separate from the shortlist fee.</p>
-      <div class="card-grid two">
-        <div class="mini-card">
-          <h4>Supplier A · £819 delivered</h4>
-          <p>18 hampers at £40, 17 deliveries at £5 and £14 for the Highland address. That leaves £31 for any delivery upgrades.</p>
-          <p>Estimated arrival is 16–18 December for 17 addresses and 17–21 December for the Highland home. Standard tracking is included. The quoted windows could miss both the office closures and the Highland deadline.</p>
-        </div>
-        <div class="mini-card">
-          <h4>Supplier B · £875 delivered</h4>
-          <p>18 hampers at £42, 17 deliveries at £6 and £17 for the Highland address. That puts the quote £25 over budget.</p>
-          <p>The quote prices delivery on 17 December with tracking and proof of delivery for each parcel. That gives the offices a day of margin if the supplier confirms the date for all postcodes, including the Highland address.</p>
-        </div>
-      </div>
-      <h4>What we’d check before recommending a supplier</h4>
-      <ul>
-        <li>Check the service against all 18 postcodes. Get the arrival dates and the cutoff for sending the final address list in writing. Check whether a timed slot or earlier dispatch is available where needed.</li>
-        <li>Get an itemised, VAT-inclusive total covering the Highland surcharge and any delivery upgrades. Confirm stock for 18 alcohol-free hampers and ask to approve any substitutions.</li>
-        <li>Check how tracking is shared and who handles a late or failed delivery, including whether a replacement could arrive before the recipient closes for Christmas.</li>
-      </ul>
-      <h4>Our recommendation on this brief</h4>
-      <p>Approach Supplier A first. Ask for delivery by 17 December for the three early-closing offices and by 18 December for the Highland home. Recommend A if it can confirm dates that work for all 18 addresses and keep the revised total within £850.</p>
-      <p>If A can’t meet those terms, recommend Supplier B only once it confirms 17 December for all 18 postcodes and the buyer approves the extra £25. If neither option meets both limits, request an earlier dispatch or reprice a lower-cost hamper on the dated service before ordering.</p>
-      <p class="small-note">Both suppliers and their quotes are fictional. Illustrative totals include VAT.</p>
-    </section>
-    <p class="small-note">The £99 covers the shortlist. You order and pay for gifts directly with your chosen supplier. Stock and delivery dates are subject to supplier confirmation.</p>
-    <a class="button primary" href="{{ christmas_shortlist_url }}" data-shortlist-checkout-click>Book a shortlist for £99</a>
-    <p class="small-note"><a href="/terms">Terms</a> · <a href="/privacy-policy">Privacy</a> · <a href="mailto:hello@clientcellar.co.uk">Questions about booking</a></p>
-  </article>
-</section>
-{% endif %}
 
 <section class="seo-editorial planning-section">
   <p class="eyebrow">{{ page.editorial_label or "What this page is really for" }}</p>
@@ -163,6 +123,46 @@
     </article>
     {% endfor %}
   </div>
+</section>
+{% endif %}
+
+{% if christmas_shortlist_url %}
+<section class="planning-section" id="christmas-gifting-shortlist" aria-labelledby="christmas-shortlist-title">
+  <article class="card">
+    <h2 id="christmas-shortlist-title">Christmas gifting shortlist</h2>
+    <p><strong>£99 one-off, paid upfront. Limited to three bookings.</strong></p>
+    <p>Get two supplier options for one UK business gifting brief, matched to your budget, delivery addresses and deadline. We’ll recommend one and flag what to confirm before ordering.</p>
+    <p>Enter your gift budget, address count and deadline at checkout. We’ll email the shortlist within one UK working day of receiving your complete brief.</p>
+    <section class="result-block" id="christmas-shortlist-example" aria-labelledby="christmas-shortlist-example-title">
+      <h3 id="christmas-shortlist-example-title">Sample shortlist</h3>
+      <p><strong>Fictional brief.</strong> Send 18 alcohol-free food hampers to 13 offices and five homes, including one in the Scottish Highlands. All gifts must arrive by 18 December, and three offices close their reception desks at noon that day. The budget is £850 for gifts and delivery, including VAT and separate from the shortlist fee.</p>
+      <div class="card-grid two">
+        <div class="mini-card">
+          <h4>Supplier A · £819 delivered</h4>
+          <p>18 hampers at £40, 17 deliveries at £5 and £14 for the Highland address. That leaves £31 for any delivery upgrades.</p>
+          <p>Estimated arrival is 16–18 December for 17 addresses and 17–21 December for the Highland home. Standard tracking is included. The quoted windows could miss both the office closures and the Highland deadline.</p>
+        </div>
+        <div class="mini-card">
+          <h4>Supplier B · £875 delivered</h4>
+          <p>18 hampers at £42, 17 deliveries at £6 and £17 for the Highland address. That puts the quote £25 over budget.</p>
+          <p>The quote prices delivery on 17 December with tracking and proof of delivery for each parcel. That gives the offices a day of margin if the supplier confirms the date for all postcodes, including the Highland address.</p>
+        </div>
+      </div>
+      <h4>What we’d check before recommending a supplier</h4>
+      <ul>
+        <li>Check the service against all 18 postcodes. Get the arrival dates and the cutoff for sending the final address list in writing. Check whether a timed slot or earlier dispatch is available where needed.</li>
+        <li>Get an itemised, VAT-inclusive total covering the Highland surcharge and any delivery upgrades. Confirm stock for 18 alcohol-free hampers and ask to approve any substitutions.</li>
+        <li>Check how tracking is shared and who handles a late or failed delivery, including whether a replacement could arrive before the recipient closes for Christmas.</li>
+      </ul>
+      <h4>Our recommendation on this brief</h4>
+      <p>Approach Supplier A first. Ask for delivery by 17 December for the three early-closing offices and by 18 December for the Highland home. Recommend A if it can confirm dates that work for all 18 addresses and keep the revised total within £850.</p>
+      <p>If A can’t meet those terms, recommend Supplier B only once it confirms 17 December for all 18 postcodes and the buyer approves the extra £25. If neither option meets both limits, request an earlier dispatch or reprice a lower-cost hamper on the dated service before ordering.</p>
+      <p class="small-note">Both suppliers and their quotes are fictional. Illustrative totals include VAT.</p>
+    </section>
+    <p class="small-note">The £99 covers the shortlist. You order and pay for gifts directly with your chosen supplier. Stock and delivery dates are subject to supplier confirmation.</p>
+    <a class="button primary" href="{{ christmas_shortlist_url }}" data-shortlist-checkout-click>Book a shortlist for £99</a>
+    <p class="small-note"><a href="/terms">Terms</a> · <a href="/privacy-policy">Privacy</a> · <a href="mailto:hello@clientcellar.co.uk">Questions about booking</a></p>
+  </article>
 </section>
 {% endif %}
 

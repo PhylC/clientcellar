@@ -36,7 +36,7 @@ const premiumAccountMessage = "Premium Brief Pack features require a completed o
 const ANALYTICS_SESSION_KEY = "clientcellar_analytics_session";
 const ANALYTICS_CONSENT_KEY = "clientcellar_analytics_consent";
 const PENDING_GIFT_PLANNER_CLICK = "clientcellar_pending_gift_planner_click";
-const SHORTLIST_HOMEPAGE_REFERENCE = "cc_christmas_shortlist_homepage";
+const SHORTLIST_SOURCES = new Set(["homepage", "pricing"]);
 const LOCAL_WINE_MERCHANT_SEARCH_URL = "https://www.google.com/search?q=independent+wine+merchant+near+me";
 const analyticsState = {
   plannerStarted: new Set(),
@@ -1395,7 +1395,6 @@ function renderPlan(plan, type, input) {
           <a class="button secondary small" href="#gift-supplier-routes">See suppliers to ask</a>
         </div>
       ` : ""}
-      ${christmasShortlistOffer}
       <p class="small-note">This is planning guidance, not a confirmed quote. Check stock, pricing, delivery, age restrictions and suitability directly with your chosen supplier.</p>
       <div class="result-block">
         <h2>${type === "event" ? "Event summary" : "Summary"}</h2>
@@ -1415,6 +1414,7 @@ function renderPlan(plan, type, input) {
         ${type !== "gift" && !plan.supplier_route_cards?.length ? list(routeList) : ""}
         <p class="small-note">${escapeHtml(plan.supplier_links_note || "Supplier links are not required to use this plan. You can use the supplier route guidance to contact retailers or merchants directly.")}</p>
       </div>
+      ${christmasShortlistOffer}
       <div class="result-block">
         <h2>Questions to ask ${type === "event" ? "event wine suppliers" : "suppliers"}</h2>
         ${list(questions)}
@@ -1826,11 +1826,12 @@ function bindAnalyticsTracking() {
     const href = link.getAttribute("href") || "";
     const text = link.textContent.trim().replace(/\s+/g, " ").slice(0, 120);
     const metadata = { link_text: text, link_url: href };
-    if (link.hasAttribute("data-shortlist-homepage-click")) {
+    const shortlistSource = link.dataset.shortlistSource;
+    if (SHORTLIST_SOURCES.has(shortlistSource)) {
       const destination = new URL(link.href);
       if (analyticsConsentChoice() === "accepted") {
-        destination.searchParams.set("shortlist_source", "homepage");
-        trackEvent("shortlist_homepage_button_click", { report_type: "gift" });
+        destination.searchParams.set("shortlist_source", shortlistSource);
+        trackEvent(`shortlist_${shortlistSource}_button_click`, { report_type: "gift" });
       } else {
         destination.searchParams.delete("shortlist_source");
       }
@@ -1840,9 +1841,9 @@ function bindAnalyticsTracking() {
     if (link.hasAttribute("data-shortlist-checkout-click")) {
       const destination = new URL(link.href);
       const source = new URLSearchParams(window.location.search).get("shortlist_source");
-      if (source === "homepage" && analyticsConsentChoice() === "accepted") {
-        destination.searchParams.set("client_reference_id", SHORTLIST_HOMEPAGE_REFERENCE);
-        trackEvent("shortlist_homepage_checkout_click", { report_type: "gift" });
+      if (SHORTLIST_SOURCES.has(source) && analyticsConsentChoice() === "accepted") {
+        destination.searchParams.set("client_reference_id", `cc_christmas_shortlist_${source}`);
+        trackEvent(`shortlist_${source}_checkout_click`, { report_type: "gift" });
       } else {
         destination.searchParams.delete("client_reference_id");
       }

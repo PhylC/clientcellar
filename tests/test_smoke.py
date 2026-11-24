@@ -862,11 +862,16 @@ def test_client_christmas_landing_matches_broad_seasonal_query():
 def test_christmas_shortlist_offer_is_scoped_to_christmas_page(monkeypatch):
     link = "https://buy.stripe.com/shortlist-fixture"
     monkeypatch.setattr(main, "CHRISTMAS_SHORTLIST_CHECKOUT_URL", link)
-    home_cta = 'href="/client-christmas-gifts-uk#christmas-shortlist-example" data-shortlist-homepage-click>See the sample · £99'
+    cta = 'href="/client-christmas-gifts-uk#christmas-shortlist-example" data-shortlist-source="{}">See the sample · £99'
+    home_cta = cta.format("homepage")
+    pricing_cta = cta.format("pricing")
     assert home_cta in client.get("/").text
+    pricing = client.get("/pricing").text
+    assert pricing.index("Start free plan") < pricing.index(pricing_cta)
     christmas = client.get("/client-christmas-gifts-uk")
     assert christmas.status_code == 200
     assert 'id="christmas-shortlist-example"' in christmas.text
+    assert christmas.text.index('class="seo-suppliers planning-section"') < christmas.text.index('id="christmas-gifting-shortlist"')
     assert f'href="{link}" data-shortlist-checkout-click>Book a shortlist for £99' in christmas.text
     assert "Limited to three bookings." in christmas.text
     assert "one UK working day" in christmas.text
@@ -880,6 +885,7 @@ def test_christmas_shortlist_offer_is_scoped_to_christmas_page(monkeypatch):
     assert link not in client.get("/corporate-wine-gifts").text
     monkeypatch.setattr(main, "CHRISTMAS_SHORTLIST_CHECKOUT_URL", "")
     assert home_cta not in client.get("/").text
+    assert pricing_cta not in client.get("/pricing").text
 
 
 def test_christmas_shortlist_webhook_notifies_operator_and_buyer(monkeypatch):
@@ -897,13 +903,14 @@ def test_christmas_shortlist_webhook_notifies_operator_and_buyer(monkeypatch):
     monkeypatch.setattr(main, "send_email", send_email)
     monkeypatch.setattr(main, "store_analytics_event", tracked.append)
 
-    def post_payment(status, amount=9900, reference=main.SHORTLIST_HOMEPAGE_REFERENCE, livemode=True):
+    def post_payment(status, amount=9900, reference="cc_christmas_shortlist_homepage",
+                     livemode=True, session_id="cs_test_christmas_shortlist"):
         body = json.dumps({
             "id": "evt_christmas_shortlist_fixture",
             "object": "event",
             "type": "checkout.session.completed",
             "data": {"object": {
-                "id": "cs_test_christmas_shortlist",
+                "id": session_id,
                 "object": "checkout.session",
                 "payment_link": link,
                 "payment_status": status,
@@ -941,13 +948,21 @@ def test_christmas_shortlist_webhook_notifies_operator_and_buyer(monkeypatch):
     assert tracked[0]["metadata"] == {}
     assert "buyer@example.com" not in json.dumps(tracked[0])
     assert post_payment("paid", reference=None).status_code == 200
+    assert post_payment("paid", reference="unknown").status_code == 200
     assert post_payment("paid", livemode=False).status_code == 200
     assert len(tracked) == 1
     assert post_payment("paid").status_code == 200
     assert tracked[0]["id"] == tracked[1]["id"]
 
+    for _ in range(2):
+        assert post_payment("paid", reference="cc_christmas_shortlist_pricing",
+                            session_id="cs_test_pricing_shortlist").status_code == 200
+    assert [event["event_name"] for event in tracked[2:]] == ["shortlist_pricing_booking_paid"] * 2
+    assert tracked[2]["id"] == tracked[3]["id"]
+    assert tracked[2]["id"] != tracked[0]["id"]
 
-def test_homepage_shortlist_analytics_counts_sessions_and_verified_bookings(monkeypatch):
+
+def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(monkeypatch):
     button = "shortlist_homepage_button_click"
     checkout = "shortlist_homepage_checkout_click"
     paid = "shortlist_homepage_booking_paid"
@@ -959,11 +974,14 @@ def test_homepage_shortlist_analytics_counts_sessions_and_verified_bookings(monk
         {"event_name": checkout, "session_id": "visitor-a"},
         {"event_name": paid, "checkout_session_id": "verified-checkout"},
         {"event_name": paid, "checkout_session_id": "verified-checkout"},
+        {"event_name": "shortlist_pricing_button_click", "session_id": "visitor-a"},
+        {"event_name": "shortlist_pricing_checkout_click", "session_id": "visitor-a"},
+        {"event_name": "shortlist_pricing_booking_paid", "checkout_session_id": "pricing-checkout"},
     ]
 
     def fetch_analytics_events(days, *, event_names=()):
         assert days in (7, 30)
-        assert not event_names or set(event_names) == {button, checkout, paid}
+        assert not event_names or set(event_names) == {row["event_name"] for row in shortlist_rows}
         return shortlist_rows if event_names else []
 
     def reject_client_payment(payload):
@@ -974,6 +992,7 @@ def test_homepage_shortlist_analytics_counts_sessions_and_verified_bookings(monk
     monkeypatch.setenv("ADMIN_PASSWORD", "test-summary-password")
 
     assert client.post("/api/analytics", json={"event_name": paid}).status_code == 204
+    assert client.post("/api/analytics", json={"event_name": "shortlist_pricing_booking_paid"}).status_code == 204
     assert client.get("/api/admin/analytics-summary").status_code == 403
     response = client.get("/api/admin/analytics-summary?password=test-summary-password")
     assert response.status_code == 200
@@ -982,6 +1001,13 @@ def test_homepage_shortlist_analytics_counts_sessions_and_verified_bookings(monk
             "button_clicks": 3,
             "button_sessions": 2,
             "checkout_clicks": 2,
+            "checkout_click_sessions": 1,
+            "paid_bookings": 1,
+        }
+        assert response.json()[period]["christmas_shortlist_pricing"] == {
+            "button_clicks": 1,
+            "button_sessions": 1,
+            "checkout_clicks": 1,
             "checkout_click_sessions": 1,
             "paid_bookings": 1,
         }
