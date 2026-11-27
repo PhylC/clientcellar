@@ -274,7 +274,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/suppliers": "2026-11-21",
     "/thank-you-gifts-for-clients": "2026-11-21",
     "/guides/best-wine-accessories-for-gifts": "2026-11-27",
-    "/guides/best-client-wine-gifts": "2026-11-21",
+    "/guides/best-client-wine-gifts": "2026-11-27",
     "/guides/best-wine-gifts-under-100": "2026-11-27",
     "/guides/best-wine-gifts-under-25": "2026-11-21",
     "/guides/best-wine-gifts-under-50": "2026-11-21",
@@ -10561,8 +10561,8 @@ if under_100_guide:
     ]
 
 if "best-client-wine-gifts" in GUIDES:
-    GUIDES["best-client-wine-gifts"]["title"] = "Best Client Wine Gifts: Reliable Merchant Routes & Safer Ideas"
-    GUIDES["best-client-wine-gifts"]["description"] = "Choose wine gifts for clients by occasion and budget. Compare UK suppliers for bulk orders, multiple addresses and alcohol-free gifts."
+    GUIDES["best-client-wine-gifts"]["title"] = "Best Client Wine Gifts: UK Merchants & Bulk Orders"
+    GUIDES["best-client-wine-gifts"]["description"] = "Find a UK wine merchant for a client gift or a bulk order. Compare suppliers for minimum quantities, multiple delivery addresses and alcohol-free options."
 
 if "champagne-gifts-for-clients" in GUIDES:
     champagne_guide = GUIDES["champagne-gifts-for-clients"]
@@ -10638,7 +10638,7 @@ if "best-client-wine-gifts" in GUIDES:
         ("Count gifts and deliveries", "Confirm how many gifts you need, how many addresses are involved and which recipients need an alcohol-free option."),
         ("Set a delivered budget", "Allow for VAT, packaging and delivery per address. Ask about minimum quantities and any bulk pricing."),
         ("Check addresses and lead times", "Flag offices with limited opening hours or hard-to-reach addresses. Ask when the supplier needs the final list and when each delivery can arrive."),
-        ("Confirm the supplier’s terms", "Check stock, substitutions, VAT invoicing, gift notes and how the supplier handles missed or damaged deliveries."),
+        ("Confirm the supplier’s terms", "Ask each merchant for the same written quote: item price, VAT, gift notes, delivery by address and the cost of replacing a missed or damaged parcel. Confirm substitutions before you order."),
     ]
     best_client_guide["h1"] = "Best Client Wine Gifts by Relationship, Budget and Occasion"
     best_client_guide["intro"] = "For a client who enjoys wine, choose a polished bottle, a pair or a hamper the team can share. For a bulk order, compare the UK suppliers below by how they handle quantities, multiple addresses and alcohol-free alternatives."
