@@ -1981,11 +1981,12 @@ class PremiumPackPreviewRequest(BaseModel):
     planner_output: dict
 
 
-SHORTLIST_ANALYTICS_SOURCES = ("homepage", "pricing")
-SHORTLIST_ANALYTICS_EVENTS = tuple(
+SHORTLIST_ENTRY_SOURCES = ("homepage", "pricing")
+SHORTLIST_ANALYTICS_SOURCES = (*SHORTLIST_ENTRY_SOURCES, "facebook", "linkedin")
+SHORTLIST_ANALYTICS_EVENTS = tuple(f"shortlist_{source}_button_click" for source in SHORTLIST_ENTRY_SOURCES) + tuple(
     f"shortlist_{source}_{step}"
     for source in SHORTLIST_ANALYTICS_SOURCES
-    for step in ("button_click", "checkout_click", "booking_paid")
+    for step in ("checkout_click", "booking_paid")
 )
 SHORTLIST_BOOKING_EVENTS = {
     f"cc_christmas_shortlist_{source}": f"shortlist_{source}_booking_paid"

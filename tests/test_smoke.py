@@ -1043,6 +1043,15 @@ def test_christmas_shortlist_webhook_notifies_operator_and_buyer(monkeypatch):
     assert tracked[2]["id"] == tracked[3]["id"]
     assert tracked[2]["id"] != tracked[0]["id"]
 
+    for source in ("facebook", "linkedin"):
+        args = {"reference": f"cc_christmas_shortlist_{source}", "session_id": f"cs_live_{source}_fixture"}
+        assert post_payment("paid", livemode=False, **args).status_code == 200
+        previous_count = len(tracked)
+        assert post_payment("paid", **args).status_code == 200
+        assert post_payment("paid", **args).status_code == 200
+        assert [event["event_name"] for event in tracked[previous_count:]] == [f"shortlist_{source}_booking_paid"] * 2
+        assert tracked[-1]["id"] == tracked[-2]["id"]
+
 
 def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(monkeypatch):
     button = "shortlist_homepage_button_click"
@@ -1059,6 +1068,10 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
         {"event_name": "shortlist_pricing_button_click", "session_id": "visitor-a"},
         {"event_name": "shortlist_pricing_checkout_click", "session_id": "visitor-a"},
         {"event_name": "shortlist_pricing_booking_paid", "checkout_session_id": "pricing-checkout"},
+        {"event_name": "shortlist_facebook_checkout_click", "session_id": "visitor-fb"},
+        {"event_name": "shortlist_facebook_booking_paid", "checkout_session_id": "facebook-checkout"},
+        {"event_name": "shortlist_linkedin_checkout_click", "session_id": "visitor-li"},
+        {"event_name": "shortlist_linkedin_booking_paid", "checkout_session_id": "linkedin-checkout"},
     ]
 
     def fetch_analytics_events(days, *, event_names=(), supplier_placements=()):
@@ -1096,6 +1109,8 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
 
     assert client.post("/api/analytics", json={"event_name": paid}).status_code == 204
     assert client.post("/api/analytics", json={"event_name": "shortlist_pricing_booking_paid"}).status_code == 204
+    assert client.post("/api/analytics", json={"event_name": "shortlist_facebook_booking_paid"}).status_code == 204
+    assert client.post("/api/analytics", json={"event_name": "shortlist_linkedin_booking_paid"}).status_code == 204
     assert client.get("/api/admin/analytics-summary").status_code == 403
     response = client.get("/api/admin/analytics-summary?password=test-summary-password")
     assert response.status_code == 200
@@ -1122,6 +1137,14 @@ def test_shortlist_analytics_counts_sessions_and_verified_bookings_by_placement(
             "checkout_click_sessions": 1,
             "paid_bookings": 1,
         }
+        for source in ("facebook", "linkedin"):
+            assert response.json()[period][f"christmas_shortlist_{source}"] == {
+                "button_clicks": 0,
+                "button_sessions": 0,
+                "checkout_clicks": 1,
+                "checkout_click_sessions": 1,
+                "paid_bookings": 1,
+            }
 
 
 def test_gift_planner_analytics_stores_only_fixed_recommendation_labels(monkeypatch):

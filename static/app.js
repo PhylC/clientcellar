@@ -37,6 +37,7 @@ const ANALYTICS_SESSION_KEY = "clientcellar_analytics_session";
 const ANALYTICS_CONSENT_KEY = "clientcellar_analytics_consent";
 const PENDING_GIFT_PLANNER_CLICK = "clientcellar_pending_gift_planner_click";
 const SHORTLIST_SOURCES = new Set(["homepage", "pricing"]);
+const SHORTLIST_SOCIAL_SOURCES = new Set(["facebook", "linkedin"]);
 const LOCAL_WINE_MERCHANT_SEARCH_URL = "https://www.google.com/search?q=independent+wine+merchant+near+me";
 const GIFT_BUDGET_MODULE_URL = "/static/gift-order-budget.mjs?v=20261124";
 const GIFT_PLANNER_ANALYTICS_ROUTES = new Set([
@@ -1985,8 +1986,14 @@ function bindAnalyticsTracking() {
     }
     if (link.hasAttribute("data-shortlist-checkout-click")) {
       const destination = new URL(link.href);
-      const source = new URLSearchParams(window.location.search).get("shortlist_source");
-      if (SHORTLIST_SOURCES.has(source) && analyticsConsentChoice() === "accepted") {
+      const params = new URLSearchParams(window.location.search);
+      const socialSource = params.get("utm_source");
+      const isShortlistSocialCampaign = params.get("utm_campaign") === "christmas_shortlist_2026"
+        && params.get("utm_medium") === "organic_social"
+        && SHORTLIST_SOCIAL_SOURCES.has(socialSource);
+      const placement = params.get("shortlist_source");
+      const source = isShortlistSocialCampaign ? socialSource : placement;
+      if ((isShortlistSocialCampaign || SHORTLIST_SOURCES.has(placement)) && analyticsConsentChoice() === "accepted") {
         destination.searchParams.set("client_reference_id", `cc_christmas_shortlist_${source}`);
         trackEvent(`shortlist_${source}_checkout_click`, { report_type: "gift" });
       } else {
