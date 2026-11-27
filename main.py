@@ -262,7 +262,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/guides/non-alcoholic-client-gifts": "2026-11-21",
     "/guides/corporate-gifting-recipient-csv-template": "2026-11-21",
     "/event-wine-planning-uk": "2026-11-21",
-    "/client-christmas-gifts-uk": "2026-11-21",
+    "/client-christmas-gifts-uk": "2026-11-27",
     "/corporate-christmas-wine-gifts": "2026-11-21",
     "/corporate-gifting-ideas-uk": "2026-11-21",
     "/event-planner": "2026-11-21",
@@ -278,7 +278,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/guides/best-wine-gifts-under-100": "2026-11-21",
     "/guides/best-wine-gifts-under-25": "2026-11-21",
     "/guides/best-wine-gifts-under-50": "2026-11-21",
-    "/guides/christmas-corporate-wine-gifts": "2026-11-21",
+    "/guides/christmas-corporate-wine-gifts": "2026-11-27",
     "/guides/corporate-wine-gifts-uk": "2026-11-21",
     "/guides/wine-gift-hampers-uk": "2026-11-21",
     "/corporate-hampers-uk": "2026-11-21",
@@ -9917,7 +9917,7 @@ SEO_PAGES.update(
                 {"q": "What should I send to a whole client team?", "a": "A mixed case, shareable food-and-drink hamper or team-friendly alcohol-free gift usually works better than one bottle addressed to one person."},
             ],
             "primary_cta": ("Create a Christmas gift plan", "/gift-planner"),
-            "full_guide": ("Read the full Christmas guide", "/guides/christmas-corporate-wine-gifts"),
+            "full_guide": ("Christmas wine gifts and delivery deadlines", "/guides/christmas-corporate-wine-gifts"),
             "related_guides": [("Christmas corporate wine gifts", "/guides/christmas-corporate-wine-gifts", "A warmer full guide to avoiding forgettable December gifts."), ("Client wine gifts", "/guides/client-wine-gifts", "Relationship-led advice for client gifting tone and timing.")],
             "related": [("Corporate wine gifts UK", "/corporate-wine-gifts-uk"), ("Gift planner", "/gift-planner"), ("Supplier directory", "/supplier-directory")],
             "example_url": "/example-premium-brief-pack",
@@ -10682,8 +10682,8 @@ if "christmas-corporate-wine-gifts" in GUIDES:
     christmas_guide = GUIDES["christmas-corporate-wine-gifts"]
     christmas_guide["commercial_hero"] = True
     christmas_guide["hero_eyebrow"] = "UK corporate Christmas gifting"
-    christmas_guide["title"] = "Corporate Christmas Wine Gifts for Clients: UK Planning Guide"
-    christmas_guide["description"] = "Plan corporate Christmas wine gifts for clients with Champagne, hamper and alcohol-free routes, plus supplier cut-offs, delivery checks and message guidance."
+    christmas_guide["title"] = "Corporate Christmas Wine Gifts: UK Suppliers & Delivery"
+    christmas_guide["description"] = "Compare UK Christmas wine gifts for clients. See what to ask suppliers about order cut-offs, bulk delivery, branded boxes and one-off gifts."
     christmas_guide["h1"] = "Corporate Christmas Wine Gifts for Clients"
     christmas_guide["intro"] = "Plan client Christmas wine, Champagne and hamper gifts without defaulting to a generic basket. Start with the recipient list, budget, delivery risk and message, then choose a supplier route that can fulfil the order cleanly before December cut-offs tighten."
     christmas_guide["hero_summary"] = [
