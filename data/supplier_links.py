@@ -159,7 +159,7 @@ SUPPLIER_LINK_CONFIG: dict[str, SupplierLink] = {
         id="king-country",
         name="King & Country",
         canonical_base_url="https://king-country.com/collections/gin",
-        affiliate_url=affiliate_url_from_env("king-country"),
+        affiliate_url=None,  # Awin programme closed on 2026-11-27.
         fallback_url="https://king-country.com/",
         category_tags=("gin", "spirits", "british-gifts", "premium-gifts"),
     ),

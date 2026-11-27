@@ -509,9 +509,8 @@ SUPPLIER_DIRECTORY_ENTRIES = [
         "King & Country is an independent, family-created British gin brand with Northumberland roots, award recognition and distinctive presentation that suits considered premium gifting.",
         "The trade page covers wholesale and hospitality rather than a full corporate gifting fulfilment programme. Confirm gift packaging, VAT invoices, quantities, delivery dates and multi-address support before recommending it for a business order.",
         "View King & Country gin gifts",
-        ["Affiliate link", "British gin", "Premium gifts", "Independent brand"],
+        ["British gin", "Premium gifts", "Independent brand"],
         contact_url="https://king-country.com/pages/trade-enquiries",
-        affiliate_clickref="cc_supplier_directory",
     ),
     directory_supplier(
         "wine-society",

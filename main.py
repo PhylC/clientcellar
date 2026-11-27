@@ -9012,14 +9012,13 @@ EVENT_SUPPLIER_ROUTES = [
 ]
 
 
-def king_country_guide_route(clickref: str) -> dict:
+def king_country_guide_route() -> dict:
     return seo_supplier(
         "King & Country",
         "king-country",
         "Premium British gin gifts for clients, thank-yous and celebratory moments.",
         "A distinctive spirits alternative when gin suits the recipient; confirm gift packaging, business-order support and delivery directly.",
         "View King & Country gin gifts",
-        clickref,
     )
 
 
@@ -10203,18 +10202,18 @@ SEO_PAGES.update(
 # Keep this premium spirits route on broad gifting pages only. Wine-only,
 # Champagne-specific and staff guides should continue to recommend products
 # that match their narrower reader intent.
-KING_COUNTRY_GUIDE_PLACEMENTS = {
-    "corporate-gifting-ideas-uk": "cc_guide_corporate_gifting_ideas",
-    "thank-you-gifts-for-clients": "cc_guide_thank_you_client_gifts",
-    "premium-client-gifts-uk": "cc_guide_premium_client_gifts",
-}
-for seo_slug, clickref in KING_COUNTRY_GUIDE_PLACEMENTS.items():
+KING_COUNTRY_GUIDE_SLUGS = (
+    "corporate-gifting-ideas-uk",
+    "thank-you-gifts-for-clients",
+    "premium-client-gifts-uk",
+)
+for seo_slug in KING_COUNTRY_GUIDE_SLUGS:
     seo_page = SEO_PAGES.get(seo_slug)
     if not seo_page:
         continue
     supplier_routes = seo_page.setdefault("supplier_routes", [])
     if not any(route.get("name") == "King & Country" for route in supplier_routes):
-        supplier_routes.insert(1, king_country_guide_route(clickref))
+        supplier_routes.insert(1, king_country_guide_route())
 
 
 # Give the approved Winebuyers marketplace a prominent but contextually honest

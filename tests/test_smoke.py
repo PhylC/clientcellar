@@ -240,13 +240,18 @@ def test_vintage_wine_gifts_affiliate_clickref_identifies_placement():
     assert result.stdout.strip().splitlines() == [expected_url, expected_url]
 
 
-def test_king_country_affiliate_is_live_in_supplier_directory():
+def test_king_country_uses_editorial_links_even_with_a_stale_affiliate_setting():
     code = (
         "from data.suppliers import supplier_directory_entries;"
+        "from main import supplier_by_tracking_slug, supplier_destination_url, king_country_guide_route;"
         "item=next(item for item in supplier_directory_entries() if item['id']=='king-country');"
         "print(item['primaryUrl']);"
         "print(item['isAffiliate']);"
-        "print(item['category'])"
+        "print('Affiliate link' in item['tags']);"
+        "print(supplier_destination_url(supplier_by_tracking_slug('king-country')));"
+        "route=king_country_guide_route();"
+        "print(route['url']);"
+        "print(route['is_affiliate'])"
     )
     affiliate_url = (
         "https://www.awin1.com/cread.php?awinmid=129701&awinaffid=199523&"
@@ -265,10 +270,9 @@ def test_king_country_affiliate_is_live_in_supplier_directory():
         text=True,
     )
 
+    direct_url = "https://king-country.com/collections/gin"
     assert result.stdout.strip().splitlines() == [
-        f"{affiliate_url}&clickref=cc_supplier_directory",
-        "True",
-        "Gin / spirits brand",
+        direct_url, "False", "False", direct_url, direct_url, "False",
     ]
 
 

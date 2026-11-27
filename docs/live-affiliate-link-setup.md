@@ -32,7 +32,6 @@ Do not commit live affiliate URLs to the repo unless a programme explicitly requ
 - `CLIENTCELLAR_AFFILIATE_URL_WINEBUYERS_UK`
 - `CLIENTCELLAR_AFFILIATE_URL_BOTTLE_IN_A_BOX`
 - `CLIENTCELLAR_AFFILIATE_URL_BOTTLE_IN_A_BOX_WINE_GIFTS`
-- `CLIENTCELLAR_AFFILIATE_URL_KING_COUNTRY`
 - `CLIENTCELLAR_AFFILIATE_URL_FORTNUM_MASON`
 - `CLIENTCELLAR_AFFILIATE_URL_MARKS_SPENCER_CORPORATE`
 - `CLIENTCELLAR_AFFILIATE_URL_WAITROSE_CELLAR`
@@ -53,7 +52,7 @@ Do not add Majestic env vars unless a future reapplication is approved. Majestic
 Use approved links first where they match existing search and buyer intent:
 
 - First approved Awin target: Vintage Wine Gifts. Use `CLIENTCELLAR_AFFILIATE_URL_VINTAGE_WINE_GIFTS` with the approved Awin deeplink.
-- King & Country: approved on Awin on 2026-11-18. Use `CLIENTCELLAR_AFFILIATE_URL_KING_COUNTRY` with the approved Awin deeplink to the gin collection.
+- King & Country: Awin programme closed on 2026-11-27. The gin collection is linked directly as an editorial recommendation.
 - Winebuyers UK: approved on Awin on 2026-11-19. Use `CLIENTCELLAR_AFFILIATE_URL_WINEBUYERS_UK` with the approved Awin deeplink to the UK gifts marketplace.
 - Bottle In A Box: approved through its direct programme on 2026-11-19. Use the corporate and wine-gifts variables with the exact programme-generated `?aff=4` URLs; do not add Awin clickrefs.
 - Champagne/client gifting pages: Laithwaites, Virgin Wines, Waitrose Cellar, Fortnum & Mason and Vintage Wine Gifts where relevant.
