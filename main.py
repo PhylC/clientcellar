@@ -273,7 +273,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/uk-wine-gift-supplier-comparison": "2026-11-21",
     "/suppliers": "2026-11-21",
     "/thank-you-gifts-for-clients": "2026-11-21",
-    "/guides/best-wine-accessories-for-gifts": "2026-11-21",
+    "/guides/best-wine-accessories-for-gifts": "2026-11-27",
     "/guides/best-client-wine-gifts": "2026-11-21",
     "/guides/best-wine-gifts-under-100": "2026-11-21",
     "/guides/best-wine-gifts-under-25": "2026-11-21",
@@ -7897,6 +7897,28 @@ GUIDES.update(
                 {"q": "What are the best wine gadgets to give as gifts?", "a": "Match the gadget to the recipient: a corkscrew for someone who opens bottles regularly, a sparkling-wine stopper for a Champagne drinker, or a tasting notebook for someone learning about wine."},
                 {"q": "Are wine accessories good client gifts?", "a": "They can be if they fit the recipient’s interests and gift policy. Choose something practical and allow for delivery costs."},
                 {"q": "Can I use a still-wine stopper for sparkling wine?", "a": "Choose a stopper designed for sparkling wine. Check how it locks onto the bottle and which bottle shapes it fits."},
+            ],
+            merchant_links=[
+                {
+                    "name": "Wineware corkscrews",
+                    "url": "https://wineware.co.uk/collections/corkscrews",
+                    "note": "Compare compact waiter’s corkscrews with larger lever openers. Check the handle and how much room the opener takes up in a drawer.",
+                },
+                {
+                    "name": "Wineware bottle stoppers",
+                    "url": "https://wineware.co.uk/collections/wine-bottle-stoppers",
+                    "note": "Browse vacuum stoppers for still wine and locking stoppers for sparkling wine. Check the bottle type on the product page.",
+                },
+                {
+                    "name": "Papier Vino tasting journal",
+                    "url": "https://www.papier.com/vino-63716",
+                    "note": "A notebook with prompts for recording tasting notes. Check the dispatch estimate if you add personalisation.",
+                },
+                {
+                    "name": "LSA International wine glasses",
+                    "url": "https://www.lsa-international.com/products/wine-white-wine-glass-x-2",
+                    "note": "A boxed pair of white wine glasses. Check the dimensions and care instructions before ordering.",
+                },
             ],
             related=["non-alcoholic-client-gifts", "wine-tasting-corporate-event", "business-gift-wine-etiquette"],
             cta="Plan a non-wine gift route",

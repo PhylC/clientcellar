@@ -848,6 +848,13 @@ def test_wine_accessories_guide_targets_existing_gadgets_query():
     assert "including openers, glassware, stoppers and tasting notebooks by budget" in response.text
     assert "Last updated: November 2026" in response.text
 
+    assert 'href="https://wineware.co.uk/collections/corkscrews"' in response.text
+    assert 'href="https://wineware.co.uk/collections/wine-bottle-stoppers"' in response.text
+    assert 'href="https://www.papier.com/vino-63716"' in response.text
+    assert 'href="https://www.lsa-international.com/products/wine-white-wine-glass-x-2"' in response.text
+    supplier_section = response.text.split('<section id="supplier-links">', 1)[1].split("</section>", 1)[0]
+    assert "Majestic Wine" not in supplier_section
+
     supporting_guide = client.get("/guides/best-wine-gifts-under-100")
     assert supporting_guide.status_code == 200
     assert 'href="/guides/best-wine-accessories-for-gifts"' in supporting_guide.text
