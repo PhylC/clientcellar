@@ -275,7 +275,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/thank-you-gifts-for-clients": "2026-11-21",
     "/guides/best-wine-accessories-for-gifts": "2026-11-27",
     "/guides/best-client-wine-gifts": "2026-11-21",
-    "/guides/best-wine-gifts-under-100": "2026-11-21",
+    "/guides/best-wine-gifts-under-100": "2026-11-27",
     "/guides/best-wine-gifts-under-25": "2026-11-21",
     "/guides/best-wine-gifts-under-50": "2026-11-21",
     "/guides/christmas-corporate-wine-gifts": "2026-11-27",
@@ -6817,7 +6817,7 @@ GUIDES.update(
         "best-wine-gifts-under-100": enhanced_guide(
             title="Best Wine Gifts Under £100 UK | Bottles, Cases & Hampers",
             h1="Best Wine Gifts Under £100 in the UK",
-            description="Compare UK wine gifts under £100 by budget: premium bottles, English sparkling, Champagne, mixed cases and wine hampers.",
+            description="Compare the best UK wine gifts under £100, from English sparkling to Champagne and hampers. See what to budget for the gift, packaging and delivery.",
             intro="For £40–£60, start with one good bottle or a two-bottle gift. For £60–£80, compare English sparkling and small mixed cases. With £80–£100, consider Champagne for a milestone or a wine-and-food hamper for a team to share.",
             hero_bullets=[
                 "Best for: thank-yous, milestones and Christmas gifts",
@@ -6826,7 +6826,7 @@ GUIDES.update(
             ],
             opening_heading="UK wine gift shortlist by budget",
             opening=[
-                "Use these as planning budgets. If £100 is your delivered limit, check the price with delivery and any gift packaging before picking a bottle or hamper.",
+                "Use these as planning budgets. If delivery is £8 and a gift box adds £5, a £100 cap leaves £87 for the wine or hamper. Compare the total at checkout before choosing between a boxed bottle, mixed case and hamper.",
                 "For a client, check that wine is welcome and that the gift fits their company policy. Choose a bottle when you know their taste, or a mixed case when you want to give a wine drinker more choice.",
             ],
             best_fit_table={
