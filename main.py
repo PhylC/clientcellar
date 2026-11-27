@@ -256,7 +256,7 @@ SITEMAP_LASTMOD_BY_PATH = {
     "/guides/corporate-gift-ideas-for-clients": "2026-11-21",
     "/supplier-partnerships": "2026-11-21",
     "/guides/client-gift-policy-checklist": "2026-11-21",
-    "/staff-wine-gifts": "2026-11-21",
+    "/staff-wine-gifts": "2026-11-27",
     "/guides": "2026-11-21",
     "/": "2026-11-21",
     "/guides/non-alcoholic-client-gifts": "2026-11-21",
@@ -9731,7 +9731,7 @@ SEO_PAGES.update(
             "cta_text": "Use the planner to match the route to the relationship, occasion and budget.",
         },
         "staff-wine-gifts": {
-            "title": "Staff Wine Gifts | ClientCellar",
+            "title": "Staff Wine Gifts UK: Employee Gifts & Delivery | ClientCellar",
             "h1": "Staff wine gifts and employee recognition",
             "worked_example": {
                 "heading": "Plan equal-value gifts for office and remote staff",
@@ -9741,8 +9741,8 @@ SEO_PAGES.update(
                     "Use a private form to collect each person’s choice and only the delivery details the supplier needs. Give staff the same deadline and describe every option in the same invitation.",
                 ],
             },
-            "description": "Plan staff wine gifts and employee recognition with practical guidance on suitability, alternatives, budgets and delivery.",
-            "intro": "Staff wine gifts need more care than client gifts because fairness, alcohol suitability and delivery experience all affect how the gift lands.",
+            "description": "Compare wine, alcohol-free and hamper gifts for UK staff. See a £35-per-person worked budget and how to plan delivery for office and remote teams.",
+            "intro": "For UK staff gifts, offer wine, an alcohol-free drink or a food hamper at the same gift value. Work out what office and home delivery will cost before choosing what to send.",
             "editorial_heading": "Recognition should not create a problem",
             "editorial_intro": [
                 "A wine gift can work for a small team where preferences are known. For larger or mixed teams, a hamper, choice-led gift or alcohol-free alternative may be more considerate.",
